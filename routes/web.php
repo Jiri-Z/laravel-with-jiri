@@ -2,7 +2,13 @@
 
 use Illuminate\Support\Facades\Route;
 
+use App\Livewire\CourseList;
+
 Route::view('/', 'welcome');
+
+Route::get('/courses', CourseList::class)
+    ->middleware(['auth', 'verified'])
+    ->name('courses.index');
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
