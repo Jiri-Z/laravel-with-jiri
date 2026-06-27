@@ -31,11 +31,18 @@ test('admin can view a step', function () {
     expect((new StepPolicy)->view($admin, $step))->toBeTrue();
 });
 
-test('instructor can view a step', function () {
+test('instructor can view own step', function () {
+    $instructor = User::factory()->instructor()->create();
+    $step = Step::factory()->create(['lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()->create(['user_id' => $instructor->id])])]);
+
+    expect((new StepPolicy)->view($instructor, $step))->toBeTrue();
+});
+
+test('instructor cannot view another instructors step', function () {
     $instructor = User::factory()->instructor()->create();
     $step = Step::factory()->create(['lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()])]);
 
-    expect((new StepPolicy)->view($instructor, $step))->toBeTrue();
+    expect((new StepPolicy)->view($instructor, $step))->toBeFalse();
 });
 
 test('student cannot view a step in admin', function () {
@@ -70,11 +77,18 @@ test('admin can update any step', function () {
     expect((new StepPolicy)->update($admin, $step))->toBeTrue();
 });
 
-test('instructor can update any step', function () {
+test('instructor can update own step', function () {
+    $instructor = User::factory()->instructor()->create();
+    $step = Step::factory()->create(['lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()->create(['user_id' => $instructor->id])])]);
+
+    expect((new StepPolicy)->update($instructor, $step))->toBeTrue();
+});
+
+test('instructor cannot update another instructors step', function () {
     $instructor = User::factory()->instructor()->create();
     $step = Step::factory()->create(['lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()])]);
 
-    expect((new StepPolicy)->update($instructor, $step))->toBeTrue();
+    expect((new StepPolicy)->update($instructor, $step))->toBeFalse();
 });
 
 test('student cannot update a step', function () {

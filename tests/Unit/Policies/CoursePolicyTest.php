@@ -29,11 +29,18 @@ test('admin can view a course', function () {
     expect((new CoursePolicy)->view($admin, $course))->toBeTrue();
 });
 
-test('instructor can view a course', function () {
+test('instructor can view own course', function () {
+    $instructor = User::factory()->instructor()->create();
+    $course = Course::factory()->create(['user_id' => $instructor->id]);
+
+    expect((new CoursePolicy)->view($instructor, $course))->toBeTrue();
+});
+
+test('instructor cannot view another instructors course', function () {
     $instructor = User::factory()->instructor()->create();
     $course = Course::factory()->create();
 
-    expect((new CoursePolicy)->view($instructor, $course))->toBeTrue();
+    expect((new CoursePolicy)->view($instructor, $course))->toBeFalse();
 });
 
 test('student cannot view a course in admin', function () {
@@ -68,11 +75,18 @@ test('admin can update any course', function () {
     expect((new CoursePolicy)->update($admin, $course))->toBeTrue();
 });
 
-test('instructor can update any course', function () {
+test('instructor can update own course', function () {
+    $instructor = User::factory()->instructor()->create();
+    $course = Course::factory()->create(['user_id' => $instructor->id]);
+
+    expect((new CoursePolicy)->update($instructor, $course))->toBeTrue();
+});
+
+test('instructor cannot update another instructors course', function () {
     $instructor = User::factory()->instructor()->create();
     $course = Course::factory()->create();
 
-    expect((new CoursePolicy)->update($instructor, $course))->toBeTrue();
+    expect((new CoursePolicy)->update($instructor, $course))->toBeFalse();
 });
 
 test('student cannot update a course', function () {

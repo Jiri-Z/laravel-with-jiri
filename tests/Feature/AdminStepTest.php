@@ -17,7 +17,7 @@ class AdminStepTest extends TestCase
     public function test_instructor_can_view_step_list(): void
     {
         $user = User::factory()->create(['role' => 'instructor']);
-        $course = Course::factory()->create();
+        $course = Course::factory()->create(['user_id' => $user->id]);
         $lesson = Lesson::factory()->create(['course_id' => $course->id]);
 
         $this->actingAs($user)->get("/admin/courses/{$course->id}/lessons/{$lesson->id}/steps")->assertOk();
@@ -26,7 +26,7 @@ class AdminStepTest extends TestCase
     public function test_instructor_can_create_step(): void
     {
         $user = User::factory()->create(['role' => 'instructor']);
-        $course = Course::factory()->create();
+        $course = Course::factory()->create(['user_id' => $user->id]);
         $lesson = Lesson::factory()->create(['course_id' => $course->id]);
 
         Livewire::actingAs($user)
@@ -48,7 +48,7 @@ class AdminStepTest extends TestCase
     public function test_instructor_can_edit_step(): void
     {
         $user = User::factory()->create(['role' => 'instructor']);
-        $course = Course::factory()->create();
+        $course = Course::factory()->create(['user_id' => $user->id]);
         $lesson = Lesson::factory()->create(['course_id' => $course->id]);
         $step = Step::factory()->create(['lesson_id' => $lesson->id]);
 
@@ -67,7 +67,7 @@ class AdminStepTest extends TestCase
     public function test_instructor_cannot_delete_step(): void
     {
         $user = User::factory()->create(['role' => 'instructor']);
-        $course = Course::factory()->create();
+        $course = Course::factory()->create(['user_id' => $user->id]);
         $lesson = Lesson::factory()->create(['course_id' => $course->id]);
         $step = Step::factory()->create(['lesson_id' => $lesson->id]);
 
@@ -159,7 +159,7 @@ class AdminStepTest extends TestCase
     public function test_cannot_create_step_with_empty_title(): void
     {
         $user = User::factory()->create(['role' => 'instructor']);
-        $course = Course::factory()->create();
+        $course = Course::factory()->create(['user_id' => $user->id]);
         $lesson = Lesson::factory()->create(['course_id' => $course->id]);
 
         Livewire::actingAs($user)
@@ -175,7 +175,7 @@ class AdminStepTest extends TestCase
     public function test_instructor_can_create_all_step_types(): void
     {
         $user = User::factory()->create(['role' => 'instructor']);
-        $course = Course::factory()->create();
+        $course = Course::factory()->create(['user_id' => $user->id]);
         $lesson = Lesson::factory()->create(['course_id' => $course->id]);
 
         foreach (StepType::cases() as $i => $type) {
@@ -233,5 +233,98 @@ class AdminStepTest extends TestCase
             ->call('moveDown', $b->id);
 
         $this->assertDatabaseHas('steps', ['id' => $b->id, 'order' => 2]);
+    }
+
+    public function test_admin_step_list_empty_state(): void
+    {
+        $user = User::factory()->admin()->create();
+        $course = Course::factory()->create();
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+
+        $this->actingAs($user)->get("/admin/courses/{$course->id}/lessons/{$lesson->id}/steps")
+            ->assertOk()
+            ->assertSee('No steps yet.');
+    }
+
+    public function test_admin_step_list_renders_table_headers(): void
+    {
+        $user = User::factory()->admin()->create();
+        $course = Course::factory()->create();
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+        Step::factory()->create(['lesson_id' => $lesson->id]);
+
+        $this->actingAs($user)->get("/admin/courses/{$course->id}/lessons/{$lesson->id}/steps")
+            ->assertOk()
+            ->assertSeeInOrder(['Order', 'Title', 'Type', 'Actions']);
+    }
+
+    public function test_search_filters_step_list(): void
+    {
+        $user = User::factory()->admin()->create();
+        $course = Course::factory()->create();
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+        Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 1, 'title' => 'Alpha Step']);
+        Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 2, 'title' => 'Beta Step']);
+
+        $this->actingAs($user)->get("/admin/courses/{$course->id}/lessons/{$lesson->id}/steps?q=Alpha")
+            ->assertOk()
+            ->assertSee('Alpha Step')
+            ->assertDontSee('Beta Step');
+    }
+
+    public function test_search_no_results_step_empty(): void
+    {
+        $user = User::factory()->admin()->create();
+        $course = Course::factory()->create();
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+        Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 1, 'title' => 'Alpha']);
+
+        $this->actingAs($user)->get("/admin/courses/{$course->id}/lessons/{$lesson->id}/steps?q=zzz_nonexistent")
+            ->assertOk()
+            ->assertSee('No steps found.')
+            ->assertDontSee('Alpha');
+    }
+
+    public function test_step_pagination(): void
+    {
+        $user = User::factory()->admin()->create();
+        $course = Course::factory()->create();
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+
+        for ($i = 1; $i <= 12; $i++) {
+            Step::factory()->create(['lesson_id' => $lesson->id, 'order' => $i, 'title' => sprintf('Step %02d', $i)]);
+        }
+
+        $this->actingAs($user)->get("/admin/courses/{$course->id}/lessons/{$lesson->id}/steps?page=2")
+            ->assertOk()
+            ->assertSee('Step 11')
+            ->assertSee('Step 12')
+            ->assertDontSee('Step 01');
+    }
+
+    public function test_wire_loading_present_in_step_list(): void
+    {
+        $user = User::factory()->admin()->create();
+        $course = Course::factory()->create();
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+        Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 1]);
+
+        $this->actingAs($user)->get("/admin/courses/{$course->id}/lessons/{$lesson->id}/steps")
+            ->assertOk()
+            ->assertSee('wire:loading');
+    }
+
+    public function test_step_url_tracking_with_ownership(): void
+    {
+        $instructor = User::factory()->create(['role' => 'instructor']);
+        $course = Course::factory()->create(['user_id' => $instructor->id]);
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+        Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 1, 'title' => 'Alpha Step']);
+        Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 2, 'title' => 'Beta Step']);
+
+        $this->actingAs($instructor)->get("/admin/courses/{$course->id}/lessons/{$lesson->id}/steps?q=Alpha")
+            ->assertOk()
+            ->assertSee('Alpha Step')
+            ->assertDontSee('Beta Step');
     }
 }

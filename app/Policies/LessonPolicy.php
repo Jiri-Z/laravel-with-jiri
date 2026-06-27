@@ -16,7 +16,7 @@ class LessonPolicy
 
     public function view(User $user, Lesson $lesson): bool
     {
-        return $user->isAdmin() || $user->isInstructor();
+        return $user->isAdmin() || ($user->isInstructor() && $lesson->course->user_id === $user->id);
     }
 
     public function create(User $user): bool
@@ -26,7 +26,7 @@ class LessonPolicy
 
     public function update(User $user, Lesson $lesson): bool
     {
-        return $user->isAdmin() || $user->isInstructor();
+        return $user->isAdmin() || ($user->isInstructor() && $lesson->course->user_id === $user->id);
     }
 
     public function delete(User $user, Lesson $lesson): bool

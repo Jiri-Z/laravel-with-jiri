@@ -75,6 +75,7 @@ class AdminCourseForm extends Component
         if ($this->course) {
             $this->course->update($data);
         } else {
+            $data['user_id'] = auth()->id();
             Course::create($data);
         }
 

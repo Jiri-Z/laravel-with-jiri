@@ -37,6 +37,7 @@ class CourseSeeder extends Seeder
             'description' => 'Learn the fundamentals of Laravel, from routing and controllers to Eloquent and Blade.',
             'published' => true,
             'order' => 1,
+            'user_id' => $instructor->id,
         ]);
 
         $lesson1 = Lesson::factory()->create([
@@ -114,6 +115,7 @@ class CourseSeeder extends Seeder
             'description' => 'Master Laravel\'s beautiful ORM for database interactions.',
             'published' => true,
             'order' => 2,
+            'user_id' => $instructor->id,
         ]);
 
         $lesson3 = Lesson::factory()->create([

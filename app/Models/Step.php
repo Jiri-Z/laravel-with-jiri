@@ -51,6 +51,18 @@ class Step extends Model
         return $query->orderBy('order');
     }
 
+    /**
+     * @param  Builder<Step>  $query
+     * @return Builder<Step>
+     */
+    public function scopeSearch(Builder $query, string $term): Builder
+    {
+        return $query->where(function (Builder $q) use ($term): Builder {
+            return $q->where('title', 'like', "%{$term}%")
+                ->orWhere('type', 'like', "%{$term}%");
+        });
+    }
+
     protected function casts(): array
     {
         return [

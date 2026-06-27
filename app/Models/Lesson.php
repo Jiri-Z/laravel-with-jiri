@@ -52,6 +52,18 @@ class Lesson extends Model
         return $query->orderBy('order');
     }
 
+    /**
+     * @param  Builder<Lesson>  $query
+     * @return Builder<Lesson>
+     */
+    public function scopeSearch(Builder $query, string $term): Builder
+    {
+        return $query->where(function (Builder $q) use ($term): Builder {
+            return $q->where('title', 'like', "%{$term}%")
+                ->orWhere('slug', 'like', "%{$term}%");
+        });
+    }
+
     protected function casts(): array
     {
         return [

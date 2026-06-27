@@ -20,6 +20,12 @@ class User extends Authenticatable implements MustVerifyEmail
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
+    /** @return HasMany<Course, $this> */
+    public function courses(): HasMany
+    {
+        return $this->hasMany(Course::class, 'user_id');
+    }
+
     /** @return HasMany<StepCompletion, $this> */
     public function stepCompletions(): HasMany
     {

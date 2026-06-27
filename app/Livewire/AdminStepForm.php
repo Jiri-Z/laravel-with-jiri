@@ -39,6 +39,7 @@ class AdminStepForm extends Component
             abort(404);
         }
 
+        $this->authorize('view', $course);
         $this->course = $course;
         $this->lesson = $lesson;
         $this->step = $step;

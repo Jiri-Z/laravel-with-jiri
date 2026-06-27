@@ -16,7 +16,7 @@ class StepPolicy
 
     public function view(User $user, Step $step): bool
     {
-        return $user->isAdmin() || $user->isInstructor();
+        return $user->isAdmin() || ($user->isInstructor() && $step->lesson->course->user_id === $user->id);
     }
 
     public function create(User $user): bool
@@ -26,7 +26,7 @@ class StepPolicy
 
     public function update(User $user, Step $step): bool
     {
-        return $user->isAdmin() || $user->isInstructor();
+        return $user->isAdmin() || ($user->isInstructor() && $step->lesson->course->user_id === $user->id);
     }
 
     public function delete(User $user, Step $step): bool

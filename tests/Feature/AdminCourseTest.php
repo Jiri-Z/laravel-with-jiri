@@ -56,7 +56,7 @@ class AdminCourseTest extends TestCase
     public function test_instructor_can_edit_course(): void
     {
         $user = User::factory()->create(['role' => 'instructor']);
-        $course = Course::factory()->create();
+        $course = Course::factory()->create(['user_id' => $user->id]);
 
         Livewire::actingAs($user)
             ->test(AdminCourseForm::class, ['course' => $course])
@@ -73,7 +73,7 @@ class AdminCourseTest extends TestCase
     public function test_instructor_cannot_delete_course(): void
     {
         $user = User::factory()->create(['role' => 'instructor']);
-        $course = Course::factory()->create();
+        $course = Course::factory()->create(['user_id' => $user->id]);
 
         Livewire::actingAs($user)
             ->test(AdminCourseList::class)
@@ -171,7 +171,7 @@ class AdminCourseTest extends TestCase
     public function test_instructor_can_access_create_and_edit_pages_via_http(): void
     {
         $user = User::factory()->create(['role' => 'instructor']);
-        $course = Course::factory()->create();
+        $course = Course::factory()->create(['user_id' => $user->id]);
 
         $this->actingAs($user)->get('/admin/courses/create')->assertOk();
         $this->actingAs($user)->get("/admin/courses/{$course->id}/edit")->assertOk();
@@ -189,5 +189,114 @@ class AdminCourseTest extends TestCase
             ->set('order', 1)
             ->call('save')
             ->assertHasErrors('slug');
+    }
+
+    public function test_admin_course_list_empty_state(): void
+    {
+        $user = User::factory()->admin()->create();
+
+        $this->actingAs($user)->get('/admin/courses')
+            ->assertOk()
+            ->assertSee('No courses yet.');
+    }
+
+    public function test_admin_course_list_renders_table_headers(): void
+    {
+        $user = User::factory()->admin()->create();
+        Course::factory()->create();
+
+        $this->actingAs($user)->get('/admin/courses')
+            ->assertOk()
+            ->assertSeeInOrder(['Order', 'Title', 'Status', 'Actions']);
+    }
+
+    public function test_search_filters_course_list(): void
+    {
+        $user = User::factory()->admin()->create();
+        Course::factory()->create(['title' => 'Alpha Course']);
+        Course::factory()->create(['title' => 'Beta Course']);
+
+        $this->actingAs($user)->get('/admin/courses?q=Alpha')
+            ->assertOk()
+            ->assertSee('Alpha Course')
+            ->assertDontSee('Beta Course');
+    }
+
+    public function test_search_no_results_shows_no_courses_found(): void
+    {
+        $user = User::factory()->admin()->create();
+        Course::factory()->create(['title' => 'Alpha']);
+
+        $this->actingAs($user)->get('/admin/courses?q=zzz_nonexistent')
+            ->assertOk()
+            ->assertSee('No courses found.')
+            ->assertDontSee('Alpha');
+    }
+
+    public function test_pagination_shows_second_page(): void
+    {
+        $user = User::factory()->admin()->create();
+
+        for ($i = 1; $i <= 12; $i++) {
+            Course::factory()->create(['order' => $i, 'title' => sprintf('Course %02d', $i)]);
+        }
+
+        $this->actingAs($user)->get('/admin/courses?page=2')
+            ->assertOk()
+            ->assertSee('Course 11')
+            ->assertSee('Course 12')
+            ->assertDontSee('Course 01');
+    }
+
+    public function test_wire_loading_present_in_course_list(): void
+    {
+        $user = User::factory()->admin()->create();
+        Course::factory()->create();
+
+        $this->actingAs($user)->get('/admin/courses')
+            ->assertOk()
+            ->assertSee('wire:loading');
+    }
+
+    public function test_search_attribute_is_url_tracked(): void
+    {
+        $user = User::factory()->admin()->create();
+        Course::factory()->create(['title' => 'Alpha', 'slug' => 'alpha']);
+        Course::factory()->create(['title' => 'Beta', 'slug' => 'beta']);
+
+        $this->actingAs($user)->get('/admin/courses?q=Alpha')
+            ->assertOk()
+            ->assertSee('Alpha')
+            ->assertDontSee('Beta');
+    }
+
+    public function test_search_combined_with_ownership(): void
+    {
+        $instructor = User::factory()->create(['role' => 'instructor']);
+        Course::factory()->create(['title' => 'My Course', 'user_id' => $instructor->id]);
+        Course::factory()->create(['title' => 'Other Course']);
+
+        $this->actingAs($instructor)->get('/admin/courses?q=Course')
+            ->assertOk()
+            ->assertSee('My Course')
+            ->assertDontSee('Other Course');
+    }
+
+    public function test_search_resets_to_page_one(): void
+    {
+        $user = User::factory()->admin()->create();
+
+        for ($i = 1; $i <= 12; $i++) {
+            Course::factory()->create(['order' => $i, 'title' => sprintf('Course %02d', $i)]);
+        }
+
+        $component = Livewire::actingAs($user)->test(AdminCourseList::class);
+
+        $component->set('paginators.page', 2);
+        $component->assertSee('Course 11');
+
+        $component->set('search', 'Course 01');
+        $component->assertSee('Course 01');
+        $component->assertDontSee('Course 11');
     }
 }

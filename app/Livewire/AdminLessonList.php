@@ -8,15 +8,28 @@ use App\Models\Course;
 use App\Models\Lesson;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Url;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('layouts.app')]
 class AdminLessonList extends Component
 {
+    use WithPagination;
+
     public Course $course;
+
+    #[Url(as: 'q')]
+    public string $search = '';
+
+    public function updatedSearch(): void
+    {
+        $this->resetPage();
+    }
 
     public function mount(Course $course): void
     {
+        $this->authorize('view', $course);
         $this->authorize('viewAny', Lesson::class);
         $this->course = $course->load('lessons');
     }
@@ -30,7 +43,9 @@ class AdminLessonList extends Component
 
     public function moveUp(int $lessonId): void
     {
+        /** @var Lesson $lesson */
         $lesson = Lesson::findOrFail($lessonId);
+        $this->authorize('update', $lesson);
         $previous = Lesson::where('course_id', $this->course->id)
             ->where('order', '<', $lesson->order)
             ->orderBy('order', 'desc')
@@ -50,7 +65,9 @@ class AdminLessonList extends Component
 
     public function moveDown(int $lessonId): void
     {
+        /** @var Lesson $lesson */
         $lesson = Lesson::findOrFail($lessonId);
+        $this->authorize('update', $lesson);
         $next = Lesson::where('course_id', $this->course->id)
             ->where('order', '>', $lesson->order)
             ->orderBy('order')
@@ -70,8 +87,14 @@ class AdminLessonList extends Component
 
     public function render(): View
     {
+        $query = Lesson::where('course_id', $this->course->id);
+
+        if ($this->search !== '') {
+            $query->search($this->search);
+        }
+
         return view('livewire.admin-lesson-list', [
-            'lessons' => Lesson::where('course_id', $this->course->id)->ordered()->get(),
+            'lessons' => $query->ordered()->paginate(10),
         ]);
     }
 }
