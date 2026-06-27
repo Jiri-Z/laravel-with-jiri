@@ -20,7 +20,7 @@
                                 </span>
                                 <div>
                                     <h3 class="text-lg font-medium text-gray-900 dark:text-white">
-                                        <a href="#" wire:navigate class="hover:underline">
+                                        <a href="{{ route('steps.show', [$course->slug, $lesson->slug, $step->id]) }}" wire:navigate class="hover:underline">
                                             {{ $step->title }}
                                         </a>
                                     </h3>

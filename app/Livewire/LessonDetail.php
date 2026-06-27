@@ -12,6 +12,7 @@ use Livewire\Component;
 class LessonDetail extends Component
 {
     public Course $course;
+
     public Lesson $lesson;
 
     public function mount(Course $course, Lesson $lesson): void

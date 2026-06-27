@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\Course;
+use App\Models\Lesson;
+use Illuminate\Database\QueryException;
 
 test('course can be created with fillable attributes', function () {
     $course = Course::factory()->create([
@@ -23,12 +25,12 @@ test('course has many lessons', function () {
     $course = Course::factory()->hasLessons(3)->create();
 
     expect($course->lessons)->toHaveCount(3)
-        ->and($course->lessons->first())->toBeInstanceOf(App\Models\Lesson::class);
+        ->and($course->lessons->first())->toBeInstanceOf(Lesson::class);
 });
 
 test('course slug is unique', function () {
     Course::factory()->create(['slug' => 'same-slug']);
 
     expect(fn () => Course::factory()->create(['slug' => 'same-slug']))
-        ->toThrow(\Illuminate\Database\QueryException::class);
+        ->toThrow(QueryException::class);
 });

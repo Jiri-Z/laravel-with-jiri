@@ -2,6 +2,8 @@
 
 use App\Models\Course;
 use App\Models\Lesson;
+use App\Models\Step;
+use Illuminate\Database\QueryException;
 
 test('lesson belongs to a course', function () {
     $course = Course::factory()->create();
@@ -34,7 +36,7 @@ test('lesson has many steps', function () {
     $lesson = Lesson::factory()->hasSteps(3)->create(['course_id' => Course::factory()]);
 
     expect($lesson->steps)->toHaveCount(3)
-        ->and($lesson->steps->first())->toBeInstanceOf(App\Models\Step::class);
+        ->and($lesson->steps->first())->toBeInstanceOf(Step::class);
 });
 
 test('lesson slug is unique within the same course', function () {
@@ -42,5 +44,5 @@ test('lesson slug is unique within the same course', function () {
     Lesson::factory()->create(['course_id' => $course->id, 'slug' => 'same-slug']);
 
     expect(fn () => Lesson::factory()->create(['course_id' => $course->id, 'slug' => 'same-slug']))
-        ->toThrow(\Illuminate\Database\QueryException::class);
+        ->toThrow(QueryException::class);
 });

@@ -5,6 +5,8 @@ use App\Models\Lesson;
 use App\Models\Step;
 use App\Models\StepCompletion;
 use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Database\QueryException;
 
 test('step completion belongs to user and step', function () {
     $user = User::factory()->create();
@@ -24,7 +26,7 @@ test('step completion belongs to user and step', function () {
 test('step completion records completed_at', function () {
     $completion = StepCompletion::factory()->create();
 
-    expect($completion->completed_at)->toBeInstanceOf(\Carbon\Carbon::class);
+    expect($completion->completed_at)->toBeInstanceOf(Carbon::class);
 });
 
 test('user cannot complete the same step twice', function () {
@@ -41,5 +43,5 @@ test('user cannot complete the same step twice', function () {
     expect(fn () => StepCompletion::factory()->create([
         'user_id' => $user->id,
         'step_id' => $step->id,
-    ]))->toThrow(\Illuminate\Database\QueryException::class);
+    ]))->toThrow(QueryException::class);
 });

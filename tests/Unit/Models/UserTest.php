@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\StepCompletion;
 use App\Models\User;
 
 test('user has default student role', function () {
@@ -39,5 +40,5 @@ test('user has many step completions', function () {
     $user = User::factory()->hasStepCompletions(2)->create();
 
     expect($user->stepCompletions)->toHaveCount(2)
-        ->and($user->stepCompletions->first())->toBeInstanceOf(App\Models\StepCompletion::class);
+        ->and($user->stepCompletions->first())->toBeInstanceOf(StepCompletion::class);
 });

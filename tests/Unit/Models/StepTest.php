@@ -3,6 +3,7 @@
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Step;
+use App\Models\StepCompletion;
 
 test('step belongs to a lesson', function () {
     $course = Course::factory()->create();
@@ -36,7 +37,7 @@ test('step has many completions', function () {
     ]);
 
     expect($step->completions)->toHaveCount(2)
-        ->and($step->completions->first())->toBeInstanceOf(App\Models\StepCompletion::class);
+        ->and($step->completions->first())->toBeInstanceOf(StepCompletion::class);
 });
 
 test('step has valid type values', function () {
