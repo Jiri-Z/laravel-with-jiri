@@ -15,15 +15,42 @@ Greenfield e-learning platform. Laravel 13 + Livewire + Tailwind + Pest, scaffol
 - **Course** → **Lesson** → **Step** (all with `published` boolean + `order` int)
 - Step types: `reading`, `quiz_single`, `quiz_multiple`, `quiz_text`, `coding`
 - **StepCompletion**: `user_id`, `step_id`, `completed_at` (unique pair)
+- **StepAnswer**: `user_id`, `step_id`, `answer`, `is_correct` (unique per pair) — quiz submissions
 - Lesson complete = all steps done; Course progress = completed / total steps
 
 ## Architecture
 - Thin controllers; business logic in actions or service classes
 - Livewire full-page components for views, nested for interactive pieces
 - Form requests for validation, policies for authorization
-- Factories for all test data
+- Factories for all test data; `sequence()` for steps with unique order constraints
 - Eager-load to avoid N+1
 - Queue non-trivial side effects as jobs
+
+## Progress
+| # | Item | Status |
+|---|------|--------|
+| 1 | Laravel Boost scaffold | ✅ |
+| 2 | Migrations + models | ✅ |
+| 3 | Factories + seeders | ✅ |
+| 4 | Pest tests for models | ✅ (114 tests, 253 assertions) |
+| 5 | Student views (reading) | ✅ |
+| 6 | Step completion + progress | ✅ |
+| 7 | Quiz step types | ✅ |
+| 8 | Coding step type (Monaco + WASM) | ✅ (client-side eval, dynamic CDN loading) |
+| 9 | Admin/instructor CRUD | ✅ |
+| 10 | Role-based access (policies) | ✅ |
+| 11 | Ordering / reordering | ❌ |
+| 12 | Polish (progress bars, states) | ❌ (partial) |
+| 13 | Full Pest pass | ❌ |
+
+## What was built in the last session
+- **Quiz step types**: StepAnswer model/migration/factory, QuizViewer Livewire component (single/multiple/text), tests
+- **Coding step type**: CodingViewer Livewire component, Monaco editor + php-wasm via dynamic CDN loading, Alpine.js integration, tests
+- **Seeders**: Fixed JSON keys, added `quiz_text` and `coding` step types
+- **Admin CRUD**: AdminCourseList/Form, AdminLessonList/Form, AdminStepList/Form — all full-page Livewire components with role-based access
+- **Policies**: CoursePolicy, LessonPolicy, StepPolicy (admin creates/edits/deletes everything, instructor creates/edits but can't delete, student blocked)
+- **Admin middleware**: Role gate for `/admin/*` routes
+- **Tests**: 20 new feature tests covering admin CRUD flows (create, edit, delete, role gating)
 
 ## Build order (suggested)
 1. Laravel Boost scaffold → auth, roles, base layout

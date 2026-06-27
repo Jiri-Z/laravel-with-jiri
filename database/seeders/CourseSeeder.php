@@ -62,10 +62,20 @@ class CourseSeeder extends Seeder
             'content' => json_encode([
                 'question' => 'Which architectural pattern does Laravel follow?',
                 'options' => ['MVP', 'MVC', 'MVVM', 'REST'],
-                'correct' => 1,
-                'explanation' => 'Laravel follows the MVC (Model-View-Controller) pattern, which separates application logic into three interconnected components.',
+                'correct_answer' => 1,
             ]),
             'order' => 2,
+        ]);
+
+        Step::factory()->create([
+            'lesson_id' => $lesson1->id,
+            'title' => 'What is a framework?',
+            'type' => 'quiz_text',
+            'content' => json_encode([
+                'question' => 'What directory are web routes defined in?',
+                'correct_answer' => 'routes/web.php',
+            ]),
+            'order' => 3,
         ]);
 
         $lesson2 = Lesson::factory()->create([
@@ -92,8 +102,7 @@ class CourseSeeder extends Seeder
             'content' => json_encode([
                 'question' => 'Which HTTP methods can Laravel routes handle?',
                 'options' => ['GET', 'POST', 'PUT', 'DELETE', 'FETCH'],
-                'correct' => [0, 1, 2, 3],
-                'explanation' => 'Laravel supports GET, POST, PUT, PATCH, DELETE, and OPTIONS methods. FETCH is a JavaScript API, not an HTTP method.',
+                'correct_answers' => [0, 1, 2, 3],
             ]),
             'order' => 2,
         ]);
@@ -121,6 +130,19 @@ class CourseSeeder extends Seeder
             'type' => 'reading',
             'content' => "Migrations are like version control for your database. They allow you to define and share the database schema.\n\nCreate a migration:\n```bash\nphp artisan make:migration create_posts_table\n```\n\nMigrations define table columns and indexes using Laravel's schema builder.",
             'order' => 1,
+        ]);
+
+        Step::factory()->create([
+            'lesson_id' => $lesson3->id,
+            'title' => 'Write Your First Migration',
+            'type' => 'coding',
+            'content' => json_encode([
+                'prompt' => "Write a PHP function that returns the string 'Migration created!'.",
+                'initial_code' => "<?php\n\nfunction createMigration() {\n    // Return the correct string\n}\n",
+                'test_code' => "<?php\necho createMigration();",
+                'expected_output' => 'Migration created!',
+            ]),
+            'order' => 2,
         ]);
     }
 }
