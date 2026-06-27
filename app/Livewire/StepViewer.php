@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire;
 
+use App\Actions\MarkStepComplete;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Step;
@@ -39,15 +40,7 @@ class StepViewer extends Component
 
     public function complete(): void
     {
-        if ($this->completed) {
-            return;
-        }
-
-        StepCompletion::create([
-            'user_id' => auth()->id(),
-            'step_id' => $this->step->id,
-            'completed_at' => now(),
-        ]);
+        (new MarkStepComplete)->handle(auth()->user(), $this->step);
 
         $this->completed = true;
     }

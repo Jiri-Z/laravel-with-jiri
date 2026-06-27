@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire;
 
+use App\Actions\SubmitQuizAnswer;
 use App\Enums\StepType;
 use App\Models\Step;
 use App\Models\StepAnswer;
@@ -43,41 +44,19 @@ class QuizViewer extends Component
             return;
         }
 
-        $content = $this->step->getContentAsArray();
-
-        $isCorrect = match ($this->step->type) {
-            StepType::QuizSingle => $this->selectedAnswer == ($content['correct_answer'] ?? null),
-            StepType::QuizMultiple => ! array_diff(
-                $this->selectedAnswers,
-                $content['correct_answers'] ?? []
-            ) && ! array_diff(
-                $content['correct_answers'] ?? [],
-                $this->selectedAnswers
-            ),
-            StepType::QuizText => strcasecmp(
-                trim($this->textAnswer),
-                trim($content['correct_answer'] ?? '')
-            ) === 0,
-            default => false,
-        };
-
-        $answer = match ($this->step->type) {
-            StepType::QuizSingle => (string) $this->selectedAnswer,
-            StepType::QuizMultiple => json_encode($this->selectedAnswers),
-            StepType::QuizText => $this->textAnswer,
-            default => '',
-        };
-
-        StepAnswer::create([
-            'user_id' => auth()->id(),
-            'step_id' => $this->step->id,
-            'answer' => $answer,
-            'is_correct' => $isCorrect,
-            'created_at' => now(),
-        ]);
+        $result = (new SubmitQuizAnswer)->handle(
+            auth()->user(),
+            $this->step,
+            match ($this->step->type) {
+                StepType::QuizSingle => $this->selectedAnswer,
+                StepType::QuizMultiple => $this->selectedAnswers,
+                StepType::QuizText => $this->textAnswer,
+                default => null,
+            },
+        );
 
         $this->submitted = true;
-        $this->isCorrect = $isCorrect;
+        $this->isCorrect = $result->isCorrect;
     }
 
     public function render(): View

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire;
 
+use App\Actions\MarkStepComplete;
 use App\Models\Step;
 use App\Models\StepCompletion;
 use Illuminate\Contracts\View\View;
@@ -24,15 +25,7 @@ class CodingViewer extends Component
 
     public function markCodingComplete(): void
     {
-        if ($this->completed) {
-            return;
-        }
-
-        StepCompletion::create([
-            'user_id' => auth()->id(),
-            'step_id' => $this->step->id,
-            'completed_at' => now(),
-        ]);
+        (new MarkStepComplete)->handle(auth()->user(), $this->step);
 
         $this->completed = true;
     }
