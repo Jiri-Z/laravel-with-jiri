@@ -46,6 +46,7 @@ class AdminStepForm extends Component
         }
     }
 
+    /** @return array<string, string> */
     public function validationRules(): array
     {
         return [
