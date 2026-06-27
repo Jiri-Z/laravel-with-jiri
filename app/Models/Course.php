@@ -6,12 +6,18 @@ use Database\Factories\CourseFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable(['title', 'slug', 'description', 'published', 'order'])]
 class Course extends Model
 {
     /** @use HasFactory<CourseFactory> */
     use HasFactory;
+
+    public function lessons(): HasMany
+    {
+        return $this->hasMany(Lesson::class);
+    }
 
     protected function casts(): array
     {

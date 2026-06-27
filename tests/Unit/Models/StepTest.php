@@ -30,6 +30,15 @@ test('step has fillable attributes', function () {
         ->order->toBe(1);
 });
 
+test('step has many completions', function () {
+    $step = Step::factory()->hasCompletions(2)->create([
+        'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+    ]);
+
+    expect($step->completions)->toHaveCount(2)
+        ->and($step->completions->first())->toBeInstanceOf(App\Models\StepCompletion::class);
+});
+
 test('step has valid type values', function () {
     $lesson = Lesson::factory()->create(['course_id' => Course::factory()]);
 

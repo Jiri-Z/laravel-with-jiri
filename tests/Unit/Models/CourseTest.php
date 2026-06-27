@@ -19,6 +19,13 @@ test('course can be created with fillable attributes', function () {
         ->order->toBe(1);
 });
 
+test('course has many lessons', function () {
+    $course = Course::factory()->hasLessons(3)->create();
+
+    expect($course->lessons)->toHaveCount(3)
+        ->and($course->lessons->first())->toBeInstanceOf(App\Models\Lesson::class);
+});
+
 test('course slug is unique', function () {
     Course::factory()->create(['slug' => 'same-slug']);
 

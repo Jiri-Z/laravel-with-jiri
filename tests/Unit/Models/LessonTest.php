@@ -30,6 +30,13 @@ test('lesson has fillable attributes', function () {
         ->order->toBe(1);
 });
 
+test('lesson has many steps', function () {
+    $lesson = Lesson::factory()->hasSteps(3)->create(['course_id' => Course::factory()]);
+
+    expect($lesson->steps)->toHaveCount(3)
+        ->and($lesson->steps->first())->toBeInstanceOf(App\Models\Step::class);
+});
+
 test('lesson slug is unique within the same course', function () {
     $course = Course::factory()->create();
     Lesson::factory()->create(['course_id' => $course->id, 'slug' => 'same-slug']);
