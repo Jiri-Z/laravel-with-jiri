@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\Course;
+use App\Models\Lesson;
+use App\Models\Step;
 use App\Models\StepAnswer;
 use App\Models\StepCompletion;
 use App\Models\User;
@@ -57,4 +60,18 @@ test('unknown role returns false for all role checks', function () {
     expect($user->isAdmin())->toBeFalse()
         ->and($user->isInstructor())->toBeFalse()
         ->and($user->isStudent())->toBeFalse();
+});
+
+test('deleting an instructor does not delete owned courses and lessons', function () {
+    $instructor = User::factory()->create(['role' => 'instructor']);
+    $course = Course::factory()->create(['user_id' => $instructor->id]);
+    $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+    $step = Step::factory()->create(['lesson_id' => $lesson->id]);
+
+    $instructor->delete();
+
+    expect(Course::find($course->id))->not->toBeNull()
+        ->and($course->refresh()->user_id)->toBeNull()
+        ->and(Lesson::find($lesson->id))->not->toBeNull()
+        ->and(Step::find($step->id))->not->toBeNull();
 });
