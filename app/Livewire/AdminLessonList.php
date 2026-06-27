@@ -7,6 +7,7 @@ namespace App\Livewire;
 use App\Models\Course;
 use App\Models\Lesson;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -58,9 +59,11 @@ class AdminLessonList extends Component
         $lessonOrder = $lesson->order;
         $previousOrder = $previous->order;
 
-        $previous->update(['order' => -1]);
-        $lesson->update(['order' => $previousOrder]);
-        $previous->update(['order' => $lessonOrder]);
+        DB::transaction(function () use ($lesson, $lessonOrder, $previous, $previousOrder): void {
+            $previous->update(['order' => -1]);
+            $lesson->update(['order' => $previousOrder]);
+            $previous->update(['order' => $lessonOrder]);
+        });
     }
 
     public function moveDown(int $lessonId): void
@@ -80,9 +83,11 @@ class AdminLessonList extends Component
         $lessonOrder = $lesson->order;
         $nextOrder = $next->order;
 
-        $next->update(['order' => -1]);
-        $lesson->update(['order' => $nextOrder]);
-        $next->update(['order' => $lessonOrder]);
+        DB::transaction(function () use ($lesson, $lessonOrder, $next, $nextOrder): void {
+            $next->update(['order' => -1]);
+            $lesson->update(['order' => $nextOrder]);
+            $next->update(['order' => $lessonOrder]);
+        });
     }
 
     public function render(): View

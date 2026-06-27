@@ -9,6 +9,7 @@ use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Step;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -232,6 +233,41 @@ class AdminStepTest extends TestCase
             ->test(AdminStepList::class, ['course' => $course, 'lesson' => $lesson])
             ->call('moveDown', $b->id);
 
+        $this->assertDatabaseHas('steps', ['id' => $b->id, 'order' => 2]);
+    }
+
+    public function test_move_up_rolls_back_when_swap_fails(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $course = Course::factory()->create();
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+        $a = Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 1]);
+        $b = Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 2]);
+
+        DB::unprepared(<<<'SQL'
+            CREATE TRIGGER abort_step_swap_update
+            BEFORE UPDATE ON steps
+            WHEN NEW."order" != -1 AND EXISTS(
+                SELECT 1 FROM steps WHERE "order" = -1
+            )
+            BEGIN
+                SELECT RAISE(ABORT, 'swap failed');
+            END;
+        SQL);
+
+        try {
+            Livewire::actingAs($user)
+                ->test(AdminStepList::class, ['course' => $course, 'lesson' => $lesson])
+                ->call('moveUp', $b->id);
+
+            $this->fail('Expected the reorder action to fail.');
+        } catch (\Throwable) {
+            // The trigger intentionally aborts the reorder mid-swap.
+        } finally {
+            DB::unprepared('DROP TRIGGER IF EXISTS abort_step_swap_update');
+        }
+
+        $this->assertDatabaseHas('steps', ['id' => $a->id, 'order' => 1]);
         $this->assertDatabaseHas('steps', ['id' => $b->id, 'order' => 2]);
     }
 

@@ -8,6 +8,7 @@ use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Step;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -62,9 +63,11 @@ class AdminStepList extends Component
         $stepOrder = $step->order;
         $previousOrder = $previous->order;
 
-        $previous->update(['order' => -1]);
-        $step->update(['order' => $previousOrder]);
-        $previous->update(['order' => $stepOrder]);
+        DB::transaction(function () use ($previous, $previousOrder, $step, $stepOrder): void {
+            $previous->update(['order' => -1]);
+            $step->update(['order' => $previousOrder]);
+            $previous->update(['order' => $stepOrder]);
+        });
     }
 
     public function moveDown(int $stepId): void
@@ -84,9 +87,11 @@ class AdminStepList extends Component
         $stepOrder = $step->order;
         $nextOrder = $next->order;
 
-        $next->update(['order' => -1]);
-        $step->update(['order' => $nextOrder]);
-        $next->update(['order' => $stepOrder]);
+        DB::transaction(function () use ($next, $nextOrder, $step, $stepOrder): void {
+            $next->update(['order' => -1]);
+            $step->update(['order' => $nextOrder]);
+            $next->update(['order' => $stepOrder]);
+        });
     }
 
     public function render(): View

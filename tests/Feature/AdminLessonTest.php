@@ -7,6 +7,7 @@ use App\Livewire\AdminLessonList;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -198,6 +199,40 @@ class AdminLessonTest extends TestCase
             ->test(AdminLessonList::class, ['course' => $course])
             ->call('moveDown', $b->id);
 
+        $this->assertDatabaseHas('lessons', ['id' => $b->id, 'order' => 2]);
+    }
+
+    public function test_move_up_rolls_back_when_swap_fails(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $course = Course::factory()->create();
+        $a = Lesson::factory()->create(['course_id' => $course->id, 'order' => 1]);
+        $b = Lesson::factory()->create(['course_id' => $course->id, 'order' => 2]);
+
+        DB::unprepared(<<<'SQL'
+            CREATE TRIGGER abort_lesson_swap_update
+            BEFORE UPDATE ON lessons
+            WHEN NEW."order" != -1 AND EXISTS(
+                SELECT 1 FROM lessons WHERE "order" = -1
+            )
+            BEGIN
+                SELECT RAISE(ABORT, 'swap failed');
+            END;
+        SQL);
+
+        try {
+            Livewire::actingAs($user)
+                ->test(AdminLessonList::class, ['course' => $course])
+                ->call('moveUp', $b->id);
+
+            $this->fail('Expected the reorder action to fail.');
+        } catch (\Throwable) {
+            // The trigger intentionally aborts the reorder mid-swap.
+        } finally {
+            DB::unprepared('DROP TRIGGER IF EXISTS abort_lesson_swap_update');
+        }
+
+        $this->assertDatabaseHas('lessons', ['id' => $a->id, 'order' => 1]);
         $this->assertDatabaseHas('lessons', ['id' => $b->id, 'order' => 2]);
     }
 

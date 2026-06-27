@@ -6,6 +6,7 @@ namespace App\Livewire;
 
 use App\Models\Course;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -52,9 +53,11 @@ class AdminCourseList extends Component
         $courseOrder = $course->order;
         $previousOrder = $previous->order;
 
-        $previous->update(['order' => -1]);
-        $course->update(['order' => $previousOrder]);
-        $previous->update(['order' => $courseOrder]);
+        DB::transaction(function () use ($course, $courseOrder, $previous, $previousOrder): void {
+            $previous->update(['order' => -1]);
+            $course->update(['order' => $previousOrder]);
+            $previous->update(['order' => $courseOrder]);
+        });
     }
 
     public function moveDown(int $courseId): void
@@ -73,9 +76,11 @@ class AdminCourseList extends Component
         $courseOrder = $course->order;
         $nextOrder = $next->order;
 
-        $next->update(['order' => -1]);
-        $course->update(['order' => $nextOrder]);
-        $next->update(['order' => $courseOrder]);
+        DB::transaction(function () use ($course, $courseOrder, $next, $nextOrder): void {
+            $next->update(['order' => -1]);
+            $course->update(['order' => $nextOrder]);
+            $next->update(['order' => $courseOrder]);
+        });
     }
 
     public function render(): View
