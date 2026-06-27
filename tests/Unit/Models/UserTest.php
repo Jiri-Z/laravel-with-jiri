@@ -1,0 +1,43 @@
+<?php
+
+use App\Models\User;
+
+test('user has default student role', function () {
+    $user = User::factory()->create();
+
+    expect($user->role)->toBe('student');
+});
+
+test('user can be an admin', function () {
+    $user = User::factory()->create(['role' => 'admin']);
+
+    expect($user->role)->toBe('admin')
+        ->and($user->isAdmin())->toBeTrue()
+        ->and($user->isInstructor())->toBeFalse()
+        ->and($user->isStudent())->toBeFalse();
+});
+
+test('user can be an instructor', function () {
+    $user = User::factory()->create(['role' => 'instructor']);
+
+    expect($user->role)->toBe('instructor')
+        ->and($user->isInstructor())->toBeTrue()
+        ->and($user->isAdmin())->toBeFalse()
+        ->and($user->isStudent())->toBeFalse();
+});
+
+test('user can be a student', function () {
+    $user = User::factory()->create(['role' => 'student']);
+
+    expect($user->role)->toBe('student')
+        ->and($user->isStudent())->toBeTrue()
+        ->and($user->isAdmin())->toBeFalse()
+        ->and($user->isInstructor())->toBeFalse();
+});
+
+test('user has many step completions', function () {
+    $user = User::factory()->hasStepCompletions(2)->create();
+
+    expect($user->stepCompletions)->toHaveCount(2)
+        ->and($user->stepCompletions->first())->toBeInstanceOf(App\Models\StepCompletion::class);
+});
