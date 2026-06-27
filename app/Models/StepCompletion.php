@@ -16,11 +16,13 @@ class StepCompletion extends Model
     /** @use HasFactory<StepCompletionFactory> */
     use HasFactory;
 
+    /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /** @return BelongsTo<Step, $this> */
     public function step(): BelongsTo
     {
         return $this->belongsTo(Step::class);

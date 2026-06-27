@@ -52,9 +52,10 @@ class AdminLessonForm extends Component
             $this->authorize('create', Lesson::class);
         }
 
+        $lessonId = $this->lesson?->id;
         $this->validate([
             'title' => 'required|max:255',
-            'slug' => 'required|max:255|unique:lessons,slug,'.($this->lesson?->id ?? 'NULL').',id,course_id,'.$this->course->id,
+            'slug' => 'required|max:255|unique:lessons,slug,'.($lessonId ?? 'NULL').',id,course_id,'.$this->course->id,
             'description' => 'nullable',
             'published' => 'boolean',
             'order' => 'required|integer|min:0',

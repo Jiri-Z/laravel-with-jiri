@@ -20,6 +20,7 @@ class QuizViewer extends Component
 
     public int|string|null $selectedAnswer = null;
 
+    /** @var array<int, int|string> */
     public array $selectedAnswers = [];
 
     public string $textAnswer = '';

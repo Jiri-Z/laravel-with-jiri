@@ -48,9 +48,10 @@ class AdminCourseForm extends Component
             $this->authorize('create', Course::class);
         }
 
+        $courseId = $this->course?->id;
         $this->validate([
             'title' => 'required|max:255',
-            'slug' => 'required|max:255|unique:courses,slug,'.($this->course?->id ?? 'NULL'),
+            'slug' => 'required|max:255|unique:courses,slug,'.($courseId ?? 'NULL'),
             'description' => 'nullable',
             'published' => 'boolean',
             'order' => 'required|integer|min:0',

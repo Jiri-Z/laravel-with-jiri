@@ -31,7 +31,7 @@ class AdminLessonList extends Component
     public function render(): View
     {
         return view('livewire.admin-lesson-list', [
-            'lessons' => $this->course->lessons()->ordered()->get(),
+            'lessons' => Lesson::where('course_id', $this->course->id)->ordered()->get(),
         ]);
     }
 }
