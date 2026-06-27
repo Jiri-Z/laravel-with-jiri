@@ -32,8 +32,26 @@ test('lesson has fillable attributes', function () {
         ->order->toBe(1);
 });
 
+test('deleting lesson cascades to steps', function () {
+    $lesson = Lesson::factory()->create(['course_id' => Course::factory()]);
+    Step::factory()->count(2)->sequence(
+        ['order' => 1],
+        ['order' => 2],
+    )->create(['lesson_id' => $lesson->id]);
+    $stepIds = $lesson->steps()->pluck('id');
+
+    $lesson->delete();
+
+    expect(Step::whereIn('id', $stepIds)->exists())->toBeFalse();
+});
+
 test('lesson has many steps', function () {
-    $lesson = Lesson::factory()->hasSteps(3)->create(['course_id' => Course::factory()]);
+    $lesson = Lesson::factory()->create(['course_id' => Course::factory()]);
+    Step::factory()->count(3)->sequence(
+        ['order' => 1],
+        ['order' => 2],
+        ['order' => 3],
+    )->create(['lesson_id' => $lesson->id]);
 
     expect($lesson->steps)->toHaveCount(3)
         ->and($lesson->steps->first())->toBeInstanceOf(Step::class);

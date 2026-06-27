@@ -22,6 +22,11 @@ class User extends Authenticatable
         return $this->hasMany(StepCompletion::class);
     }
 
+    public function stepAnswers(): HasMany
+    {
+        return $this->hasMany(StepAnswer::class);
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === 'admin';

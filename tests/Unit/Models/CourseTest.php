@@ -21,6 +21,29 @@ test('course can be created with fillable attributes', function () {
         ->order->toBe(1);
 });
 
+test('course casts', function () {
+    $course = Course::factory()->create(['published' => true, 'order' => 5, 'description' => null]);
+
+    expect($course->published)->toBeTrue()
+        ->and($course->order)->toBe(5)
+        ->and($course->description)->toBeNull();
+});
+
+test('course description is nullable', function () {
+    $course = Course::factory()->create(['description' => null]);
+
+    expect($course->description)->toBeNull();
+});
+
+test('deleting course cascades to lessons and steps', function () {
+    $course = Course::factory()->hasLessons(2)->create();
+    $lessonIds = $course->lessons()->pluck('id');
+
+    $course->delete();
+
+    expect(Lesson::whereIn('id', $lessonIds)->exists())->toBeFalse();
+});
+
 test('course has many lessons', function () {
     $course = Course::factory()->hasLessons(3)->create();
 

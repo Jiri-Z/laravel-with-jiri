@@ -25,10 +25,24 @@ class Step extends Model
         return $this->hasMany(StepCompletion::class);
     }
 
+    public function answers(): HasMany
+    {
+        return $this->hasMany(StepAnswer::class);
+    }
+
     protected function casts(): array
     {
         return [
             'order' => 'integer',
         ];
+    }
+
+    public function getContentAsArray(): ?array
+    {
+        if (is_string($this->content) && str_starts_with($this->content, '{')) {
+            return json_decode($this->content, true);
+        }
+
+        return null;
     }
 }

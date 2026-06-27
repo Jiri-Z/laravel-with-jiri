@@ -26,7 +26,11 @@ class LessonDetailTest extends TestCase
             'course_id' => $course->id,
             'title' => 'My Lesson',
         ]);
-        Step::factory()->count(3)->create(['lesson_id' => $lesson->id]);
+        Step::factory()->count(3)->sequence(
+            ['order' => 1],
+            ['order' => 2],
+            ['order' => 3],
+        )->create(['lesson_id' => $lesson->id]);
 
         $response = $this->actingAs($user)->get("/courses/{$course->slug}/lessons/{$lesson->slug}");
 
@@ -57,5 +61,17 @@ class LessonDetailTest extends TestCase
         ]);
 
         $this->actingAs($user)->get("/courses/{$course->slug}/lessons/{$lesson->slug}")->assertNotFound();
+    }
+
+    public function test_empty_state_when_lesson_has_no_steps(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+
+        $response = $this->actingAs($user)->get("/courses/{$course->slug}/lessons/{$lesson->slug}");
+
+        $response->assertOk();
+        $response->assertSee('No steps available yet');
     }
 }

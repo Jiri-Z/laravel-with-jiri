@@ -14,9 +14,9 @@
                         @if ($step->type === 'reading')
                             {{ nl2br(e($step->content)) }}
                         @elseif (in_array($step->type, ['quiz_single', 'quiz_multiple', 'quiz_text']))
-                            <p class="text-gray-500 dark:text-gray-400 italic">Quiz step type coming soon.</p>
+                            <livewire:quiz-viewer :step="$step" wire:key="quiz-{{ $step->id }}" />
                         @elseif ($step->type === 'coding')
-                            <p class="text-gray-500 dark:text-gray-400 italic">Coding step type coming soon.</p>
+                            <livewire:coding-viewer :step="$step" wire:key="coding-{{ $step->id }}" />
                         @endif
                     </div>
 

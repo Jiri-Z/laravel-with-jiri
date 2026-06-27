@@ -52,4 +52,15 @@ class CourseDetailTest extends TestCase
 
         $response->assertSeeInOrder(['First', 'Second']);
     }
+
+    public function test_empty_state_when_course_has_no_published_lessons(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+
+        $response = $this->actingAs($user)->get("/courses/{$course->slug}");
+
+        $response->assertOk();
+        $response->assertSee('No lessons available yet');
+    }
 }

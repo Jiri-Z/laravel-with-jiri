@@ -36,4 +36,14 @@ class CourseBrowseTest extends TestCase
 
         $response->assertSeeInOrder(['First', 'Second']);
     }
+
+    public function test_empty_state_when_no_published_courses(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get('/courses');
+
+        $response->assertOk();
+        $response->assertSee('No courses available yet');
+    }
 }
