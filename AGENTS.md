@@ -2,6 +2,8 @@
 
 Greenfield e-learning platform. Laravel 13 + Livewire + Tailwind + Pest, scaffolded with Laravel Boost.
 
+**IMPORTANT: Laravel Boost MCP is installed and configured in `opencode.json`. You MUST use Boost's MCP tools — see `=== boost rules ===` section below for exact invocation instructions. Run `application-info` at session start, `search-docs` before every code change.**
+
 ## Stack
 - **Framework:** Laravel (latest), scaffolded with Laravel Boost
 - **Frontend:** Livewire + Tailwind CSS + Alpine.js
@@ -103,13 +105,29 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 # Laravel Boost
 
-## Tools
+## MCP Tools (invocation)
 
-- Laravel Boost is an MCP server with tools designed specifically for this application. Prefer Boost tools over manual alternatives like shell commands or file reads.
-- Use `database-query` to run read-only queries against the database instead of writing raw SQL in tinker.
-- Use `database-schema` to inspect table structure before writing migrations or models.
-- Use `get-absolute-url` to resolve the correct scheme, domain, and port for project URLs. Always use this before sharing a URL with the user.
-- Use `browser-logs` to read browser logs, errors, and exceptions. Only recent logs are useful, ignore old entries.
+Boost exposes 9 tools via the MCP protocol. These are NOT native shell commands — invoke them by piping a JSON-RPC request to `php artisan boost:mcp`:
+
+```bash
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"<tool>","arguments":{...}}}' | php artisan boost:mcp
+```
+
+At the start of every session, run `application-info` to get precise package versions, then `search-docs` before every code change. Available tools:
+
+| Tool | When to use | Example arguments |
+|------|-------------|-------------------|
+| `application-info` | **Every session start** — get PHP/Laravel version + all package versions | `{}` |
+| `search-docs` | **Before every code change** — search version-specific docs for any Laravel-ecosystem package | `{"queries":["Livewire components","form validation"],"packages":["livewire/livewire"]}` |
+| `database-schema` | Before writing migrations or models — inspect table structure | `{"summary":true}` or `{"filter":"courses","include_column_details":true}` |
+| `database-query` | Read-only SQL queries instead of tinker | `{"query":"SELECT * FROM courses WHERE published = 1"}` |
+| `database-connections` | List configured database connections | `{}` |
+| `browser-logs` | Debug frontend/JS issues | `{"entries":10}` |
+| `get-absolute-url` | Resolve routes to absolute URLs before sharing | `{"route":"courses.index"}` or `{"path":"/courses"}` |
+| `read-log-entries` | Read backend application logs | `{"entries":20}` |
+| `last-error` | Get the last backend exception details | `{}` |
+
+**Hard rule**: do NOT skip `search-docs` before writing any Laravel/Livewire/Pest code. Use `application-info` first to confirm package versions, then `search-docs` with relevant `packages` filter before the first code change of any session.
 
 ## Searching Documentation (IMPORTANT)
 
