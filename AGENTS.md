@@ -53,7 +53,7 @@ A smoke test is not complete until ALL of:
 | 1 | Laravel Boost scaffold | ✅ |
 | 2 | Migrations + models | ✅ |
 | 3 | Factories + seeders | ✅ |
-| 4 | Pest tests for models | ✅ (114 tests, 253 assertions) |
+| 4 | Pest tests for models | ✅ (135 tests, 302 assertions) |
 | 5 | Student views (reading) | ✅ |
 | 6 | Step completion + progress | ✅ |
 | 7 | Quiz step types | ✅ |
@@ -64,14 +64,16 @@ A smoke test is not complete until ALL of:
 | 12 | Polish (progress bars, states) | ❌ (partial) |
 | 13 | Full Pest pass | ❌ |
 
-## What was built in the last session
-- **Quiz step types**: StepAnswer model/migration/factory, QuizViewer Livewire component (single/multiple/text), tests
-- **Coding step type**: CodingViewer Livewire component, Monaco editor + php-wasm via dynamic CDN loading, Alpine.js integration, tests
-- **Seeders**: Fixed JSON keys, added `quiz_text` and `coding` step types
-- **Admin CRUD**: AdminCourseList/Form, AdminLessonList/Form, AdminStepList/Form — all full-page Livewire components with role-based access
-- **Policies**: CoursePolicy, LessonPolicy, StepPolicy (admin creates/edits/deletes everything, instructor creates/edits but can't delete, student blocked)
-- **Admin middleware**: Role gate for `/admin/*` routes
-- **Tests**: 20 new feature tests covering admin CRUD flows (create, edit, delete, role gating)
+## Quality roadmap (Phase 1 & 2 — completed)
+- **StepType enum**: Backed enum replacing all string literals across models, components, blades, factories, seeders, and tests
+- **Query scopes**: `published()` and `ordered()` on Course, Lesson, Step — replaces 6 inline `where→orderBy` chains
+- **`declare(strict_types=1)`**: Added to all 31 `app/` PHP files
+- **Larastan level 6**: Installed, all 30 errors fixed (generic types, null safety, type narrowing)
+- **IDE helper**: `barryvdh/laravel-ide-helper` with generated model PHPDocs
+- **Validation extraction**: `validationRules()` public method on all 3 admin form components
+- **Action classes**: `MarkStepComplete`, `SubmitQuizAnswer` — extracted from Livewire components, isolated unit tests
+- **ProgressService**: `courseProgress()` and `lessonComplete()` methods with subquery-based counting
+- **Tests**: 19 new tests across validation, actions, progress, and scopes
 
 ## Build order (suggested)
 1. Laravel Boost scaffold → auth, roles, base layout
