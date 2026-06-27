@@ -87,7 +87,7 @@ public function mount(ProgressService $progress): void
 | 10 | Role-based access (policies) | ✅ |
 | 11 | Ordering / reordering | ✅ |
 | 12 | Polish (progress bars, states) | ✅ |
-| 13 | Full Pest pass | ❌ |
+| 13 | Full Pest pass | ✅ (248 tests, 506 assertions) |
 
 ## Quality roadmap (Phase 1 & 2 — completed)
 - **StepType enum**: Backed enum replacing all string literals across models, components, blades, factories, seeders, and tests
