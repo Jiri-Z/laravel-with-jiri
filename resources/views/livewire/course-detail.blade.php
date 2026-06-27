@@ -14,7 +14,7 @@
                         <div class="p-6 flex items-center justify-between">
                             <div>
                                 <h3 class="text-lg font-medium text-gray-900 dark:text-white">
-                                    <a href="#" wire:navigate class="hover:underline">
+                                    <a href="{{ route('lessons.show', [$course->slug, $lesson->slug]) }}" wire:navigate class="hover:underline">
                                         {{ $lesson->title }}
                                     </a>
                                 </h3>
