@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\StepType;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Step;
@@ -50,7 +51,7 @@ class CourseSeeder extends Seeder
         Step::factory()->create([
             'lesson_id' => $lesson1->id,
             'title' => 'What is Laravel?',
-            'type' => 'reading',
+            'type' => StepType::Reading,
             'content' => "Laravel is a PHP web application framework with expressive, elegant syntax.\n\nIt provides a robust set of tools for building modern web applications, including:\n- Routing\n- Middleware\n- Eloquent ORM\n- Blade templating\n- Queues and jobs\n\nLaravel follows the MVC (Model-View-Controller) architectural pattern.",
             'order' => 1,
         ]);
@@ -58,7 +59,7 @@ class CourseSeeder extends Seeder
         Step::factory()->create([
             'lesson_id' => $lesson1->id,
             'title' => 'Quick Check',
-            'type' => 'quiz_single',
+            'type' => StepType::QuizSingle,
             'content' => json_encode([
                 'question' => 'Which architectural pattern does Laravel follow?',
                 'options' => ['MVP', 'MVC', 'MVVM', 'REST'],
@@ -70,7 +71,7 @@ class CourseSeeder extends Seeder
         Step::factory()->create([
             'lesson_id' => $lesson1->id,
             'title' => 'What is a framework?',
-            'type' => 'quiz_text',
+            'type' => StepType::QuizText,
             'content' => json_encode([
                 'question' => 'What directory are web routes defined in?',
                 'correct_answer' => 'routes/web.php',
@@ -90,7 +91,7 @@ class CourseSeeder extends Seeder
         Step::factory()->create([
             'lesson_id' => $lesson2->id,
             'title' => 'Defining Routes',
-            'type' => 'reading',
+            'type' => StepType::Reading,
             'content' => "Routes are defined in `routes/web.php` for web routes and `routes/api.php` for API routes.\n\nBasic route syntax:\n\n```php\nRoute::get('/hello', function () {\n    return 'Hello World';\n});\n```\n\nRoutes can be grouped, named, and restricted by middleware.",
             'order' => 1,
         ]);
@@ -98,7 +99,7 @@ class CourseSeeder extends Seeder
         Step::factory()->create([
             'lesson_id' => $lesson2->id,
             'title' => 'Route Types Quiz',
-            'type' => 'quiz_multiple',
+            'type' => StepType::QuizMultiple,
             'content' => json_encode([
                 'question' => 'Which HTTP methods can Laravel routes handle?',
                 'options' => ['GET', 'POST', 'PUT', 'DELETE', 'FETCH'],
@@ -127,7 +128,7 @@ class CourseSeeder extends Seeder
         Step::factory()->create([
             'lesson_id' => $lesson3->id,
             'title' => 'Creating a Migration',
-            'type' => 'reading',
+            'type' => StepType::Reading,
             'content' => "Migrations are like version control for your database. They allow you to define and share the database schema.\n\nCreate a migration:\n```bash\nphp artisan make:migration create_posts_table\n```\n\nMigrations define table columns and indexes using Laravel's schema builder.",
             'order' => 1,
         ]);
@@ -135,7 +136,7 @@ class CourseSeeder extends Seeder
         Step::factory()->create([
             'lesson_id' => $lesson3->id,
             'title' => 'Write Your First Migration',
-            'type' => 'coding',
+            'type' => StepType::Coding,
             'content' => json_encode([
                 'prompt' => "Write a PHP function that returns the string 'Migration created!'.",
                 'initial_code' => "<?php\n\nfunction createMigration() {\n    // Return the correct string\n}\n",

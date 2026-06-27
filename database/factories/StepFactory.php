@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\StepType;
 use App\Models\Lesson;
 use App\Models\Step;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -18,7 +19,7 @@ class StepFactory extends Factory
         return [
             'lesson_id' => Lesson::factory(),
             'title' => fake()->sentence(3),
-            'type' => fake()->randomElement(['reading', 'quiz_single', 'quiz_multiple', 'quiz_text', 'coding']),
+            'type' => fake()->randomElement(StepType::cases()),
             'content' => fake()->paragraphs(3, true),
             'order' => 0,
         ];
@@ -27,7 +28,7 @@ class StepFactory extends Factory
     public function reading(): static
     {
         return $this->state(fn (array $attributes) => [
-            'type' => 'reading',
+            'type' => StepType::Reading,
             'content' => fake()->paragraphs(5, true),
         ]);
     }
@@ -35,7 +36,7 @@ class StepFactory extends Factory
     public function quizSingle(): static
     {
         return $this->state(fn (array $attributes) => [
-            'type' => 'quiz_single',
+            'type' => StepType::QuizSingle,
             'content' => json_encode([
                 'question' => 'What is 2+2?',
                 'options' => ['3', '4', '5', '6'],
@@ -47,7 +48,7 @@ class StepFactory extends Factory
     public function quizMultiple(): static
     {
         return $this->state(fn (array $attributes) => [
-            'type' => 'quiz_multiple',
+            'type' => StepType::QuizMultiple,
             'content' => json_encode([
                 'question' => 'Which are programming languages?',
                 'options' => ['Python', 'HTML', 'CSS', 'JavaScript'],
@@ -59,7 +60,7 @@ class StepFactory extends Factory
     public function quizText(): static
     {
         return $this->state(fn (array $attributes) => [
-            'type' => 'quiz_text',
+            'type' => StepType::QuizText,
             'content' => json_encode([
                 'question' => 'What is the capital of France?',
                 'correct_answer' => 'Paris',
@@ -70,7 +71,7 @@ class StepFactory extends Factory
     public function coding(): static
     {
         return $this->state(fn (array $attributes) => [
-            'type' => 'coding',
+            'type' => StepType::Coding,
             'content' => json_encode([
                 'prompt' => 'Write a PHP function that returns the sum of two numbers.',
                 'initial_code' => "<?php\n\nfunction add(\$a, \$b) {\n    // Your code here\n}\n",

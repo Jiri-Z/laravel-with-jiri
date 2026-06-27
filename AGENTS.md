@@ -9,8 +9,11 @@ Greenfield e-learning platform. Laravel 13 + Livewire + Tailwind + Pest, scaffol
 1. **`application-info`** — run at session start, record versions below
 2. **`database-schema`** — inspect ALL tables relevant to the task *before* writing migrations, models, queries, or admin CRUD
 3. **`search-docs`** — run *before every code change* on the relevant package(s). `packages` filter is required. Broad, topic-based queries (e.g. `["Livewire full-page components", "route model binding", "nested component parameters"]`)
-4. **Write tests first** (Red-Green-Refactor)
-5. **Run affected tests** after every code change
+4. **TDD cycle — Red-Green-Refactor.** This is strict and non-negotiable:
+   - **Red** — write a failing test that describes the desired behaviour *before* any implementation code. Run it to confirm it fails (error dot or failure output). If no test changes, no code changes.
+   - **Green** — write the *minimum* implementation code to make the test pass. Do not add extra features, refactor, or beautify during this step.
+   - **Refactor** — clean up the implementation: rename variables, extract methods, remove duplication, add type hints. The test must still pass after every refactoring step. Run the test suite to confirm.
+5. **Run affected tests** after every code change (Green and Refactor each complete with a test run)
 6. **Pint** before commit
 7. **Manual verification** — start dev server + Vite, navigate to the feature in a real browser, verify the runtime behaviour. "I started the server" is NOT a smoke test.
 
@@ -221,6 +224,7 @@ At the start of every session, run `application-info` to get precise package ver
 
 # Test Enforcement
 
+- **Strict TDD is mandatory**: Red → Green → Refactor in that order. Never write implementation before a failing test. Never refactor before all tests pass.
 - Every change must be programmatically tested. Write a new test or update an existing test, then run the affected tests to make sure they pass.
 - Run the minimum number of tests needed to ensure code quality and speed. Use `php artisan test --compact` with a specific filename or filter.
 

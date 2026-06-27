@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\StepType;
 use App\Models\Course;
 use App\Models\Step;
 use App\Models\User;
@@ -21,7 +22,7 @@ class SmokeTest extends TestCase
         ]);
         $step = $lesson->steps()->create([
             'title' => 'Test Coding',
-            'type' => 'coding',
+            'type' => StepType::Coding,
             'content' => json_encode([
                 'prompt' => 'Write PHP code',
                 'initial_code' => "<?php\n",

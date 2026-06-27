@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Enums\StepType;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Step;
@@ -35,7 +36,7 @@ class AdminStepForm extends Component
         if ($step) {
             $this->authorize('update', $step);
             $this->title = $step->title;
-            $this->type = $step->type;
+            $this->type = $step->type->value;
             $this->content = $step->content;
             $this->order = $step->order;
         } else {
@@ -53,7 +54,7 @@ class AdminStepForm extends Component
 
         $this->validate([
             'title' => 'required|max:255',
-            'type' => 'required|in:reading,quiz_single,quiz_multiple,quiz_text,coding',
+            'type' => 'required|in:'.implode(',', array_map(fn (StepType $t) => $t->value, StepType::cases())),
             'content' => 'required',
             'order' => 'required|integer|min:0',
         ]);

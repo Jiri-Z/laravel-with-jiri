@@ -1,9 +1,10 @@
+@use('App\Enums\StepType')
 @php $quizContent = $step->getContentAsArray(); @endphp
 <div>
     <div class="mb-6">
         <p class="text-lg text-gray-900 dark:text-white mb-4">{{ $quizContent['question'] ?? '' }}</p>
 
-        @if ($step->type === 'quiz_single')
+        @if ($step->type === StepType::QuizSingle)
             <div class="space-y-2">
                 @foreach ($quizContent['options'] ?? [] as $index => $option)
                     <label class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-750 {{ $submitted ? 'pointer-events-none opacity-75' : '' }}">
@@ -12,7 +13,7 @@
                     </label>
                 @endforeach
             </div>
-        @elseif ($step->type === 'quiz_multiple')
+        @elseif ($step->type === StepType::QuizMultiple)
             <div class="space-y-2">
                 @foreach ($quizContent['options'] ?? [] as $index => $option)
                     <label class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-750 {{ $submitted ? 'pointer-events-none opacity-75' : '' }}">
@@ -21,7 +22,7 @@
                     </label>
                 @endforeach
             </div>
-        @elseif ($step->type === 'quiz_text')
+        @elseif ($step->type === StepType::QuizText)
             <div>
                 <textarea wire:model="textAnswer" rows="3" class="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:border-indigo-500 focus:ring-indigo-500" {{ $submitted ? 'disabled' : '' }}></textarea>
             </div>

@@ -1,3 +1,4 @@
+@use('App\Enums\StepType')
 <div>
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -11,11 +12,11 @@
                     </div>
 
                     <div class="prose dark:prose-invert max-w-none mb-8">
-                        @if ($step->type === 'reading')
+                        @if ($step->type === StepType::Reading)
                             {{ nl2br(e($step->content)) }}
-                        @elseif (in_array($step->type, ['quiz_single', 'quiz_multiple', 'quiz_text']))
+                        @elseif (in_array($step->type, [StepType::QuizSingle, StepType::QuizMultiple, StepType::QuizText]))
                             <livewire:quiz-viewer :step="$step" wire:key="quiz-{{ $step->id }}" />
-                        @elseif ($step->type === 'coding')
+                        @elseif ($step->type === StepType::Coding)
                             <livewire:coding-viewer :step="$step" wire:key="coding-{{ $step->id }}" />
                         @endif
                     </div>

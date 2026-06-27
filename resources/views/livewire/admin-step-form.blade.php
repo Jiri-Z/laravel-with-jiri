@@ -1,3 +1,4 @@
+@use('App\Enums\StepType')
 <div>
     <div class="py-12">
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
@@ -17,11 +18,9 @@
                         <div>
                             <label for="type" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Type</label>
                             <select wire:model="type" id="type" class="mt-1 block w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:border-indigo-500 focus:ring-indigo-500">
-                                <option value="reading">Reading</option>
-                                <option value="quiz_single">Quiz (Single Choice)</option>
-                                <option value="quiz_multiple">Quiz (Multiple Choice)</option>
-                                <option value="quiz_text">Quiz (Text)</option>
-                                <option value="coding">Coding</option>
+                                @foreach (StepType::cases() as $stepType)
+                                    <option value="{{ $stepType->value }}">{{ $stepType->name }}</option>
+                                @endforeach
                             </select>
                             @error('type') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                         </div>

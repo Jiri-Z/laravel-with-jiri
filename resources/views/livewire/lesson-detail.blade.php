@@ -25,7 +25,7 @@
                                         </a>
                                     </h3>
                                     <span class="text-sm text-gray-500 dark:text-gray-400">
-                                        {{ str_replace('_', ' ', ucfirst($step->type)) }}
+                                        {{ str_replace('_', ' ', ucfirst($step->type->value)) }}
                                     </span>
                                 </div>
                             </div>

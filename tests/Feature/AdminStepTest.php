@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\StepType;
 use App\Livewire\AdminStepForm;
 use App\Livewire\AdminStepList;
 use App\Models\Course;
@@ -31,7 +32,7 @@ class AdminStepTest extends TestCase
         Livewire::actingAs($user)
             ->test(AdminStepForm::class, ['course' => $course, 'lesson' => $lesson])
             ->set('title', 'New Step')
-            ->set('type', 'reading')
+            ->set('type', StepType::Reading->value)
             ->set('content', 'Step content here')
             ->set('order', 1)
             ->call('save')
@@ -40,7 +41,7 @@ class AdminStepTest extends TestCase
         $this->assertDatabaseHas('steps', [
             'lesson_id' => $lesson->id,
             'title' => 'New Step',
-            'type' => 'reading',
+            'type' => StepType::Reading->value,
         ]);
     }
 

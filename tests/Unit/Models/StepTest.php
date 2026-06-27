@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\StepType;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Step;
@@ -20,14 +21,14 @@ test('step has fillable attributes', function () {
     $step = Step::factory()->create([
         'lesson_id' => $lesson->id,
         'title' => 'Installation',
-        'type' => 'reading',
+        'type' => StepType::Reading,
         'content' => 'Step content here',
         'order' => 1,
     ]);
 
     expect($step)
         ->title->toBe('Installation')
-        ->type->toBe('reading')
+        ->type->toBe(StepType::Reading)
         ->content->toBe('Step content here')
         ->order->toBe(1);
 });
@@ -61,8 +62,7 @@ test('step has many completions', function () {
 test('step has valid type values', function () {
     $lesson = Lesson::factory()->create(['course_id' => Course::factory()]);
 
-    $types = ['reading', 'quiz_single', 'quiz_multiple', 'quiz_text', 'coding'];
-    foreach ($types as $index => $type) {
+    foreach (StepType::cases() as $index => $type) {
         $step = Step::factory()->create([
             'lesson_id' => $lesson->id,
             'type' => $type,

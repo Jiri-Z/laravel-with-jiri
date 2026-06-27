@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Enums\StepType;
 use App\Models\Step;
 use App\Models\StepAnswer;
 use Illuminate\Contracts\View\View;
@@ -42,15 +43,15 @@ class QuizViewer extends Component
         $content = $this->step->getContentAsArray();
 
         $isCorrect = match ($this->step->type) {
-            'quiz_single' => $this->selectedAnswer == ($content['correct_answer'] ?? null),
-            'quiz_multiple' => ! array_diff(
+            StepType::QuizSingle => $this->selectedAnswer == ($content['correct_answer'] ?? null),
+            StepType::QuizMultiple => ! array_diff(
                 $this->selectedAnswers,
                 $content['correct_answers'] ?? []
             ) && ! array_diff(
                 $content['correct_answers'] ?? [],
                 $this->selectedAnswers
             ),
-            'quiz_text' => strcasecmp(
+            StepType::QuizText => strcasecmp(
                 trim($this->textAnswer),
                 trim($content['correct_answer'] ?? '')
             ) === 0,
@@ -58,9 +59,9 @@ class QuizViewer extends Component
         };
 
         $answer = match ($this->step->type) {
-            'quiz_single' => (string) $this->selectedAnswer,
-            'quiz_multiple' => json_encode($this->selectedAnswers),
-            'quiz_text' => $this->textAnswer,
+            StepType::QuizSingle => (string) $this->selectedAnswer,
+            StepType::QuizMultiple => json_encode($this->selectedAnswers),
+            StepType::QuizText => $this->textAnswer,
             default => '',
         };
 

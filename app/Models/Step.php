@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\StepType;
 use Database\Factories\StepFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -34,6 +35,7 @@ class Step extends Model
     {
         return [
             'order' => 'integer',
+            'type' => StepType::class,
         ];
     }
 
