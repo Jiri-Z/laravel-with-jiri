@@ -46,6 +46,16 @@ class AdminStepForm extends Component
         }
     }
 
+    public function validationRules(): array
+    {
+        return [
+            'title' => 'required|max:255',
+            'type' => 'required|in:'.implode(',', array_map(fn (StepType $t) => $t->value, StepType::cases())),
+            'content' => 'required',
+            'order' => 'required|integer|min:0',
+        ];
+    }
+
     public function save(): void
     {
         if ($this->step) {
@@ -54,12 +64,7 @@ class AdminStepForm extends Component
             $this->authorize('create', Step::class);
         }
 
-        $this->validate([
-            'title' => 'required|max:255',
-            'type' => 'required|in:'.implode(',', array_map(fn (StepType $t) => $t->value, StepType::cases())),
-            'content' => 'required',
-            'order' => 'required|integer|min:0',
-        ]);
+        $this->validate($this->validationRules());
 
         $data = [
             'lesson_id' => $this->lesson->id,

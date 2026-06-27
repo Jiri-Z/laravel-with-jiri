@@ -44,6 +44,19 @@ class AdminLessonForm extends Component
         }
     }
 
+    public function validationRules(): array
+    {
+        $lessonId = $this->lesson?->id;
+
+        return [
+            'title' => 'required|max:255',
+            'slug' => 'required|max:255|unique:lessons,slug,'.($lessonId ?? 'NULL').',id,course_id,'.$this->course->id,
+            'description' => 'nullable',
+            'published' => 'boolean',
+            'order' => 'required|integer|min:0',
+        ];
+    }
+
     public function save(): void
     {
         if ($this->lesson) {
@@ -52,14 +65,7 @@ class AdminLessonForm extends Component
             $this->authorize('create', Lesson::class);
         }
 
-        $lessonId = $this->lesson?->id;
-        $this->validate([
-            'title' => 'required|max:255',
-            'slug' => 'required|max:255|unique:lessons,slug,'.($lessonId ?? 'NULL').',id,course_id,'.$this->course->id,
-            'description' => 'nullable',
-            'published' => 'boolean',
-            'order' => 'required|integer|min:0',
-        ]);
+        $this->validate($this->validationRules());
 
         $data = [
             'course_id' => $this->course->id,

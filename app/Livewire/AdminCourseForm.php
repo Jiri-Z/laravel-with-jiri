@@ -40,6 +40,19 @@ class AdminCourseForm extends Component
         }
     }
 
+    public function validationRules(): array
+    {
+        $courseId = $this->course?->id;
+
+        return [
+            'title' => 'required|max:255',
+            'slug' => 'required|max:255|unique:courses,slug,'.($courseId ?? 'NULL'),
+            'description' => 'nullable',
+            'published' => 'boolean',
+            'order' => 'required|integer|min:0',
+        ];
+    }
+
     public function save(): void
     {
         if ($this->course) {
@@ -48,14 +61,7 @@ class AdminCourseForm extends Component
             $this->authorize('create', Course::class);
         }
 
-        $courseId = $this->course?->id;
-        $this->validate([
-            'title' => 'required|max:255',
-            'slug' => 'required|max:255|unique:courses,slug,'.($courseId ?? 'NULL'),
-            'description' => 'nullable',
-            'published' => 'boolean',
-            'order' => 'required|integer|min:0',
-        ]);
+        $this->validate($this->validationRules());
 
         $data = [
             'title' => $this->title,
