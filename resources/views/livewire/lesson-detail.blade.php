@@ -15,9 +15,15 @@
                     <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-6 flex items-center justify-between">
                             <div class="flex items-center gap-4">
-                                <span class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-sm font-medium text-indigo-600 dark:text-indigo-300">
-                                    {{ $step->order }}
-                                </span>
+                                @if ($stepCompletion[$step->id])
+                                    <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                @else
+                                    <span class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-sm font-medium text-indigo-600 dark:text-indigo-300">
+                                        {{ $step->order }}
+                                    </span>
+                                @endif
                                 <div>
                                     <h3 class="text-lg font-medium text-gray-900 dark:text-white">
                                         <a href="{{ route('steps.show', [$course->slug, $lesson->slug, $step->id]) }}" wire:navigate class="hover:underline">
@@ -26,6 +32,9 @@
                                     </h3>
                                     <span class="text-sm text-gray-500 dark:text-gray-400">
                                         {{ str_replace('_', ' ', ucfirst($step->type->value)) }}
+                                        @if ($stepCompletion[$step->id])
+                                            &middot; <span class="text-green-600 dark:text-green-400 font-medium">Completed</span>
+                                        @endif
                                     </span>
                                 </div>
                             </div>

@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Step;
+use App\Models\StepCompletion;
 use App\Models\User;
 use Tests\TestCase;
 
@@ -73,5 +74,23 @@ class LessonDetailTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('No steps available yet');
+    }
+
+    public function test_lesson_detail_shows_step_completion_badge(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id, 'title' => 'My Lesson']);
+        $step = Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 1, 'title' => 'The Step']);
+
+        StepCompletion::factory()->create([
+            'user_id' => $user->id,
+            'step_id' => $step->id,
+        ]);
+
+        $response = $this->actingAs($user)->get("/courses/{$course->slug}/lessons/{$lesson->slug}");
+        $response->assertOk();
+        $response->assertSee('The Step');
+        $response->assertSee('Completed');
     }
 }

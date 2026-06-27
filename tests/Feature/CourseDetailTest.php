@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\Course;
 use App\Models\Lesson;
+use App\Models\Step;
+use App\Models\StepCompletion;
 use App\Models\User;
 use Tests\TestCase;
 
@@ -62,5 +64,41 @@ class CourseDetailTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('No lessons available yet');
+    }
+
+    public function test_course_detail_shows_progress_bar(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step1 = Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 1]);
+        Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 2]);
+
+        StepCompletion::factory()->create([
+            'user_id' => $user->id,
+            'step_id' => $step1->id,
+        ]);
+
+        $response = $this->actingAs($user)->get("/courses/{$course->slug}");
+        $response->assertOk();
+        $response->assertSee('50%');
+    }
+
+    public function test_course_detail_shows_lesson_completion_badge(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id, 'title' => 'Finished Lesson']);
+        $step = Step::factory()->create(['lesson_id' => $lesson->id]);
+
+        StepCompletion::factory()->create([
+            'user_id' => $user->id,
+            'step_id' => $step->id,
+        ]);
+
+        $response = $this->actingAs($user)->get("/courses/{$course->slug}");
+        $response->assertOk();
+        $response->assertSee('Finished Lesson');
+        $response->assertSee('Lesson complete');
     }
 }

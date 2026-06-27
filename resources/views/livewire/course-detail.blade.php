@@ -4,7 +4,17 @@
             <a href="{{ route('courses.index') }}" wire:navigate class="text-sm text-gray-600 dark:text-gray-400 hover:underline mb-4 inline-block">&larr; Back to courses</a>
 
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">{{ $course->title }}</h1>
-            <p class="text-gray-600 dark:text-gray-400 mb-8">{{ $course->description }}</p>
+            <p class="text-gray-600 dark:text-gray-400 mb-4">{{ $course->description }}</p>
+
+            <div class="mb-8">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Course progress</span>
+                    <span class="text-sm font-medium text-indigo-600 dark:text-indigo-400">{{ $courseProgress }}%</span>
+                </div>
+                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                    <div class="bg-indigo-600 h-2.5 rounded-full transition-all" style="width: {{ $courseProgress }}%"></div>
+                </div>
+            </div>
 
             <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Lessons</h2>
 
@@ -22,7 +32,12 @@
                                     <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ Str::limit($lesson->description, 100) }}</p>
                                 @endif
                             </div>
-                            <span class="text-sm text-gray-500 dark:text-gray-400">Lesson {{ $lesson->order }}</span>
+                            <div class="flex items-center gap-3">
+                                @if ($lessonCompletion[$lesson->id])
+                                    <span class="text-sm text-green-600 dark:text-green-400 font-medium">Lesson complete</span>
+                                @endif
+                                <span class="text-sm text-gray-500 dark:text-gray-400">Lesson {{ $lesson->order }}</span>
+                            </div>
                         </div>
                     </div>
                 @empty

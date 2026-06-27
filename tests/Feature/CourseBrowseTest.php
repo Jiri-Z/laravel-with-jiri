@@ -3,6 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\Course;
+use App\Models\Lesson;
+use App\Models\Step;
+use App\Models\StepCompletion;
 use App\Models\User;
 use Tests\TestCase;
 
@@ -45,5 +48,22 @@ class CourseBrowseTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('No courses available yet');
+    }
+
+    public function test_authenticated_user_sees_progress_indicator(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->create(['lesson_id' => $lesson->id]);
+
+        $this->actingAs($user)->get('/courses')->assertSee('0%');
+
+        StepCompletion::factory()->create([
+            'user_id' => $user->id,
+            'step_id' => $step->id,
+        ]);
+
+        $this->actingAs($user)->get('/courses')->assertSee('100%');
     }
 }

@@ -15,10 +15,14 @@
                             <p class="text-gray-600 dark:text-gray-400 mb-4">
                                 {{ Str::limit($course->description, 150) }}
                             </p>
-                            <div class="flex items-center justify-between">
+                            <div class="flex items-center justify-between mb-2">
                                 <span class="text-sm text-gray-500 dark:text-gray-400">
                                     {{ $course->lessons_count }} {{ Str::plural('lesson', $course->lessons_count) }}
                                 </span>
+                                <span class="text-sm font-medium text-indigo-600 dark:text-indigo-400">{{ $progressData[$course->id] }}%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                <div class="bg-indigo-600 h-2 rounded-full transition-all" style="width: {{ $progressData[$course->id] }}%"></div>
                             </div>
                         </div>
                     </div>
