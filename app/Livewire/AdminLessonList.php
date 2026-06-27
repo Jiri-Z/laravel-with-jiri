@@ -28,6 +28,46 @@ class AdminLessonList extends Component
         $lesson->delete();
     }
 
+    public function moveUp(int $lessonId): void
+    {
+        $lesson = Lesson::findOrFail($lessonId);
+        $previous = Lesson::where('course_id', $this->course->id)
+            ->where('order', '<', $lesson->order)
+            ->orderBy('order', 'desc')
+            ->first();
+
+        if ($previous === null) {
+            return;
+        }
+
+        $lessonOrder = $lesson->order;
+        $previousOrder = $previous->order;
+
+        $previous->update(['order' => -1]);
+        $lesson->update(['order' => $previousOrder]);
+        $previous->update(['order' => $lessonOrder]);
+    }
+
+    public function moveDown(int $lessonId): void
+    {
+        $lesson = Lesson::findOrFail($lessonId);
+        $next = Lesson::where('course_id', $this->course->id)
+            ->where('order', '>', $lesson->order)
+            ->orderBy('order')
+            ->first();
+
+        if ($next === null) {
+            return;
+        }
+
+        $lessonOrder = $lesson->order;
+        $nextOrder = $next->order;
+
+        $next->update(['order' => -1]);
+        $lesson->update(['order' => $nextOrder]);
+        $next->update(['order' => $lessonOrder]);
+    }
+
     public function render(): View
     {
         return view('livewire.admin-lesson-list', [

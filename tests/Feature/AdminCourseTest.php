@@ -105,4 +105,32 @@ class AdminCourseTest extends TestCase
             ->assertSee('Pub Course')
             ->assertSee('Draft Course');
     }
+
+    public function test_move_up_swaps_order_with_previous_course(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $a = Course::factory()->create(['order' => 1, 'title' => 'Alpha']);
+        $b = Course::factory()->create(['order' => 2, 'title' => 'Beta']);
+
+        Livewire::actingAs($user)
+            ->test(AdminCourseList::class)
+            ->call('moveUp', $b->id);
+
+        $this->assertDatabaseHas('courses', ['id' => $a->id, 'order' => 2]);
+        $this->assertDatabaseHas('courses', ['id' => $b->id, 'order' => 1]);
+    }
+
+    public function test_move_down_swaps_order_with_next_course(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $a = Course::factory()->create(['order' => 1, 'title' => 'Alpha']);
+        $b = Course::factory()->create(['order' => 2, 'title' => 'Beta']);
+
+        Livewire::actingAs($user)
+            ->test(AdminCourseList::class)
+            ->call('moveDown', $a->id);
+
+        $this->assertDatabaseHas('courses', ['id' => $a->id, 'order' => 2]);
+        $this->assertDatabaseHas('courses', ['id' => $b->id, 'order' => 1]);
+    }
 }

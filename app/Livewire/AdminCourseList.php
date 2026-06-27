@@ -24,6 +24,44 @@ class AdminCourseList extends Component
         $course->delete();
     }
 
+    public function moveUp(int $courseId): void
+    {
+        $course = Course::findOrFail($courseId);
+        $previous = Course::where('order', '<', $course->order)
+            ->orderBy('order', 'desc')
+            ->first();
+
+        if ($previous === null) {
+            return;
+        }
+
+        $courseOrder = $course->order;
+        $previousOrder = $previous->order;
+
+        $previous->update(['order' => -1]);
+        $course->update(['order' => $previousOrder]);
+        $previous->update(['order' => $courseOrder]);
+    }
+
+    public function moveDown(int $courseId): void
+    {
+        $course = Course::findOrFail($courseId);
+        $next = Course::where('order', '>', $course->order)
+            ->orderBy('order')
+            ->first();
+
+        if ($next === null) {
+            return;
+        }
+
+        $courseOrder = $course->order;
+        $nextOrder = $next->order;
+
+        $next->update(['order' => -1]);
+        $course->update(['order' => $nextOrder]);
+        $next->update(['order' => $courseOrder]);
+    }
+
     public function render(): View
     {
         return view('livewire.admin-course-list', [

@@ -97,4 +97,34 @@ class AdminLessonTest extends TestCase
             ->assertSee('Pub Lesson')
             ->assertSee('Draft Lesson');
     }
+
+    public function test_move_up_swaps_order_with_previous_lesson(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $course = Course::factory()->create();
+        $a = Lesson::factory()->create(['course_id' => $course->id, 'order' => 1]);
+        $b = Lesson::factory()->create(['course_id' => $course->id, 'order' => 2]);
+
+        Livewire::actingAs($user)
+            ->test(AdminLessonList::class, ['course' => $course])
+            ->call('moveUp', $b->id);
+
+        $this->assertDatabaseHas('lessons', ['id' => $a->id, 'order' => 2]);
+        $this->assertDatabaseHas('lessons', ['id' => $b->id, 'order' => 1]);
+    }
+
+    public function test_move_down_swaps_order_with_next_lesson(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $course = Course::factory()->create();
+        $a = Lesson::factory()->create(['course_id' => $course->id, 'order' => 1]);
+        $b = Lesson::factory()->create(['course_id' => $course->id, 'order' => 2]);
+
+        Livewire::actingAs($user)
+            ->test(AdminLessonList::class, ['course' => $course])
+            ->call('moveDown', $a->id);
+
+        $this->assertDatabaseHas('lessons', ['id' => $a->id, 'order' => 2]);
+        $this->assertDatabaseHas('lessons', ['id' => $b->id, 'order' => 1]);
+    }
 }

@@ -27,7 +27,13 @@
                             <tbody>
                                 @foreach ($lessons as $lesson)
                                     <tr class="border-b border-gray-100 dark:border-gray-700">
-                                        <td class="py-3 text-sm text-gray-900 dark:text-white">{{ $lesson->order }}</td>
+                                        <td class="py-3 text-sm text-gray-900 dark:text-white">
+                                            <div class="flex items-center gap-1">
+                                                <button wire:click="moveUp({{ $lesson->id }})" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" title="Move up">&uarr;</button>
+                                                <span>{{ $lesson->order }}</span>
+                                                <button wire:click="moveDown({{ $lesson->id }})" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" title="Move down">&darr;</button>
+                                            </div>
+                                        </td>
                                         <td class="py-3 text-sm text-gray-900 dark:text-white">
                                             <a href="{{ route('admin.lessons.edit', [$course, $lesson]) }}" wire:navigate class="hover:underline">{{ $lesson->title }}</a>
                                         </td>

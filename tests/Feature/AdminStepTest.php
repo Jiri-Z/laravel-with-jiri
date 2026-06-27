@@ -100,4 +100,36 @@ class AdminStepTest extends TestCase
 
         $this->actingAs($user)->get("/admin/courses/{$course->id}/lessons/{$lesson->id}/steps")->assertForbidden();
     }
+
+    public function test_move_up_swaps_order_with_previous_step(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $course = Course::factory()->create();
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+        $a = Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 1]);
+        $b = Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 2]);
+
+        Livewire::actingAs($user)
+            ->test(AdminStepList::class, ['course' => $course, 'lesson' => $lesson])
+            ->call('moveUp', $b->id);
+
+        $this->assertDatabaseHas('steps', ['id' => $a->id, 'order' => 2]);
+        $this->assertDatabaseHas('steps', ['id' => $b->id, 'order' => 1]);
+    }
+
+    public function test_move_down_swaps_order_with_next_step(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $course = Course::factory()->create();
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+        $a = Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 1]);
+        $b = Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 2]);
+
+        Livewire::actingAs($user)
+            ->test(AdminStepList::class, ['course' => $course, 'lesson' => $lesson])
+            ->call('moveDown', $a->id);
+
+        $this->assertDatabaseHas('steps', ['id' => $a->id, 'order' => 2]);
+        $this->assertDatabaseHas('steps', ['id' => $b->id, 'order' => 1]);
+    }
 }

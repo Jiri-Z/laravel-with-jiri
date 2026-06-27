@@ -32,6 +32,46 @@ class AdminStepList extends Component
         $step->delete();
     }
 
+    public function moveUp(int $stepId): void
+    {
+        $step = Step::findOrFail($stepId);
+        $previous = Step::where('lesson_id', $this->lesson->id)
+            ->where('order', '<', $step->order)
+            ->orderBy('order', 'desc')
+            ->first();
+
+        if ($previous === null) {
+            return;
+        }
+
+        $stepOrder = $step->order;
+        $previousOrder = $previous->order;
+
+        $previous->update(['order' => -1]);
+        $step->update(['order' => $previousOrder]);
+        $previous->update(['order' => $stepOrder]);
+    }
+
+    public function moveDown(int $stepId): void
+    {
+        $step = Step::findOrFail($stepId);
+        $next = Step::where('lesson_id', $this->lesson->id)
+            ->where('order', '>', $step->order)
+            ->orderBy('order')
+            ->first();
+
+        if ($next === null) {
+            return;
+        }
+
+        $stepOrder = $step->order;
+        $nextOrder = $next->order;
+
+        $next->update(['order' => -1]);
+        $step->update(['order' => $nextOrder]);
+        $next->update(['order' => $stepOrder]);
+    }
+
     public function render(): View
     {
         return view('livewire.admin-step-list', [
