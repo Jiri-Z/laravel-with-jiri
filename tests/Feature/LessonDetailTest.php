@@ -93,4 +93,41 @@ class LessonDetailTest extends TestCase
         $response->assertSee('The Step');
         $response->assertSee('Completed');
     }
+
+    public function test_lesson_from_wrong_course_returns_404(): void
+    {
+        $user = User::factory()->create();
+        $courseA = Course::factory()->published()->create();
+        $courseB = Course::factory()->published()->create();
+        $lesson = Lesson::factory()->published()->create(['course_id' => $courseA->id]);
+
+        $this->actingAs($user)
+            ->get("/courses/{$courseB->slug}/lessons/{$lesson->slug}")
+            ->assertNotFound();
+    }
+
+    public function test_draft_course_hides_published_lesson(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->create(['published' => false]);
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+
+        $this->actingAs($user)
+            ->get("/courses/{$course->slug}/lessons/{$lesson->slug}")
+            ->assertNotFound();
+    }
+
+    public function test_incomplete_step_does_not_show_completed_badge(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 1, 'title' => 'Pending Step']);
+
+        $response = $this->actingAs($user)
+            ->get("/courses/{$course->slug}/lessons/{$lesson->slug}");
+        $response->assertOk();
+        $response->assertSee('Pending Step');
+        $response->assertDontSee('Completed');
+    }
 }

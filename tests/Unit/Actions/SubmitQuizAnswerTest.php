@@ -3,6 +3,7 @@
 namespace Tests\Unit\Actions;
 
 use App\Actions\SubmitQuizAnswer;
+use App\Enums\StepType;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Step;
@@ -52,5 +53,85 @@ class SubmitQuizAnswerTest extends TestCase
         $result = (new SubmitQuizAnswer)->handle($user, $step, 'paris');
 
         expect($result->isCorrect)->toBeTrue();
+    }
+
+    public function test_quiz_multiple_with_wrong_answer_returns_incorrect(): void
+    {
+        $user = User::factory()->create();
+        $step = Step::factory()->quizMultiple()->create([
+            'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+        ]);
+
+        $result = (new SubmitQuizAnswer)->handle($user, $step, [1, 2]);
+
+        expect($result->isCorrect)->toBeFalse();
+    }
+
+    public function test_quiz_multiple_with_partial_selection_returns_incorrect(): void
+    {
+        $user = User::factory()->create();
+        $step = Step::factory()->quizMultiple()->create([
+            'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+        ]);
+
+        $result = (new SubmitQuizAnswer)->handle($user, $step, [0]);
+
+        expect($result->isCorrect)->toBeFalse();
+    }
+
+    public function test_handles_null_answer_for_quiz_single(): void
+    {
+        $user = User::factory()->create();
+        $step = Step::factory()->quizSingle()->create([
+            'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+        ]);
+
+        $result = (new SubmitQuizAnswer)->handle($user, $step, null);
+
+        expect($result->isCorrect)->toBeFalse();
+    }
+
+    public function test_handles_empty_answer_for_quiz_text(): void
+    {
+        $user = User::factory()->create();
+        $step = Step::factory()->quizText()->create([
+            'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+        ]);
+
+        $result = (new SubmitQuizAnswer)->handle($user, $step, '');
+
+        expect($result->isCorrect)->toBeFalse();
+    }
+
+    public function test_handles_malformed_step_content_gracefully(): void
+    {
+        $user = User::factory()->create();
+        $step = Step::factory()->create([
+            'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+            'type' => StepType::QuizSingle,
+            'content' => '{invalid json}',
+        ]);
+
+        $result = (new SubmitQuizAnswer)->handle($user, $step, 0);
+
+        expect($result->isCorrect)->toBeFalse();
+        $this->assertDatabaseHas('step_answers', [
+            'user_id' => $user->id,
+            'step_id' => $step->id,
+            'is_correct' => false,
+        ]);
+    }
+
+    public function test_reading_step_type_defaults_to_incorrect(): void
+    {
+        $user = User::factory()->create();
+        $step = Step::factory()->reading()->create([
+            'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+        ]);
+
+        $result = (new SubmitQuizAnswer)->handle($user, $step, 'anything');
+
+        expect($result->isCorrect)->toBeFalse();
+        expect($result->answer)->toBe('');
     }
 }

@@ -29,6 +29,10 @@ class AdminLessonForm extends Component
 
     public function mount(Course $course, ?Lesson $lesson = null): void
     {
+        if ($lesson && $lesson->course_id !== $course->id) {
+            abort(404);
+        }
+
         $this->course = $course;
         $this->lesson = $lesson;
 

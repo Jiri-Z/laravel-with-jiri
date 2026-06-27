@@ -101,4 +101,47 @@ class CourseDetailTest extends TestCase
         $response->assertSee('Finished Lesson');
         $response->assertSee('Lesson complete');
     }
+
+    public function test_unpublished_lessons_are_hidden(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create(['title' => 'My Course']);
+        Lesson::factory()->published()->create(['course_id' => $course->id, 'title' => 'Visible Lesson']);
+        Lesson::factory()->create(['course_id' => $course->id, 'title' => 'Hidden Lesson', 'published' => false]);
+
+        $response = $this->actingAs($user)->get("/courses/{$course->slug}");
+        $response->assertOk();
+        $response->assertSee('Visible Lesson');
+        $response->assertDontSee('Hidden Lesson');
+    }
+
+    public function test_nonexistent_course_slug_returns_404(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->get('/courses/nonexistent-slug')->assertNotFound();
+    }
+
+    public function test_course_detail_shows_no_lessons_for_db_empty(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+
+        $response = $this->actingAs($user)->get("/courses/{$course->slug}");
+        $response->assertOk();
+        $response->assertSee('No lessons available yet');
+    }
+
+    public function test_incomplete_lesson_does_not_show_completion_badge(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id, 'title' => 'Unfinished']);
+        Step::factory()->create(['lesson_id' => $lesson->id]);
+
+        $response = $this->actingAs($user)->get("/courses/{$course->slug}");
+        $response->assertOk();
+        $response->assertSee('Unfinished');
+        $response->assertDontSee('Lesson complete');
+    }
 }

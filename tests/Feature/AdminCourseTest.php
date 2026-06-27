@@ -133,4 +133,61 @@ class AdminCourseTest extends TestCase
         $this->assertDatabaseHas('courses', ['id' => $a->id, 'order' => 2]);
         $this->assertDatabaseHas('courses', ['id' => $b->id, 'order' => 1]);
     }
+
+    public function test_guest_is_redirected_from_admin_courses(): void
+    {
+        $this->get('/admin/courses')->assertRedirect('/login');
+        $this->get('/admin/courses/create')->assertRedirect('/login');
+        $course = Course::factory()->create();
+        $this->get("/admin/courses/{$course->id}/edit")->assertRedirect('/login');
+    }
+
+    public function test_move_up_on_first_item_does_nothing(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $a = Course::factory()->create(['order' => 1, 'title' => 'First']);
+        Course::factory()->create(['order' => 2, 'title' => 'Second']);
+
+        Livewire::actingAs($user)
+            ->test(AdminCourseList::class)
+            ->call('moveUp', $a->id);
+
+        $this->assertDatabaseHas('courses', ['id' => $a->id, 'order' => 1]);
+    }
+
+    public function test_move_down_on_last_item_does_nothing(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        Course::factory()->create(['order' => 1, 'title' => 'First']);
+        $b = Course::factory()->create(['order' => 2, 'title' => 'Last']);
+
+        Livewire::actingAs($user)
+            ->test(AdminCourseList::class)
+            ->call('moveDown', $b->id);
+
+        $this->assertDatabaseHas('courses', ['id' => $b->id, 'order' => 2]);
+    }
+
+    public function test_instructor_can_access_create_and_edit_pages_via_http(): void
+    {
+        $user = User::factory()->create(['role' => 'instructor']);
+        $course = Course::factory()->create();
+
+        $this->actingAs($user)->get('/admin/courses/create')->assertOk();
+        $this->actingAs($user)->get("/admin/courses/{$course->id}/edit")->assertOk();
+    }
+
+    public function test_duplicate_course_slug_fails_validation(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        Course::factory()->create(['slug' => 'existing-slug']);
+
+        Livewire::actingAs($user)
+            ->test(AdminCourseForm::class)
+            ->set('title', 'Duplicate')
+            ->set('slug', 'existing-slug')
+            ->set('order', 1)
+            ->call('save')
+            ->assertHasErrors('slug');
+    }
 }

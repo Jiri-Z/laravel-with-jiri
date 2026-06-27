@@ -80,4 +80,56 @@ class ProgressServiceTest extends TestCase
 
         expect((new ProgressService)->lessonComplete($user, $lesson))->toBeFalse();
     }
+
+    public function test_lesson_with_zero_steps_is_not_complete(): void
+    {
+        $user = User::factory()->create();
+        $lesson = Lesson::factory()->create(['course_id' => Course::factory()]);
+
+        expect((new ProgressService)->lessonComplete($user, $lesson))->toBeFalse();
+    }
+
+    public function test_course_progress_across_multiple_lessons(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->create();
+        $lesson1 = Lesson::factory()->create(['course_id' => $course->id]);
+        $lesson2 = Lesson::factory()->create(['course_id' => $course->id]);
+        Step::factory()->create(['lesson_id' => $lesson1->id, 'order' => 1]);
+        Step::factory()->create(['lesson_id' => $lesson1->id, 'order' => 2]);
+        Step::factory()->create(['lesson_id' => $lesson2->id, 'order' => 1]);
+        $step4 = Step::factory()->create(['lesson_id' => $lesson2->id, 'order' => 2]);
+
+        StepCompletion::factory()->create(['user_id' => $user->id, 'step_id' => $step4->id]);
+
+        expect((new ProgressService)->courseProgress($user, $course))->toBe(25.0);
+    }
+
+    public function test_course_progress_with_steps_and_no_completions(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->create();
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+        Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 1]);
+        Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 2]);
+
+        expect((new ProgressService)->courseProgress($user, $course))->toBe(0.0);
+    }
+
+    public function test_course_progress_rounding(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->create();
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+        Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 1]);
+        Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 2]);
+        Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 3]);
+        Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 4]);
+        Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 5]);
+        Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 6]);
+
+        StepCompletion::factory()->create(['user_id' => $user->id, 'step_id' => $lesson->steps()->first()->id]);
+
+        expect((new ProgressService)->courseProgress($user, $course))->toBe(16.7);
+    }
 }

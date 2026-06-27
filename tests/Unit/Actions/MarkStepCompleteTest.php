@@ -46,4 +46,25 @@ class MarkStepCompleteTest extends TestCase
         expect($result)->toBeFalse();
         $this->assertDatabaseCount('step_completions', 1);
     }
+
+    public function test_sets_completed_at_timestamp(): void
+    {
+        $user = User::factory()->create();
+        $step = Step::factory()->create([
+            'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+        ]);
+
+        (new MarkStepComplete)->handle($user, $step);
+
+        $this->assertDatabaseHas('step_completions', [
+            'user_id' => $user->id,
+            'step_id' => $step->id,
+        ]);
+
+        $completion = StepCompletion::where('user_id', $user->id)
+            ->where('step_id', $step->id)
+            ->first();
+
+        expect($completion->completed_at)->not->toBeNull();
+    }
 }

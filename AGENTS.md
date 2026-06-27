@@ -25,6 +25,11 @@ A smoke test is not complete until ALL of:
 - For CRUD features: create, edit, delete are exercised via the actual HTTP routes, not just Livewire test assertions
 - Record any errors found and fix them before moving on
 
+**Login note**: Breeze's login form uses Livewire `wire:submit`, so it sends no plain `<input name="_token">` in the HTML. Curl-based manual login won't work via standard POST. Instead, use one of:
+  - Run `SmokeTest.php` via Pest (it does real HTTP with `$this->actingAs()`)
+  - Open in a real browser for manual testing
+  - `npm run build` first (Vite must be built or running)
+
 ## Stack
 - **Framework:** Laravel (latest), scaffolded with Laravel Boost
 - **Frontend:** Livewire + Tailwind CSS + Alpine.js
@@ -47,21 +52,41 @@ A smoke test is not complete until ALL of:
 - Eager-load to avoid N+1
 - Queue non-trivial side effects as jobs
 
+### Learned patterns
+
+**Ordered swap (unique constraint safe)** — When swapping two rows that share a unique constraint on `[parent_id, order]`, a direct assignment swap violates the constraint. Use a 3-step temp value approach:
+```php
+$previous->update(['order' => -1]);
+$current->update(['order' => $previousOrder]);
+$previous->update(['order' => $currentOrder]);
+```
+Used in `moveUp()`/`moveDown()` on all three admin list components.
+
+**Progress lookup map** — To display per-item progress in Livewire list views, inject `ProgressService` via method DI and compute a lookup map (e.g. `courseId → float`, `lessonId → bool`, `stepId → bool`) in `mount()` or `render()`:
+```php
+public function mount(ProgressService $progress): void
+{
+    $this->progressData = $courses->mapWithKeys(fn ($c) => [$c->id => $progress->courseProgress(auth()->user(), $c)]);
+}
+```
+
+**PHPStan `missingType.iterableValue` on validation arrays** — Laravel's `validationRules()` returns `array`. PHPStan level 6 requires `@return array<string, string>` on methods that return associative string→string arrays. Add the PHPDoc annotation above the method signature.
+
 ## Progress
 | # | Item | Status |
 |---|------|--------|
 | 1 | Laravel Boost scaffold | ✅ |
 | 2 | Migrations + models | ✅ |
 | 3 | Factories + seeders | ✅ |
-| 4 | Pest tests for models | ✅ (135 tests, 302 assertions) |
+| 4 | Pest tests for models | ✅ (145 tests, 324 assertions) |
 | 5 | Student views (reading) | ✅ |
 | 6 | Step completion + progress | ✅ |
 | 7 | Quiz step types | ✅ |
 | 8 | Coding step type (Monaco + WASM) | ✅ (client-side eval, dynamic CDN loading) |
 | 9 | Admin/instructor CRUD | ✅ |
 | 10 | Role-based access (policies) | ✅ |
-| 11 | Ordering / reordering | ❌ |
-| 12 | Polish (progress bars, states) | ❌ (partial) |
+| 11 | Ordering / reordering | ✅ |
+| 12 | Polish (progress bars, states) | ✅ |
 | 13 | Full Pest pass | ❌ |
 
 ## Quality roadmap (Phase 1 & 2 — completed)

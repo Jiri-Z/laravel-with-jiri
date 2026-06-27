@@ -352,4 +352,89 @@ class StepViewerTest extends TestCase
         $response->assertSee('Completed');
         $response->assertDontSee('Mark as Complete');
     }
+
+    public function test_quiz_multiple_with_wrong_answer(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->quizMultiple()->create(['lesson_id' => $lesson->id]);
+
+        Livewire::actingAs($user)
+            ->test(QuizViewer::class, ['step' => $step])
+            ->set('selectedAnswers', [1, 2])
+            ->call('submit')
+            ->assertSet('submitted', true)
+            ->assertSet('isCorrect', false);
+    }
+
+    public function test_quiz_multiple_with_partial_selection(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->quizMultiple()->create(['lesson_id' => $lesson->id]);
+
+        Livewire::actingAs($user)
+            ->test(QuizViewer::class, ['step' => $step])
+            ->set('selectedAnswers', [0])
+            ->call('submit')
+            ->assertSet('submitted', true)
+            ->assertSet('isCorrect', false);
+    }
+
+    public function test_quiz_text_with_wrong_answer(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->quizText()->create(['lesson_id' => $lesson->id]);
+
+        Livewire::actingAs($user)
+            ->test(QuizViewer::class, ['step' => $step])
+            ->set('textAnswer', 'London')
+            ->call('submit')
+            ->assertSet('submitted', true)
+            ->assertSet('isCorrect', false);
+    }
+
+    public function test_nonexistent_step_id_returns_404(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+
+        $this->actingAs($user)
+            ->get("/courses/{$course->slug}/lessons/{$lesson->slug}/steps/999999")
+            ->assertNotFound();
+    }
+
+    public function test_step_from_wrong_course_lesson_returns_404(): void
+    {
+        $user = User::factory()->create();
+        $courseA = Course::factory()->published()->create();
+        $courseB = Course::factory()->published()->create();
+        $lessonA = Lesson::factory()->published()->create(['course_id' => $courseA->id]);
+        $lessonB = Lesson::factory()->published()->create(['course_id' => $courseB->id]);
+        $step = Step::factory()->create(['lesson_id' => $lessonB->id]);
+
+        $this->actingAs($user)
+            ->get("/courses/{$courseA->slug}/lessons/{$lessonA->slug}/steps/{$step->id}")
+            ->assertNotFound();
+    }
+
+    public function test_empty_text_answer_is_incorrect(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->quizSingle()->create(['lesson_id' => $lesson->id]);
+
+        Livewire::actingAs($user)
+            ->test(QuizViewer::class, ['step' => $step])
+            ->set('selectedAnswer', null)
+            ->call('submit')
+            ->assertSet('submitted', true)
+            ->assertSet('isCorrect', false);
+    }
 }

@@ -4,6 +4,7 @@ use App\Enums\StepType;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Step;
+use App\Models\StepAnswer;
 use App\Models\StepCompletion;
 use Illuminate\Database\QueryException;
 
@@ -78,4 +79,55 @@ test('step has valid type values', function () {
         ]);
         expect($step->type)->toBe($type);
     }
+});
+
+test('step getContentAsArray returns array for valid JSON starting with brace', function () {
+    $lesson = Lesson::factory()->create(['course_id' => Course::factory()]);
+    $step = Step::factory()->create([
+        'lesson_id' => $lesson->id,
+        'content' => '{"key": "value", "number": 42}',
+    ]);
+
+    $result = $step->getContentAsArray();
+
+    expect($result)->toBe(['key' => 'value', 'number' => 42]);
+});
+
+test('step getContentAsArray returns null for malformed JSON starting with brace', function () {
+    $lesson = Lesson::factory()->create(['course_id' => Course::factory()]);
+    $step = Step::factory()->create([
+        'lesson_id' => $lesson->id,
+        'content' => '{invalid json}',
+    ]);
+
+    expect($step->getContentAsArray())->toBeNull();
+});
+
+test('step getContentAsArray returns null for plain text without leading brace', function () {
+    $lesson = Lesson::factory()->create(['course_id' => Course::factory()]);
+    $step = Step::factory()->create([
+        'lesson_id' => $lesson->id,
+        'content' => 'Just some plain text content',
+    ]);
+
+    expect($step->getContentAsArray())->toBeNull();
+});
+
+test('step getContentAsArray returns null for empty string', function () {
+    $lesson = Lesson::factory()->create(['course_id' => Course::factory()]);
+    $step = Step::factory()->create([
+        'lesson_id' => $lesson->id,
+        'content' => '',
+    ]);
+
+    expect($step->getContentAsArray())->toBeNull();
+});
+
+test('step has many answers', function () {
+    $step = Step::factory()->hasAnswers(2)->create([
+        'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+    ]);
+
+    expect($step->answers)->toHaveCount(2)
+        ->and($step->answers->first())->toBeInstanceOf(StepAnswer::class);
 });

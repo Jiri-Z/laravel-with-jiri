@@ -127,4 +127,77 @@ class AdminLessonTest extends TestCase
         $this->assertDatabaseHas('lessons', ['id' => $a->id, 'order' => 2]);
         $this->assertDatabaseHas('lessons', ['id' => $b->id, 'order' => 1]);
     }
+
+    public function test_student_cannot_access_admin_lessons(): void
+    {
+        $user = User::factory()->create(['role' => 'student']);
+        $course = Course::factory()->create();
+
+        $this->actingAs($user)->get("/admin/courses/{$course->id}/lessons")->assertForbidden();
+    }
+
+    public function test_guest_is_redirected_from_admin_lessons(): void
+    {
+        $course = Course::factory()->create();
+
+        $this->get("/admin/courses/{$course->id}/lessons")->assertRedirect('/login');
+        $this->get("/admin/courses/{$course->id}/lessons/create")->assertRedirect('/login');
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+        $this->get("/admin/courses/{$course->id}/lessons/{$lesson->id}/edit")->assertRedirect('/login');
+    }
+
+    public function test_lesson_form_with_wrong_course_returns_404(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $courseA = Course::factory()->create();
+        $courseB = Course::factory()->create();
+        $lesson = Lesson::factory()->create(['course_id' => $courseA->id]);
+
+        $this->actingAs($user)
+            ->get("/admin/courses/{$courseB->id}/lessons/{$lesson->id}/edit")
+            ->assertNotFound();
+    }
+
+    public function test_duplicate_lesson_slug_within_course_fails_validation(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $course = Course::factory()->create();
+        Lesson::factory()->create(['course_id' => $course->id, 'slug' => 'existing-slug']);
+
+        Livewire::actingAs($user)
+            ->test(AdminLessonForm::class, ['course' => $course])
+            ->set('title', 'Duplicate')
+            ->set('slug', 'existing-slug')
+            ->set('order', 1)
+            ->call('save')
+            ->assertHasErrors('slug');
+    }
+
+    public function test_move_up_on_first_lesson_does_nothing(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $course = Course::factory()->create();
+        $a = Lesson::factory()->create(['course_id' => $course->id, 'order' => 1]);
+        Lesson::factory()->create(['course_id' => $course->id, 'order' => 2]);
+
+        Livewire::actingAs($user)
+            ->test(AdminLessonList::class, ['course' => $course])
+            ->call('moveUp', $a->id);
+
+        $this->assertDatabaseHas('lessons', ['id' => $a->id, 'order' => 1]);
+    }
+
+    public function test_move_down_on_last_lesson_does_nothing(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $course = Course::factory()->create();
+        Lesson::factory()->create(['course_id' => $course->id, 'order' => 1]);
+        $b = Lesson::factory()->create(['course_id' => $course->id, 'order' => 2]);
+
+        Livewire::actingAs($user)
+            ->test(AdminLessonList::class, ['course' => $course])
+            ->call('moveDown', $b->id);
+
+        $this->assertDatabaseHas('lessons', ['id' => $b->id, 'order' => 2]);
+    }
 }

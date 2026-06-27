@@ -16,6 +16,18 @@ class SubmitQuizAnswer
     {
         $content = $step->getContentAsArray();
 
+        if ($content === null) {
+            StepAnswer::create([
+                'user_id' => $user->id,
+                'step_id' => $step->id,
+                'answer' => '',
+                'is_correct' => false,
+                'created_at' => now(),
+            ]);
+
+            return new SubmitQuizAnswerResult(false, '');
+        }
+
         $isCorrect = match ($step->type) {
             StepType::QuizSingle => $answer == ($content['correct_answer'] ?? null),
             StepType::QuizMultiple => is_array($answer)

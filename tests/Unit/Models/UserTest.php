@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\StepAnswer;
 use App\Models\StepCompletion;
 use App\Models\User;
 
@@ -41,4 +42,19 @@ test('user has many step completions', function () {
 
     expect($user->stepCompletions)->toHaveCount(2)
         ->and($user->stepCompletions->first())->toBeInstanceOf(StepCompletion::class);
+});
+
+test('user has many step answers', function () {
+    $user = User::factory()->hasStepAnswers(2)->create();
+
+    expect($user->stepAnswers)->toHaveCount(2)
+        ->and($user->stepAnswers->first())->toBeInstanceOf(StepAnswer::class);
+});
+
+test('unknown role returns false for all role checks', function () {
+    $user = User::factory()->create(['role' => 'superadmin']);
+
+    expect($user->isAdmin())->toBeFalse()
+        ->and($user->isInstructor())->toBeFalse()
+        ->and($user->isStudent())->toBeFalse();
 });

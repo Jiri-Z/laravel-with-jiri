@@ -31,6 +31,14 @@ class AdminStepForm extends Component
 
     public function mount(Course $course, Lesson $lesson, ?Step $step = null): void
     {
+        if ($lesson->course_id !== $course->id) {
+            abort(404);
+        }
+
+        if ($step && $step->lesson_id !== $lesson->id) {
+            abort(404);
+        }
+
         $this->course = $course;
         $this->lesson = $lesson;
         $this->step = $step;

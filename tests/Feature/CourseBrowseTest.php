@@ -66,4 +66,25 @@ class CourseBrowseTest extends TestCase
 
         $this->actingAs($user)->get('/courses')->assertSee('100%');
     }
+
+    public function test_zero_percent_when_course_has_steps_but_no_completions(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        Step::factory()->create(['lesson_id' => $lesson->id]);
+
+        $this->actingAs($user)->get('/courses')->assertSee('0%');
+    }
+
+    public function test_published_course_with_no_lessons_shows_progress(): void
+    {
+        $user = User::factory()->create();
+        Course::factory()->published()->create(['title' => 'Empty Course']);
+
+        $this->actingAs($user)->get('/courses')
+            ->assertOk()
+            ->assertSee('Empty Course')
+            ->assertSee('0%');
+    }
 }

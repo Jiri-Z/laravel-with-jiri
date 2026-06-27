@@ -63,4 +63,63 @@ class AdminValidationTest extends TestCase
 
         expect($rules)->toHaveKeys(['title', 'type', 'content', 'order']);
     }
+
+    public function test_admin_course_form_rule_values_are_correct(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+
+        $component = Livewire::actingAs($user)->test(AdminCourseForm::class);
+        $rules = $component->instance()->validationRules();
+
+        expect($rules['title'])->toBe('required|max:255');
+        expect($rules['slug'])->toContain('required|max:255|unique:courses,slug');
+        expect($rules['description'])->toBe('nullable');
+        expect($rules['published'])->toBe('boolean');
+        expect($rules['order'])->toBe('required|integer|min:0');
+    }
+
+    public function test_admin_lesson_form_rule_values_are_correct(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $course = Course::factory()->create();
+
+        $component = Livewire::actingAs($user)
+            ->test(AdminLessonForm::class, ['course' => $course]);
+        $rules = $component->instance()->validationRules();
+
+        expect($rules['title'])->toBe('required|max:255');
+        expect($rules['slug'])->toContain('required|max:255|unique:lessons,slug');
+        expect($rules['description'])->toBe('nullable');
+        expect($rules['published'])->toBe('boolean');
+        expect($rules['order'])->toBe('required|integer|min:0');
+    }
+
+    public function test_admin_step_form_rule_values_are_correct(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $course = Course::factory()->create();
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+
+        $component = Livewire::actingAs($user)
+            ->test(AdminStepForm::class, ['course' => $course, 'lesson' => $lesson]);
+        $rules = $component->instance()->validationRules();
+
+        expect($rules['title'])->toBe('required|max:255');
+        expect($rules['type'])->toContain('required|in:');
+        expect($rules['content'])->toBe('required');
+        expect($rules['order'])->toBe('required|integer|min:0');
+    }
+
+    public function test_invalid_course_data_rejected_by_validation(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+
+        Livewire::actingAs($user)
+            ->test(AdminCourseForm::class)
+            ->set('title', '')
+            ->set('slug', '')
+            ->set('order', -1)
+            ->call('save')
+            ->assertHasErrors(['title', 'slug', 'order']);
+    }
 }
