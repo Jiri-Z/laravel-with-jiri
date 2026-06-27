@@ -2,7 +2,25 @@
 
 Greenfield e-learning platform. Laravel 13 + Livewire + Tailwind + Pest, scaffolded with Laravel Boost.
 
-**IMPORTANT: Laravel Boost MCP is installed and configured in `opencode.json`. You MUST use Boost's MCP tools — see `=== boost rules ===` section below for exact invocation instructions. Run `application-info` at session start, `search-docs` before every code change.**
+## MANDATORY SESSION WORKFLOW
+
+**Every session** follows this exact sequence — do not skip, shorten, or reorder steps:
+
+1. **`application-info`** — run at session start, record versions below
+2. **`database-schema`** — inspect ALL tables relevant to the task *before* writing migrations, models, queries, or admin CRUD
+3. **`search-docs`** — run *before every code change* on the relevant package(s). `packages` filter is required. Broad, topic-based queries (e.g. `["Livewire full-page components", "route model binding", "nested component parameters"]`)
+4. **Write tests first** (Red-Green-Refactor)
+5. **Run affected tests** after every code change
+6. **Pint** before commit
+7. **Manual verification** — start dev server + Vite, navigate to the feature in a real browser, verify the runtime behaviour. "I started the server" is NOT a smoke test.
+
+## Smoke test requirements
+
+A smoke test is not complete until ALL of:
+- Dev server is reachable via `curl http://127.0.0.1:PORT` or browser navigation
+- For frontend features (Monaco, WASM, Alpine): the page loads without console errors, the JS runtime initialises, and the expected interaction flow completes (click button → see output → wire call succeeds)
+- For CRUD features: create, edit, delete are exercised via the actual HTTP routes, not just Livewire test assertions
+- Record any errors found and fix them before moving on
 
 ## Stack
 - **Framework:** Laravel (latest), scaffolded with Laravel Boost
