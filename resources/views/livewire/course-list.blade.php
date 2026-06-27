@@ -8,7 +8,7 @@
                     <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-6">
                             <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                                <a href="#" wire:navigate class="hover:underline">
+                                <a href="{{ route('courses.show', $course->slug) }}" wire:navigate class="hover:underline">
                                     {{ $course->title }}
                                 </a>
                             </h2>

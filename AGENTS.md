@@ -1,6 +1,6 @@
 # Laravel With Jiri — AGENTS.md
 
-Greenfield e-learning platform. Nothing scaffolded yet — start from scratch.
+Greenfield e-learning platform. Laravel 13 + Livewire + Tailwind + Pest, scaffolded with Laravel Boost.
 
 ## Stack
 - **Framework:** Laravel (latest), scaffolded with Laravel Boost
