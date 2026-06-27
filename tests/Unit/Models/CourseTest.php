@@ -57,3 +57,17 @@ test('course slug is unique', function () {
     expect(fn () => Course::factory()->create(['slug' => 'same-slug']))
         ->toThrow(QueryException::class);
 });
+
+test('course scopePublished filters by published status', function () {
+    Course::factory()->create(['published' => true]);
+    Course::factory()->create(['published' => false]);
+
+    expect(Course::published()->get())->toHaveCount(1);
+});
+
+test('course scopeOrdered returns courses in order', function () {
+    $a = Course::factory()->create(['order' => 2]);
+    $b = Course::factory()->create(['order' => 1]);
+
+    expect(Course::ordered()->get()->pluck('id')->toArray())->toEqual([$b->id, $a->id]);
+});

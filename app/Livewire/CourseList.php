@@ -13,7 +13,7 @@ class CourseList extends Component
     public function render(): View
     {
         return view('livewire.course-list', [
-            'courses' => Course::query()->withCount('lessons')->where('published', true)->orderBy('order')->get(),
+            'courses' => Course::query()->withCount('lessons')->published()->ordered()->get(),
         ]);
     }
 }

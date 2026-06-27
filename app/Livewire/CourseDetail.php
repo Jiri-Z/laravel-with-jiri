@@ -16,7 +16,7 @@ class CourseDetail extends Component
     {
         abort_unless($course->published, 404);
 
-        $course->load(['lessons' => fn ($q) => $q->where('published', true)->orderBy('order')]);
+        $course->load(['lessons' => fn ($q) => $q->published()->ordered()]);
 
         $this->course = $course;
     }

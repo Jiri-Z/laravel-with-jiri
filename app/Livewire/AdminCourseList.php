@@ -25,7 +25,7 @@ class AdminCourseList extends Component
     public function render(): View
     {
         return view('livewire.admin-course-list', [
-            'courses' => Course::orderBy('order')->get(),
+            'courses' => Course::ordered()->get(),
         ]);
     }
 }

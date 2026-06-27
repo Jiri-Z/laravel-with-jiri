@@ -59,6 +59,14 @@ test('step has many completions', function () {
         ->and($step->completions->first())->toBeInstanceOf(StepCompletion::class);
 });
 
+test('step scopeOrdered returns steps in order', function () {
+    $lesson = Lesson::factory()->create(['course_id' => Course::factory()]);
+    $a = Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 2]);
+    $b = Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 1]);
+
+    expect(Step::ordered()->get()->pluck('id')->toArray())->toEqual([$b->id, $a->id]);
+});
+
 test('step has valid type values', function () {
     $lesson = Lesson::factory()->create(['course_id' => Course::factory()]);
 

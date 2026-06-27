@@ -64,3 +64,19 @@ test('lesson slug is unique within the same course', function () {
     expect(fn () => Lesson::factory()->create(['course_id' => $course->id, 'slug' => 'same-slug']))
         ->toThrow(QueryException::class);
 });
+
+test('lesson scopePublished filters by published status', function () {
+    $course = Course::factory()->create();
+    Lesson::factory()->create(['course_id' => $course->id, 'published' => true]);
+    Lesson::factory()->create(['course_id' => $course->id, 'published' => false]);
+
+    expect(Lesson::published()->get())->toHaveCount(1);
+});
+
+test('lesson scopeOrdered returns lessons in order', function () {
+    $course = Course::factory()->create();
+    $a = Lesson::factory()->create(['course_id' => $course->id, 'order' => 2]);
+    $b = Lesson::factory()->create(['course_id' => $course->id, 'order' => 1]);
+
+    expect(Lesson::ordered()->get()->pluck('id')->toArray())->toEqual([$b->id, $a->id]);
+});

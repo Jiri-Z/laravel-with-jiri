@@ -20,7 +20,7 @@ class LessonDetail extends Component
         abort_unless($course->published, 404);
         abort_unless($lesson->published && $lesson->course_id === $course->id, 404);
 
-        $lesson->load(['steps' => fn ($q) => $q->orderBy('order')]);
+        $lesson->load(['steps' => fn ($q) => $q->ordered()]);
 
         $this->course = $course;
         $this->lesson = $lesson;

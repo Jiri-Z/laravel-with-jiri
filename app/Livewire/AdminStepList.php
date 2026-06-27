@@ -33,7 +33,7 @@ class AdminStepList extends Component
     public function render(): View
     {
         return view('livewire.admin-step-list', [
-            'steps' => $this->lesson->steps()->orderBy('order')->get(),
+            'steps' => $this->lesson->steps()->ordered()->get(),
         ]);
     }
 }
