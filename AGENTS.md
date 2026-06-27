@@ -72,6 +72,10 @@ public function mount(ProgressService $progress): void
 
 **PHPStan `missingType.iterableValue` on validation arrays** — Laravel's `validationRules()` returns `array`. PHPStan level 6 requires `@return array<string, string>` on methods that return associative string→string arrays. Add the PHPDoc annotation above the method signature.
 
+**Larastan invocation on this environment** — `vendor/bin/phpstan analyse -c phpstan.neon --no-progress` can exit silently on PHP 8.5 here. Use the PHAR with `--debug` when running manually:
+```bash
+php -d memory_limit=-1 vendor/phpstan/phpstan/phpstan.phar analyse -c phpstan.neon --debug
+```
 ## Progress
 | # | Item | Status |
 |---|------|--------|
