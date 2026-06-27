@@ -15,9 +15,9 @@
                         @if ($step->type === StepType::Reading)
                             {{ nl2br(e($step->content)) }}
                         @elseif (in_array($step->type, [StepType::QuizSingle, StepType::QuizMultiple, StepType::QuizText]))
-                            <livewire:quiz-viewer :step="$step" wire:key="quiz-{{ $step->id }}" />
+                            <livewire:quiz-viewer :course="$course" :lesson="$lesson" :step="$step" wire:key="quiz-{{ $step->id }}" />
                         @elseif ($step->type === StepType::Coding)
-                            <livewire:coding-viewer :step="$step" wire:key="coding-{{ $step->id }}" />
+                            <livewire:coding-viewer :course="$course" :lesson="$lesson" :step="$step" wire:key="coding-{{ $step->id }}" />
                         @endif
                     </div>
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire;
 
 use App\Actions\MarkStepComplete;
+use App\Livewire\Concerns\ValidatesStepContext;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Step;
@@ -16,6 +17,8 @@ use Livewire\Component;
 #[Layout('layouts.app')]
 class StepViewer extends Component
 {
+    use ValidatesStepContext;
+
     public Course $course;
 
     public Lesson $lesson;
@@ -26,9 +29,7 @@ class StepViewer extends Component
 
     public function mount(Course $course, Lesson $lesson, Step $step): void
     {
-        abort_unless($course->published, 404);
-        abort_unless($lesson->published && $lesson->course_id === $course->id, 404);
-        abort_unless($step->lesson_id === $lesson->id, 404);
+        $this->ensureContextIsValid($course, $lesson, $step);
 
         $this->course = $course;
         $this->lesson = $lesson;
@@ -40,6 +41,8 @@ class StepViewer extends Component
 
     public function complete(): void
     {
+        $this->ensureCurrentContextIsValid();
+
         (new MarkStepComplete)->handle(auth()->user(), $this->step);
 
         $this->completed = true;

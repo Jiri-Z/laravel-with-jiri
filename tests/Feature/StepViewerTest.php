@@ -12,6 +12,7 @@ use App\Models\StepAnswer;
 use App\Models\StepCompletion;
 use App\Models\User;
 use Livewire\Livewire;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Tests\TestCase;
 
 class StepViewerTest extends TestCase
@@ -63,6 +64,33 @@ class StepViewerTest extends TestCase
             'user_id' => $user->id,
             'step_id' => $step->id,
         ]);
+    }
+
+    public function test_step_viewer_complete_rejects_invalid_context(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $otherStep = Step::factory()->reading()->create([
+            'lesson_id' => Lesson::factory()->published()->create(['course_id' => $course->id]),
+        ]);
+
+        $this->actingAs($user);
+
+        $component = new StepViewer;
+        $component->course = $course;
+        $component->lesson = $lesson;
+        $component->step = $otherStep;
+
+        try {
+            $component->complete();
+
+            $this->fail('Expected the step completion action to abort.');
+        } catch (HttpException $e) {
+            $this->assertSame(404, $e->getStatusCode());
+        }
+
+        $this->assertDatabaseCount('step_completions', 0);
     }
 
     public function test_user_cannot_complete_same_step_twice(): void
@@ -149,7 +177,11 @@ class StepViewerTest extends TestCase
         $step = Step::factory()->quizSingle()->create(['lesson_id' => $lesson->id]);
 
         Livewire::actingAs($user)
-            ->test(QuizViewer::class, ['step' => $step])
+            ->test(QuizViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
             ->set('selectedAnswer', 1)
             ->call('submit')
             ->assertSet('submitted', true)
@@ -170,7 +202,11 @@ class StepViewerTest extends TestCase
         $step = Step::factory()->quizSingle()->create(['lesson_id' => $lesson->id]);
 
         Livewire::actingAs($user)
-            ->test(QuizViewer::class, ['step' => $step])
+            ->test(QuizViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
             ->set('selectedAnswer', 0)
             ->call('submit')
             ->assertSet('submitted', true)
@@ -191,7 +227,11 @@ class StepViewerTest extends TestCase
         $step = Step::factory()->quizMultiple()->create(['lesson_id' => $lesson->id]);
 
         Livewire::actingAs($user)
-            ->test(QuizViewer::class, ['step' => $step])
+            ->test(QuizViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
             ->set('selectedAnswers', [0, 3])
             ->call('submit')
             ->assertSet('submitted', true)
@@ -212,7 +252,11 @@ class StepViewerTest extends TestCase
         $step = Step::factory()->quizText()->create(['lesson_id' => $lesson->id]);
 
         Livewire::actingAs($user)
-            ->test(QuizViewer::class, ['step' => $step])
+            ->test(QuizViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
             ->set('textAnswer', 'Paris')
             ->call('submit')
             ->assertSet('submitted', true)
@@ -223,6 +267,32 @@ class StepViewerTest extends TestCase
             'step_id' => $step->id,
             'is_correct' => true,
         ]);
+    }
+
+    public function test_quiz_viewer_submit_rejects_invalid_context(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->quizSingle()->create(['lesson_id' => $lesson->id]);
+
+        $this->actingAs($user);
+
+        $component = new QuizViewer;
+        $component->course = Course::factory()->create(['published' => false]);
+        $component->lesson = $lesson;
+        $component->step = $step;
+        $component->selectedAnswer = 1;
+
+        try {
+            $component->submit();
+
+            $this->fail('Expected the quiz submit action to abort.');
+        } catch (HttpException $e) {
+            $this->assertSame(404, $e->getStatusCode());
+        }
+
+        $this->assertDatabaseCount('step_answers', 0);
     }
 
     public function test_user_cannot_resubmit_quiz(): void
@@ -240,7 +310,11 @@ class StepViewerTest extends TestCase
         ]);
 
         Livewire::actingAs($user)
-            ->test(QuizViewer::class, ['step' => $step])
+            ->test(QuizViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
             ->assertSet('submitted', true)
             ->assertSet('isCorrect', false);
 
@@ -255,7 +329,11 @@ class StepViewerTest extends TestCase
         $step = Step::factory()->quizText()->create(['lesson_id' => $lesson->id]);
 
         Livewire::actingAs($user)
-            ->test(QuizViewer::class, ['step' => $step])
+            ->test(QuizViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
             ->set('textAnswer', 'paris')
             ->call('submit')
             ->assertSet('submitted', true)
@@ -285,7 +363,11 @@ class StepViewerTest extends TestCase
         $step = Step::factory()->coding()->create(['lesson_id' => $lesson->id]);
 
         Livewire::actingAs($user)
-            ->test(CodingViewer::class, ['step' => $step])
+            ->test(CodingViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
             ->assertSet('completed', false)
             ->call('markCodingComplete')
             ->assertSet('completed', true);
@@ -294,6 +376,32 @@ class StepViewerTest extends TestCase
             'user_id' => $user->id,
             'step_id' => $step->id,
         ]);
+    }
+
+    public function test_coding_viewer_mark_complete_rejects_invalid_context(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->coding()->create(['lesson_id' => $lesson->id]);
+        $otherLesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+
+        $this->actingAs($user);
+
+        $component = new CodingViewer;
+        $component->course = $course;
+        $component->lesson = $otherLesson;
+        $component->step = $step;
+
+        try {
+            $component->markCodingComplete();
+
+            $this->fail('Expected the coding completion action to abort.');
+        } catch (HttpException $e) {
+            $this->assertSame(404, $e->getStatusCode());
+        }
+
+        $this->assertDatabaseCount('step_completions', 0);
     }
 
     public function test_coding_viewer_wont_mark_complete_twice(): void
@@ -309,7 +417,11 @@ class StepViewerTest extends TestCase
         ]);
 
         Livewire::actingAs($user)
-            ->test(CodingViewer::class, ['step' => $step])
+            ->test(CodingViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
             ->assertSet('completed', true)
             ->call('markCodingComplete');
 
@@ -329,7 +441,11 @@ class StepViewerTest extends TestCase
         ]);
 
         Livewire::actingAs($user)
-            ->test(CodingViewer::class, ['step' => $step])
+            ->test(CodingViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
             ->assertSet('completed', true);
     }
 
@@ -361,7 +477,11 @@ class StepViewerTest extends TestCase
         $step = Step::factory()->quizMultiple()->create(['lesson_id' => $lesson->id]);
 
         Livewire::actingAs($user)
-            ->test(QuizViewer::class, ['step' => $step])
+            ->test(QuizViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
             ->set('selectedAnswers', [1, 2])
             ->call('submit')
             ->assertSet('submitted', true)
@@ -376,7 +496,11 @@ class StepViewerTest extends TestCase
         $step = Step::factory()->quizMultiple()->create(['lesson_id' => $lesson->id]);
 
         Livewire::actingAs($user)
-            ->test(QuizViewer::class, ['step' => $step])
+            ->test(QuizViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
             ->set('selectedAnswers', [0])
             ->call('submit')
             ->assertSet('submitted', true)
@@ -391,7 +515,11 @@ class StepViewerTest extends TestCase
         $step = Step::factory()->quizText()->create(['lesson_id' => $lesson->id]);
 
         Livewire::actingAs($user)
-            ->test(QuizViewer::class, ['step' => $step])
+            ->test(QuizViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
             ->set('textAnswer', 'London')
             ->call('submit')
             ->assertSet('submitted', true)
@@ -431,7 +559,11 @@ class StepViewerTest extends TestCase
         $step = Step::factory()->quizSingle()->create(['lesson_id' => $lesson->id]);
 
         Livewire::actingAs($user)
-            ->test(QuizViewer::class, ['step' => $step])
+            ->test(QuizViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
             ->set('selectedAnswer', null)
             ->call('submit')
             ->assertSet('submitted', true)

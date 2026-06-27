@@ -6,6 +6,9 @@ namespace App\Livewire;
 
 use App\Actions\SubmitQuizAnswer;
 use App\Enums\StepType;
+use App\Livewire\Concerns\ValidatesStepContext;
+use App\Models\Course;
+use App\Models\Lesson;
 use App\Models\Step;
 use App\Models\StepAnswer;
 use Illuminate\Contracts\View\View;
@@ -13,6 +16,12 @@ use Livewire\Component;
 
 class QuizViewer extends Component
 {
+    use ValidatesStepContext;
+
+    public Course $course;
+
+    public Lesson $lesson;
+
     public Step $step;
 
     public bool $submitted = false;
@@ -26,8 +35,14 @@ class QuizViewer extends Component
 
     public string $textAnswer = '';
 
-    public function mount(): void
+    public function mount(Course $course, Lesson $lesson, Step $step): void
     {
+        $this->ensureContextIsValid($course, $lesson, $step);
+
+        $this->course = $course;
+        $this->lesson = $lesson;
+        $this->step = $step;
+
         $existing = StepAnswer::where('user_id', auth()->id())
             ->where('step_id', $this->step->id)
             ->first();
@@ -40,6 +55,8 @@ class QuizViewer extends Component
 
     public function submit(): void
     {
+        $this->ensureCurrentContextIsValid();
+
         if ($this->submitted) {
             return;
         }
