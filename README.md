@@ -1,4 +1,4 @@
-# Jiri
+# Laravel With Jiri
 
 E-learning platform for modern Laravel development.
 
