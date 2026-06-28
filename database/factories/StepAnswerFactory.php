@@ -19,6 +19,7 @@ class StepAnswerFactory extends Factory
         return [
             'user_id' => User::factory(),
             'step_id' => Step::factory(),
+            'question_index' => 0,
             'answer' => fake()->word(),
             'is_correct' => fake()->boolean(),
             'created_at' => now(),

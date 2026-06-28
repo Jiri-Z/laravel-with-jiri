@@ -8,6 +8,7 @@ use App\Models\Step;
 use App\Models\StepCompletion;
 use App\Models\User;
 use App\Services\ProgressService;
+use Illuminate\Support\Collection;
 use Tests\TestCase;
 
 class ProgressServiceTest extends TestCase
@@ -170,6 +171,26 @@ class ProgressServiceTest extends TestCase
         expect($batch)->toHaveKeys([$courseA->id, $courseB->id]);
         expect($batch[$courseA->id])->toBe(50.0);
         expect($batch[$courseB->id])->toBe(0.0);
+    }
+
+    public function test_step_complete_batch_returns_correct_map(): void
+    {
+        $user = User::factory()->create();
+        $lesson = Lesson::factory()->create(['course_id' => Course::factory()]);
+        $step1 = Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 1]);
+        $step2 = Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 2]);
+        $step3 = Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 3]);
+
+        StepCompletion::factory()->create(['user_id' => $user->id, 'step_id' => $step1->id]);
+        StepCompletion::factory()->create(['user_id' => $user->id, 'step_id' => $step3->id]);
+
+        $service = new ProgressService;
+        $batch = $service->stepCompleteBatch($user, new Collection([$step1, $step2, $step3]));
+
+        expect($batch)->toHaveKeys([$step1->id, $step2->id, $step3->id]);
+        expect($batch[$step1->id])->toBeTrue();
+        expect($batch[$step2->id])->toBeFalse();
+        expect($batch[$step3->id])->toBeTrue();
     }
 
     public function test_lesson_complete_batch_matches_individual_calls(): void

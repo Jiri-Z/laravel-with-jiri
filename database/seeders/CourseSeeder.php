@@ -71,6 +71,17 @@ class CourseSeeder extends Seeder
 
         Step::factory()->create([
             'lesson_id' => $lesson1->id,
+            'title' => 'Quick Knowledge Check',
+            'type' => StepType::Quiz,
+            'content' => json_encode([
+                ['type' => 'single', 'question' => 'What directory are web routes defined in?', 'options' => ['routes/api.php', 'routes/web.php', 'config/app.php', 'app/Http/Controllers'], 'correct_answer' => 1],
+                ['type' => 'text', 'question' => 'What is the name of Laravel\'s templating engine?', 'correct_answer' => 'Blade'],
+            ]),
+            'order' => 4,
+        ]);
+
+        Step::factory()->create([
+            'lesson_id' => $lesson1->id,
             'title' => 'What is a framework?',
             'type' => StepType::QuizText,
             'content' => json_encode([

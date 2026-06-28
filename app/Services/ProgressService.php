@@ -121,4 +121,26 @@ class ProgressService
 
         return $result;
     }
+
+    /**
+     * @param  Collection<int, Step>  $steps
+     * @return array<int, bool>
+     */
+    public function stepCompleteBatch(User $user, Collection $steps): array
+    {
+        $stepIds = $steps->pluck('id')->all();
+
+        $completedIds = DB::table('step_completions')
+            ->where('user_id', $user->id)
+            ->whereIn('step_id', $stepIds)
+            ->pluck('step_id')
+            ->all();
+
+        $result = [];
+        foreach ($steps as $step) {
+            $result[$step->id] = in_array($step->id, $completedIds, true);
+        }
+
+        return $result;
+    }
 }

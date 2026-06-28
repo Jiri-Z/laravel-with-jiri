@@ -10,6 +10,7 @@ use App\Livewire\QuizViewer;
 use App\Livewire\StepViewer;
 use App\Models\Course;
 use App\Models\Step;
+use App\Models\StepCompletion;
 use App\Models\User;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -362,5 +363,35 @@ class SmokeTest extends TestCase
             ->call('submit')
             ->assertSet('submitted', true)
             ->assertSet('isCorrect', true);
+    }
+
+    public function test_dashboard_page_loads_for_authenticated_user(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create(['title' => 'Dash Course']);
+        $lesson = $course->lessons()->create([
+            'title' => 'Dash Lesson',
+            'slug' => 'dash-lesson',
+            'published' => true,
+            'order' => 1,
+        ]);
+        $step = $lesson->steps()->create([
+            'title' => 'Dash Step',
+            'type' => StepType::Reading,
+            'content' => 'Content',
+            'order' => 1,
+        ]);
+
+        StepCompletion::create([
+            'user_id' => $user->id,
+            'step_id' => $step->id,
+            'completed_at' => now(),
+        ]);
+
+        $this->actingAs($user)->get('/dashboard')
+            ->assertOk()
+            ->assertSee('Welcome')
+            ->assertSee('Dash Course')
+            ->assertSee('Dashboard');
     }
 }

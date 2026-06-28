@@ -9,6 +9,7 @@ use App\Livewire\AdminStepForm;
 use App\Livewire\AdminStepList;
 use App\Livewire\CourseDetail;
 use App\Livewire\CourseList;
+use App\Livewire\Dashboard;
 use App\Livewire\LessonDetail;
 use App\Livewire\StepViewer;
 use Illuminate\Support\Facades\Route;
@@ -36,7 +37,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->group(functio
     Route::get('/courses/{course}/lessons/{lesson}/steps/{step}/edit', AdminStepForm::class)->name('admin.steps.edit');
 });
 
-Route::view('dashboard', 'dashboard')
+Route::get('/dashboard', Dashboard::class)
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 

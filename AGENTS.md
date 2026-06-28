@@ -107,6 +107,8 @@ if (strlen($term) < 2) {
 }
 ```
 
+**Stale autoloader cache after file changes** — After `git stash pop` or modifying PHP files outside of normal editing, the full test suite (`php artisan test`) can hang silently (no output, exit 1). This is caused by the optimized Composer autoloader caching a stale class map. Fix: run `composer dump-autoload` or `git stash && git stash pop` to force a fresh class resolution. A single-file test (`--filter=SingleTest`) still works; the hang only manifests when loading the full test suite.
+
 ## Out of scope
 Payments, video, comments, email notifications, API endpoints.
 
