@@ -22,11 +22,29 @@ class ProgressServiceTest extends TestCase
         expect($progress)->toBe(0.0);
     }
 
+    public function test_course_progress_excludes_unpublished_lessons(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->create();
+        $publishedLesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $unpublishedLesson = Lesson::factory()->create(['course_id' => $course->id, 'published' => false]);
+
+        Step::factory()->create(['lesson_id' => $publishedLesson->id, 'order' => 1]);
+        Step::factory()->create(['lesson_id' => $publishedLesson->id, 'order' => 2]);
+        Step::factory()->create(['lesson_id' => $unpublishedLesson->id, 'order' => 1]);
+        Step::factory()->create(['lesson_id' => $unpublishedLesson->id, 'order' => 2]);
+
+        StepCompletion::factory()->create(['user_id' => $user->id, 'step_id' => $publishedLesson->steps()->first()->id]);
+        StepCompletion::factory()->create(['user_id' => $user->id, 'step_id' => $publishedLesson->steps()->where('order', 2)->first()->id]);
+
+        expect((new ProgressService)->courseProgress($user, $course))->toBe(100.0);
+    }
+
     public function test_returns_correct_percentage_for_course_with_partial_completion(): void
     {
         $user = User::factory()->create();
         $course = Course::factory()->create();
-        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step1 = Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 1]);
         $step2 = Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 2]);
 
@@ -44,7 +62,7 @@ class ProgressServiceTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->create();
-        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step1 = Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 1]);
         $step2 = Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 2]);
 
@@ -93,8 +111,8 @@ class ProgressServiceTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->create();
-        $lesson1 = Lesson::factory()->create(['course_id' => $course->id]);
-        $lesson2 = Lesson::factory()->create(['course_id' => $course->id]);
+        $lesson1 = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $lesson2 = Lesson::factory()->published()->create(['course_id' => $course->id]);
         Step::factory()->create(['lesson_id' => $lesson1->id, 'order' => 1]);
         Step::factory()->create(['lesson_id' => $lesson1->id, 'order' => 2]);
         Step::factory()->create(['lesson_id' => $lesson2->id, 'order' => 1]);
@@ -109,7 +127,7 @@ class ProgressServiceTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->create();
-        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 1]);
         Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 2]);
 
@@ -120,7 +138,7 @@ class ProgressServiceTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->create();
-        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 1]);
         Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 2]);
         Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 3]);
@@ -131,5 +149,53 @@ class ProgressServiceTest extends TestCase
         StepCompletion::factory()->create(['user_id' => $user->id, 'step_id' => $lesson->steps()->first()->id]);
 
         expect((new ProgressService)->courseProgress($user, $course))->toBe(16.7);
+    }
+
+    public function test_course_progress_batch_matches_individual_calls(): void
+    {
+        $user = User::factory()->create();
+        $courseA = Course::factory()->create();
+        $courseB = Course::factory()->create();
+        $lessonA = Lesson::factory()->published()->create(['course_id' => $courseA->id]);
+        $lessonB = Lesson::factory()->published()->create(['course_id' => $courseB->id]);
+        $stepA = Step::factory()->create(['lesson_id' => $lessonA->id, 'order' => 1]);
+        Step::factory()->create(['lesson_id' => $lessonA->id, 'order' => 2]);
+        Step::factory()->create(['lesson_id' => $lessonB->id, 'order' => 1]);
+
+        StepCompletion::factory()->create(['user_id' => $user->id, 'step_id' => $stepA->id]);
+
+        $service = new ProgressService;
+        $batch = $service->courseProgressBatch($user, collect([$courseA, $courseB]));
+
+        expect($batch)->toHaveKeys([$courseA->id, $courseB->id]);
+        expect($batch[$courseA->id])->toBe(50.0);
+        expect($batch[$courseB->id])->toBe(0.0);
+    }
+
+    public function test_lesson_complete_batch_matches_individual_calls(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->create();
+        $lessonA = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $lessonB = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        Step::factory()->create(['lesson_id' => $lessonA->id, 'order' => 1]);
+        Step::factory()->create(['lesson_id' => $lessonA->id, 'order' => 2]);
+        Step::factory()->create(['lesson_id' => $lessonB->id, 'order' => 1]);
+
+        StepCompletion::factory()->create([
+            'user_id' => $user->id,
+            'step_id' => $lessonA->steps()->first()->id,
+        ]);
+        StepCompletion::factory()->create([
+            'user_id' => $user->id,
+            'step_id' => $lessonA->steps()->where('order', 2)->first()->id,
+        ]);
+
+        $service = new ProgressService;
+        $batch = $service->lessonCompleteBatch($user, collect([$lessonA, $lessonB]));
+
+        expect($batch)->toHaveKeys([$lessonA->id, $lessonB->id]);
+        expect($batch[$lessonA->id])->toBeTrue();
+        expect($batch[$lessonB->id])->toBeFalse();
     }
 }

@@ -19,9 +19,9 @@ class CourseList extends Component
 
         $user = auth()->user();
 
-        $progressData = $courses->mapWithKeys(fn (Course $course) => [
-            $course->id => $user ? $progress->courseProgress($user, $course) : 0.0,
-        ]);
+        $progressData = $user
+            ? $progress->courseProgressBatch($user, $courses)
+            : $courses->mapWithKeys(fn (Course $course) => [$course->id => 0.0]);
 
         return view('livewire.course-list', [
             'courses' => $courses,

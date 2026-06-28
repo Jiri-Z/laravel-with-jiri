@@ -28,13 +28,7 @@ class CourseDetail extends Component
 
         $this->course = $course;
         $this->courseProgress = $progress->courseProgress(auth()->user(), $course);
-
-        /** @var array<int, bool> $completion */
-        $completion = [];
-        foreach ($course->lessons as $lesson) {
-            $completion[$lesson->id] = $progress->lessonComplete(auth()->user(), $lesson);
-        }
-        $this->lessonCompletion = $completion;
+        $this->lessonCompletion = $progress->lessonCompleteBatch(auth()->user(), $course->lessons);
     }
 
     public function render(): View
