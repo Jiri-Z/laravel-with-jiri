@@ -78,7 +78,7 @@ class Step extends Model
     /** @return array<string, mixed>|null */
     public function getContentAsArray(): ?array
     {
-        if (str_starts_with($this->content, '{')) {
+        if (str_starts_with($this->content, '{') || str_starts_with($this->content, '[')) {
             return json_decode($this->content, true);
         }
 

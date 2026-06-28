@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Unit\Actions;
 
 use App\Actions\SubmitQuizAnswer;
@@ -26,6 +28,7 @@ class SubmitQuizAnswerTest extends TestCase
         $this->assertDatabaseHas('step_answers', [
             'user_id' => $user->id,
             'step_id' => $step->id,
+            'question_index' => 0,
             'is_correct' => true,
         ]);
     }
@@ -148,5 +151,88 @@ class SubmitQuizAnswerTest extends TestCase
         (new SubmitQuizAnswer)->handle($user, $step, 1);
 
         $this->assertDatabaseCount('step_answers', 1);
+    }
+
+    public function test_handles_quiz_type_single_question(): void
+    {
+        $user = User::factory()->create();
+        $step = Step::factory()->quiz()->create([
+            'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+        ]);
+
+        $result = (new SubmitQuizAnswer)->handle($user, $step, 1, questionIndex: 0);
+
+        expect($result->isCorrect)->toBeTrue();
+        expect($result->answer)->toBe('1');
+        $this->assertDatabaseHas('step_answers', [
+            'user_id' => $user->id,
+            'step_id' => $step->id,
+            'question_index' => 0,
+            'is_correct' => true,
+        ]);
+    }
+
+    public function test_handles_quiz_type_multiple_questions(): void
+    {
+        $user = User::factory()->create();
+        $step = Step::factory()->quiz()->create([
+            'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+        ]);
+
+        $result0 = (new SubmitQuizAnswer)->handle($user, $step, 1, questionIndex: 0);
+        $result1 = (new SubmitQuizAnswer)->handle($user, $step, 'Paris', questionIndex: 1);
+        $result2 = (new SubmitQuizAnswer)->handle($user, $step, [0, 3], questionIndex: 2);
+
+        expect($result0->isCorrect)->toBeTrue();
+        expect($result1->isCorrect)->toBeTrue();
+        expect($result2->isCorrect)->toBeTrue();
+
+        $this->assertDatabaseCount('step_answers', 3);
+        $this->assertDatabaseHas('step_answers', [
+            'user_id' => $user->id,
+            'step_id' => $step->id,
+            'question_index' => 0,
+            'is_correct' => true,
+        ]);
+        $this->assertDatabaseHas('step_answers', [
+            'user_id' => $user->id,
+            'step_id' => $step->id,
+            'question_index' => 1,
+            'is_correct' => true,
+        ]);
+        $this->assertDatabaseHas('step_answers', [
+            'user_id' => $user->id,
+            'step_id' => $step->id,
+            'question_index' => 2,
+            'is_correct' => true,
+        ]);
+    }
+
+    public function test_quiz_type_incorrect_answer(): void
+    {
+        $user = User::factory()->create();
+        $step = Step::factory()->quiz()->create([
+            'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+        ]);
+
+        $result = (new SubmitQuizAnswer)->handle($user, $step, 0, questionIndex: 0);
+
+        expect($result->isCorrect)->toBeFalse();
+    }
+
+    public function test_quiz_type_question_indices_are_independent(): void
+    {
+        $user = User::factory()->create();
+        $step = Step::factory()->quiz()->create([
+            'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+        ]);
+
+        (new SubmitQuizAnswer)->handle($user, $step, 0, questionIndex: 0);
+        (new SubmitQuizAnswer)->handle($user, $step, 'Paris', questionIndex: 1);
+
+        // Re-submitting same index should not duplicate
+        (new SubmitQuizAnswer)->handle($user, $step, 0, questionIndex: 0);
+
+        $this->assertDatabaseCount('step_answers', 2);
     }
 }

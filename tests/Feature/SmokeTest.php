@@ -4,6 +4,10 @@ namespace Tests\Feature;
 
 use App\Enums\StepType;
 use App\Livewire\AdminCourseList;
+use App\Livewire\AdminLessonList;
+use App\Livewire\AdminStepList;
+use App\Livewire\QuizViewer;
+use App\Livewire\StepViewer;
 use App\Models\Course;
 use App\Models\Step;
 use App\Models\User;
@@ -132,5 +136,231 @@ class SmokeTest extends TestCase
             ->call('delete', $course->id);
 
         $this->assertDatabaseMissing('courses', ['id' => $course->id]);
+    }
+
+    public function test_admin_lesson_list_via_livewire(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $course = Course::factory()->create();
+        $lesson = $course->lessons()->create([
+            'title' => 'Admin Lesson',
+            'slug' => 'admin-lesson',
+            'published' => true,
+            'order' => 1,
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(AdminLessonList::class, ['course' => $course])
+            ->assertOk()
+            ->assertSee('Admin Lesson');
+    }
+
+    public function test_admin_step_list_via_livewire(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $course = Course::factory()->create();
+        $lesson = $course->lessons()->create([
+            'title' => 'Step List Lesson',
+            'slug' => 'step-list-lesson',
+            'published' => true,
+            'order' => 1,
+        ]);
+        $step = $lesson->steps()->create([
+            'title' => 'Admin Step',
+            'type' => StepType::Reading,
+            'content' => 'Step content',
+            'order' => 1,
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(AdminStepList::class, ['course' => $course, 'lesson' => $lesson])
+            ->assertOk()
+            ->assertSee('Admin Step');
+    }
+
+    public function test_reading_step_page_loads(): void
+    {
+        $user = User::factory()->create(['role' => 'student']);
+        $course = Course::factory()->published()->create();
+        $lesson = $course->lessons()->create([
+            'title' => 'Reading Lesson',
+            'slug' => 'reading-lesson',
+            'published' => true,
+            'order' => 1,
+        ]);
+        $step = $lesson->steps()->create([
+            'title' => 'Reading Step',
+            'type' => StepType::Reading,
+            'content' => 'Some reading content here',
+            'order' => 1,
+        ]);
+
+        $response = $this->actingAs($user)
+            ->get("/courses/{$course->slug}/lessons/{$lesson->slug}/steps/{$step->id}");
+        $response->assertOk();
+        $response->assertSee('Some reading content here');
+        $response->assertSee('Mark as Complete');
+    }
+
+    public function test_mark_reading_step_complete(): void
+    {
+        $user = User::factory()->create(['role' => 'student']);
+        $course = Course::factory()->published()->create();
+        $lesson = $course->lessons()->create([
+            'title' => 'Complete Lesson',
+            'slug' => 'complete-lesson',
+            'published' => true,
+            'order' => 1,
+        ]);
+        $step = $lesson->steps()->create([
+            'title' => 'Complete Step',
+            'type' => StepType::Reading,
+            'content' => 'Content',
+            'order' => 1,
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(StepViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
+            ->assertSet('completed', false)
+            ->call('complete')
+            ->assertSet('completed', true);
+    }
+
+    public function test_quiz_single_submit_via_livewire(): void
+    {
+        $user = User::factory()->create(['role' => 'student']);
+        $course = Course::factory()->published()->create();
+        $lesson = $course->lessons()->create([
+            'title' => 'Quiz Submit Lesson',
+            'slug' => 'quiz-submit-lesson',
+            'published' => true,
+            'order' => 1,
+        ]);
+        $step = $lesson->steps()->create([
+            'title' => 'Quiz Submit Step',
+            'type' => StepType::QuizSingle,
+            'content' => json_encode([
+                'question' => 'Pick the right one',
+                'options' => ['Wrong', 'Right'],
+                'correct_answer' => 1,
+            ]),
+            'order' => 1,
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(QuizViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
+            ->set('selectedAnswer', 1)
+            ->call('submit')
+            ->assertSet('submitted', true)
+            ->assertSet('isCorrect', true);
+    }
+
+    public function test_unauthorized_user_cannot_access_admin(): void
+    {
+        $user = User::factory()->create(['role' => 'student']);
+
+        $this->actingAs($user)->get('/admin/courses')->assertForbidden();
+    }
+
+    public function test_guest_redirected_to_login(): void
+    {
+        $this->get('/courses')->assertRedirect('/login');
+    }
+
+    public function test_landing_and_legal_pages(): void
+    {
+        $this->get('/')->assertOk()->assertSee('Laravel With Jiri');
+        $this->get('/terms')->assertOk()->assertSee('Terms of Service');
+        $this->get('/privacy')->assertOk()->assertSee('Privacy Policy');
+    }
+
+    public function test_lesson_detail_shows_steps(): void
+    {
+        $user = User::factory()->create(['role' => 'student']);
+        $course = Course::factory()->published()->create();
+        $lesson = $course->lessons()->create([
+            'title' => 'Steps Lesson',
+            'slug' => 'steps-lesson',
+            'published' => true,
+            'order' => 1,
+        ]);
+        $lesson->steps()->create([
+            'title' => 'Step One',
+            'type' => StepType::Reading,
+            'content' => 'Content',
+            'order' => 1,
+        ]);
+
+        $response = $this->actingAs($user)
+            ->get("/courses/{$course->slug}/lessons/{$lesson->slug}");
+        $response->assertOk();
+        $response->assertSee('Step One');
+        $response->assertDontSee('No steps available yet');
+    }
+
+    public function test_quiz_multi_question_step_page_loads(): void
+    {
+        $user = User::factory()->create(['role' => 'student']);
+        $course = Course::factory()->published()->create();
+        $lesson = $course->lessons()->create([
+            'title' => 'Multi Quiz Lesson',
+            'slug' => 'multi-quiz-lesson',
+            'published' => true,
+            'order' => 1,
+        ]);
+        $lesson->steps()->create([
+            'title' => 'Multi Quiz Step',
+            'type' => StepType::Quiz,
+            'content' => json_encode([
+                ['type' => 'single', 'question' => 'Q1', 'options' => ['A', 'B'], 'correct_answer' => 0],
+                ['type' => 'text', 'question' => 'Q2', 'correct_answer' => 'ok'],
+            ]),
+            'order' => 1,
+        ]);
+
+        $response = $this->actingAs($user)->get(
+            "/courses/{$course->slug}/lessons/{$lesson->slug}/steps/{$lesson->steps->first()->id}"
+        );
+        $response->assertOk();
+        $response->assertSee('Submit All Answers');
+    }
+
+    public function test_quiz_multi_question_submit_via_livewire(): void
+    {
+        $user = User::factory()->create(['role' => 'student']);
+        $course = Course::factory()->published()->create();
+        $lesson = $course->lessons()->create([
+            'title' => 'Multi Submit Lesson',
+            'slug' => 'multi-submit-lesson',
+            'published' => true,
+            'order' => 1,
+        ]);
+        $lesson->steps()->create([
+            'title' => 'Multi Submit Step',
+            'type' => StepType::Quiz,
+            'content' => json_encode([
+                ['type' => 'single', 'question' => 'Q1', 'options' => ['A', 'B'], 'correct_answer' => 0],
+            ]),
+            'order' => 1,
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(QuizViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $lesson->steps->first(),
+            ])
+            ->set('answers.0', 0)
+            ->call('submit')
+            ->assertSet('submitted', true)
+            ->assertSet('isCorrect', true);
     }
 }

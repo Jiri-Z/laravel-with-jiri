@@ -183,6 +183,7 @@ class AdminStepTest extends TestCase
                 StepType::QuizSingle => '{"question":"Q?","options":["A","B"],"correct_answer":0}',
                 StepType::QuizMultiple => '{"question":"Q?","options":["A","B","C","D"],"correct_answers":[0,3]}',
                 StepType::QuizText => '{"question":"Q?","correct_answer":"Paris"}',
+                StepType::Quiz => '[{"type":"single","question":"Q?","options":["A","B"],"correct_answer":0}]',
                 StepType::Coding => '{"prompt":"Write code","initial_code":"<?php","test_code":"<?php","expected_output":"ok"}',
             };
 

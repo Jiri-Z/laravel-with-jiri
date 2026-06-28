@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Actions\SubmitQuizAnswer;
 use App\Livewire\CodingViewer;
 use App\Livewire\QuizViewer;
 use App\Livewire\StepViewer;
@@ -613,5 +614,132 @@ class StepViewerTest extends TestCase
             ->assertSet('isCorrect', true);
 
         $this->assertDatabaseCount('step_answers', 1);
+    }
+
+    public function test_quiz_type_step_shows_multiple_questions(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->quiz()->create(['lesson_id' => $lesson->id]);
+
+        $response = $this->actingAs($user)
+            ->get("/courses/{$course->slug}/lessons/{$lesson->slug}/steps/{$step->id}");
+
+        $response->assertOk();
+        $response->assertSee('What is 2+2?');
+        $response->assertSee('What is the capital of France?');
+        $response->assertSee('Which are programming languages?');
+        $response->assertSee('Submit All Answers');
+    }
+
+    public function test_quiz_type_submit_all_correct_answers(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->quiz()->create(['lesson_id' => $lesson->id]);
+
+        Livewire::actingAs($user)
+            ->test(QuizViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
+            ->set('answers.0', 1)
+            ->set('answers.1', 'Paris')
+            ->set('answers.2', [0, 3])
+            ->call('submit')
+            ->assertSet('submitted', true)
+            ->assertSet('isCorrect', true);
+
+        $this->assertDatabaseCount('step_answers', 3);
+    }
+
+    public function test_quiz_type_submit_partially_correct(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->quiz()->create(['lesson_id' => $lesson->id]);
+
+        Livewire::actingAs($user)
+            ->test(QuizViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
+            ->set('answers.0', 0)
+            ->set('answers.1', 'Paris')
+            ->set('answers.2', [0, 3])
+            ->call('submit')
+            ->assertSet('submitted', true)
+            ->assertSet('isCorrect', false);
+    }
+
+    public function test_quiz_type_submit_all_incorrect(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->quiz()->create(['lesson_id' => $lesson->id]);
+
+        Livewire::actingAs($user)
+            ->test(QuizViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
+            ->set('answers.0', 0)
+            ->set('answers.1', 'London')
+            ->set('answers.2', [1, 2])
+            ->call('submit')
+            ->assertSet('submitted', true)
+            ->assertSet('isCorrect', false);
+    }
+
+    public function test_quiz_type_previously_submitted_shows_submitted(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->quiz()->create(['lesson_id' => $lesson->id]);
+
+        (new SubmitQuizAnswer)->handle($user, $step, 0, questionIndex: 0);
+        (new SubmitQuizAnswer)->handle($user, $step, 'Paris', questionIndex: 1);
+        (new SubmitQuizAnswer)->handle($user, $step, [0, 3], questionIndex: 2);
+
+        Livewire::actingAs($user)
+            ->test(QuizViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
+            ->assertSet('submitted', true);
+    }
+
+    public function test_quiz_type_rapid_submit_does_not_duplicate(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->quiz()->create(['lesson_id' => $lesson->id]);
+
+        Livewire::actingAs($user)
+            ->test(QuizViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
+            ->set('answers.0', 1)
+            ->set('answers.1', 'Paris')
+            ->set('answers.2', [0, 3])
+            ->call('submit')
+            ->assertSet('submitted', true)
+            ->assertSet('isCorrect', true)
+            ->call('submit')
+            ->assertSet('submitted', true);
+
+        $this->assertDatabaseCount('step_answers', 3);
     }
 }

@@ -68,6 +68,32 @@ class StepFactory extends Factory
         ]);
     }
 
+    public function quiz(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => StepType::Quiz,
+            'content' => json_encode([
+                [
+                    'type' => 'single',
+                    'question' => 'What is 2+2?',
+                    'options' => ['3', '4', '5', '6'],
+                    'correct_answer' => 1,
+                ],
+                [
+                    'type' => 'text',
+                    'question' => 'What is the capital of France?',
+                    'correct_answer' => 'Paris',
+                ],
+                [
+                    'type' => 'multiple',
+                    'question' => 'Which are programming languages?',
+                    'options' => ['Python', 'HTML', 'CSS', 'JavaScript'],
+                    'correct_answers' => [0, 3],
+                ],
+            ]),
+        ]);
+    }
+
     public function coding(): static
     {
         return $this->state(fn (array $attributes) => [

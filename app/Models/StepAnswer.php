@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'user_id',
     'step_id',
     'answer',
+    'question_index',
     'is_correct',
     'created_at',
 ])]
