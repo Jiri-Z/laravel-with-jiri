@@ -21,7 +21,7 @@ class StepFactory extends Factory
             'title' => fake()->sentence(3),
             'type' => fake()->randomElement(StepType::cases()),
             'content' => fake()->paragraphs(3, true),
-            'order' => 0,
+            'order' => fake()->numberBetween(1, 1000),
         ];
     }
 

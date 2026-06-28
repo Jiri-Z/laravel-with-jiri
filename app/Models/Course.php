@@ -58,6 +58,10 @@ class Course extends Model
      */
     public function scopeSearch(Builder $query, string $term): Builder
     {
+        if (strlen($term) < 2) {
+            return $query;
+        }
+
         return $query->where(function (Builder $q) use ($term): Builder {
             return $q->where('title', 'like', "%{$term}%")
                 ->orWhere('slug', 'like', "%{$term}%");

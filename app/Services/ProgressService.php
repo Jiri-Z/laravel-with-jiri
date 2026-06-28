@@ -41,7 +41,7 @@ class ProgressService
     }
 
     /**
-     * @param Collection<int, Course> $courses
+     * @param  Collection<int, Course>  $courses
      * @return array<int, float>
      */
     public function courseProgressBatch(User $user, Collection $courses): array
@@ -92,7 +92,7 @@ class ProgressService
     }
 
     /**
-     * @param Collection<int, Lesson> $lessons
+     * @param  Collection<int, Lesson>  $lessons
      * @return array<int, bool>
      */
     public function lessonCompleteBatch(User $user, Collection $lessons): array
