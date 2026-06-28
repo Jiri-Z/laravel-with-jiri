@@ -35,7 +35,6 @@ class AdminStepTest extends TestCase
             ->set('title', 'New Step')
             ->set('type', StepType::Reading->value)
             ->set('content', 'Step content here')
-            ->set('order', 1)
             ->call('save')
             ->assertRedirect("/admin/courses/{$course->id}/lessons/{$lesson->id}/steps");
 
@@ -168,7 +167,6 @@ class AdminStepTest extends TestCase
             ->set('title', '')
             ->set('type', StepType::Reading->value)
             ->set('content', 'Some content')
-            ->set('order', 1)
             ->call('save')
             ->assertHasErrors('title');
     }
@@ -193,7 +191,6 @@ class AdminStepTest extends TestCase
                 ->set('title', "Step {$type->value}")
                 ->set('type', $type->value)
                 ->set('content', $content)
-                ->set('order', $i + 1)
                 ->call('save')
                 ->assertRedirect("/admin/courses/{$course->id}/lessons/{$lesson->id}/steps");
 
@@ -201,7 +198,6 @@ class AdminStepTest extends TestCase
                 'lesson_id' => $lesson->id,
                 'title' => "Step {$type->value}",
                 'type' => $type->value,
-                'order' => $i + 1,
             ]);
         }
     }
@@ -348,6 +344,30 @@ class AdminStepTest extends TestCase
         $this->actingAs($user)->get("/admin/courses/{$course->id}/lessons/{$lesson->id}/steps")
             ->assertOk()
             ->assertSee('wire:loading');
+    }
+
+    public function test_order_is_auto_assigned_on_create(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $course = Course::factory()->create();
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+
+        // Pre-existing step at order 5
+        Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 5]);
+
+        Livewire::actingAs($user)
+            ->test(AdminStepForm::class, ['course' => $course, 'lesson' => $lesson])
+            ->set('title', 'Auto-ordered Step')
+            ->set('type', StepType::Reading->value)
+            ->set('content', 'Content')
+            ->call('save')
+            ->assertRedirect("/admin/courses/{$course->id}/lessons/{$lesson->id}/steps");
+
+        $this->assertDatabaseHas('steps', [
+            'lesson_id' => $lesson->id,
+            'title' => 'Auto-ordered Step',
+            'order' => 6,
+        ]);
     }
 
     public function test_step_url_tracking_with_ownership(): void

@@ -52,6 +52,7 @@ class AdminStepForm extends Component
             $this->order = $step->order;
         } else {
             $this->authorize('create', Step::class);
+            $this->order = ($this->lesson->steps()->max('order') ?? -1) + 1;
         }
     }
 
@@ -62,7 +63,6 @@ class AdminStepForm extends Component
             'title' => 'required|max:255',
             'type' => 'required|in:'.implode(',', array_map(fn (StepType $t) => $t->value, StepType::cases())),
             'content' => 'required',
-            'order' => 'required|integer|min:0',
         ];
     }
 

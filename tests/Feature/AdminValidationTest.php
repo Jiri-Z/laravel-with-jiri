@@ -61,7 +61,7 @@ class AdminValidationTest extends TestCase
 
         $rules = $component->instance()->validationRules();
 
-        expect($rules)->toHaveKeys(['title', 'type', 'content', 'order']);
+        expect($rules)->toHaveKeys(['title', 'type', 'content']);
     }
 
     public function test_admin_course_form_rule_values_are_correct(): void
@@ -107,7 +107,6 @@ class AdminValidationTest extends TestCase
         expect($rules['title'])->toBe('required|max:255');
         expect($rules['type'])->toContain('required|in:');
         expect($rules['content'])->toBe('required');
-        expect($rules['order'])->toBe('required|integer|min:0');
     }
 
     public function test_invalid_course_data_rejected_by_validation(): void
