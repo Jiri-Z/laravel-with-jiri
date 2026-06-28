@@ -12,7 +12,7 @@
                     <span class="text-sm font-medium text-indigo-600 dark:text-indigo-400">{{ $courseProgress }}%</span>
                 </div>
                 <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
-                    <div class="bg-indigo-600 h-2.5 rounded-full transition-all" style="width: {{ $courseProgress }}%"></div>
+                    <div class="bg-indigo-600 dark:bg-indigo-500 h-2.5 rounded-full transition-all" style="width: {{ $courseProgress }}%"></div>
                 </div>
             </div>
 
@@ -20,26 +20,24 @@
 
             <div class="space-y-4">
                 @forelse ($course->lessons as $lesson)
-                    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                        <div class="p-6 flex items-center justify-between">
+                    <a href="{{ route('lessons.show', [$course->slug, $lesson->slug]) }}" wire:navigate class="group block bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+                        <div class="flex items-center justify-between">
                             <div>
-                                <h3 class="text-lg font-medium text-gray-900 dark:text-white">
-                                    <a href="{{ route('lessons.show', [$course->slug, $lesson->slug]) }}" wire:navigate class="hover:underline">
-                                        {{ $lesson->title }}
-                                    </a>
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                                    {{ $lesson->title }}
                                 </h3>
                                 @if ($lesson->description)
                                     <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ Str::limit($lesson->description, 100) }}</p>
                                 @endif
                             </div>
-                            <div class="flex items-center gap-3">
+                            <div class="flex items-center gap-3 flex-shrink-0">
                                 @if ($lessonCompletion[$lesson->id])
                                     <span class="text-sm text-green-600 dark:text-green-400 font-medium">Lesson complete</span>
                                 @endif
                                 <span class="text-sm text-gray-500 dark:text-gray-400">Lesson {{ $lesson->order }}</span>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 @empty
                     <p class="text-gray-500 dark:text-gray-400">No lessons available yet.</p>
                 @endforelse

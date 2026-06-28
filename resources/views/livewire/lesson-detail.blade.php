@@ -12,8 +12,8 @@
 
             <div class="space-y-4">
                 @forelse ($lesson->steps as $step)
-                    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                        <div class="p-6 flex items-center justify-between">
+                    <a href="{{ route('steps.show', [$course->slug, $lesson->slug, $step->id]) }}" wire:navigate class="group block bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+                        <div class="flex items-center justify-between">
                             <div class="flex items-center gap-4">
                                 @if ($stepCompletion[$step->id])
                                     <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -25,10 +25,8 @@
                                     </span>
                                 @endif
                                 <div>
-                                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">
-                                        <a href="{{ route('steps.show', [$course->slug, $lesson->slug, $step->id]) }}" wire:navigate class="hover:underline">
-                                            {{ $step->title }}
-                                        </a>
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                                        {{ $step->title }}
                                     </h3>
                                     <span class="text-sm text-gray-500 dark:text-gray-400">
                                         {{ str_replace('_', ' ', ucfirst($step->type->value)) }}
@@ -39,7 +37,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 @empty
                     <p class="text-gray-500 dark:text-gray-400">No steps available yet.</p>
                 @endforelse
