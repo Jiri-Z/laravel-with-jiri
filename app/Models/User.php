@@ -53,6 +53,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->role === 'student';
     }
 
+    #[\Override]
     protected function casts(): array
     {
         return [

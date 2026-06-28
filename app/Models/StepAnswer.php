@@ -5,25 +5,26 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Database\Factories\StepAnswerFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+#[Fillable([
+    'user_id',
+    'step_id',
+    'answer',
+    'is_correct',
+    'created_at',
+])]
+#[WithoutTimestamps]
 class StepAnswer extends Model
 {
     /** @use HasFactory<StepAnswerFactory> */
     use HasFactory;
 
-    public $timestamps = false;
-
-    protected $fillable = [
-        'user_id',
-        'step_id',
-        'answer',
-        'is_correct',
-        'created_at',
-    ];
-
+    #[\Override]
     protected function casts(): array
     {
         return [

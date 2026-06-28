@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\StepType;
 use Database\Factories\StepFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -55,17 +56,17 @@ class Step extends Model
      * @param  Builder<Step>  $query
      * @return Builder<Step>
      */
-    public function scopeSearch(Builder $query, string $term): Builder
+    #[Scope]
+    protected function search(Builder $query, string $term): Builder
     {
         if (strlen($term) < 2) {
             return $query;
         }
 
-        return $query->where(function (Builder $q) use ($term): Builder {
-            return $q->where('title', 'like', "%{$term}%");
-        });
+        return $query->where(fn (Builder $q): Builder => $q->where('title', 'like', "%{$term}%"));
     }
 
+    #[\Override]
     protected function casts(): array
     {
         return [

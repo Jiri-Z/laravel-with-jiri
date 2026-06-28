@@ -28,6 +28,7 @@ class StepCompletion extends Model
         return $this->belongsTo(Step::class);
     }
 
+    #[\Override]
     protected function casts(): array
     {
         return [

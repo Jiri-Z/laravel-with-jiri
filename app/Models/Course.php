@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Database\Factories\CourseFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -56,18 +57,18 @@ class Course extends Model
      * @param  Builder<Course>  $query
      * @return Builder<Course>
      */
-    public function scopeSearch(Builder $query, string $term): Builder
+    #[Scope]
+    protected function search(Builder $query, string $term): Builder
     {
         if (strlen($term) < 2) {
             return $query;
         }
 
-        return $query->where(function (Builder $q) use ($term): Builder {
-            return $q->where('title', 'like', "%{$term}%")
-                ->orWhere('slug', 'like', "%{$term}%");
-        });
+        return $query->where(fn (Builder $q): Builder => $q->where('title', 'like', "%{$term}%")
+            ->orWhere('slug', 'like', "%{$term}%"));
     }
 
+    #[\Override]
     protected function casts(): array
     {
         return [
