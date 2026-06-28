@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LandingController;
 use App\Livewire\AdminCourseForm;
 use App\Livewire\AdminCourseList;
 use App\Livewire\AdminLessonForm;
@@ -12,7 +13,7 @@ use App\Livewire\LessonDetail;
 use App\Livewire\StepViewer;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'welcome');
+Route::get('/', LandingController::class);
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/courses', CourseList::class)->name('courses.index');

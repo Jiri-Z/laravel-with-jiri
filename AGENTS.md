@@ -72,7 +72,7 @@ public function mount(ProgressService $progress): void
 
 **PHPStan `missingType.iterableValue` on validation arrays** — Laravel's `validationRules()` returns `array`. PHPStan level 6 requires `@return array<string, string>` on methods that return associative string→string arrays. Add the PHPDoc annotation above the method signature.
 
-**Larastan invocation on this environment** — `vendor/bin/phpstan analyse -c phpstan.neon --no-progress` can exit silently on PHP 8.5 here. Use the PHAR with `--debug` when running manually:
+**Larastan invocation on this environment** — `vendor/bin/phpstan analyse -c phpstan.neon --no-progress` can exit silently on PHP 8.3 here. Use the PHAR with `--debug` when running manually:
 ```bash
 php -d memory_limit=-1 vendor/phpstan/phpstan/phpstan.phar analyse -c phpstan.neon --debug
 ```
@@ -123,7 +123,7 @@ The Laravel Boost guidelines are specifically curated by Laravel maintainers for
 
 This application is a Laravel application and its main Laravel ecosystems package & versions are below. You are an expert with them all. Ensure you abide by these specific packages & versions.
 
-- php - 8.5
+- php - 8.3
 - laravel/framework (LARAVEL) - v13
 - laravel/prompts (PROMPTS) - v0
 - livewire/livewire (LIVEWIRE) - v3
