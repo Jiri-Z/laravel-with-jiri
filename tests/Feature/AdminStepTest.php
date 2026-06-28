@@ -178,18 +178,25 @@ class AdminStepTest extends TestCase
         $lesson = Lesson::factory()->create(['course_id' => $course->id]);
 
         foreach (StepType::cases() as $i => $type) {
-            $content = match ($type) {
-                StepType::Reading => 'Reading text',
-                StepType::Quiz => '[{"type":"single","question":"Q?","options":["A","B"],"correct_answer":0}]',
-                StepType::Coding => '{"prompt":"Write code","initial_code":"<?php","test_code":"<?php","expected_output":"ok"}',
-            };
-
-            Livewire::actingAs($user)
+            $test = Livewire::actingAs($user)
                 ->test(AdminStepForm::class, ['course' => $course, 'lesson' => $lesson])
                 ->set('title', "Step {$type->value}")
-                ->set('type', $type->value)
-                ->set('content', $content)
-                ->call('save')
+                ->set('type', $type->value);
+
+            if ($type === StepType::Coding) {
+                $test->set('prompt', 'Write code')
+                    ->set('initialCode', "<?php\n")
+                    ->set('testCode', "<?php\n")
+                    ->set('expectedOutput', 'ok');
+            } else {
+                $content = match ($type) {
+                    StepType::Reading => 'Reading text',
+                    StepType::Quiz => '[{"type":"single","question":"Q?","options":["A","B"],"correct_answer":0}]',
+                };
+                $test->set('content', $content);
+            }
+
+            $test->call('save')
                 ->assertRedirect("/admin/courses/{$course->id}/lessons/{$lesson->id}/steps");
 
             $this->assertDatabaseHas('steps', [
@@ -365,6 +372,115 @@ class AdminStepTest extends TestCase
             'lesson_id' => $lesson->id,
             'title' => 'Auto-ordered Step',
             'order' => 6,
+        ]);
+    }
+
+    public function test_coding_step_form_has_separate_fields(): void
+    {
+        $user = User::factory()->create(['role' => 'instructor']);
+        $course = Course::factory()->create(['user_id' => $user->id]);
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+
+        $component = Livewire::actingAs($user)
+            ->test(AdminStepForm::class, ['course' => $course, 'lesson' => $lesson])
+            ->set('type', StepType::Coding->value);
+
+        expect($component->get('type'))->toBe(StepType::Coding->value);
+        expect($component->instance()->prompt)->toBe('');
+        expect($component->instance()->initialCode)->toBe('');
+        expect($component->instance()->testCode)->toBe('');
+        expect($component->instance()->expectedOutput)->toBe('');
+    }
+
+    public function test_coding_step_serializes_fields_to_json_on_save(): void
+    {
+        $user = User::factory()->create(['role' => 'instructor']);
+        $course = Course::factory()->create(['user_id' => $user->id]);
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+
+        Livewire::actingAs($user)
+            ->test(AdminStepForm::class, ['course' => $course, 'lesson' => $lesson])
+            ->set('title', 'Coding Step')
+            ->set('type', StepType::Coding->value)
+            ->set('prompt', 'Write PHP')
+            ->set('initialCode', "<?php\necho 'hi';")
+            ->set('testCode', "<?php\nassert(true);")
+            ->set('expectedOutput', 'hi')
+            ->call('save')
+            ->assertRedirect("/admin/courses/{$course->id}/lessons/{$lesson->id}/steps");
+
+        $this->assertDatabaseHas('steps', [
+            'lesson_id' => $lesson->id,
+            'title' => 'Coding Step',
+            'type' => StepType::Coding->value,
+        ]);
+
+        $step = Step::where('lesson_id', $lesson->id)->where('title', 'Coding Step')->first();
+        $content = json_decode($step->content, true);
+        expect($content['prompt'])->toBe('Write PHP');
+        expect($content['initial_code'])->toBe("<?php\necho 'hi';");
+        expect($content['test_code'])->toBe("<?php\nassert(true);");
+        expect($content['expected_output'])->toBe('hi');
+    }
+
+    public function test_coding_step_validation_requires_prompt(): void
+    {
+        $user = User::factory()->create(['role' => 'instructor']);
+        $course = Course::factory()->create(['user_id' => $user->id]);
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+
+        Livewire::actingAs($user)
+            ->test(AdminStepForm::class, ['course' => $course, 'lesson' => $lesson])
+            ->set('title', 'Bad Coding Step')
+            ->set('type', StepType::Coding->value)
+            ->set('prompt', '')
+            ->call('save')
+            ->assertHasErrors('prompt');
+    }
+
+    public function test_editing_coding_step_populates_separate_fields(): void
+    {
+        $user = User::factory()->create(['role' => 'instructor']);
+        $course = Course::factory()->create(['user_id' => $user->id]);
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+        $step = Step::factory()->coding()->create([
+            'lesson_id' => $lesson->id,
+            'title' => 'Edit Coding',
+        ]);
+
+        $component = Livewire::actingAs($user)
+            ->test(AdminStepForm::class, ['course' => $course, 'lesson' => $lesson, 'step' => $step]);
+
+        expect($component->get('type'))->toBe(StepType::Coding->value);
+        expect($component->get('prompt'))->toBe('Write a PHP function that returns the sum of two numbers.');
+        expect($component->get('initialCode'))->toContain('function add(');
+        expect($component->get('testCode'))->toContain('echo add');
+        expect($component->get('expectedOutput'))->toBe('5');
+    }
+
+    public function test_reading_step_form_still_uses_content_property(): void
+    {
+        $user = User::factory()->create(['role' => 'instructor']);
+        $course = Course::factory()->create(['user_id' => $user->id]);
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+
+        $component = Livewire::actingAs($user)
+            ->test(AdminStepForm::class, ['course' => $course, 'lesson' => $lesson])
+            ->set('type', StepType::Reading->value);
+
+        Livewire::actingAs($user)
+            ->test(AdminStepForm::class, ['course' => $course, 'lesson' => $lesson])
+            ->set('title', 'Reading Step')
+            ->set('type', StepType::Reading->value)
+            ->set('content', 'Simple text')
+            ->call('save')
+            ->assertRedirect("/admin/courses/{$course->id}/lessons/{$lesson->id}/steps");
+
+        $this->assertDatabaseHas('steps', [
+            'lesson_id' => $lesson->id,
+            'title' => 'Reading Step',
+            'type' => StepType::Reading->value,
+            'content' => 'Simple text',
         ]);
     }
 

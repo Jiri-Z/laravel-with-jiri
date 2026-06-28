@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire;
 
+use App\Enums\StepType;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Step;
@@ -26,6 +27,14 @@ class AdminStepForm extends Component
 
     public string $content = '';
 
+    public string $prompt = '';
+
+    public string $initialCode = '';
+
+    public string $testCode = '';
+
+    public string $expectedOutput = '';
+
     public int $order = 0;
 
     public function mount(Course $course, Lesson $lesson, ?Step $step = null): void
@@ -47,8 +56,17 @@ class AdminStepForm extends Component
             $this->authorize('update', $step);
             $this->title = $step->title;
             $this->type = $step->type->value;
-            $this->content = $step->content;
             $this->order = $step->order;
+
+            if ($step->type === StepType::Coding) {
+                $data = $step->getContentAsArray();
+                $this->prompt = $data['prompt'] ?? '';
+                $this->initialCode = $data['initial_code'] ?? '';
+                $this->testCode = $data['test_code'] ?? '';
+                $this->expectedOutput = $data['expected_output'] ?? '';
+            } else {
+                $this->content = $step->content;
+            }
         } else {
             $this->authorize('create', Step::class);
             $this->order = ($this->lesson->steps()->max('order') ?? -1) + 1;
@@ -58,11 +76,21 @@ class AdminStepForm extends Component
     /** @return array<string, string> */
     public function validationRules(): array
     {
-        return [
+        $base = [
             'title' => 'required|max:255',
             'type' => 'required|in:reading,quiz,coding',
-            'content' => 'required',
         ];
+
+        if ($this->type === StepType::Coding->value) {
+            return $base + [
+                'prompt' => 'required|string',
+                'initialCode' => 'nullable|string',
+                'testCode' => 'nullable|string',
+                'expectedOutput' => 'nullable|string',
+            ];
+        }
+
+        return $base + ['content' => 'required'];
     }
 
     public function save(): void
@@ -79,7 +107,14 @@ class AdminStepForm extends Component
             'lesson_id' => $this->lesson->id,
             'title' => $this->title,
             'type' => $this->type,
-            'content' => $this->content,
+            'content' => $this->type === StepType::Coding->value
+                ? json_encode([
+                    'prompt' => $this->prompt,
+                    'initial_code' => $this->initialCode,
+                    'test_code' => $this->testCode,
+                    'expected_output' => $this->expectedOutput,
+                ])
+                : $this->content,
             'order' => $this->order,
         ];
 
