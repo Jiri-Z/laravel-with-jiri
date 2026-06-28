@@ -76,24 +76,56 @@ public function mount(ProgressService $progress): void
 ```bash
 php -d memory_limit=-1 vendor/phpstan/phpstan/phpstan.phar analyse -c phpstan.neon --debug
 ```
+
+**Race-safe writes via unique constraint** — Instead of check-then-act (`exists()` then `create()`), wrap the `create()` in a try-catch for `QueryException`. The DB unique constraint provides atomicity — only one INSERT wins, the other gracefully returns the existing state:
+```php
+try {
+    StepCompletion::create([...]);
+    return true;
+} catch (QueryException) {
+    return false; // another request won the race
+}
+```
+Used in `MarkStepComplete` and `SubmitQuizAnswer`.
+
+**Auto-assign order on create** — Instead of requiring manual order input (which risks duplicate unique-key violations), auto-assign on `mount()`:
+```php
+$this->order = ($this->lesson->steps()->max('order') ?? -1) + 1;
+```
+Reordering is handled exclusively via `moveUp()`/`moveDown()` on the list page.
+
+**Batch progress lookup** — To eliminate N+1 from per-item progress calls, add batch methods to `ProgressService` that compute progress for all items in 2 queries total:
+```php
+$progress->courseProgressBatch($user, $courses);  // [courseId => float]
+$progress->lessonCompleteBatch($user, $lessons);  // [lessonId => bool]
+```
+
+**Min search length guard** — Every `scopeSearch` should bail early for terms under 2 characters to prevent full table scans on single-character `LIKE` queries:
+```php
+if (strlen($term) < 2) {
+    return $query;
+}
+```
+
 ## Progress
 | # | Item | Status |
 |---|------|--------|
 | 1 | Laravel Boost scaffold | ✅ |
 | 2 | Migrations + models | ✅ |
 | 3 | Factories + seeders | ✅ |
-| 4 | Pest tests for models | ✅ (145 tests, 324 assertions) |
+| 4 | Pest tests for models | ✅ |
 | 5 | Student views (reading) | ✅ |
 | 6 | Step completion + progress | ✅ |
 | 7 | Quiz step types | ✅ |
-| 8 | Coding step type (Monaco + WASM) | ✅ (client-side eval, dynamic CDN loading) |
+| 8 | Coding step type (Monaco + WASM) | ✅ |
 | 9 | Admin/instructor CRUD | ✅ |
 | 10 | Role-based access (policies) | ✅ |
 | 11 | Ordering / reordering | ✅ |
 | 12 | Polish (progress bars, states) | ✅ |
-| 13 | Full Pest pass | ✅ (248 tests, 506 assertions) |
+| 13 | Full Pest pass | ✅ (296 tests, 616 assertions) |
+| 14 | Bug fix pass (all 10 plan items) | ✅ |
 
-## Quality roadmap (Phase 1 & 2 — completed)
+## Quality roadmap
 - **StepType enum**: Backed enum replacing all string literals across models, components, blades, factories, seeders, and tests
 - **Query scopes**: `published()` and `ordered()` on Course, Lesson, Step — replaces 6 inline `where→orderBy` chains
 - **`declare(strict_types=1)`**: Added to all 31 `app/` PHP files
@@ -103,6 +135,7 @@ php -d memory_limit=-1 vendor/phpstan/phpstan/phpstan.phar analyse -c phpstan.ne
 - **Action classes**: `MarkStepComplete`, `SubmitQuizAnswer` — extracted from Livewire components, isolated unit tests
 - **ProgressService**: `courseProgress()` and `lessonComplete()` methods with subquery-based counting
 - **Tests**: 19 new tests across validation, actions, progress, and scopes
+- **Bug fixes**: All 10 plan items resolved (cascade, swap transactions, duplicate order, progress filtering, race safety, access auth, N+1, factory order, search guards)
 
 ## Build order (suggested)
 1. Laravel Boost scaffold → auth, roles, base layout
