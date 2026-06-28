@@ -14,7 +14,7 @@ E-learning platform. Laravel 13 + Livewire + Tailwind + Pest, scaffolded with La
    - **Green** — write the *minimum* implementation code to make the test pass. Do not add extra features, refactor, or beautify during this step.
    - **Refactor** — clean up the implementation: rename variables, extract methods, remove duplication, add type hints. The test must still pass after every refactoring step. Run the test suite to confirm.
 5. **Run affected tests** after every code change (Green and Refactor each complete with a test run)
-6. **Pint** and **Larastan** before commit
+6. **Rector** → **Larastan** → **Pint** before commit (run in that order to avoid fix conflicts)
 7. **Manual verification** — start dev server + Vite, navigate to the feature in a real browser, verify the runtime behaviour. "I started the server" is NOT a smoke test.
 
 ## Smoke test requirements
