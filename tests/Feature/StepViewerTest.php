@@ -569,4 +569,49 @@ class StepViewerTest extends TestCase
             ->assertSet('submitted', true)
             ->assertSet('isCorrect', false);
     }
+
+    public function test_rapid_completion_does_not_duplicate(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->reading()->create(['lesson_id' => $lesson->id]);
+
+        Livewire::actingAs($user)
+            ->test(StepViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
+            ->call('complete')
+            ->assertSet('completed', true)
+            ->call('complete')
+            ->assertSet('completed', true);
+
+        $this->assertDatabaseCount('step_completions', 1);
+    }
+
+    public function test_rapid_quiz_submit_does_not_duplicate(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->quizSingle()->create(['lesson_id' => $lesson->id]);
+
+        Livewire::actingAs($user)
+            ->test(QuizViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
+            ->set('selectedAnswer', 1)
+            ->call('submit')
+            ->assertSet('submitted', true)
+            ->assertSet('isCorrect', true)
+            ->call('submit')
+            ->assertSet('submitted', true)
+            ->assertSet('isCorrect', true);
+
+        $this->assertDatabaseCount('step_answers', 1);
+    }
 }

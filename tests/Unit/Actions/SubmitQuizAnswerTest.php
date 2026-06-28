@@ -134,4 +134,19 @@ class SubmitQuizAnswerTest extends TestCase
         expect($result->isCorrect)->toBeFalse();
         expect($result->answer)->toBe('');
     }
+
+    public function test_can_be_invoked_twice_without_exception(): void
+    {
+        $user = User::factory()->create();
+        $step = Step::factory()->quizSingle()->create([
+            'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+        ]);
+
+        (new SubmitQuizAnswer)->handle($user, $step, 1);
+
+        // Second call with same user and step should not throw
+        (new SubmitQuizAnswer)->handle($user, $step, 1);
+
+        $this->assertDatabaseCount('step_answers', 1);
+    }
 }

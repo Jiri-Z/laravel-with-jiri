@@ -47,6 +47,26 @@ class MarkStepCompleteTest extends TestCase
         $this->assertDatabaseCount('step_completions', 1);
     }
 
+    public function test_handles_race_condition_when_row_already_exists(): void
+    {
+        $user = User::factory()->create();
+        $step = Step::factory()->create([
+            'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+        ]);
+
+        // Simulate concurrent request that inserted the record
+        StepCompletion::factory()->create([
+            'user_id' => $user->id,
+            'step_id' => $step->id,
+        ]);
+
+        // This should not throw a QueryException
+        $result = (new MarkStepComplete)->handle($user, $step);
+
+        expect($result)->toBeFalse();
+        $this->assertDatabaseCount('step_completions', 1);
+    }
+
     public function test_sets_completed_at_timestamp(): void
     {
         $user = User::factory()->create();
