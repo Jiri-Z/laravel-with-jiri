@@ -60,11 +60,9 @@ class CourseSeeder extends Seeder
         Step::factory()->create([
             'lesson_id' => $lesson1->id,
             'title' => 'Quick Check',
-            'type' => StepType::QuizSingle,
+            'type' => StepType::Quiz,
             'content' => json_encode([
-                'question' => 'Which architectural pattern does Laravel follow?',
-                'options' => ['MVP', 'MVC', 'MVVM', 'REST'],
-                'correct_answer' => 1,
+                ['type' => 'single', 'question' => 'Which architectural pattern does Laravel follow?', 'options' => ['MVP', 'MVC', 'MVVM', 'REST'], 'correct_answer' => 1],
             ]),
             'order' => 2,
         ]);
@@ -83,10 +81,9 @@ class CourseSeeder extends Seeder
         Step::factory()->create([
             'lesson_id' => $lesson1->id,
             'title' => 'What is a framework?',
-            'type' => StepType::QuizText,
+            'type' => StepType::Quiz,
             'content' => json_encode([
-                'question' => 'What directory are web routes defined in?',
-                'correct_answer' => 'routes/web.php',
+                ['type' => 'text', 'question' => 'What directory are web routes defined in?', 'correct_answer' => 'routes/web.php'],
             ]),
             'order' => 3,
         ]);
@@ -111,11 +108,9 @@ class CourseSeeder extends Seeder
         Step::factory()->create([
             'lesson_id' => $lesson2->id,
             'title' => 'Route Types Quiz',
-            'type' => StepType::QuizMultiple,
+            'type' => StepType::Quiz,
             'content' => json_encode([
-                'question' => 'Which HTTP methods can Laravel routes handle?',
-                'options' => ['GET', 'POST', 'PUT', 'DELETE', 'FETCH'],
-                'correct_answers' => [0, 1, 2, 3],
+                ['type' => 'multiple', 'question' => 'Which HTTP methods can Laravel routes handle?', 'options' => ['GET', 'POST', 'PUT', 'DELETE', 'FETCH'], 'correct_answers' => [0, 1, 2, 3]],
             ]),
             'order' => 2,
         ]);

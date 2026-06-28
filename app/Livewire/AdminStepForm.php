@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Livewire;
 
-use App\Enums\StepType;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Step;
@@ -61,7 +60,7 @@ class AdminStepForm extends Component
     {
         return [
             'title' => 'required|max:255',
-            'type' => 'required|in:'.implode(',', array_map(fn (StepType $t) => $t->value, StepType::cases())),
+            'type' => 'required|in:reading,quiz,coding',
             'content' => 'required',
         ];
     }

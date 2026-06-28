@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
-use App\Enums\StepType;
 use App\Models\Step;
 use App\Models\StepAnswer;
 use App\Models\User;
@@ -23,7 +22,7 @@ class SubmitQuizAnswer
             $isCorrect = false;
             $answerString = '';
         } else {
-            $questionType = $this->resolveQuestionType($step, $content);
+            $questionType = $this->resolveQuestionType($content);
             $isCorrect = $this->checkAnswer($questionType, $content, $answer);
             $answerString = $this->serializeAnswer($questionType, $answer);
         }
@@ -52,35 +51,20 @@ class SubmitQuizAnswer
     /** @return array<string, mixed>|null */
     private function resolveContent(Step $step, int $questionIndex): ?array
     {
-        /** @var array<int, array<string, mixed>>|array<string, mixed>|null $content */
-        $content = $step->getContentAsArray();
+        /** @var array<int, array<string, mixed>>|null $questions */
+        $questions = $step->getContentAsArray();
 
-        if ($content === null) {
+        if ($questions === null) {
             return null;
         }
 
-        if ($step->type === StepType::Quiz) {
-            /** @var array<int, array<string, mixed>> $content */
-            return $content[$questionIndex] ?? null;
-        }
-
-        /** @var array<string, mixed> $content */
-        return $content;
+        return $questions[$questionIndex] ?? null;
     }
 
     /** @param  array<string, mixed>  $content */
-    private function resolveQuestionType(Step $step, array $content): string
+    private function resolveQuestionType(array $content): string
     {
-        if ($step->type === StepType::Quiz) {
-            return $content['type'] ?? 'single';
-        }
-
-        return match ($step->type) {
-            StepType::QuizSingle => 'single',
-            StepType::QuizMultiple => 'multiple',
-            StepType::QuizText => 'text',
-            default => 'single',
-        };
+        return $content['type'] ?? 'single';
     }
 
     /**

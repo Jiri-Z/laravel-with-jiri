@@ -75,7 +75,7 @@ class Step extends Model
         ];
     }
 
-    /** @return array<string, mixed>|null */
+    /** @return array<int, array<string, mixed>>|array<string, mixed>|null */
     public function getContentAsArray(): ?array
     {
         if (str_starts_with($this->content, '{') || str_starts_with($this->content, '[')) {

@@ -110,11 +110,9 @@ class SmokeTest extends TestCase
         ]);
         $step = $lesson->steps()->create([
             'title' => 'Quiz Step',
-            'type' => StepType::QuizSingle,
+            'type' => StepType::Quiz,
             'content' => json_encode([
-                'question' => 'What is 2+2?',
-                'options' => ['3', '4', '5'],
-                'correct_answer' => 1,
+                ['type' => 'single', 'question' => 'What is 2+2?', 'options' => ['3', '4', '5'], 'correct_answer' => 1],
             ]),
             'order' => 1,
         ]);
@@ -124,7 +122,7 @@ class SmokeTest extends TestCase
         $response->assertOk();
         $response->assertSee('Quiz Step');
         $response->assertSee('What is 2+2?');
-        $response->assertSee('Submit Answer');
+        $response->assertSee('Submit All Answers');
     }
 
     public function test_admin_delete_course_via_livewire(): void
@@ -243,11 +241,9 @@ class SmokeTest extends TestCase
         ]);
         $step = $lesson->steps()->create([
             'title' => 'Quiz Submit Step',
-            'type' => StepType::QuizSingle,
+            'type' => StepType::Quiz,
             'content' => json_encode([
-                'question' => 'Pick the right one',
-                'options' => ['Wrong', 'Right'],
-                'correct_answer' => 1,
+                ['type' => 'single', 'question' => 'Pick the right one', 'options' => ['Wrong', 'Right'], 'correct_answer' => 1],
             ]),
             'order' => 1,
         ]);
@@ -258,7 +254,7 @@ class SmokeTest extends TestCase
                 'lesson' => $lesson,
                 'step' => $step,
             ])
-            ->set('selectedAnswer', 1)
+            ->set('answers.0', 1)
             ->call('submit')
             ->assertSet('submitted', true)
             ->assertSet('isCorrect', true);

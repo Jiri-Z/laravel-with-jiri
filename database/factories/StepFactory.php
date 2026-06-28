@@ -19,7 +19,7 @@ class StepFactory extends Factory
         return [
             'lesson_id' => Lesson::factory(),
             'title' => fake()->sentence(3),
-            'type' => fake()->randomElement(StepType::cases()),
+            'type' => fake()->randomElement([StepType::Reading, StepType::Quiz, StepType::Coding]),
             'content' => fake()->paragraphs(3, true),
             'order' => fake()->numberBetween(1, 1000),
         ];
@@ -36,11 +36,14 @@ class StepFactory extends Factory
     public function quizSingle(): static
     {
         return $this->state(fn (array $attributes) => [
-            'type' => StepType::QuizSingle,
+            'type' => StepType::Quiz,
             'content' => json_encode([
-                'question' => 'What is 2+2?',
-                'options' => ['3', '4', '5', '6'],
-                'correct_answer' => 1,
+                [
+                    'type' => 'single',
+                    'question' => 'What is 2+2?',
+                    'options' => ['3', '4', '5', '6'],
+                    'correct_answer' => 1,
+                ],
             ]),
         ]);
     }
@@ -48,11 +51,14 @@ class StepFactory extends Factory
     public function quizMultiple(): static
     {
         return $this->state(fn (array $attributes) => [
-            'type' => StepType::QuizMultiple,
+            'type' => StepType::Quiz,
             'content' => json_encode([
-                'question' => 'Which are programming languages?',
-                'options' => ['Python', 'HTML', 'CSS', 'JavaScript'],
-                'correct_answers' => [0, 3],
+                [
+                    'type' => 'multiple',
+                    'question' => 'Which are programming languages?',
+                    'options' => ['Python', 'HTML', 'CSS', 'JavaScript'],
+                    'correct_answers' => [0, 3],
+                ],
             ]),
         ]);
     }
@@ -60,10 +66,13 @@ class StepFactory extends Factory
     public function quizText(): static
     {
         return $this->state(fn (array $attributes) => [
-            'type' => StepType::QuizText,
+            'type' => StepType::Quiz,
             'content' => json_encode([
-                'question' => 'What is the capital of France?',
-                'correct_answer' => 'Paris',
+                [
+                    'type' => 'text',
+                    'question' => 'What is the capital of France?',
+                    'correct_answer' => 'Paris',
+                ],
             ]),
         ]);
     }

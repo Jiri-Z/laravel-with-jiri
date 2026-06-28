@@ -111,11 +111,11 @@ class SubmitQuizAnswerTest extends TestCase
         $user = User::factory()->create();
         $step = Step::factory()->create([
             'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
-            'type' => StepType::QuizSingle,
+            'type' => StepType::Quiz,
             'content' => '{invalid json}',
         ]);
 
-        $result = (new SubmitQuizAnswer)->handle($user, $step, 0);
+        $result = (new SubmitQuizAnswer)->handle($user, $step, 0, questionIndex: 0);
 
         expect($result->isCorrect)->toBeFalse();
         $this->assertDatabaseHas('step_answers', [

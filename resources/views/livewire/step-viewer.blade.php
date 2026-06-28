@@ -14,7 +14,7 @@
                     <div class="prose dark:prose-invert max-w-none mb-8">
                         @if ($step->type === StepType::Reading)
                             {{ nl2br(e($step->content)) }}
-                        @elseif (in_array($step->type, [StepType::Quiz, StepType::QuizSingle, StepType::QuizMultiple, StepType::QuizText]))
+                        @elseif ($step->type === StepType::Quiz)
                             <livewire:quiz-viewer :course="$course" :lesson="$lesson" :step="$step" wire:key="quiz-{{ $step->id }}" />
                         @elseif ($step->type === StepType::Coding)
                             <livewire:coding-viewer :course="$course" :lesson="$lesson" :step="$step" wire:key="coding-{{ $step->id }}" />

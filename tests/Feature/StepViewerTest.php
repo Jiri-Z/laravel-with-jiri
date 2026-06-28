@@ -168,6 +168,7 @@ class StepViewerTest extends TestCase
         $response->assertOk();
         $response->assertSee('What is 2+2?');
         $response->assertSee('4');
+        $response->assertSee('Submit All Answers');
     }
 
     public function test_user_can_submit_correct_quiz_single_answer(): void
@@ -183,7 +184,7 @@ class StepViewerTest extends TestCase
                 'lesson' => $lesson,
                 'step' => $step,
             ])
-            ->set('selectedAnswer', 1)
+            ->set('answers.0', 1)
             ->call('submit')
             ->assertSet('submitted', true)
             ->assertSet('isCorrect', true);
@@ -208,7 +209,7 @@ class StepViewerTest extends TestCase
                 'lesson' => $lesson,
                 'step' => $step,
             ])
-            ->set('selectedAnswer', 0)
+            ->set('answers.0', 0)
             ->call('submit')
             ->assertSet('submitted', true)
             ->assertSet('isCorrect', false);
@@ -233,7 +234,7 @@ class StepViewerTest extends TestCase
                 'lesson' => $lesson,
                 'step' => $step,
             ])
-            ->set('selectedAnswers', [0, 3])
+            ->set('answers.0', [0, 3])
             ->call('submit')
             ->assertSet('submitted', true)
             ->assertSet('isCorrect', true);
@@ -258,7 +259,7 @@ class StepViewerTest extends TestCase
                 'lesson' => $lesson,
                 'step' => $step,
             ])
-            ->set('textAnswer', 'Paris')
+            ->set('answers.0', 'Paris')
             ->call('submit')
             ->assertSet('submitted', true)
             ->assertSet('isCorrect', true);
@@ -283,7 +284,7 @@ class StepViewerTest extends TestCase
         $component->course = Course::factory()->create(['published' => false]);
         $component->lesson = $lesson;
         $component->step = $step;
-        $component->selectedAnswer = 1;
+        $component->answers = [0 => 1];
 
         try {
             $component->submit();
@@ -335,7 +336,7 @@ class StepViewerTest extends TestCase
                 'lesson' => $lesson,
                 'step' => $step,
             ])
-            ->set('textAnswer', 'paris')
+            ->set('answers.0', 'paris')
             ->call('submit')
             ->assertSet('submitted', true)
             ->assertSet('isCorrect', true);
@@ -483,7 +484,7 @@ class StepViewerTest extends TestCase
                 'lesson' => $lesson,
                 'step' => $step,
             ])
-            ->set('selectedAnswers', [1, 2])
+            ->set('answers.0', [1, 2])
             ->call('submit')
             ->assertSet('submitted', true)
             ->assertSet('isCorrect', false);
@@ -502,7 +503,7 @@ class StepViewerTest extends TestCase
                 'lesson' => $lesson,
                 'step' => $step,
             ])
-            ->set('selectedAnswers', [0])
+            ->set('answers.0', [0])
             ->call('submit')
             ->assertSet('submitted', true)
             ->assertSet('isCorrect', false);
@@ -521,7 +522,7 @@ class StepViewerTest extends TestCase
                 'lesson' => $lesson,
                 'step' => $step,
             ])
-            ->set('textAnswer', 'London')
+            ->set('answers.0', 'London')
             ->call('submit')
             ->assertSet('submitted', true)
             ->assertSet('isCorrect', false);
@@ -565,7 +566,7 @@ class StepViewerTest extends TestCase
                 'lesson' => $lesson,
                 'step' => $step,
             ])
-            ->set('selectedAnswer', null)
+            ->set('answers.0', null)
             ->call('submit')
             ->assertSet('submitted', true)
             ->assertSet('isCorrect', false);
@@ -605,7 +606,7 @@ class StepViewerTest extends TestCase
                 'lesson' => $lesson,
                 'step' => $step,
             ])
-            ->set('selectedAnswer', 1)
+            ->set('answers.0', 1)
             ->call('submit')
             ->assertSet('submitted', true)
             ->assertSet('isCorrect', true)
