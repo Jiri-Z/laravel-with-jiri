@@ -1,6 +1,6 @@
 # Laravel With Jiri — AGENTS.md
 
-Greenfield e-learning platform. Laravel 13 + Livewire + Tailwind + Pest, scaffolded with Laravel Boost.
+E-learning platform. Laravel 13 + Livewire + Tailwind + Pest, scaffolded with Laravel Boost.
 
 ## MANDATORY SESSION WORKFLOW
 
@@ -14,7 +14,7 @@ Greenfield e-learning platform. Laravel 13 + Livewire + Tailwind + Pest, scaffol
    - **Green** — write the *minimum* implementation code to make the test pass. Do not add extra features, refactor, or beautify during this step.
    - **Refactor** — clean up the implementation: rename variables, extract methods, remove duplication, add type hints. The test must still pass after every refactoring step. Run the test suite to confirm.
 5. **Run affected tests** after every code change (Green and Refactor each complete with a test run)
-6. **Pint** before commit
+6. **Pint** and **Larastan** before commit
 7. **Manual verification** — start dev server + Vite, navigate to the feature in a real browser, verify the runtime behaviour. "I started the server" is NOT a smoke test.
 
 ## Smoke test requirements
@@ -37,7 +37,7 @@ A smoke test is not complete until ALL of:
 - **Database:** PostgreSQL
 - **Auth:** Laravel Boost built-in auth + roles (`admin`, `instructor`, `student` via string/enum column)
 
-## Domain (from `plan.txt`)
+## Domain
 - **Course** → **Lesson** → **Step** (all with `published` boolean + `order` int)
 - Step types: `reading`, `quiz_single`, `quiz_multiple`, `quiz_text`, `coding`
 - **StepCompletion**: `user_id`, `step_id`, `completed_at` (unique pair)
@@ -106,51 +106,6 @@ if (strlen($term) < 2) {
     return $query;
 }
 ```
-
-## Progress
-| # | Item | Status |
-|---|------|--------|
-| 1 | Laravel Boost scaffold | ✅ |
-| 2 | Migrations + models | ✅ |
-| 3 | Factories + seeders | ✅ |
-| 4 | Pest tests for models | ✅ |
-| 5 | Student views (reading) | ✅ |
-| 6 | Step completion + progress | ✅ |
-| 7 | Quiz step types | ✅ |
-| 8 | Coding step type (Monaco + WASM) | ✅ |
-| 9 | Admin/instructor CRUD | ✅ |
-| 10 | Role-based access (policies) | ✅ |
-| 11 | Ordering / reordering | ✅ |
-| 12 | Polish (progress bars, states) | ✅ |
-| 13 | Full Pest pass | ✅ (296 tests, 616 assertions) |
-| 14 | Bug fix pass (all 10 plan items) | ✅ |
-
-## Quality roadmap
-- **StepType enum**: Backed enum replacing all string literals across models, components, blades, factories, seeders, and tests
-- **Query scopes**: `published()` and `ordered()` on Course, Lesson, Step — replaces 6 inline `where→orderBy` chains
-- **`declare(strict_types=1)`**: Added to all 31 `app/` PHP files
-- **Larastan level 6**: Installed, all 30 errors fixed (generic types, null safety, type narrowing)
-- **IDE helper**: `barryvdh/laravel-ide-helper` with generated model PHPDocs
-- **Validation extraction**: `validationRules()` public method on all 3 admin form components
-- **Action classes**: `MarkStepComplete`, `SubmitQuizAnswer` — extracted from Livewire components, isolated unit tests
-- **ProgressService**: `courseProgress()` and `lessonComplete()` methods with subquery-based counting
-- **Tests**: 19 new tests across validation, actions, progress, and scopes
-- **Bug fixes**: All 10 plan items resolved (cascade, swap transactions, duplicate order, progress filtering, race safety, access auth, N+1, factory order, search guards)
-
-## Build order (suggested)
-1. Laravel Boost scaffold → auth, roles, base layout
-2. Migrations + models: Course, Lesson, Step, StepCompletion
-3. Factories + seeders
-4. Pest tests for models + relationships
-5. Student course/lesson/step views (reading first)
-6. Step completion + progress (Livewire)
-7. Quiz step types
-8. Coding step type (Monaco)
-9. Admin/instructor CRUD
-10. Role-based access (policies + middleware)
-11. Ordering / reordering
-12. Polish: progress bars, empty/loading/error states
-13. Full Pest test pass
 
 ## Out of scope
 Payments, video, comments, email notifications, API endpoints.
@@ -277,12 +232,6 @@ At the start of every session, run `application-info` to get precise package ver
 - Use TitleCase for Enum keys: `FavoritePerson`, `BestLake`, `Monthly`.
 - Prefer PHPDoc blocks over inline comments. Only add inline comments for exceptionally complex logic.
 - Use array shape type definitions in PHPDoc blocks.
-
-=== deployments rules ===
-
-# Deployment
-
-- Laravel can be deployed using [Laravel Cloud](https://cloud.laravel.com/), which is the fastest way to deploy and scale production Laravel applications.
 
 === tests rules ===
 
