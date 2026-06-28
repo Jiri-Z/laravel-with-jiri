@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\EnrollInCourse;
 use App\Http\Controllers\LandingController;
 use App\Livewire\AdminCourseForm;
 use App\Livewire\AdminCourseList;
@@ -12,6 +13,7 @@ use App\Livewire\CourseList;
 use App\Livewire\Dashboard;
 use App\Livewire\LessonDetail;
 use App\Livewire\StepViewer;
+use App\Models\Course;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', LandingController::class);
@@ -21,6 +23,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/courses/{course:slug}', CourseDetail::class)->name('courses.show');
     Route::get('/courses/{course:slug}/lessons/{lesson:slug}', LessonDetail::class)->name('lessons.show');
     Route::get('/courses/{course:slug}/lessons/{lesson:slug}/steps/{step}', StepViewer::class)->name('steps.show');
+
+    Route::post('/enroll/{course}', function (Course $course) {
+        $action = app(EnrollInCourse::class);
+        $action->handle(auth()->user(), $course);
+
+        return redirect()->route('courses.show', $course);
+    })->name('courses.enroll');
 });
 
 Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->group(function () {

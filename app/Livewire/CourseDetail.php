@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\EnsuresEnrollment;
 use App\Models\Course;
 use App\Services\ProgressService;
 use Illuminate\Contracts\View\View;
@@ -13,6 +14,8 @@ use Livewire\Component;
 #[Layout('layouts.app')]
 class CourseDetail extends Component
 {
+    use EnsuresEnrollment;
+
     public Course $course;
 
     /** @var array<int, bool> */
@@ -23,6 +26,8 @@ class CourseDetail extends Component
     public function mount(Course $course, ProgressService $progress): void
     {
         abort_unless($course->published, 404);
+
+        $this->ensureEnrolled($course);
 
         $course->load(['lessons' => fn ($q) => $q->published()->ordered()]);
 

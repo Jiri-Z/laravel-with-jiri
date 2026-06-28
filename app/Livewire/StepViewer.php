@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire;
 
 use App\Actions\MarkStepComplete;
+use App\Livewire\Concerns\EnsuresEnrollment;
 use App\Livewire\Concerns\ValidatesStepContext;
 use App\Models\Course;
 use App\Models\Lesson;
@@ -17,6 +18,7 @@ use Livewire\Component;
 #[Layout('layouts.app')]
 class StepViewer extends Component
 {
+    use EnsuresEnrollment;
     use ValidatesStepContext;
 
     public Course $course;
@@ -30,6 +32,7 @@ class StepViewer extends Component
     public function mount(Course $course, Lesson $lesson, Step $step): void
     {
         $this->ensureContextIsValid($course, $lesson, $step);
+        $this->ensureEnrolled($course);
 
         if (! $step->isAccessibleBy(auth()->user())) {
             session()->flash('error', 'Complete the previous step first.');

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire;
 
+use App\Actions\EnrollInCourse;
 use App\Models\Course;
 use App\Services\ProgressService;
 use Illuminate\Contracts\View\View;
@@ -13,6 +14,27 @@ use Livewire\Component;
 #[Layout('layouts.app')]
 class CourseList extends Component
 {
+    /** @var array<int, bool> */
+    public array $enrolled = [];
+
+    public function mount(): void
+    {
+        $user = auth()->user();
+        if ($user) {
+            $enrolledCourseIds = $user->enrollments()->pluck('course_id')->all();
+            $this->enrolled = array_fill_keys($enrolledCourseIds, true);
+        }
+    }
+
+    public function enroll(int $courseId, EnrollInCourse $action): void
+    {
+        $course = Course::published()->findOrFail($courseId);
+        $action->handle(auth()->user(), $course);
+        $this->enrolled[$courseId] = true;
+
+        $this->redirect(route('courses.show', $course->slug), navigate: true);
+    }
+
     public function render(ProgressService $progress): View
     {
         $courses = Course::query()->withCount('lessons')->published()->ordered()->get();

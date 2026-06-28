@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\EnsuresEnrollment;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\StepCompletion;
@@ -14,6 +15,8 @@ use Livewire\Component;
 #[Layout('layouts.app')]
 class LessonDetail extends Component
 {
+    use EnsuresEnrollment;
+
     public Course $course;
 
     public Lesson $lesson;
@@ -28,6 +31,8 @@ class LessonDetail extends Component
     {
         abort_unless($course->published, 404);
         abort_unless($lesson->published && $lesson->course_id === $course->id, 404);
+
+        $this->ensureEnrolled($course);
 
         $lesson->load(['steps' => fn ($q) => $q->ordered()]);
 

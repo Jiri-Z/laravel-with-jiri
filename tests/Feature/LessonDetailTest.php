@@ -23,6 +23,7 @@ class LessonDetailTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create(['title' => 'My Course']);
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
         $lesson = Lesson::factory()->published()->create([
             'course_id' => $course->id,
             'title' => 'My Lesson',
@@ -43,6 +44,7 @@ class LessonDetailTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $second = Step::factory()->create(['lesson_id' => $lesson->id, 'title' => 'Second Step', 'order' => 2]);
         $first = Step::factory()->create(['lesson_id' => $lesson->id, 'title' => 'First Step', 'order' => 1]);
@@ -68,6 +70,7 @@ class LessonDetailTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
 
         $response = $this->actingAs($user)->get("/courses/{$course->slug}/lessons/{$lesson->slug}");
@@ -80,6 +83,7 @@ class LessonDetailTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id, 'title' => 'My Lesson']);
         $step = Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 1, 'title' => 'The Step']);
 
@@ -121,6 +125,7 @@ class LessonDetailTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 1, 'title' => 'Pending Step']);
 
@@ -135,6 +140,7 @@ class LessonDetailTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         Step::factory()->reading()->create(['lesson_id' => $lesson->id, 'order' => 1]);
         Step::factory()->reading()->create(['lesson_id' => $lesson->id, 'title' => 'Locked Step', 'order' => 2]);

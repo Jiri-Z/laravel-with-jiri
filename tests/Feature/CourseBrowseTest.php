@@ -54,6 +54,7 @@ class CourseBrowseTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->create(['lesson_id' => $lesson->id]);
 
@@ -71,6 +72,7 @@ class CourseBrowseTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         Step::factory()->create(['lesson_id' => $lesson->id]);
 
@@ -80,7 +82,8 @@ class CourseBrowseTest extends TestCase
     public function test_published_course_with_no_lessons_shows_progress(): void
     {
         $user = User::factory()->create();
-        Course::factory()->published()->create(['title' => 'Empty Course']);
+        $course = Course::factory()->published()->create(['title' => 'Empty Course']);
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
 
         $this->actingAs($user)->get('/courses')
             ->assertOk()

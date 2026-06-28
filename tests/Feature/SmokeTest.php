@@ -21,6 +21,8 @@ class SmokeTest extends TestCase
     {
         $user = User::factory()->create(['role' => 'student']);
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = $course->lessons()->create([
             'title' => 'Test Lesson',
             'slug' => 'test-lesson',
@@ -84,6 +86,7 @@ class SmokeTest extends TestCase
     {
         $user = User::factory()->create(['role' => 'student']);
         $course = Course::factory()->published()->create(['title' => 'Smoke Course']);
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
         $lesson = $course->lessons()->create([
             'title' => 'Smoke Lesson',
             'slug' => 'smoke-lesson',
@@ -102,6 +105,8 @@ class SmokeTest extends TestCase
     {
         $user = User::factory()->create(['role' => 'student']);
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = $course->lessons()->create([
             'title' => 'Quiz Lesson',
             'slug' => 'quiz-lesson',
@@ -181,6 +186,8 @@ class SmokeTest extends TestCase
     {
         $user = User::factory()->create(['role' => 'student']);
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = $course->lessons()->create([
             'title' => 'Reading Lesson',
             'slug' => 'reading-lesson',
@@ -205,6 +212,8 @@ class SmokeTest extends TestCase
     {
         $user = User::factory()->create(['role' => 'student']);
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = $course->lessons()->create([
             'title' => 'Complete Lesson',
             'slug' => 'complete-lesson',
@@ -233,6 +242,8 @@ class SmokeTest extends TestCase
     {
         $user = User::factory()->create(['role' => 'student']);
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = $course->lessons()->create([
             'title' => 'Quiz Submit Lesson',
             'slug' => 'quiz-submit-lesson',
@@ -283,6 +294,8 @@ class SmokeTest extends TestCase
     {
         $user = User::factory()->create(['role' => 'student']);
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = $course->lessons()->create([
             'title' => 'Steps Lesson',
             'slug' => 'steps-lesson',
@@ -307,6 +320,8 @@ class SmokeTest extends TestCase
     {
         $user = User::factory()->create(['role' => 'student']);
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = $course->lessons()->create([
             'title' => 'Multi Quiz Lesson',
             'slug' => 'multi-quiz-lesson',
@@ -334,6 +349,8 @@ class SmokeTest extends TestCase
     {
         $user = User::factory()->create(['role' => 'student']);
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = $course->lessons()->create([
             'title' => 'Multi Submit Lesson',
             'slug' => 'multi-submit-lesson',
@@ -365,6 +382,7 @@ class SmokeTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create(['title' => 'Dash Course']);
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
         $lesson = $course->lessons()->create([
             'title' => 'Dash Lesson',
             'slug' => 'dash-lesson',

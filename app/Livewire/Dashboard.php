@@ -20,7 +20,9 @@ class Dashboard extends Component
     {
         $user = auth()->user();
 
-        $courses = Course::published()->ordered()->withCount('lessons')->get();
+        $courses = Course::published()->ordered()->withCount('lessons')
+            ->whereHas('enrollments', fn ($q) => $q->where('user_id', $user->id))
+            ->get();
         $progressData = $progress->courseProgressBatch($user, $courses);
 
         $totalCompleted = StepCompletion::where('user_id', $user->id)->count();

@@ -32,6 +32,7 @@ class DashboardTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create(['title' => 'Progress Course']);
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step1 = Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 1]);
         Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 2]);
@@ -51,6 +52,7 @@ class DashboardTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create(['title' => 'RC Course']);
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id, 'title' => 'RC Lesson']);
         $step = Step::factory()->create(['lesson_id' => $lesson->id, 'title' => 'RC Step', 'order' => 1]);
 
@@ -69,6 +71,7 @@ class DashboardTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create(['title' => 'Resume Course']);
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step1 = Step::factory()->create(['lesson_id' => $lesson->id, 'title' => 'Done Step', 'order' => 1]);
         $step2 = Step::factory()->create(['lesson_id' => $lesson->id, 'title' => 'Next Step', 'order' => 2]);

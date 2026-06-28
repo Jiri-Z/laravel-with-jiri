@@ -32,6 +32,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->reading()->create([
             'lesson_id' => $lesson->id,
@@ -49,6 +51,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->reading()->create(['lesson_id' => $lesson->id]);
 
@@ -71,6 +75,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $otherStep = Step::factory()->reading()->create([
             'lesson_id' => Lesson::factory()->published()->create(['course_id' => $course->id]),
@@ -98,6 +104,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->reading()->create(['lesson_id' => $lesson->id]);
 
@@ -134,6 +142,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->create(['course_id' => $course->id, 'published' => false]);
         $step = Step::factory()->create(['lesson_id' => $lesson->id]);
 
@@ -146,6 +156,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $otherLesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->create(['lesson_id' => $otherLesson->id]);
@@ -159,6 +171,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->quizSingle()->create(['lesson_id' => $lesson->id]);
 
@@ -175,6 +189,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->quizSingle()->create(['lesson_id' => $lesson->id]);
 
@@ -200,6 +216,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->quizSingle()->create(['lesson_id' => $lesson->id]);
 
@@ -225,6 +243,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->quizMultiple()->create(['lesson_id' => $lesson->id]);
 
@@ -250,6 +270,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->quizText()->create(['lesson_id' => $lesson->id]);
 
@@ -275,6 +297,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->quizSingle()->create(['lesson_id' => $lesson->id]);
 
@@ -301,6 +325,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->quizSingle()->create(['lesson_id' => $lesson->id]);
 
@@ -327,6 +353,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->quizText()->create(['lesson_id' => $lesson->id]);
 
@@ -346,6 +374,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->coding()->create(['lesson_id' => $lesson->id]);
 
@@ -361,6 +391,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->coding()->create(['lesson_id' => $lesson->id]);
 
@@ -384,6 +416,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->coding()->create(['lesson_id' => $lesson->id]);
         $otherLesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
@@ -410,6 +444,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->coding()->create(['lesson_id' => $lesson->id]);
 
@@ -434,6 +470,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->coding()->create(['lesson_id' => $lesson->id]);
 
@@ -455,6 +493,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->reading()->create(['lesson_id' => $lesson->id]);
 
@@ -475,6 +515,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->quizMultiple()->create(['lesson_id' => $lesson->id]);
 
@@ -494,6 +536,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->quizMultiple()->create(['lesson_id' => $lesson->id]);
 
@@ -513,6 +557,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->quizText()->create(['lesson_id' => $lesson->id]);
 
@@ -532,6 +578,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
 
         $this->actingAs($user)
@@ -543,7 +591,11 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $courseA = Course::factory()->published()->create();
+        $courseA->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $courseB = Course::factory()->published()->create();
+        $courseB->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lessonA = Lesson::factory()->published()->create(['course_id' => $courseA->id]);
         $lessonB = Lesson::factory()->published()->create(['course_id' => $courseB->id]);
         $step = Step::factory()->create(['lesson_id' => $lessonB->id]);
@@ -557,6 +609,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->quizSingle()->create(['lesson_id' => $lesson->id]);
 
@@ -576,6 +630,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->reading()->create(['lesson_id' => $lesson->id]);
 
@@ -597,6 +653,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->quizSingle()->create(['lesson_id' => $lesson->id]);
 
@@ -621,6 +679,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->quiz()->create(['lesson_id' => $lesson->id]);
 
@@ -638,6 +698,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->quiz()->create(['lesson_id' => $lesson->id]);
 
@@ -661,6 +723,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->quiz()->create(['lesson_id' => $lesson->id]);
 
@@ -682,6 +746,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->quiz()->create(['lesson_id' => $lesson->id]);
 
@@ -703,6 +769,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->quiz()->create(['lesson_id' => $lesson->id]);
 
@@ -723,6 +791,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->quiz()->create(['lesson_id' => $lesson->id]);
 
@@ -748,6 +818,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->reading()->create(['lesson_id' => $lesson->id, 'order' => 1]);
         Step::factory()->reading()->create(['lesson_id' => $lesson->id, 'order' => 2]);
@@ -761,6 +833,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         Step::factory()->reading()->create(['lesson_id' => $lesson->id, 'order' => 1]);
         $secondStep = Step::factory()->reading()->create(['lesson_id' => $lesson->id, 'order' => 2]);
@@ -774,6 +848,8 @@ class StepViewerTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $firstStep = Step::factory()->reading()->create(['lesson_id' => $lesson->id, 'order' => 1]);
         $secondStep = Step::factory()->reading()->create(['lesson_id' => $lesson->id, 'order' => 2]);
