@@ -66,6 +66,22 @@ class Step extends Model
         return $query->where(fn (Builder $q): Builder => $q->where('title', 'like', "%{$term}%"));
     }
 
+    public function isAccessibleBy(User $user): bool
+    {
+        $previousStep = self::where('lesson_id', $this->lesson_id)
+            ->where('order', '<', $this->order)
+            ->orderBy('order', 'desc')
+            ->first();
+
+        if ($previousStep === null) {
+            return true;
+        }
+
+        return StepCompletion::where('user_id', $user->id)
+            ->where('step_id', $previousStep->id)
+            ->exists();
+    }
+
     #[\Override]
     protected function casts(): array
     {

@@ -21,6 +21,9 @@ class LessonDetail extends Component
     /** @var array<int, bool> */
     public array $stepCompletion = [];
 
+    /** @var array<int, bool> */
+    public array $stepLocked = [];
+
     public function mount(Course $course, Lesson $lesson): void
     {
         abort_unless($course->published, 404);
@@ -38,10 +41,19 @@ class LessonDetail extends Component
 
         /** @var array<int, bool> $completion */
         $completion = [];
+        /** @var array<int, bool> $locked */
+        $locked = [];
+        $previousCompleted = true;
         foreach ($lesson->steps as $step) {
-            $completion[$step->id] = in_array($step->id, $completedStepIds, true);
+            $stepDone = in_array($step->id, $completedStepIds, true);
+            $completion[$step->id] = $stepDone;
+            $locked[$step->id] = ! $previousCompleted && ! $stepDone;
+            if (! $stepDone) {
+                $previousCompleted = false;
+            }
         }
         $this->stepCompletion = $completion;
+        $this->stepLocked = $locked;
     }
 
     public function render(): View

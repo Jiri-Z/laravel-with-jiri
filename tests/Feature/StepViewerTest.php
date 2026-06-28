@@ -743,4 +743,48 @@ class StepViewerTest extends TestCase
 
         $this->assertDatabaseCount('step_answers', 3);
     }
+
+    public function test_first_step_is_always_accessible(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->reading()->create(['lesson_id' => $lesson->id, 'order' => 1]);
+        Step::factory()->reading()->create(['lesson_id' => $lesson->id, 'order' => 2]);
+
+        $this->actingAs($user)
+            ->get("/courses/{$course->slug}/lessons/{$lesson->slug}/steps/{$step->id}")
+            ->assertOk();
+    }
+
+    public function test_cannot_access_second_step_without_completing_first(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        Step::factory()->reading()->create(['lesson_id' => $lesson->id, 'order' => 1]);
+        $secondStep = Step::factory()->reading()->create(['lesson_id' => $lesson->id, 'order' => 2]);
+
+        $this->actingAs($user)
+            ->get("/courses/{$course->slug}/lessons/{$lesson->slug}/steps/{$secondStep->id}")
+            ->assertRedirect(route('lessons.show', [$course->slug, $lesson->slug]));
+    }
+
+    public function test_second_step_accessible_after_completing_first(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $firstStep = Step::factory()->reading()->create(['lesson_id' => $lesson->id, 'order' => 1]);
+        $secondStep = Step::factory()->reading()->create(['lesson_id' => $lesson->id, 'order' => 2]);
+
+        StepCompletion::factory()->create([
+            'user_id' => $user->id,
+            'step_id' => $firstStep->id,
+        ]);
+
+        $this->actingAs($user)
+            ->get("/courses/{$course->slug}/lessons/{$lesson->slug}/steps/{$secondStep->id}")
+            ->assertOk();
+    }
 }

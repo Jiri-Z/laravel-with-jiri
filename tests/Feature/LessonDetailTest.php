@@ -130,4 +130,19 @@ class LessonDetailTest extends TestCase
         $response->assertSee('Pending Step');
         $response->assertDontSee('Completed');
     }
+
+    public function test_locked_step_shows_lock_icon(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        Step::factory()->reading()->create(['lesson_id' => $lesson->id, 'order' => 1]);
+        Step::factory()->reading()->create(['lesson_id' => $lesson->id, 'title' => 'Locked Step', 'order' => 2]);
+
+        $response = $this->actingAs($user)
+            ->get("/courses/{$course->slug}/lessons/{$lesson->slug}");
+        $response->assertOk();
+        $response->assertSee('Locked Step');
+        $response->assertSee('Locked');
+    }
 }

@@ -31,6 +31,13 @@ class StepViewer extends Component
     {
         $this->ensureContextIsValid($course, $lesson, $step);
 
+        if (! $step->isAccessibleBy(auth()->user())) {
+            session()->flash('error', 'Complete the previous step first.');
+            $this->redirect(route('lessons.show', [$course->slug, $lesson->slug]), navigate: true);
+
+            return;
+        }
+
         $this->course = $course;
         $this->lesson = $lesson;
         $this->step = $step;
