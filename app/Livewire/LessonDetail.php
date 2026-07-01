@@ -52,7 +52,7 @@ class LessonDetail extends Component
         foreach ($lesson->steps as $step) {
             $stepDone = in_array($step->id, $completedStepIds, true);
             $completion[$step->id] = $stepDone;
-            $locked[$step->id] = ! $previousCompleted && ! $stepDone;
+            $locked[$step->id] = ! $previousCompleted;
             if (! $stepDone) {
                 $previousCompleted = false;
             }

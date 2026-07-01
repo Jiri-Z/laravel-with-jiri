@@ -151,4 +151,24 @@ class LessonDetailTest extends TestCase
         $response->assertSee('Locked Step');
         $response->assertSee('Locked');
     }
+
+    public function test_completed_step_with_incomplete_previous_still_shows_locked(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        Step::factory()->reading()->create(['lesson_id' => $lesson->id, 'order' => 1]);
+        Step::factory()->reading()->create(['lesson_id' => $lesson->id, 'title' => 'Skipped Step', 'order' => 2]);
+
+        // Complete step 2 without completing step 1
+        $step2 = Step::where('lesson_id', $lesson->id)->where('order', 2)->first();
+        $step2->completions()->create(['user_id' => $user->id, 'completed_at' => now()]);
+
+        $response = $this->actingAs($user)
+            ->get("/courses/{$course->slug}/lessons/{$lesson->slug}");
+        $response->assertOk();
+        $response->assertSee('Skipped Step');
+        $response->assertSee('Locked');
+    }
 }
