@@ -1,0 +1,70 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Unit\Actions;
+
+use App\Actions\EnrollInCourse;
+use App\Models\Course;
+use App\Models\User;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Tests\TestCase;
+
+class EnrollInCourseTest extends TestCase
+{
+    public function test_enrolls_user_in_published_course(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+
+        (new EnrollInCourse)->handle($user, $course);
+
+        $this->assertDatabaseHas('course_enrollments', [
+            'user_id' => $user->id,
+            'course_id' => $course->id,
+        ]);
+    }
+
+    public function test_duplicate_enrollment_is_idempotent(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
+        (new EnrollInCourse)->handle($user, $course);
+
+        $this->assertDatabaseCount('course_enrollments', 1);
+    }
+
+    public function test_unpublished_course_throws_404(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->create(['published' => false]);
+
+        $this->expectException(NotFoundHttpException::class);
+
+        (new EnrollInCourse)->handle($user, $course);
+    }
+
+    public function test_non_duplicate_query_exception_is_not_swallowed(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+
+        DB::unprepared('CREATE TRIGGER fail_enroll_insert BEFORE INSERT ON course_enrollments
+            WHEN NEW.user_id IS NOT NULL
+            BEGIN
+                SELECT RAISE(FAIL, \'simulated non-duplicate error\');
+            END;');
+
+        try {
+            $this->expectException(QueryException::class);
+
+            (new EnrollInCourse)->handle($user, $course);
+        } finally {
+            DB::unprepared('DROP TRIGGER IF EXISTS fail_enroll_insert');
+        }
+    }
+}
