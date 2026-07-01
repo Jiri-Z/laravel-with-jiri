@@ -949,4 +949,50 @@ class StepViewerTest extends TestCase
             $this->assertSame(404, $e->getStatusCode());
         }
     }
+
+    /**
+     * @test
+     */
+    public function test_quiz_viewer_blocks_unenrolled_user(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->quizSingle()->create(['lesson_id' => $lesson->id]);
+
+        $this->actingAs($user);
+
+        $component = new QuizViewer;
+
+        try {
+            $component->mount($course, $lesson, $step);
+
+            $this->fail('Expected QuizViewer to abort for unenrolled user.');
+        } catch (HttpException $e) {
+            $this->assertSame(404, $e->getStatusCode());
+        }
+    }
+
+    /**
+     * @test
+     */
+    public function test_coding_viewer_blocks_unenrolled_user(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->coding()->create(['lesson_id' => $lesson->id]);
+
+        $this->actingAs($user);
+
+        $component = new CodingViewer;
+
+        try {
+            $component->mount($course, $lesson, $step);
+
+            $this->fail('Expected CodingViewer to abort for unenrolled user.');
+        } catch (HttpException $e) {
+            $this->assertSame(404, $e->getStatusCode());
+        }
+    }
 }

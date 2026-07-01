@@ -6,6 +6,7 @@ namespace App\Livewire;
 
 use App\Actions\MarkStepComplete;
 use App\Enums\StepType;
+use App\Livewire\Concerns\EnsuresEnrollment;
 use App\Livewire\Concerns\ValidatesStepContext;
 use App\Models\Course;
 use App\Models\Lesson;
@@ -16,6 +17,7 @@ use Livewire\Component;
 
 class CodingViewer extends Component
 {
+    use EnsuresEnrollment;
     use ValidatesStepContext;
 
     public Course $course;
@@ -31,6 +33,7 @@ class CodingViewer extends Component
         abort_unless($step->type === StepType::Coding, 404);
         abort_unless($step->isAccessibleBy(auth()->user()), 404);
 
+        $this->ensureEnrolled($course);
         $this->ensureContextIsValid($course, $lesson, $step);
 
         $this->course = $course;
