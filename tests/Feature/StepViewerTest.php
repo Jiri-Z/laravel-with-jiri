@@ -976,6 +976,42 @@ class StepViewerTest extends TestCase
     /**
      * @test
      */
+    public function test_quiz_viewer_restores_answers_on_remount(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->quiz()->create(['lesson_id' => $lesson->id]);
+
+        $this->actingAs($user);
+
+        $first = Livewire::test(QuizViewer::class, [
+            'course' => $course,
+            'lesson' => $lesson,
+            'step' => $step,
+        ])
+            ->set('answers.0', 1)
+            ->set('answers.1', 'Paris')
+            ->set('answers.2', [0, 3])
+            ->call('submit')
+            ->assertSet('submitted', true);
+
+        $remount = Livewire::test(QuizViewer::class, [
+            'course' => $course,
+            'lesson' => $lesson,
+            'step' => $step,
+        ]);
+
+        $remount->assertSet('submitted', true);
+        $remount->assertSet('answers.0', '1');
+        $remount->assertSet('answers.1', 'Paris');
+        $remount->assertSet('answers.2', [0, 3]);
+    }
+
+    /**
+     * @test
+     */
     public function test_coding_viewer_blocks_unenrolled_user(): void
     {
         $user = User::factory()->create();

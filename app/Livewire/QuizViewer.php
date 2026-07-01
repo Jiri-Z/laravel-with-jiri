@@ -61,6 +61,18 @@ class QuizViewer extends Component
                 }
             }
             $this->isCorrect = $allCorrect;
+
+            /** @var array<int, array<string, mixed>>|null $questions */
+            $questions = $this->step->getContentAsArray();
+
+            if ($questions !== null) {
+                foreach ($existing as $entry) {
+                    $type = $questions[$entry->question_index]['type'] ?? 'single';
+                    $this->answers[$entry->question_index] = $type === 'multiple'
+                        ? json_decode($entry->answer)
+                        : $entry->answer;
+                }
+            }
         }
     }
 
