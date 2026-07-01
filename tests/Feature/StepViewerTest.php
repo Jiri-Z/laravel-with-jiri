@@ -995,4 +995,65 @@ class StepViewerTest extends TestCase
             $this->assertSame(404, $e->getStatusCode());
         }
     }
+
+    /**
+     * @test
+     */
+    public function test_step_viewer_complete_checks_enrollment(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->reading()->create(['lesson_id' => $lesson->id]);
+
+        $this->actingAs($user);
+
+        // Mount the component successfully
+        $component = new StepViewer;
+        $component->course = $course;
+        $component->lesson = $lesson;
+        $component->step = $step;
+
+        // Revoke enrollment
+        $course->enrollments()->delete();
+
+        try {
+            $component->complete();
+
+            $this->fail('Expected StepViewer complete to abort after enrollment revoked.');
+        } catch (HttpException $e) {
+            $this->assertSame(404, $e->getStatusCode());
+        }
+    }
+
+    /**
+     * @test
+     */
+    public function test_step_viewer_complete_checks_accessibility(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        Step::factory()->reading()->create(['lesson_id' => $lesson->id, 'order' => 1]);
+        $secondStep = Step::factory()->reading()->create(['lesson_id' => $lesson->id, 'order' => 2]);
+
+        $this->actingAs($user);
+
+        $component = new StepViewer;
+        $component->course = $course;
+        $component->lesson = $lesson;
+        $component->step = $secondStep;
+
+        try {
+            $component->complete();
+
+            $this->fail('Expected StepViewer complete to abort for inaccessible step.');
+        } catch (HttpException $e) {
+            $this->assertSame(403, $e->getStatusCode());
+        }
+    }
 }

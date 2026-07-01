@@ -52,6 +52,8 @@ class StepViewer extends Component
     public function complete(): void
     {
         $this->ensureCurrentContextIsValid();
+        $this->ensureEnrolled($this->course);
+        abort_unless($this->step->isAccessibleBy(auth()->user()), 403);
 
         (new MarkStepComplete)->handle(auth()->user(), $this->step);
 
