@@ -74,10 +74,10 @@ class SubmitQuizAnswer
     private function checkAnswer(string $questionType, array $content, int|string|array|null $answer): bool
     {
         return match ($questionType) {
-            'single' => $answer == ($content['correct_answer'] ?? null),
+            'single' => is_numeric($answer) && (int) $answer === (int) ($content['correct_answer'] ?? -1),
             'multiple' => is_array($answer)
-                && ! array_diff($answer, $content['correct_answers'] ?? [])
-                && ! array_diff($content['correct_answers'] ?? [], $answer),
+                && ! array_diff(array_unique($answer), $content['correct_answers'] ?? [])
+                && ! array_diff($content['correct_answers'] ?? [], array_unique($answer)),
             'text' => is_string($answer)
                 && strcasecmp(trim($answer), trim($content['correct_answer'] ?? '')) === 0,
             default => false,
