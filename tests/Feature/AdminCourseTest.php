@@ -256,6 +256,18 @@ class AdminCourseTest extends TestCase
             ->assertDontSee('Beta Course');
     }
 
+    public function test_search_with_single_multi_byte_character_returns_all_results(): void
+    {
+        $user = User::factory()->admin()->create();
+        Course::factory()->create(['title' => 'Alpha Course']);
+        Course::factory()->create(['title' => 'Beta Course']);
+
+        $this->actingAs($user)->get('/admin/courses?q=ñ')
+            ->assertOk()
+            ->assertSee('Alpha Course')
+            ->assertSee('Beta Course');
+    }
+
     public function test_search_no_results_shows_no_courses_found(): void
     {
         $user = User::factory()->admin()->create();

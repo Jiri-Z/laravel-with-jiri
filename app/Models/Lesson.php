@@ -60,7 +60,7 @@ class Lesson extends Model
     #[Scope]
     protected function search(Builder $query, string $term): Builder
     {
-        if (strlen($term) < 2) {
+        if (mb_strlen($term) < 2) {
             return $query;
         }
 
