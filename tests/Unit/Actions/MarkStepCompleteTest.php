@@ -4,7 +4,6 @@ namespace Tests\Unit\Actions;
 
 use App\Actions\MarkStepComplete;
 use App\Models\Course;
-use App\Models\CourseEnrollment;
 use App\Models\Lesson;
 use App\Models\Step;
 use App\Models\StepCompletion;

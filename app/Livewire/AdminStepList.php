@@ -33,6 +33,7 @@ class AdminStepList extends Component
 
     public function mount(Course $course, Lesson $lesson): void
     {
+        abort_unless($lesson->course_id === $course->id, 404);
         $this->authorize('view', $course);
         $this->authorize('viewAny', Step::class);
         $this->course = $course;

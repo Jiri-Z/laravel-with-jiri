@@ -484,6 +484,18 @@ class AdminStepTest extends TestCase
         ]);
     }
 
+    public function test_bad_lesson_course_parent_returns_404_on_step_list(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $courseA = Course::factory()->create();
+        $courseB = Course::factory()->create();
+        $lesson = Lesson::factory()->create(['course_id' => $courseA->id]);
+
+        $this->actingAs($user)
+            ->get("/admin/courses/{$courseB->id}/lessons/{$lesson->id}/steps")
+            ->assertNotFound();
+    }
+
     public function test_step_url_tracking_with_ownership(): void
     {
         $instructor = User::factory()->create(['role' => 'instructor']);
