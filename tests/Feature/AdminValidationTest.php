@@ -61,7 +61,7 @@ class AdminValidationTest extends TestCase
 
         $rules = $component->instance()->validationRules();
 
-        expect($rules)->toHaveKeys(['title', 'type', 'content']);
+        expect($rules)->toHaveKeys(['title', 'type', 'content', 'order']);
     }
 
     public function test_admin_course_form_rule_values_are_correct(): void
@@ -107,6 +107,38 @@ class AdminValidationTest extends TestCase
         expect($rules['title'])->toBe('required|max:255');
         expect($rules['type'])->toContain('required|in:');
         expect($rules['content'])->toBe('required');
+        expect($rules['order'])->toBe('required|integer|min:0');
+    }
+
+    public function test_admin_step_form_has_coding_validation_rules(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $course = Course::factory()->create();
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+
+        $component = Livewire::actingAs($user)
+            ->test(AdminStepForm::class, ['course' => $course, 'lesson' => $lesson]);
+
+        $component->set('type', 'coding');
+        $rules = $component->instance()->validationRules();
+
+        expect($rules)->toHaveKeys(['title', 'type', 'order', 'prompt', 'initialCode', 'testCode', 'expectedOutput']);
+        expect($rules)->not->toHaveKey('content');
+        expect($rules['prompt'])->toBe('required|string');
+        expect($rules['order'])->toBe('required|integer|min:0');
+    }
+
+    public function test_invalid_step_order_rejected_by_validation(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $course = Course::factory()->create();
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+
+        Livewire::actingAs($user)
+            ->test(AdminStepForm::class, ['course' => $course, 'lesson' => $lesson])
+            ->set('order', -1)
+            ->call('save')
+            ->assertHasErrors(['order']);
     }
 
     public function test_invalid_course_data_rejected_by_validation(): void

@@ -9,6 +9,7 @@ use App\Enums\StepType;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Step;
+use App\Models\StepAnswer;
 use App\Models\User;
 use Tests\TestCase;
 
@@ -234,5 +235,13 @@ class SubmitQuizAnswerTest extends TestCase
         (new SubmitQuizAnswer)->handle($user, $step, 0, questionIndex: 0);
 
         $this->assertDatabaseCount('step_answers', 2);
+    }
+
+    public function test_is_correct_not_mass_assignable(): void
+    {
+        $model = new StepAnswer;
+        $fillable = $model->getFillable();
+
+        $this->assertNotContains('is_correct', $fillable);
     }
 }

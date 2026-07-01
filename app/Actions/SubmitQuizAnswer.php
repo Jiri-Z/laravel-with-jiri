@@ -28,14 +28,14 @@ class SubmitQuizAnswer
         }
 
         try {
-            StepAnswer::create([
-                'user_id' => $user->id,
-                'step_id' => $step->id,
-                'question_index' => $questionIndex,
-                'answer' => $answerString,
-                'is_correct' => $isCorrect,
-                'created_at' => now(),
-            ]);
+            $answer = new StepAnswer;
+            $answer->user_id = $user->id;
+            $answer->step_id = $step->id;
+            $answer->question_index = $questionIndex;
+            $answer->answer = $answerString;
+            $answer->is_correct = $isCorrect;
+            $answer->created_at = now();
+            $answer->save();
         } catch (QueryException) {
             $existing = StepAnswer::where('user_id', $user->id)
                 ->where('step_id', $step->id)

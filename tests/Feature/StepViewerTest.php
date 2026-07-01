@@ -863,4 +863,90 @@ class StepViewerTest extends TestCase
             ->get("/courses/{$course->slug}/lessons/{$lesson->slug}/steps/{$secondStep->id}")
             ->assertOk();
     }
+
+    /**
+     * @test
+     */
+    public function test_quiz_viewer_aborts_404_for_non_quiz_step(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->reading()->create(['lesson_id' => $lesson->id]);
+
+        $this->actingAs($user);
+
+        $component = new QuizViewer;
+        $component->course = $course;
+        $component->lesson = $lesson;
+        $component->step = $step;
+
+        try {
+            $component->mount($course, $lesson, $step);
+
+            $this->fail('Expected QuizViewer mount to abort for non-quiz step.');
+        } catch (HttpException $e) {
+            $this->assertSame(404, $e->getStatusCode());
+        }
+    }
+
+    /**
+     * @test
+     */
+    public function test_quiz_viewer_blocks_inaccessible_step(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        Step::factory()->quiz()->create(['lesson_id' => $lesson->id, 'order' => 1]);
+        $secondStep = Step::factory()->quiz()->create(['lesson_id' => $lesson->id, 'order' => 2]);
+
+        $this->actingAs($user);
+
+        $component = new QuizViewer;
+        $component->course = $course;
+        $component->lesson = $lesson;
+        $component->step = $secondStep;
+
+        try {
+            $component->mount($course, $lesson, $secondStep);
+
+            $this->fail('Expected QuizViewer mount to abort for inaccessible step.');
+        } catch (HttpException $e) {
+            $this->assertSame(404, $e->getStatusCode());
+        }
+    }
+
+    /**
+     * @test
+     */
+    public function test_coding_viewer_blocks_inaccessible_step(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        Step::factory()->reading()->create(['lesson_id' => $lesson->id, 'order' => 1]);
+        $secondStep = Step::factory()->coding()->create(['lesson_id' => $lesson->id, 'order' => 2]);
+
+        $this->actingAs($user);
+
+        $component = new CodingViewer;
+        $component->course = $course;
+        $component->lesson = $lesson;
+        $component->step = $secondStep;
+
+        try {
+            $component->mount($course, $lesson, $secondStep);
+
+            $this->fail('Expected CodingViewer mount to abort for inaccessible step.');
+        } catch (HttpException $e) {
+            $this->assertSame(404, $e->getStatusCode());
+        }
+    }
 }

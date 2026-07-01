@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire;
 
 use App\Actions\SubmitQuizAnswer;
+use App\Enums\StepType;
 use App\Livewire\Concerns\ValidatesStepContext;
 use App\Models\Course;
 use App\Models\Lesson;
@@ -32,6 +33,10 @@ class QuizViewer extends Component
 
     public function mount(Course $course, Lesson $lesson, Step $step): void
     {
+        abort_unless($step->type === StepType::Quiz, 404);
+        abort_unless($step->getContentAsArray() !== null, 404);
+        abort_unless($step->isAccessibleBy(auth()->user()), 404);
+
         $this->ensureContextIsValid($course, $lesson, $step);
 
         $this->course = $course;
@@ -64,8 +69,13 @@ class QuizViewer extends Component
             return;
         }
 
-        /** @var array<int, array<string, mixed>> $questions */
+        /** @var array<int, array<string, mixed>>|null $questions */
         $questions = $this->step->getContentAsArray();
+
+        if ($questions === null) {
+            abort(404);
+        }
+
         $allCorrect = true;
 
         foreach ($questions as $index => $question) {

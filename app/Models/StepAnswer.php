@@ -16,7 +16,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'step_id',
     'answer',
     'question_index',
-    'is_correct',
     'created_at',
 ])]
 #[WithoutTimestamps]

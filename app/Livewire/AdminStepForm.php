@@ -79,6 +79,7 @@ class AdminStepForm extends Component
         $base = [
             'title' => 'required|max:255',
             'type' => 'required|in:reading,quiz,coding',
+            'order' => 'required|integer|min:0',
         ];
 
         if ($this->type === StepType::Coding->value) {

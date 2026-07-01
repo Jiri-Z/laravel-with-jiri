@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire;
 
 use App\Actions\MarkStepComplete;
+use App\Enums\StepType;
 use App\Livewire\Concerns\ValidatesStepContext;
 use App\Models\Course;
 use App\Models\Lesson;
@@ -27,6 +28,9 @@ class CodingViewer extends Component
 
     public function mount(Course $course, Lesson $lesson, Step $step): void
     {
+        abort_unless($step->type === StepType::Coding, 404);
+        abort_unless($step->isAccessibleBy(auth()->user()), 404);
+
         $this->ensureContextIsValid($course, $lesson, $step);
 
         $this->course = $course;

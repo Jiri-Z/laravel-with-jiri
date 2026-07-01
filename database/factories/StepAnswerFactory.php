@@ -21,8 +21,16 @@ class StepAnswerFactory extends Factory
             'step_id' => Step::factory(),
             'question_index' => 0,
             'answer' => fake()->word(),
-            'is_correct' => fake()->boolean(),
             'created_at' => now(),
         ];
+    }
+
+    public function configure(): static
+    {
+        return $this->afterMaking(function (StepAnswer $answer) {
+            if (! isset($answer->is_correct)) {
+                $answer->is_correct = fake()->boolean();
+            }
+        });
     }
 }
