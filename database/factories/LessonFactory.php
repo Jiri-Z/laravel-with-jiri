@@ -19,7 +19,7 @@ class LessonFactory extends Factory
             'course_id' => Course::factory(),
             'title' => fake()->sentence(3),
             'slug' => fake()->unique()->slug(3),
-            'description' => fake()->paragraph(),
+            'description' => 'Learn the essential concepts and hands-on skills needed to build modern web applications with Laravel.',
             'published' => false,
             'order' => fake()->numberBetween(0, 100),
         ];

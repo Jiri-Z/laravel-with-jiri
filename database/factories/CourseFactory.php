@@ -18,7 +18,7 @@ class CourseFactory extends Factory
         return [
             'title' => fake()->sentence(3),
             'slug' => fake()->unique()->slug(3),
-            'description' => fake()->paragraph(),
+            'description' => 'A beginner-friendly course covering the fundamentals of the Laravel PHP framework, from routing and controllers to Eloquent ORM and Blade templating.',
             'published' => false,
             'order' => fake()->numberBetween(0, 100),
             'user_id' => User::factory()->instructor(),
