@@ -68,7 +68,8 @@ class AdminLessonTest extends TestCase
 
         Livewire::actingAs($user)
             ->test(AdminLessonList::class, ['course' => $course])
-            ->call('delete', $lesson->id);
+            ->call('delete', $lesson->id)
+            ->assertForbidden();
 
         $this->assertDatabaseHas('lessons', ['id' => $lesson->id]);
     }
@@ -320,5 +321,21 @@ class AdminLessonTest extends TestCase
             ->assertOk()
             ->assertSee('Alpha Lesson')
             ->assertDontSee('Beta Lesson');
+    }
+
+    public function test_instructor_cannot_edit_other_instructors_lesson(): void
+    {
+        $instructorA = User::factory()->create(['role' => 'instructor']);
+        $instructorB = User::factory()->create(['role' => 'instructor']);
+        $courseB = Course::factory()->create(['user_id' => $instructorB->id]);
+        $lessonB = Lesson::factory()->create(['course_id' => $courseB->id]);
+
+        Livewire::actingAs($instructorA)
+            ->test(AdminLessonForm::class, ['course' => $courseB, 'lesson' => $lessonB])
+            ->assertForbidden();
+
+        $this->actingAs($instructorA)
+            ->get("/admin/courses/{$courseB->id}/lessons/{$lessonB->id}/edit")
+            ->assertForbidden();
     }
 }

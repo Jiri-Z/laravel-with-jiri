@@ -2,11 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Livewire\CourseList;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Step;
 use App\Models\StepCompletion;
 use App\Models\User;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class CourseBrowseTest extends TestCase
@@ -89,5 +91,32 @@ class CourseBrowseTest extends TestCase
             ->assertOk()
             ->assertSee('Empty Course')
             ->assertSee('0%');
+    }
+
+    public function test_unenrolled_user_sees_enroll_button(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create(['title' => 'Sample Course']);
+
+        $this->actingAs($user)->get('/courses')
+            ->assertSee('Enroll');
+
+        Livewire::actingAs($user)
+            ->test(CourseList::class)
+            ->assertSee('Enroll');
+    }
+
+    public function test_enrolled_user_does_not_see_enroll_button(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create(['title' => 'Sample Course']);
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
+        $this->actingAs($user)->get('/courses')
+            ->assertDontSee('Enroll');
+
+        Livewire::actingAs($user)
+            ->test(CourseList::class)
+            ->assertDontSee('Enroll');
     }
 }

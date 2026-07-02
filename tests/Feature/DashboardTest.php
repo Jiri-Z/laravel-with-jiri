@@ -8,6 +8,7 @@ use App\Models\Lesson;
 use App\Models\Step;
 use App\Models\StepCompletion;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -102,5 +103,41 @@ class DashboardTest extends TestCase
         Livewire::actingAs($user)
             ->test(Dashboard::class)
             ->assertOk();
+    }
+
+    public function test_dashboard_does_not_have_n_plus_one_queries(): void
+    {
+        $user = User::factory()->create();
+
+        $courses = Course::factory()->count(5)->published()->create();
+        foreach ($courses as $course) {
+            $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+            $lessons = Lesson::factory()->count(3)->published()->create(['course_id' => $course->id]);
+            foreach ($lessons as $lesson) {
+                Step::factory()->count(3)->create(['lesson_id' => $lesson->id]);
+            }
+        }
+
+        // Complete all steps in the first 4 courses to force looping
+        foreach ($courses->take(4) as $course) {
+            foreach ($course->lessons as $lesson) {
+                foreach ($lesson->steps as $step) {
+                    StepCompletion::factory()->create([
+                        'user_id' => $user->id,
+                        'step_id' => $step->id,
+                    ]);
+                }
+            }
+        }
+
+        DB::enableQueryLog();
+
+        $response = $this->actingAs($user)->get('/dashboard');
+        $response->assertOk();
+
+        $queries = DB::getQueryLog();
+        DB::disableQueryLog();
+
+        $this->assertLessThan(15, count($queries));
     }
 }

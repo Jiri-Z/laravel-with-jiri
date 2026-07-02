@@ -100,6 +100,19 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 - Do not create verification scripts or tinker when tests cover that functionality and prove they work. Unit and feature tests are more important.
 
+## Tool Timeouts (IMPORTANT)
+
+The sandbox environment has constrained resources. Always use generous bash tool timeouts:
+
+| Tool | Minimum timeout | Notes |
+|------|----------------|-------|
+| `php artisan test --compact` | 300 000 ms | Full suite can take 120s+ |
+| `phpstan analyse` | 600 000 ms | Larastan can take 300s+ |
+| `vendor/bin/rector process` | 600 000 ms | Internal parallel processes may time out. If so, run on specific files only: `vendor/bin/rector process --dry-run --no-progress-bar --memory-limit=-1 path/to/file.php` |
+| `vendor/bin/pint` | 60 000 ms | Usually fast, but run after other tools |
+
+**Rector caveat**: Rector's `ParallelProcess` times out at 120s internally on this environment. If the whole-codebase run fails, run it per-file on changed files instead.
+
 ## Application Structure & Architecture
 
 - Stick to existing directory structure; don't create new base folders without approval.

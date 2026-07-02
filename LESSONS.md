@@ -290,3 +290,24 @@ public function configure(): static
 ## Test ordering with SQLite in-memory database
 
 Tests that pass in isolation may fail when run as part of the full test suite due to SQLite in-memory database state leakage between tests. This is especially likely when tests from different files interact through shared database state. Use `--filter=` to confirm isolation before debugging ordering-dependent failures.
+
+---
+
+## Tool timeouts on this environment
+
+The sandbox environment has constrained resources. Always use generous timeouts:
+- `php artisan test --compact`: 300 000 ms (300s) minimum
+- `phpstan analyse`: 600 000 ms (600s) minimum
+- `vendor/bin/rector process`: Rector's internal parallel processes time out at 120s. Run on specific files (`vendor/bin/rector process --dry-run --no-progress-bar --memory-limit=-1 path/to/file.php`) rather than the whole codebase to avoid its `ParallelProcess` timeout.
+
+---
+
+## Factory defaults must be self-consistent
+
+When a factory's default definition randomises a property (e.g. `type`) that changes validation rules, the other default values must satisfy ALL possible outcomes. `StepFactory` randomised `type` across `Reading`, `Quiz`, `Coding` but always used `fake()->paragraphs()` as `content`. When `Coding` was selected, `getContentAsArray()` returned `null` (paragraphs aren't JSON), leaving `prompt` empty, which failed coding validation. Fix: default `type` must always be `Reading` since `content` is plain text, or generate type-appropriate content.
+
+---
+
+## Randomised factory defaults cause flaky tests
+
+When a test relies on a factory's default value without specifying a state, and that default is randomised, the test becomes non-deterministic. `test_instructor_can_edit_step` called `Step::factory()->create(...)` and later used `$step->type->value` for validation. With `Coding` selected (~33%), validation required `prompt` which the test never set. The fix is twofold: (1) make the factory default deterministic for the content type, and (2) use an explicit state (`->reading()`) in the test for clarity and guaranteed determinism.

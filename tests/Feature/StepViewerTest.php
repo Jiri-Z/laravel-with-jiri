@@ -864,6 +864,69 @@ class StepViewerTest extends TestCase
             ->assertOk();
     }
 
+    public function test_three_step_progression_chain(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step1 = Step::factory()->reading()->create(['lesson_id' => $lesson->id, 'order' => 1]);
+        $step2 = Step::factory()->reading()->create(['lesson_id' => $lesson->id, 'order' => 2]);
+        $step3 = Step::factory()->reading()->create(['lesson_id' => $lesson->id, 'order' => 3]);
+
+        StepCompletion::factory()->create([
+            'user_id' => $user->id,
+            'step_id' => $step1->id,
+        ]);
+
+        $this->actingAs($user)
+            ->get("/courses/{$course->slug}/lessons/{$lesson->slug}/steps/{$step3->id}")
+            ->assertRedirect(route('lessons.show', [$course->slug, $lesson->slug]));
+
+        StepCompletion::factory()->create([
+            'user_id' => $user->id,
+            'step_id' => $step2->id,
+        ]);
+
+        $this->actingAs($user)
+            ->get("/courses/{$course->slug}/lessons/{$lesson->slug}/steps/{$step3->id}")
+            ->assertOk();
+    }
+
+    public function test_five_step_progression_chain(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $steps = [];
+        for ($i = 1; $i <= 5; $i++) {
+            $steps[$i] = Step::factory()->reading()->create(['lesson_id' => $lesson->id, 'order' => $i]);
+        }
+
+        for ($i = 1; $i <= 3; $i++) {
+            StepCompletion::factory()->create([
+                'user_id' => $user->id,
+                'step_id' => $steps[$i]->id,
+            ]);
+        }
+
+        $this->actingAs($user)
+            ->get("/courses/{$course->slug}/lessons/{$lesson->slug}/steps/{$steps[5]->id}")
+            ->assertRedirect(route('lessons.show', [$course->slug, $lesson->slug]));
+
+        StepCompletion::factory()->create([
+            'user_id' => $user->id,
+            'step_id' => $steps[4]->id,
+        ]);
+
+        $this->actingAs($user)
+            ->get("/courses/{$course->slug}/lessons/{$lesson->slug}/steps/{$steps[5]->id}")
+            ->assertOk();
+    }
+
     /**
      * @test
      */
