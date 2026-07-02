@@ -332,3 +332,22 @@ php artisan test --parallel --processes=1
 ```
 
 Do NOT add `<testsuites parallel="true">` to `phpunit.xml` — the `--parallel` flag on `php artisan test` handles this correctly, and the XML attribute conflicts with ParaTest's process management.
+
+---
+
+## `php-wasm` initialization: use events, not `_runtime` polling
+
+The `php-wasm` library's `PhpWeb` class (v0.1.0+) does NOT have a `_runtime` property or any polling-friendly readiness indicator. Polling `this.php._runtime` in a `setTimeout` loop **never resolves** — `phpReady` stays `false` and the UI stays stuck on "Loading...".
+
+Instead:
+1. Create `new PhpWeb()` — the constructor starts downloading the WASM binary asynchronously. It's safe to call `run()` immediately; calls are queued internally until the binary is ready.
+2. Listen for the `'ready'` event to enable UI buttons:
+   ```js
+   php.addEventListener('ready', () => { this.phpReady = true; });
+   ```
+3. Capture output via the `'output'` event, not from `run()`'s return value. `run()` returns an exit code (number), not the output text. Register:
+   ```js
+   php.addEventListener('output', (event) => { this.lastOutput += event.detail; });
+   php.addEventListener('error',  (event) => { this.lastOutput += `[PHP Error]: ${event.detail}`; });
+   ```
+4. The import URL `https://cdn.jsdelivr.net/npm/php-wasm/PhpWeb.mjs` (without `@0.1.0` version pin) resolves to the latest published version.

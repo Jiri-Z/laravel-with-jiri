@@ -16,7 +16,7 @@ function loadMonaco() {
 }
 
 function loadPhpWasm() {
-    return import('https://cdn.jsdelivr.net/npm/php-wasm@0.1.0/PhpWeb.mjs');
+    return import('https://cdn.jsdelivr.net/npm/php-wasm/PhpWeb.mjs');
 }
 
 export function codingViewer(config) {
@@ -31,6 +31,7 @@ export function codingViewer(config) {
         checking: false,
         result: null,
         completedAtStart: config.completed,
+        lastOutput: '',
 
         async init() {
             this.$nextTick(() => this.boot());
@@ -62,14 +63,18 @@ export function codingViewer(config) {
             try {
                 const { PhpWeb } = await loadPhpWasm();
                 this.php = new PhpWeb();
-                await new Promise((resolve) => {
-                    const check = () => {
-                        if (this.php._runtime) return resolve();
-                        setTimeout(check, 100);
-                    };
-                    check();
+
+                this.php.addEventListener('ready', () => {
+                    this.phpReady = true;
                 });
-                this.phpReady = true;
+
+                this.php.addEventListener('output', (event) => {
+                    this.lastOutput += event.detail;
+                });
+
+                this.php.addEventListener('error', (event) => {
+                    this.lastOutput += `[PHP Error]: ${event.detail}`;
+                });
             } catch (e) {
                 console.error('Failed to load PHP WASM:', e);
             }
@@ -80,11 +85,12 @@ export function codingViewer(config) {
             if (!this.phpReady || this.running) return;
             this.running = true;
             this.output = '';
+            this.lastOutput = '';
             this.result = null;
             try {
                 const code = this.editor.getValue();
-                const result = await this.php.run(code);
-                this.output = result.textContent || result.toString();
+                await this.php.run(code);
+                this.output = this.lastOutput;
             } catch (e) {
                 this.output = `Error: ${e.message}`;
             }
@@ -96,12 +102,13 @@ export function codingViewer(config) {
             if (this.completedAtStart) return;
             this.checking = true;
             this.output = '';
+            this.lastOutput = '';
             this.result = null;
             try {
                 const userCode = this.editor.getValue();
                 const combinedCode = userCode + '\n' + config.testCode;
-                const result = await this.php.run(combinedCode);
-                const actualOutput = (result.textContent || result.toString()).trim();
+                await this.php.run(combinedCode);
+                const actualOutput = this.lastOutput.trim();
                 const expectedOutput = config.expectedOutput.trim();
 
                 if (actualOutput === expectedOutput) {
