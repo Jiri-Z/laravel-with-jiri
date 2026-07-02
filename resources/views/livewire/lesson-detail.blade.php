@@ -13,7 +13,7 @@
             <div class="space-y-4">
                 @forelse ($lesson->steps as $step)
                     @php $locked = $stepLocked[$step->id] ?? false; @endphp
-                    <a href="{{ $locked ? '#' : route('steps.show', [$course->slug, $lesson->slug, $step->id]) }}" @if(!$locked) wire:navigate @endif class="group block bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 {{ $locked ? 'opacity-60 cursor-not-allowed' : 'hover:shadow-md hover:-translate-y-1' }} transition-all duration-300">
+                    <a href="{{ $locked ? '#' : route('steps.show', [$course->slug, $lesson->slug, $step->id]) }}" @if(!$locked) wire:navigate @endif class="group block bg-white dark:bg-gray-750 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 {{ $locked ? 'opacity-60 cursor-not-allowed' : 'hover:shadow-md hover:-translate-y-1' }} transition-all duration-300">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-4">
                                 @if ($locked)
@@ -25,12 +25,12 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                     </svg>
                                 @else
-                                    <span class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-sm font-medium text-indigo-600 dark:text-indigo-300">
+                                    <span class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-800 flex items-center justify-center text-sm font-medium text-indigo-600 dark:text-indigo-200">
                                         {{ $step->order }}
                                     </span>
                                 @endif
                                 <div>
-                                    <h3 class="text-lg font-semibold {{ $locked ? 'text-gray-400' : 'text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400' }} transition-colors">
+                                    <h3 class="text-lg font-semibold {{ $locked ? 'text-gray-400' : 'text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-300' }} transition-colors">
                                         {{ $step->title }}
                                     </h3>
                                     <span class="text-sm text-gray-500 dark:text-gray-400">

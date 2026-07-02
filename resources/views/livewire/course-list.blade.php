@@ -5,9 +5,9 @@
 
             <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 @forelse ($courses as $course)
-                    <div class="group bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+                    <div class="group bg-white dark:bg-gray-750 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
                         <a href="{{ route('courses.show', $course->slug) }}" wire:navigate>
-                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors mb-2">
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors mb-2">
                                 {{ $course->title }}
                             </h2>
                             <p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-4">
@@ -19,16 +19,16 @@
                                 {{ $course->lessons_count }} {{ Str::plural('lesson', $course->lessons_count) }}
                             </span>
                             @if (isset($enrolled[$course->id]))
-                                <a href="{{ route('courses.show', $course->slug) }}" wire:navigate class="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline">{{ $progressData[$course->id] }}%</a>
+                                <a href="{{ route('courses.show', $course->slug) }}" wire:navigate class="text-sm font-medium text-indigo-600 dark:text-indigo-300 hover:underline">{{ $progressData[$course->id] }}%</a>
                             @else
-                                <button wire:click="enroll({{ $course->id }})" class="rounded-full bg-indigo-600 px-4 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400 transition-colors">
+                                <button wire:click="enroll({{ $course->id }})" class="rounded-full bg-indigo-600 px-4 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 dark:bg-indigo-400 dark:hover:bg-indigo-300 transition-colors">
                                     Enroll
                                 </button>
                             @endif
                         </div>
                         @if (isset($enrolled[$course->id]))
                             <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                                <div class="bg-indigo-600 dark:bg-indigo-500 h-2 rounded-full transition-all" style="width: {{ $progressData[$course->id] }}%"></div>
+                                <div class="bg-indigo-600 dark:bg-indigo-400 h-2 rounded-full transition-all" style="width: {{ $progressData[$course->id] }}%"></div>
                             </div>
                         @endif
                     </div>

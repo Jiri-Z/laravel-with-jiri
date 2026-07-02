@@ -9,10 +9,10 @@
             <div class="mb-8">
                 <div class="flex items-center justify-between mb-1">
                     <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Course progress</span>
-                    <span class="text-sm font-medium text-indigo-600 dark:text-indigo-400">{{ $courseProgress }}%</span>
+                    <span class="text-sm font-medium text-indigo-600 dark:text-indigo-300">{{ $courseProgress }}%</span>
                 </div>
                 <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
-                    <div class="bg-indigo-600 dark:bg-indigo-500 h-2.5 rounded-full transition-all" style="width: {{ $courseProgress }}%"></div>
+                    <div class="bg-indigo-600 dark:bg-indigo-400 h-2.5 rounded-full transition-all" style="width: {{ $courseProgress }}%"></div>
                 </div>
             </div>
 
@@ -20,10 +20,10 @@
 
             <div class="space-y-4">
                 @forelse ($course->lessons as $lesson)
-                    <a href="{{ route('lessons.show', [$course->slug, $lesson->slug]) }}" wire:navigate class="group block bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+                    <a href="{{ route('lessons.show', [$course->slug, $lesson->slug]) }}" wire:navigate class="group block bg-white dark:bg-gray-750 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
                         <div class="flex items-center justify-between">
                             <div>
-                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors">
                                     {{ $lesson->title }}
                                 </h3>
                                 @if ($lesson->description)

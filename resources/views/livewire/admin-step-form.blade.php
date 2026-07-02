@@ -4,7 +4,7 @@
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
             <a href="{{ route('admin.steps.index', [$course, $lesson]) }}" wire:navigate class="text-sm text-gray-600 dark:text-gray-400 hover:underline mb-4 inline-block">&larr; Back to steps</a>
 
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="bg-white dark:bg-gray-750 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
                     <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">{{ $step ? 'Edit Step' : 'New Step' }}</h1>
 

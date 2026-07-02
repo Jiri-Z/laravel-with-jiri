@@ -4,7 +4,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <a href="{{ route('lessons.show', [$course->slug, $lesson->slug]) }}" wire:navigate class="text-sm text-gray-600 dark:text-gray-400 hover:underline mb-4 inline-block">&larr; Back to {{ $lesson->title }}</a>
 
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 mb-6">
+            <div class="bg-white dark:bg-gray-750 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 mb-6">
                 <div class="p-6">
                     <div class="flex items-center justify-between mb-4">
                         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $step->title }}</h1>

@@ -22,8 +22,8 @@ new class extends Component
             <div class="flex">
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}" wire:navigate class="inline-flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white tracking-tight">
-                        <x-application-logo class="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
-                        <span class="hidden sm:inline">Laravel With <span class="text-indigo-600 dark:text-indigo-400">Jiri</span></span>
+                        <x-application-logo class="w-6 h-6 text-indigo-600 dark:text-indigo-300" />
+                        <span class="hidden sm:inline">Laravel With <span class="text-indigo-600 dark:text-indigo-300">Jiri</span></span>
                     </a>
                 </div>
 

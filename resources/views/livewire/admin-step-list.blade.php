@@ -19,7 +19,7 @@
                 >
             </div>
 
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="bg-white dark:bg-gray-750 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
                     @if ($steps->isEmpty())
                         <p class="text-gray-500 dark:text-gray-400">
@@ -51,7 +51,7 @@
                                         <td class="py-3 text-sm text-gray-500 dark:text-gray-400">{{ $step->type }}</td>
                                         <td class="py-3 text-sm">
                                             <div class="flex items-center gap-2">
-                                                <a href="{{ route('admin.steps.edit', [$course, $lesson, $step]) }}" wire:navigate class="text-indigo-600 dark:text-indigo-400 hover:underline">Edit</a>
+                                                <a href="{{ route('admin.steps.edit', [$course, $lesson, $step]) }}" wire:navigate class="text-indigo-600 dark:text-indigo-300 hover:underline">Edit</a>
                                                 <button wire:click="delete({{ $step->id }})" wire:confirm="Are you sure?" class="text-red-600 dark:text-red-400 hover:underline">Delete</button>
                                             </div>
                                         </td>
