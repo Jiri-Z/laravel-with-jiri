@@ -59,11 +59,11 @@ class AdminStepForm extends Component
             $this->order = $step->order;
 
             if ($step->type === StepType::Coding) {
-                $data = $step->getContentAsArray();
-                $this->prompt = $data['prompt'] ?? '';
-                $this->initialCode = $data['initial_code'] ?? '';
-                $this->testCode = $data['test_code'] ?? '';
-                $this->expectedOutput = $data['expected_output'] ?? '';
+                $data = $step->getCodingData();
+                $this->prompt = $data['prompt'];
+                $this->initialCode = $data['initial_code'];
+                $this->testCode = $data['test_code'];
+                $this->expectedOutput = $data['expected_output'];
             } else {
                 $this->content = $step->content;
             }

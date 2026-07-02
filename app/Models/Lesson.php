@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Models\Concerns\HasOrder;
 use Database\Factories\LessonFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -22,6 +23,8 @@ class Lesson extends Model
 {
     /** @use HasFactory<LessonFactory> */
     use HasFactory;
+
+    use HasOrder;
 
     /** @return BelongsTo<Course, $this> */
     public function course(): BelongsTo
@@ -42,15 +45,6 @@ class Lesson extends Model
     public function scopePublished(Builder $query): Builder
     {
         return $query->where('published', true);
-    }
-
-    /**
-     * @param  Builder<Lesson>  $query
-     * @return Builder<Lesson>
-     */
-    public function scopeOrdered(Builder $query): Builder
-    {
-        return $query->orderBy('order');
     }
 
     /**

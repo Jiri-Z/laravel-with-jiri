@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\StepType;
+use App\Models\Concerns\HasOrder;
 use Database\Factories\StepFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -25,6 +26,8 @@ class Step extends Model
     /** @use HasFactory<StepFactory> */
     use HasFactory;
 
+    use HasOrder;
+
     /** @return BelongsTo<Lesson, $this> */
     public function lesson(): BelongsTo
     {
@@ -41,15 +44,6 @@ class Step extends Model
     public function answers(): HasMany
     {
         return $this->hasMany(StepAnswer::class);
-    }
-
-    /**
-     * @param  Builder<Step>  $query
-     * @return Builder<Step>
-     */
-    public function scopeOrdered(Builder $query): Builder
-    {
-        return $query->orderBy('order');
     }
 
     /**
@@ -99,10 +93,23 @@ class Step extends Model
     /** @return array<int, array<string, mixed>>|array<string, mixed>|null */
     public function getContentAsArray(): ?array
     {
-        if (str_starts_with($this->content, '{') || str_starts_with($this->content, '[')) {
-            return json_decode($this->content, true);
+        if (empty($this->content) || ! json_validate($this->content)) {
+            return null;
         }
 
-        return null;
+        return json_decode($this->content, true);
+    }
+
+    /** @return array{prompt: string, initial_code: string, test_code: string, expected_output: string} */
+    public function getCodingData(): array
+    {
+        $data = $this->getContentAsArray();
+
+        return [
+            'prompt' => $data['prompt'] ?? '',
+            'initial_code' => $data['initial_code'] ?? '',
+            'test_code' => $data['test_code'] ?? '',
+            'expected_output' => $data['expected_output'] ?? '',
+        ];
     }
 }

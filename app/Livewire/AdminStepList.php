@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\ManagesOrdering;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Step;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -17,6 +17,7 @@ use Livewire\WithPagination;
 #[Layout('layouts.app')]
 class AdminStepList extends Component
 {
+    use ManagesOrdering;
     use WithPagination;
 
     public Course $course;
@@ -25,11 +26,6 @@ class AdminStepList extends Component
 
     #[Url(as: 'q')]
     public string $search = '';
-
-    public function updatedSearch(): void
-    {
-        $this->resetPage();
-    }
 
     public function mount(Course $course, Lesson $lesson): void
     {
@@ -42,57 +38,17 @@ class AdminStepList extends Component
 
     public function delete(int $stepId): void
     {
-        $step = Step::findOrFail($stepId);
-        $this->authorize('delete', $step);
-        $step->delete();
+        $this->deleteItem($stepId, Step::class);
     }
 
     public function moveUp(int $stepId): void
     {
-        /** @var Step $step */
-        $step = Step::findOrFail($stepId);
-        $this->authorize('update', $step);
-        $previous = Step::where('lesson_id', $this->lesson->id)
-            ->where('order', '<', $step->order)
-            ->orderBy('order', 'desc')
-            ->first();
-
-        if ($previous === null) {
-            return;
-        }
-
-        $stepOrder = $step->order;
-        $previousOrder = $previous->order;
-
-        DB::transaction(function () use ($previous, $previousOrder, $step, $stepOrder): void {
-            $previous->update(['order' => -1]);
-            $step->update(['order' => $previousOrder]);
-            $previous->update(['order' => $stepOrder]);
-        });
+        $this->moveItemUp($stepId, Step::class, 'lesson_id', $this->lesson->id);
     }
 
     public function moveDown(int $stepId): void
     {
-        /** @var Step $step */
-        $step = Step::findOrFail($stepId);
-        $this->authorize('update', $step);
-        $next = Step::where('lesson_id', $this->lesson->id)
-            ->where('order', '>', $step->order)
-            ->orderBy('order')
-            ->first();
-
-        if ($next === null) {
-            return;
-        }
-
-        $stepOrder = $step->order;
-        $nextOrder = $next->order;
-
-        DB::transaction(function () use ($next, $nextOrder, $step, $stepOrder): void {
-            $next->update(['order' => -1]);
-            $step->update(['order' => $nextOrder]);
-            $next->update(['order' => $stepOrder]);
-        });
+        $this->moveItemDown($stepId, Step::class, 'lesson_id', $this->lesson->id);
     }
 
     public function render(): View

@@ -1,4 +1,4 @@
-@php $quizContent = $step->getContentAsArray(); @endphp
+@php $codingData = $step->getCodingData(); @endphp
 <div>
     @if ($completed)
         <div class="flex items-center gap-2 text-green-600 dark:text-green-400 mb-4">
@@ -11,15 +11,15 @@
 
     <div class="mb-6">
         <div class="prose dark:prose-invert max-w-none mb-4">
-            {!! nl2br(e($quizContent['prompt'] ?? '')) !!}
+            {!! nl2br(e($codingData['prompt'])) !!}
         </div>
 
         <div
             x-data="codingViewer({
                 stepId: @js($step->id),
-                initialCode: @js($quizContent['initial_code'] ?? ''),
-                testCode: @js($quizContent['test_code'] ?? ''),
-                expectedOutput: @js($quizContent['expected_output'] ?? ''),
+                initialCode: @js($codingData['initial_code']),
+                testCode: @js($codingData['test_code']),
+                expectedOutput: @js($codingData['expected_output']),
                 completed: @json($completed),
             })"
             x-init="init()"

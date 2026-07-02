@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\ManagesOrdering;
 use App\Models\Course;
 use App\Models\Lesson;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -16,6 +16,7 @@ use Livewire\WithPagination;
 #[Layout('layouts.app')]
 class AdminLessonList extends Component
 {
+    use ManagesOrdering;
     use WithPagination;
 
     public Course $course;
@@ -23,71 +24,26 @@ class AdminLessonList extends Component
     #[Url(as: 'q')]
     public string $search = '';
 
-    public function updatedSearch(): void
-    {
-        $this->resetPage();
-    }
-
     public function mount(Course $course): void
     {
         $this->authorize('view', $course);
         $this->authorize('viewAny', Lesson::class);
-        $this->course = $course->load('lessons');
+        $this->course = $course;
     }
 
     public function delete(int $lessonId): void
     {
-        $lesson = Lesson::findOrFail($lessonId);
-        $this->authorize('delete', $lesson);
-        $lesson->delete();
+        $this->deleteItem($lessonId, Lesson::class);
     }
 
     public function moveUp(int $lessonId): void
     {
-        /** @var Lesson $lesson */
-        $lesson = Lesson::findOrFail($lessonId);
-        $this->authorize('update', $lesson);
-        $previous = Lesson::where('course_id', $this->course->id)
-            ->where('order', '<', $lesson->order)
-            ->orderBy('order', 'desc')
-            ->first();
-
-        if ($previous === null) {
-            return;
-        }
-
-        $lessonOrder = $lesson->order;
-        $previousOrder = $previous->order;
-
-        DB::transaction(function () use ($lesson, $lessonOrder, $previous, $previousOrder): void {
-            $previous->update(['order' => -1]);
-            $lesson->update(['order' => $previousOrder]);
-            $previous->update(['order' => $lessonOrder]);
-        });
+        $this->moveItemUp($lessonId, Lesson::class, 'course_id', $this->course->id);
     }
 
     public function moveDown(int $lessonId): void
     {
-        /** @var Lesson $lesson */
-        $lesson = Lesson::findOrFail($lessonId);
-        $this->authorize('update', $lesson);
-        $next = Lesson::where('course_id', $this->course->id)
-            ->where('order', '>', $lesson->order)
-            ->orderBy('order')
-            ->first();
-
-        if ($next === null) {
-            return;
-        }
-
-        $lessonOrder = $lesson->order;
-        $nextOrder = $next->order;
-
-        DB::transaction(function () use ($lesson, $lessonOrder, $next, $nextOrder): void {
-            $next->update(['order' => -1]);
-            $lesson->update(['order' => $nextOrder]);
-            $next->update(['order' => $lessonOrder]);
-        });
+        $this->moveItemDown($lessonId, Lesson::class, 'course_id', $this->course->id);
     }
 
     public function render(): View
