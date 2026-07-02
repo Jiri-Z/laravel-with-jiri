@@ -927,9 +927,6 @@ class StepViewerTest extends TestCase
             ->assertOk();
     }
 
-    /**
-     * @test
-     */
     public function test_quiz_viewer_aborts_404_for_non_quiz_step(): void
     {
         $user = User::factory()->create();
@@ -955,9 +952,6 @@ class StepViewerTest extends TestCase
         }
     }
 
-    /**
-     * @test
-     */
     public function test_quiz_viewer_blocks_inaccessible_step(): void
     {
         $user = User::factory()->create();
@@ -984,9 +978,6 @@ class StepViewerTest extends TestCase
         }
     }
 
-    /**
-     * @test
-     */
     public function test_coding_viewer_blocks_inaccessible_step(): void
     {
         $user = User::factory()->create();
@@ -1013,9 +1004,6 @@ class StepViewerTest extends TestCase
         }
     }
 
-    /**
-     * @test
-     */
     public function test_quiz_viewer_blocks_unenrolled_user(): void
     {
         $user = User::factory()->create();
@@ -1036,9 +1024,6 @@ class StepViewerTest extends TestCase
         }
     }
 
-    /**
-     * @test
-     */
     public function test_quiz_viewer_restores_answers_on_remount(): void
     {
         $user = User::factory()->create();
@@ -1072,9 +1057,6 @@ class StepViewerTest extends TestCase
         $remount->assertSet('answers.2', [0, 3]);
     }
 
-    /**
-     * @test
-     */
     public function test_coding_viewer_blocks_unenrolled_user(): void
     {
         $user = User::factory()->create();
@@ -1095,9 +1077,6 @@ class StepViewerTest extends TestCase
         }
     }
 
-    /**
-     * @test
-     */
     public function test_step_viewer_complete_checks_enrollment(): void
     {
         $user = User::factory()->create();
@@ -1127,9 +1106,6 @@ class StepViewerTest extends TestCase
         }
     }
 
-    /**
-     * @test
-     */
     public function test_step_viewer_complete_checks_accessibility(): void
     {
         $user = User::factory()->create();

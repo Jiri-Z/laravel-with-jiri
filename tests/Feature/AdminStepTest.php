@@ -389,11 +389,11 @@ class AdminStepTest extends TestCase
             ->test(AdminStepForm::class, ['course' => $course, 'lesson' => $lesson])
             ->set('type', StepType::Coding->value);
 
-        expect($component->get('type'))->toBe(StepType::Coding->value);
-        expect($component->instance()->prompt)->toBe('');
-        expect($component->instance()->initialCode)->toBe('');
-        expect($component->instance()->testCode)->toBe('');
-        expect($component->instance()->expectedOutput)->toBe('');
+        $this->assertSame(StepType::Coding->value, $component->get('type'));
+        $this->assertSame('', $component->instance()->prompt);
+        $this->assertSame('', $component->instance()->initialCode);
+        $this->assertSame('', $component->instance()->testCode);
+        $this->assertSame('', $component->instance()->expectedOutput);
     }
 
     public function test_coding_step_serializes_fields_to_json_on_save(): void
@@ -421,10 +421,10 @@ class AdminStepTest extends TestCase
 
         $step = Step::where('lesson_id', $lesson->id)->where('title', 'Coding Step')->first();
         $content = json_decode((string) $step->content, true);
-        expect($content['prompt'])->toBe('Write PHP');
-        expect($content['initial_code'])->toBe("<?php\necho 'hi';");
-        expect($content['test_code'])->toBe("<?php\nassert(true);");
-        expect($content['expected_output'])->toBe('hi');
+        $this->assertSame('Write PHP', $content['prompt']);
+        $this->assertSame("<?php\necho 'hi';", $content['initial_code']);
+        $this->assertSame("<?php\nassert(true);", $content['test_code']);
+        $this->assertSame('hi', $content['expected_output']);
     }
 
     public function test_coding_step_validation_requires_prompt(): void
@@ -455,11 +455,11 @@ class AdminStepTest extends TestCase
         $component = Livewire::actingAs($user)
             ->test(AdminStepForm::class, ['course' => $course, 'lesson' => $lesson, 'step' => $step]);
 
-        expect($component->get('type'))->toBe(StepType::Coding->value);
-        expect($component->get('prompt'))->toBe('Write a PHP function that returns the sum of two numbers.');
-        expect($component->get('initialCode'))->toContain('function add(');
-        expect($component->get('testCode'))->toContain('echo add');
-        expect($component->get('expectedOutput'))->toBe('5');
+        $this->assertSame(StepType::Coding->value, $component->get('type'));
+        $this->assertSame('Write a PHP function that returns the sum of two numbers.', $component->get('prompt'));
+        $this->assertStringContainsString('function add(', $component->get('initialCode'));
+        $this->assertStringContainsString('echo add', $component->get('testCode'));
+        $this->assertSame('5', $component->get('expectedOutput'));
     }
 
     public function test_reading_step_form_still_uses_content_property(): void
