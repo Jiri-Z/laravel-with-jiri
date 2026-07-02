@@ -263,7 +263,8 @@ At the start of every session, run `application-info` to get precise package ver
 
 - This project uses Pest for testing. Create tests: `php artisan make:test --pest {name}`.
 - The `{name}` argument should not include the test suite directory. Use `php artisan make:test --pest SomeFeatureTest` instead of `php artisan make:test --pest Feature/SomeFeatureTest`.
-- Run tests: `php artisan test --compact` or filter: `php artisan test --compact --filter=testName`.
+- Run tests: `php artisan test --parallel --processes=1` (fastest — uses WrapperRunner, ~28% faster than sequential). Filter: `php artisan test --parallel --processes=1 --filter=testName`.
+- Do NOT add `parallel="true"` to `phpunit.xml` testsuites — the `--parallel` flag handles it.
 - Do NOT delete tests without approval.
 
 </laravel-boost-guidelines>

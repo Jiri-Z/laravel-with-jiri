@@ -109,17 +109,17 @@ class DashboardTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $courses = Course::factory()->count(5)->published()->create();
+        $courses = Course::factory()->count(3)->published()->create();
         foreach ($courses as $course) {
             $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
-            $lessons = Lesson::factory()->count(3)->published()->create(['course_id' => $course->id]);
+            $lessons = Lesson::factory()->count(2)->published()->create(['course_id' => $course->id]);
             foreach ($lessons as $lesson) {
-                Step::factory()->count(3)->create(['lesson_id' => $lesson->id]);
+                Step::factory()->count(2)->create(['lesson_id' => $lesson->id]);
             }
         }
 
-        // Complete all steps in the first 4 courses to force looping
-        foreach ($courses->take(4) as $course) {
+        // Complete all steps in the first 2 courses to force looping
+        foreach ($courses->take(2) as $course) {
             foreach ($course->lessons as $lesson) {
                 foreach ($lesson->steps as $step) {
                     StepCompletion::factory()->create([

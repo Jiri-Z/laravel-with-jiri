@@ -311,3 +311,24 @@ When a factory's default definition randomises a property (e.g. `type`) that cha
 ## Randomised factory defaults cause flaky tests
 
 When a test relies on a factory's default value without specifying a state, and that default is randomised, the test becomes non-deterministic. `test_instructor_can_edit_step` called `Step::factory()->create(...)` and later used `$step->type->value` for validation. With `Coding` selected (~33%), validation required `prompt` which the test never set. The fix is twofold: (1) make the factory default deterministic for the content type, and (2) use an explicit state (`->reading()`) in the test for clarity and guaranteed determinism.
+
+---
+
+## Parallel testing with SQLite in-memory has diminishing returns
+
+On a 2-core environment with SQLite `:memory:`, parallel testing (`--parallel`) shows limited speedup because each worker process runs migrations independently. Measured results for 371 tests:
+
+| Mode | Time | vs Sequential |
+|------|------|---------------|
+| Sequential (`php artisan test`) | 233s | baseline |
+| `--parallel` (2 processes, default) | 189s | 19% faster |
+| **`--parallel --processes=1`** (WrapperRunner) | **167s** | **28% faster** |
+| `--parallel --processes=4` | 246s | 6% slower |
+
+The `--parallel --processes=1` setting is the optimal choice — it uses ParaTest's WrapperRunner (reuses PHP processes between test files without needing multiple workers) while avoiding per-worker migration overhead. Run with:
+
+```bash
+php artisan test --parallel --processes=1
+```
+
+Do NOT add `<testsuites parallel="true">` to `phpunit.xml` — the `--parallel` flag on `php artisan test` handles this correctly, and the XML attribute conflicts with ParaTest's process management.
