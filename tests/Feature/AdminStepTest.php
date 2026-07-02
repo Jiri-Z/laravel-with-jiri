@@ -50,11 +50,14 @@ class AdminStepTest extends TestCase
         $user = User::factory()->create(['role' => 'instructor']);
         $course = Course::factory()->create(['user_id' => $user->id]);
         $lesson = Lesson::factory()->create(['course_id' => $course->id]);
-        $step = Step::factory()->create(['lesson_id' => $lesson->id]);
+        $step = Step::factory()->reading()->create(['lesson_id' => $lesson->id]);
 
-        Livewire::actingAs($user)
-            ->test(AdminStepForm::class, ['course' => $course, 'lesson' => $lesson, 'step' => $step])
+        $component = Livewire::actingAs($user)
+            ->test(AdminStepForm::class, ['course' => $course, 'lesson' => $lesson, 'step' => $step]);
+        $component
             ->set('title', 'Updated Step')
+            ->set('type', $step->type->value)
+            ->set('content', $step->content)
             ->call('save')
             ->assertRedirect("/admin/courses/{$course->id}/lessons/{$lesson->id}/steps");
 
@@ -73,7 +76,8 @@ class AdminStepTest extends TestCase
 
         Livewire::actingAs($user)
             ->test(AdminStepList::class, ['course' => $course, 'lesson' => $lesson])
-            ->call('delete', $step->id);
+            ->call('delete', $step->id)
+            ->assertForbidden();
 
         $this->assertDatabaseHas('steps', ['id' => $step->id]);
     }
@@ -416,7 +420,7 @@ class AdminStepTest extends TestCase
         ]);
 
         $step = Step::where('lesson_id', $lesson->id)->where('title', 'Coding Step')->first();
-        $content = json_decode($step->content, true);
+        $content = json_decode((string) $step->content, true);
         expect($content['prompt'])->toBe('Write PHP');
         expect($content['initial_code'])->toBe("<?php\necho 'hi';");
         expect($content['test_code'])->toBe("<?php\nassert(true);");
@@ -508,5 +512,22 @@ class AdminStepTest extends TestCase
             ->assertOk()
             ->assertSee('Alpha Step')
             ->assertDontSee('Beta Step');
+    }
+
+    public function test_instructor_cannot_edit_other_instructors_step(): void
+    {
+        $instructorA = User::factory()->create(['role' => 'instructor']);
+        $instructorB = User::factory()->create(['role' => 'instructor']);
+        $courseB = Course::factory()->create(['user_id' => $instructorB->id]);
+        $lessonB = Lesson::factory()->create(['course_id' => $courseB->id]);
+        $stepB = Step::factory()->create(['lesson_id' => $lessonB->id]);
+
+        Livewire::actingAs($instructorA)
+            ->test(AdminStepForm::class, ['course' => $courseB, 'lesson' => $lessonB, 'step' => $stepB])
+            ->assertForbidden();
+
+        $this->actingAs($instructorA)
+            ->get("/admin/courses/{$courseB->id}/lessons/{$lessonB->id}/steps/{$stepB->id}/edit")
+            ->assertForbidden();
     }
 }

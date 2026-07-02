@@ -19,9 +19,10 @@ class StepFactory extends Factory
         return [
             'lesson_id' => Lesson::factory(),
             'title' => fake()->sentence(3),
-            'type' => fake()->randomElement([StepType::Reading, StepType::Quiz, StepType::Coding]),
+            'type' => StepType::Reading,
             'content' => fake()->paragraphs(3, true),
             'order' => fake()->numberBetween(1, 1000),
+            'published' => true,
         ];
     }
 

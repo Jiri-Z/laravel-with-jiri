@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *
  * @method static Builder<self> ordered()
  */
-#[Fillable(['lesson_id', 'title', 'type', 'content', 'order'])]
+#[Fillable(['lesson_id', 'title', 'type', 'content', 'order', 'published'])]
 class Step extends Model
 {
     /** @use HasFactory<StepFactory> */
@@ -66,6 +66,10 @@ class Step extends Model
         return $query->where(fn (Builder $q): Builder => $q->where('title', 'like', "%{$term}%"));
     }
 
+    /**
+     * @warning This method performs one DB query per step when used in bulk; use
+     *         ProgressService batch methods to evaluate many steps in a single query.
+     */
     public function isAccessibleBy(User $user): bool
     {
         $previousStep = self::where('lesson_id', $this->lesson_id)
@@ -88,6 +92,7 @@ class Step extends Model
         return [
             'order' => 'integer',
             'type' => StepType::class,
+            'published' => 'boolean',
         ];
     }
 

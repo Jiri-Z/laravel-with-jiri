@@ -20,7 +20,7 @@ class ProgressService
             $q->select('id')->from('lessons')
                 ->where('course_id', $course->id)
                 ->where('published', true);
-        })->count();
+        })->where('published', true)->count();
 
         if ($totalSteps === 0) {
             return 0.0;
@@ -29,6 +29,7 @@ class ProgressService
         $completedSteps = StepCompletion::where('user_id', $user->id)
             ->whereIn('step_id', function ($q) use ($course) {
                 $q->select('steps.id')->from('steps')
+                    ->where('steps.published', true)
                     ->whereIn('steps.lesson_id', function ($q) use ($course) {
                         $q->select('id')->from('lessons')
                             ->where('course_id', $course->id)
@@ -52,6 +53,7 @@ class ProgressService
             ->join('lessons', 'steps.lesson_id', '=', 'lessons.id')
             ->whereIn('lessons.course_id', $courseIds)
             ->where('lessons.published', true)
+            ->where('steps.published', true)
             ->selectRaw('lessons.course_id, count(*) as total')
             ->groupBy('lessons.course_id')
             ->pluck('total', 'course_id');
@@ -62,6 +64,7 @@ class ProgressService
             ->where('step_completions.user_id', $user->id)
             ->whereIn('lessons.course_id', $courseIds)
             ->where('lessons.published', true)
+            ->where('steps.published', true)
             ->selectRaw('lessons.course_id, count(*) as total')
             ->groupBy('lessons.course_id')
             ->pluck('total', 'course_id');
@@ -78,14 +81,14 @@ class ProgressService
 
     public function lessonComplete(User $user, Lesson $lesson): bool
     {
-        $totalSteps = $lesson->steps()->count();
+        $totalSteps = $lesson->steps()->where('published', true)->count();
 
         if ($totalSteps === 0) {
             return false;
         }
 
         $completedSteps = StepCompletion::where('user_id', $user->id)
-            ->whereIn('step_id', $lesson->steps()->pluck('id'))
+            ->whereIn('step_id', $lesson->steps()->where('published', true)->pluck('id'))
             ->count();
 
         return $completedSteps === $totalSteps;
@@ -99,15 +102,19 @@ class ProgressService
     {
         $lessonIds = $lessons->pluck('id')->all();
 
-        $totalSteps = Step::whereIn('lesson_id', $lessonIds)
-            ->selectRaw('lesson_id, count(*) as total')
-            ->groupBy('lesson_id')
+        $totalSteps = DB::table('steps')
+            ->join('lessons', 'steps.lesson_id', '=', 'lessons.id')
+            ->whereIn('steps.lesson_id', $lessonIds)
+            ->where('steps.published', true)
+            ->selectRaw('steps.lesson_id, count(*) as total')
+            ->groupBy('steps.lesson_id')
             ->pluck('total', 'lesson_id');
 
         $completedSteps = DB::table('step_completions')
             ->join('steps', 'step_completions.step_id', '=', 'steps.id')
             ->where('step_completions.user_id', $user->id)
             ->whereIn('steps.lesson_id', $lessonIds)
+            ->where('steps.published', true)
             ->selectRaw('steps.lesson_id, count(*) as total')
             ->groupBy('steps.lesson_id')
             ->pluck('total', 'lesson_id');

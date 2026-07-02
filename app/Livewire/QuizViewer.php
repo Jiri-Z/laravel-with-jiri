@@ -69,7 +69,7 @@ class QuizViewer extends Component
                 foreach ($existing as $entry) {
                     $type = $questions[$entry->question_index]['type'] ?? 'single';
                     $this->answers[$entry->question_index] = $type === 'multiple'
-                        ? json_decode($entry->answer)
+                        ? json_decode((string) $entry->answer)
                         : $entry->answer;
                 }
             }

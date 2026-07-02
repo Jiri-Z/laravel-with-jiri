@@ -22,6 +22,10 @@ class Dashboard extends Component
 
         $courses = Course::published()->ordered()->withCount('lessons')
             ->whereHas('enrollments', fn ($q) => $q->where('user_id', $user->id))
+            ->with([
+                'lessons' => fn ($q) => $q->published()->ordered(),
+                'lessons.steps' => fn ($q) => $q->where('published', true)->ordered(),
+            ])
             ->get();
         $progressData = $progress->courseProgressBatch($user, $courses);
 
@@ -45,8 +49,8 @@ class Dashboard extends Component
             ->pluck('step_id');
 
         foreach ($courses as $course) {
-            foreach ($course->lessons()->published()->ordered()->get() as $lesson) {
-                foreach ($lesson->steps()->ordered()->get() as $step) {
+            foreach ($course->lessons as $lesson) {
+                foreach ($lesson->steps as $step) {
                     if (! $completedIds->contains($step->id)) {
                         return $step;
                     }
