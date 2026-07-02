@@ -11,9 +11,6 @@ use Illuminate\Database\QueryException;
 
 class SubmitQuizAnswer
 {
-    /**
-     * @param  int|string|array<int, int|string>|null  $answer
-     */
     public function handle(User $user, Step $step, int|string|array|null $answer, int $questionIndex = 0): SubmitQuizAnswerResult
     {
         $content = $this->resolveContent($step, $questionIndex);
@@ -48,10 +45,8 @@ class SubmitQuizAnswer
         return new SubmitQuizAnswerResult($isCorrect, $answerString);
     }
 
-    /** @return array<string, mixed>|null */
     private function resolveContent(Step $step, int $questionIndex): ?array
     {
-        /** @var array<int, array<string, mixed>>|null $questions */
         $questions = $step->getContentAsArray();
 
         if ($questions === null) {
@@ -61,16 +56,11 @@ class SubmitQuizAnswer
         return $questions[$questionIndex] ?? null;
     }
 
-    /** @param  array<string, mixed>  $content */
     private function resolveQuestionType(array $content): string
     {
         return $content['type'] ?? 'single';
     }
 
-    /**
-     * @param  array<string, mixed>  $content
-     * @param  int|string|array<int, int|string>|null  $answer
-     */
     private function checkAnswer(string $questionType, array $content, int|string|array|null $answer): bool
     {
         return match ($questionType) {
@@ -84,9 +74,6 @@ class SubmitQuizAnswer
         };
     }
 
-    /**
-     * @param  int|string|array<int, int|string>|null  $answer
-     */
     private function serializeAnswer(string $questionType, int|string|array|null $answer): string
     {
         return match ($questionType) {

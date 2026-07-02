@@ -38,19 +38,11 @@ class Lesson extends Model
         return $this->hasMany(Step::class);
     }
 
-    /**
-     * @param  Builder<Lesson>  $query
-     * @return Builder<Lesson>
-     */
     public function scopePublished(Builder $query): Builder
     {
         return $query->where('published', true);
     }
 
-    /**
-     * @param  Builder<Lesson>  $query
-     * @return Builder<Lesson>
-     */
     #[Scope]
     protected function search(Builder $query, string $term): Builder
     {

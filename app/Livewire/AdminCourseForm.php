@@ -40,7 +40,6 @@ class AdminCourseForm extends Component
         }
     }
 
-    /** @return array<string, string> */
     public function validationRules(): array
     {
         $courseId = $this->course?->id;

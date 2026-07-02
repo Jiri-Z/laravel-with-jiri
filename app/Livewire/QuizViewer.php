@@ -62,7 +62,6 @@ class QuizViewer extends Component
             }
             $this->isCorrect = $allCorrect;
 
-            /** @var array<int, array<string, mixed>>|null $questions */
             $questions = $this->step->getContentAsArray();
 
             if ($questions !== null) {
@@ -84,7 +83,6 @@ class QuizViewer extends Component
             return;
         }
 
-        /** @var array<int, array<string, mixed>>|null $questions */
         $questions = $this->step->getContentAsArray();
 
         if ($questions === null) {

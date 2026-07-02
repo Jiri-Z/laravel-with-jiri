@@ -41,10 +41,6 @@ class ProgressService
         return round(($completedSteps / $totalSteps) * 100, 1);
     }
 
-    /**
-     * @param  Collection<int, Course>  $courses
-     * @return array<int, float>
-     */
     public function courseProgressBatch(User $user, Collection $courses): array
     {
         $courseIds = $courses->pluck('id')->all();
@@ -94,10 +90,6 @@ class ProgressService
         return $completedSteps === $totalSteps;
     }
 
-    /**
-     * @param  Collection<int, Lesson>  $lessons
-     * @return array<int, bool>
-     */
     public function lessonCompleteBatch(User $user, Collection $lessons): array
     {
         $lessonIds = $lessons->pluck('id')->all();
@@ -129,10 +121,6 @@ class ProgressService
         return $result;
     }
 
-    /**
-     * @param  Collection<int, Step>  $steps
-     * @return array<int, bool>
-     */
     public function stepCompleteBatch(User $user, Collection $steps): array
     {
         $stepIds = $steps->pluck('id')->all();

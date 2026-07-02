@@ -44,9 +44,7 @@ class LessonDetail extends Component
             ->pluck('step_id')
             ->all();
 
-        /** @var array<int, bool> $completion */
         $completion = [];
-        /** @var array<int, bool> $locked */
         $locked = [];
         $previousCompleted = true;
         foreach ($lesson->steps as $step) {

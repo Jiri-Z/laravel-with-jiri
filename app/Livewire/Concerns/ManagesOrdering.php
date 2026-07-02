@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Livewire\Concerns;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 trait ManagesOrdering
@@ -23,7 +22,6 @@ trait ManagesOrdering
 
     protected function moveItemUp(int $id, string $modelClass, ?string $parentFk = null, mixed $parentFkValue = null): void
     {
-        /** @var Model $model */
         $model = $modelClass::findOrFail($id);
         $this->authorize('update', $model);
 
@@ -31,7 +29,6 @@ trait ManagesOrdering
         if ($parentFk !== null) {
             $query->where($parentFk, $parentFkValue);
         }
-        /** @var Model|null $previous */
         $previous = $query->orderBy('order', 'desc')->first();
 
         if ($previous === null) {
@@ -50,7 +47,6 @@ trait ManagesOrdering
 
     protected function moveItemDown(int $id, string $modelClass, ?string $parentFk = null, mixed $parentFkValue = null): void
     {
-        /** @var Model $model */
         $model = $modelClass::findOrFail($id);
         $this->authorize('update', $model);
 
@@ -58,7 +54,6 @@ trait ManagesOrdering
         if ($parentFk !== null) {
             $query->where($parentFk, $parentFkValue);
         }
-        /** @var Model|null $next */
         $next = $query->orderBy('order')->first();
 
         if ($next === null) {

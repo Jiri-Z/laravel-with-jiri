@@ -15,11 +15,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-/**
- * @property StepType $type
- *
- * @method static Builder<self> ordered()
- */
+/** @method static Builder<self> ordered() */
 #[Fillable(['lesson_id', 'title', 'type', 'content', 'order', 'published'])]
 class Step extends Model
 {
@@ -46,10 +42,6 @@ class Step extends Model
         return $this->hasMany(StepAnswer::class);
     }
 
-    /**
-     * @param  Builder<Step>  $query
-     * @return Builder<Step>
-     */
     #[Scope]
     protected function search(Builder $query, string $term): Builder
     {
@@ -60,10 +52,6 @@ class Step extends Model
         return $query->where(fn (Builder $q): Builder => $q->where('title', 'like', "%{$term}%"));
     }
 
-    /**
-     * @warning This method performs one DB query per step when used in bulk; use
-     *         ProgressService batch methods to evaluate many steps in a single query.
-     */
     public function isAccessibleBy(User $user): bool
     {
         $previousStep = self::where('lesson_id', $this->lesson_id)
@@ -90,7 +78,6 @@ class Step extends Model
         ];
     }
 
-    /** @return array<int, array<string, mixed>>|array<string, mixed>|null */
     public function getContentAsArray(): ?array
     {
         if (empty($this->content) || ! json_validate($this->content)) {
@@ -100,7 +87,6 @@ class Step extends Model
         return json_decode($this->content, true);
     }
 
-    /** @return array{prompt: string, initial_code: string, test_code: string, expected_output: string} */
     public function getCodingData(): array
     {
         $data = $this->getContentAsArray();

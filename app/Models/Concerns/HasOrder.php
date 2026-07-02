@@ -11,10 +11,6 @@ use Illuminate\Database\Eloquent\Builder;
  */
 trait HasOrder
 {
-    /**
-     * @param  Builder<static>  $query
-     * @return Builder<static>
-     */
     public function scopeOrdered(Builder $query): Builder
     {
         return $query->orderBy('order');

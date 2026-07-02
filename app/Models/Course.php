@@ -52,19 +52,11 @@ class Course extends Model
             ->withPivot('enrolled_at');
     }
 
-    /**
-     * @param  Builder<Course>  $query
-     * @return Builder<Course>
-     */
     public function scopePublished(Builder $query): Builder
     {
         return $query->where('published', true);
     }
 
-    /**
-     * @param  Builder<Course>  $query
-     * @return Builder<Course>
-     */
     #[Scope]
     protected function search(Builder $query, string $term): Builder
     {
