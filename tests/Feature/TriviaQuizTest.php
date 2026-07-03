@@ -8,6 +8,7 @@ use App\Livewire\TriviaQuiz;
 use App\Models\TriviaAttempt;
 use App\Models\TriviaQuestion;
 use App\Models\User;
+use Database\Seeders\TriviaQuestionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -25,6 +26,7 @@ function triviaQuestion(array $overrides = []): array
         'answer' => 'default answer',
         'alternatives' => null,
         'explanation' => 'Default explanation.',
+        'locale' => 'en',
         'created_at' => '2026-01-01 00:00:00',
         'updated_at' => '2026-01-01 00:00:00',
     ], $overrides);
@@ -163,6 +165,50 @@ test('results screen saves attempt and shows score', function () {
     expect($attempt)->not->toBeNull();
     expect($attempt->user_id)->toBe($this->user->id);
     expect($attempt->total)->toBe($count);
+});
+
+test('topic question counts are filtered by locale', function () {
+    TriviaQuestion::insert(triviaQuestion([
+        'topic' => 'routing',
+        'question' => 'CS: routing question?',
+        'locale' => 'cs',
+    ]));
+
+    $component = Livewire::actingAs($this->user)
+        ->test(TriviaQuiz::class);
+
+    $counts = $component->get('topicQuestionCounts');
+    $routing = $counts->firstWhere('topic', 'routing');
+
+    expect($routing)->not->toBeNull();
+    expect($routing['count'])->toBe(2); // only en questions
+});
+
+test('trivia questions are filtered by locale', function () {
+    // Additional CS question for same topic
+    TriviaQuestion::insert(triviaQuestion([
+        'topic' => 'routing',
+        'question' => 'CS: routing question?',
+        'locale' => 'cs',
+    ]));
+
+    // Component should only show English questions
+    Livewire::actingAs($this->user)
+        ->test(TriviaQuiz::class)
+        ->assertCount('allTopics', 2) // routing, blade-templates
+        ->set('selectedTopics', ['routing'])
+        ->call('start')
+        ->assertCount('questions', 2); // 2 en routing questions, not 3
+});
+
+test('trivia question seeder sets correct locale', function () {
+    $this->seed(TriviaQuestionSeeder::class);
+
+    $enCount = TriviaQuestion::where('locale', 'en')->count();
+    expect($enCount)->toBeGreaterThan(0);
+
+    $csCount = TriviaQuestion::where('locale', 'cs')->count();
+    expect($csCount)->toBe(0); // No CS YAML files exist yet
 });
 
 test('dashboard shows trivia card', function () {

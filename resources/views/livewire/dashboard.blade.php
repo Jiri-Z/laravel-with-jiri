@@ -2,19 +2,24 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Welcome, {{ auth()->user()->name }}</h1>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ __('dashboard.welcome', ['name' => auth()->user()->name]) }}</h1>
                 <p class="mt-2 text-gray-500 dark:text-gray-400">
                     @if ($totalCompleted > 0)
-                        You've completed <span class="font-semibold text-indigo-600 dark:text-indigo-300">{{ $totalCompleted }}</span> {{ Str::plural('step', $totalCompleted) }} across <span class="font-semibold text-indigo-600 dark:text-indigo-300">{{ $courses->count() }}</span> {{ Str::plural('course', $courses->count()) }}.
+                        {{ __('dashboard.progress_text', [
+                            'completed' => $totalCompleted,
+                            'step_word' => trans_choice('dashboard.step_count', $totalCompleted),
+                            'course_count' => $courses->count(),
+                            'course_word' => trans_choice('dashboard.course_count', $courses->count()),
+                        ]) }}
                     @else
-                        Start learning — pick a course below.
+                        {{ __('dashboard.start_learning') }}
                     @endif
                 </p>
             </div>
 
             @if ($resumeStep)
                 <div class="mb-8">
-                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Continue Learning</h2>
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">{{ __('dashboard.continue_learning') }}</h2>
                     <a href="{{ route('steps.show', [$resumeStep->lesson->course->slug, $resumeStep->lesson->slug, $resumeStep->id]) }}" wire:navigate class="group block bg-white dark:bg-gray-750 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
                         <div class="flex items-center justify-between">
                             <div>
@@ -29,14 +34,14 @@
                 </div>
             @elseif ($courses->isNotEmpty())
                 <div class="mb-8 p-5 bg-green-50 dark:bg-green-900/20 rounded-2xl border border-green-200 dark:border-green-800">
-                    <p class="text-green-800 dark:text-green-300 font-medium">All courses complete! 🎉</p>
+                    <p class="text-green-800 dark:text-green-300 font-medium">{{ __('dashboard.all_complete') }}</p>
                 </div>
             @endif
 
             <div class="mb-8">
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Course Progress</h2>
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">{{ __('dashboard.course_progress') }}</h2>
                 @if ($courses->isEmpty())
-                    <p class="text-gray-500 dark:text-gray-400">No courses available yet.</p>
+                    <p class="text-gray-500 dark:text-gray-400">{{ __('dashboard.no_courses') }}</p>
                 @else
                     <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                         @foreach ($courses as $course)
@@ -49,7 +54,7 @@
                                 </p>
                                 <div class="flex items-center justify-between mb-2">
                                     <span class="text-sm text-gray-500 dark:text-gray-400">
-                                        {{ $course->lessons_count }} {{ Str::plural('lesson', $course->lessons_count) }}
+                                        {{ trans_choice('dashboard.lesson_count', $course->lessons_count) }}
                                     </span>
                                     <span class="text-sm font-medium text-indigo-600 dark:text-indigo-300">{{ $progressData[$course->id] }}%</span>
                                 </div>
@@ -63,12 +68,12 @@
             </div>
 
             <div class="mb-8">
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Laravel Trivia</h2>
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">{{ __('dashboard.trivia_card_title') }}</h2>
                 <a href="{{ route('quiz') }}" wire:navigate class="group block bg-white dark:bg-gray-750 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-base font-semibold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors">Test Your Laravel Knowledge</p>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">406 questions across 18 topics — challenge yourself!</p>
+                            <p class="text-base font-semibold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors">{{ __('dashboard.trivia_card_subtitle') }}</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('dashboard.trivia_card_description') }}</p>
                         </div>
                         <svg class="w-5 h-5 text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -79,7 +84,7 @@
 
             @if ($recentCompletions->isNotEmpty())
                 <div>
-                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Recent Activity</h2>
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">{{ __('dashboard.recent_activity') }}</h2>
                     <div class="bg-white dark:bg-gray-750 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 divide-y divide-gray-100 dark:divide-gray-700">
                         @foreach ($recentCompletions as $completion)
                             <a href="{{ route('steps.show', [$completion->step->lesson->course->slug, $completion->step->lesson->slug, $completion->step->id]) }}" wire:navigate class="flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors">

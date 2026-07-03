@@ -1,7 +1,7 @@
 <div>
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">Courses</h1>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">{{ __('courses.title') }}</h1>
 
             <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 @forelse ($courses as $course)
@@ -16,13 +16,13 @@
                         </a>
                         <div class="flex items-center justify-between mb-2">
                             <span class="text-sm text-gray-500 dark:text-gray-400">
-                                {{ $course->lessons_count }} {{ Str::plural('lesson', $course->lessons_count) }}
+                                {{ trans_choice('courses.lesson_count', $course->lessons_count) }}
                             </span>
                             @if (isset($enrolled[$course->id]))
                                 <a href="{{ route('courses.show', $course->slug) }}" wire:navigate class="text-sm font-medium text-indigo-600 dark:text-indigo-300 hover:underline">{{ $progressData[$course->id] }}%</a>
                             @else
                                 <button wire:click="enroll({{ $course->id }})" class="rounded-full bg-indigo-600 px-4 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 dark:bg-indigo-400 dark:hover:bg-indigo-300 transition-colors">
-                                    Enroll
+                                    {{ __('courses.enroll') }}
                                 </button>
                             @endif
                         </div>
@@ -33,7 +33,7 @@
                         @endif
                     </div>
                 @empty
-                    <p class="text-gray-500 dark:text-gray-400 col-span-full">No courses available yet.</p>
+                    <p class="text-gray-500 dark:text-gray-400 col-span-full">{{ __('courses.no_courses') }}</p>
                 @endforelse
             </div>
         </div>

@@ -1,0 +1,24 @@
+<?php
+
+return [
+    'back' => '← Back to :lesson',
+    'step_number' => 'Step :order',
+    'mark_complete' => 'Mark as Complete',
+    'completed' => 'Completed',
+    'coding_loading' => 'Loading code editor...',
+    'coding_run' => 'Run Code',
+    'coding_running' => 'Running...',
+    'coding_check' => 'Check Answer',
+    'coding_checking' => 'Checking...',
+    'coding_loading_runtime' => 'Loading PHP runtime (first time may take a moment)...',
+    'coding_output' => 'Output',
+    'coding_correct' => 'Correct! Step completed.',
+    'coding_incorrect' => 'Incorrect, try again.',
+    'coding_step_completed' => 'Step completed successfully',
+    'quiz_submit' => 'Submit All Answers',
+    'quiz_all_correct' => 'All Correct!',
+    'quiz_some_incorrect' => 'Some answers incorrect',
+    'complete_previous' => 'Complete the previous step first.',
+    'coding_error' => 'An unexpected error occurred while running your code.',
+    'coding_error_prefix' => '[PHP Error]: ',
+];

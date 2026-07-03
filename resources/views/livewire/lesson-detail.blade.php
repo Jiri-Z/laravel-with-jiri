@@ -1,14 +1,14 @@
 <div>
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <a href="{{ route('courses.show', $course->slug) }}" wire:navigate class="text-sm text-gray-600 dark:text-gray-400 hover:underline mb-4 inline-block">&larr; Back to {{ $course->title }}</a>
+            <a href="{{ route('courses.show', $course->slug) }}" wire:navigate class="text-sm text-gray-600 dark:text-gray-400 hover:underline mb-4 inline-block">{{ __('lessons.back', ['course' => $course->title]) }}</a>
 
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">{{ $lesson->title }}</h1>
             @if ($lesson->description)
                 <p class="text-gray-600 dark:text-gray-400 mb-8">{{ $lesson->description }}</p>
             @endif
 
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Steps</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">{{ __('lessons.steps') }}</h2>
 
             <div class="space-y-4">
                 @forelse ($lesson->steps as $step)
@@ -34,11 +34,11 @@
                                         {{ $step->title }}
                                     </h3>
                                     <span class="text-sm text-gray-500 dark:text-gray-400">
-                                        {{ str_replace('_', ' ', ucfirst($step->type->value)) }}
+                                        {{ __("enums.step_type_{$step->type->value}") }}
                                         @if ($locked)
-                                            &middot; <span class="text-gray-400">Locked</span>
+                                            &middot; <span class="text-gray-400">{{ __('lessons.locked') }}</span>
                                         @elseif ($stepCompletion[$step->id])
-                                            &middot; <span class="text-green-600 dark:text-green-400 font-medium">Completed</span>
+                                            &middot; <span class="text-green-600 dark:text-green-400 font-medium">{{ __('lessons.completed') }}</span>
                                         @endif
                                     </span>
                                 </div>
@@ -46,7 +46,7 @@
                         </div>
                     </a>
                 @empty
-                    <p class="text-gray-500 dark:text-gray-400">No steps available yet.</p>
+                    <p class="text-gray-500 dark:text-gray-400">{{ __('lessons.no_steps') }}</p>
                 @endforelse
             </div>
         </div>

@@ -73,7 +73,7 @@ export function codingViewer(config) {
                 });
 
                 this.php.addEventListener('error', (event) => {
-                    this.lastOutput += `[PHP Error]: ${event.detail}`;
+                    this.lastOutput += `${config.translations?.error_prefix ?? '[PHP Error]: '}${event.detail}`;
                 });
             } catch (e) {
                 console.error('Failed to load PHP WASM:', e);
@@ -92,7 +92,7 @@ export function codingViewer(config) {
                 await this.php.run(code);
                 this.output = this.lastOutput;
             } catch (e) {
-                this.output = `Error: ${e.message}`;
+                this.output = config.translations?.error ?? `Error: ${e.message}`;
             }
             this.running = false;
         },
@@ -119,7 +119,7 @@ export function codingViewer(config) {
                 }
                 this.output = actualOutput;
             } catch (e) {
-                this.output = `Error: ${e.message}`;
+                this.output = config.translations?.error ?? `Error: ${e.message}`;
                 this.result = 'incorrect';
             }
             this.checking = false;

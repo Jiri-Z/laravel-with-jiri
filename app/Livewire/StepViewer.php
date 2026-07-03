@@ -35,7 +35,7 @@ class StepViewer extends Component
         $this->ensureEnrolled($course);
 
         if (! $step->isAccessibleBy(auth()->user())) {
-            session()->flash('error', 'Complete the previous step first.');
+            session()->flash('error', __('steps.complete_previous'));
             $this->redirect(route('lessons.show', [$course->slug, $lesson->slug]), navigate: true);
 
             return;

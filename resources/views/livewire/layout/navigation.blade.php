@@ -42,7 +42,7 @@ new class extends Component
                 </div>
             </div>
 
-            <div class="hidden sm:flex sm:items-center sm:ms-6 gap-2">
+            <div class="hidden sm:flex sm:items-center sm:ms-6 gap-1">
                 <button @click="document.documentElement.classList.toggle('dark'); localStorage.setItem('dark-mode', document.documentElement.classList.contains('dark'))"
                     class="p-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800"
                     x-data>
@@ -53,6 +53,24 @@ new class extends Component
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
                     </svg>
                 </button>
+
+                {{-- Locale switcher --}}
+                <div class="inline-flex items-center gap-0.5 bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5">
+                    <form method="POST" action="{{ route('locale.switch') }}">
+                        @csrf
+                        <input type="hidden" name="locale" value="en">
+                        <button type="submit" class="px-2 py-1 text-xs font-medium rounded-md transition-colors {{ app()->getLocale() === 'en' ? 'bg-white dark:bg-gray-700 text-indigo-700 dark:text-indigo-300 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300' }}">
+                            EN
+                        </button>
+                    </form>
+                    <form method="POST" action="{{ route('locale.switch') }}">
+                        @csrf
+                        <input type="hidden" name="locale" value="cs">
+                        <button type="submit" class="px-2 py-1 text-xs font-medium rounded-md transition-colors {{ app()->getLocale() === 'cs' ? 'bg-white dark:bg-gray-700 text-indigo-700 dark:text-indigo-300 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300' }}">
+                            CS
+                        </button>
+                    </form>
+                </div>
 
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">

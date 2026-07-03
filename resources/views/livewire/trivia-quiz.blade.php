@@ -1,3 +1,4 @@
+@php $title = __('trivia.title'); @endphp
 <div>
     <div class="py-12">
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
@@ -5,23 +6,23 @@
             @if ($screen === 'welcome')
                 {{-- WELCOME SCREEN --}}
                 <div class="text-center mb-10">
-                    <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-3">Laravel Trivia</h1>
+                    <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-3">{{ $title }}</h1>
                     <p class="text-gray-500 dark:text-gray-400 max-w-md mx-auto leading-relaxed">
-                        Test your understanding of Laravel's core architecture and fundamentals.
-                        Each session draws 20 random questions.
+                        {{ __('trivia.welcome_description') }}
+                        {{ __('trivia.welcome_draw_info') }}
                     </p>
                 </div>
 
                 <div class="bg-white dark:bg-gray-750 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 mb-6">
                     <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Select Topics</h2>
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ __('trivia.select_topics') }}</h2>
                         <div class="flex gap-2">
                             <button type="button" wire:click="$set('selectedTopics', {{ json_encode($this->allTopics->toArray()) }})" class="text-xs font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 transition-colors px-2 py-1 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900/30">
-                                Select All
+                                {{ __('trivia.select_all') }}
                             </button>
                             <span class="text-gray-300 dark:text-gray-600">|</span>
                             <button type="button" wire:click="$set('selectedTopics', [])" class="text-xs font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 transition-colors px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
-                                Deselect All
+                                {{ __('trivia.deselect_all') }}
                             </button>
                         </div>
                     </div>
@@ -31,13 +32,16 @@
                                 <input type="checkbox" value="{{ $topicData->topic }}" wire:model.live="selectedTopics" class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
                                 <div class="flex-1">
                                     <div class="font-medium text-gray-800 dark:text-gray-200 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 transition-colors">{{ Str::title(str_replace('-', ' ', $topicData->topic)) }}</div>
-                                    <div class="text-xs text-gray-400">{{ $topicData->count }} questions</div>
+                                    <div class="text-xs text-gray-400">{{ $topicData->count }} {{ __('trivia.questions_available', ['count' => $topicData->count, 'topics' => $topicData->topic]) }}</div>
                                 </div>
                             </label>
                         @endforeach
                     </div>
                     <p class="text-sm text-gray-400 dark:text-gray-500 text-center">
-                        {{ $this->topicQuestionCounts->sum('count') }} questions available across {{ $this->topicQuestionCounts->count() }} topics
+                        {{ __('trivia.questions_available', [
+                            'count' => $this->topicQuestionCounts->sum('count'),
+                            'topics' => $this->topicQuestionCounts->count(),
+                        ]) }}
                     </p>
                 </div>
 
@@ -45,7 +49,7 @@
                     <button type="button" wire:click="start" @disabled(empty($selectedTopics))
                         class="inline-flex items-center gap-2 px-8 py-3.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold rounded-xl shadow-lg shadow-indigo-600/25 hover:shadow-indigo-600/40 disabled:shadow-none transition-all duration-200 text-lg">
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        Start Quiz
+                        {{ __('trivia.start_quiz') }}
                     </button>
                 </div>
 
@@ -56,8 +60,8 @@
                 @if ($question)
                     <div class="mb-6">
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Question {{ $this->currentIndex + 1 }} of {{ count($this->questions) }}</span>
-                            <button type="button" wire:click="resetQuiz" class="text-xs text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/30">Quit</button>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('trivia.question_counter', ['current' => $this->currentIndex + 1, 'total' => count($this->questions)]) }}</span>
+                            <button type="button" wire:click="resetQuiz" class="text-xs text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/30">{{ __('trivia.quit') }}</button>
                         </div>
                         <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                             <div class="bg-indigo-500 h-2 rounded-full transition-all duration-500" style="width: {{ ($this->currentIndex / count($this->questions)) * 100 }}%"></div>
@@ -74,7 +78,7 @@
                         <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6 leading-relaxed">{{ $question['question'] }}</h2>
 
                         @if ($question['type'] === 'multiple')
-                            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4"><em>Select all that apply.</em></p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4"><em>{{ __('trivia.select_all_that_apply') }}</em></p>
                         @endif
 
                         @if ($question['type'] === 'single')
@@ -115,8 +119,8 @@
                                     {{ $submitted ? 'disabled' : '' }}
                                     class="w-full px-4 py-3 text-lg border-2 rounded-xl focus:ring-2 outline-none transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500
                                         {{ $submitted ? ($this->questions[$this->currentIndex]['answer'] === ($this->userAnswers[$this->currentIndex] ?? '') ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20' : 'border-red-500 bg-red-50 dark:bg-red-900/20') : 'border-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-white focus:border-indigo-500 focus:ring-indigo-200' }}"
-                                    placeholder="Type your answer here..." autocomplete="off">
-                                <p class="mt-2 text-xs text-gray-400">Case-insensitive. Match the expected term closely.</p>
+                                    placeholder="{{ __('trivia.text_placeholder') }}" autocomplete="off">
+                                <p class="mt-2 text-xs text-gray-400">{{ __('trivia.text_hint') }}</p>
                             </div>
                         @endif
                     </div>
@@ -133,11 +137,11 @@
                                 </div>
                                 <div class="flex-1">
                                     <div class="font-semibold {{ $isCorrect ? 'text-emerald-800 dark:text-emerald-300' : 'text-red-800 dark:text-red-300' }}">
-                                        {{ $isCorrect ? 'Correct!' : 'Not quite.' }}
+                                        {{ $isCorrect ? __('trivia.correct') : __('trivia.not_quite') }}
                                     </div>
                                     @if (!$isCorrect && $currentAnswer !== null)
                                         <div class="text-sm mt-1">
-                                            <span class="text-gray-600 dark:text-gray-400">Correct answer: </span>
+                                            <span class="text-gray-600 dark:text-gray-400">{{ __('trivia.correct_answer') }} </span>
                                             <span class="font-medium text-emerald-700 dark:text-emerald-300">{{ $question['answer'] }}</span>
                                         </div>
                                     @endif
@@ -154,15 +158,15 @@
                             <button type="button" wire:click="submit"
                                 @disabled(($this->userAnswers[$this->currentIndex] ?? '') === '' && ($question['type'] ?? '') !== 'multiple')
                                 class="inline-flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all duration-200">
-                                Check Answer
+                                {{ __('trivia.check_answer') }}
                             </button>
                         @else
                             <button type="button" wire:click="nextQuestion"
                                 class="inline-flex items-center gap-2 px-6 py-2.5 bg-gray-900 dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 text-white font-semibold rounded-xl transition-all duration-200">
                                 @if ($this->currentIndex >= count($this->questions) - 1)
-                                    See Results
+                                    {{ __('trivia.see_results') }}
                                 @else
-                                    Next
+                                    {{ __('trivia.next') }}
                                 @endif
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                             </button>
@@ -184,12 +188,12 @@
                         $seconds = $elapsed % 60;
 
                         $grade = match(true) {
-                            $pct >= 95 => ['label' => 'Artisan Master', 'desc' => 'Outstanding!', 'color' => 'emerald'],
-                            $pct >= 85 => ['label' => 'Senior Dev', 'desc' => 'Great work!', 'color' => 'emerald'],
-                            $pct >= 70 => ['label' => 'Mid-Level Dev', 'desc' => 'Good foundation!', 'color' => 'blue'],
-                            $pct >= 55 => ['label' => 'Junior Dev', 'desc' => 'You know the basics.', 'color' => 'yellow'],
-                            $pct >= 40 => ['label' => 'Apprentice', 'desc' => 'Keep studying.', 'color' => 'orange'],
-                            default => ['label' => 'Fresh Start', 'desc' => 'Everyone starts somewhere.', 'color' => 'red'],
+                            $pct >= 95 => ['label' => __('trivia.grade_artisan_master'), 'desc' => __('trivia.grade_description_outstanding'), 'color' => 'emerald'],
+                            $pct >= 85 => ['label' => __('trivia.grade_senior_dev'), 'desc' => __('trivia.grade_description_great'), 'color' => 'emerald'],
+                            $pct >= 70 => ['label' => __('trivia.grade_mid_level'), 'desc' => __('trivia.grade_description_good'), 'color' => 'blue'],
+                            $pct >= 55 => ['label' => __('trivia.grade_junior_dev'), 'desc' => __('trivia.grade_description_basics'), 'color' => 'yellow'],
+                            $pct >= 40 => ['label' => __('trivia.grade_apprentice'), 'desc' => __('trivia.grade_description_keep_studying'), 'color' => 'orange'],
+                            default => ['label' => __('trivia.grade_fresh_start'), 'desc' => __('trivia.grade_description_start'), 'color' => 'red'],
                         };
 
                         $topicBreakdown = collect($attempt->answers)->groupBy('topic')->map(function ($answers, $topic) {
@@ -205,7 +209,7 @@
                     @endphp
 
                     <div class="mb-6 flex items-center justify-between">
-                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $attempt->score }}/{{ $attempt->total }} correct</span>
+                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ __('trivia.score', ['score' => $attempt->score, 'total' => $attempt->total]) }}</span>
                     </div>
                     <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 mb-8">
                         <div class="h-1.5 rounded-full transition-all duration-1000 bg-{{ $grade['color'] }}-500" style="width: 100%"></div>
@@ -216,7 +220,7 @@
                             <div class="inline-flex items-center justify-center w-40 h-40 rounded-full border-8 border-{{ $grade['color'] }}-400">
                                 <div>
                                     <div class="text-4xl font-bold text-{{ $grade['color'] }}-600 dark:text-{{ $grade['color'] }}-400">{{ $pct }}</div>
-                                    <div class="text-sm text-{{ $grade['color'] }}-500">percent</div>
+                                    <div class="text-sm text-{{ $grade['color'] }}-500">%</div>
                                 </div>
                             </div>
                             <div class="mt-4">
@@ -228,20 +232,20 @@
                         <div class="grid grid-cols-3 gap-4 mb-8">
                             <div class="text-center p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
                                 <div class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ $attempt->score }}</div>
-                                <div class="text-xs text-gray-500 mt-1">Correct</div>
+                                <div class="text-xs text-gray-500 mt-1">{{ __('trivia.correct_badge') }}</div>
                             </div>
                             <div class="text-center p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
                                 <div class="text-2xl font-bold text-red-500 dark:text-red-400">{{ $attempt->total - $attempt->score }}</div>
-                                <div class="text-xs text-gray-500 mt-1">Incorrect</div>
+                                <div class="text-xs text-gray-500 mt-1">{{ __('trivia.incorrect_badge') }}</div>
                             </div>
                             <div class="text-center p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
                                 <div class="text-2xl font-bold text-gray-700 dark:text-gray-300">{{ $minutes }}:{{ str_pad((string) $seconds, 2, '0', STR_PAD_LEFT) }}</div>
-                                <div class="text-xs text-gray-500 mt-1">Time</div>
+                                <div class="text-xs text-gray-500 mt-1">{{ __('trivia.time') }}</div>
                             </div>
                         </div>
 
                         <div class="mb-6">
-                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Topic Breakdown</h3>
+                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">{{ __('trivia.topic_breakdown') }}</h3>
                             <div class="space-y-3">
                                 @foreach ($topicBreakdown as $topic)
                                     <div>
@@ -259,19 +263,17 @@
                     </div>
 
                     <div class="text-center mb-4">
-                        <button type="button" x-on:click="$el.closest('.space-y-3').nextElementSibling?.classList.toggle('hidden')"
+                        <button type="button" x-on:click="document.querySelector('#review-section').classList.toggle('hidden')"
                             class="inline-flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-gray-750 border border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 text-gray-700 dark:text-gray-300 font-medium rounded-xl transition-all duration-200 text-sm">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                            Review All Answers
+                            {{ __('trivia.review_all') }}
                         </button>
                     </div>
 
-                    <div id="review-section" x-data="{ open: false }" x-show="open" x-cloak class="mb-8 space-y-3 hidden" x-on:click.outside="open = false">
+                    <div id="review-section" class="mb-8 space-y-3 hidden">
                         @foreach ($attempt->answers as $i => $answer)
-                            <div class="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden">
-                                <button type="button"
-                                    x-on:click="open = !open; $el.nextElementSibling.classList.toggle('hidden')"
-                                    class="w-full flex items-start gap-3 p-4 text-left hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors">
+                            <div class="border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden" x-data="{ open: false }">
+                                <button type="button" @click="open = !open" class="w-full flex items-start gap-3 p-4 text-left hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors">
                                     <div class="shrink-0 w-7 h-7 flex items-center justify-center rounded-full {{ $answer['is_correct'] ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700' : 'bg-red-100 dark:bg-red-900/40 text-red-700' }} text-xs font-bold">
                                         {{ $answer['is_correct'] ? '✓' : '✗' }}
                                     </div>
@@ -279,26 +281,26 @@
                                         <div class="text-sm font-medium text-gray-800 dark:text-gray-200 leading-relaxed">{{ $answer['question'] }}</div>
                                         <div class="text-xs text-gray-400 mt-1">{{ Str::title(str_replace('-', ' ', $answer['topic'])) }} · {{ $answer['difficulty'] }}</div>
                                     </div>
-                                    <svg class="shrink-0 w-5 h-5 text-gray-400 mt-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <svg class="shrink-0 w-5 h-5 text-gray-400 mt-0.5 transition-transform" :class="{ 'rotate-180': open }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                                     </svg>
                                 </button>
-                                <div class="hidden border-t border-gray-100 dark:border-gray-700">
+                                <div x-show="open" x-cloak class="border-t border-gray-100 dark:border-gray-700">
                                     <div class="p-4 bg-gray-50 dark:bg-gray-800/50 space-y-2 text-sm">
                                         <div>
-                                            <span class="text-gray-500 dark:text-gray-400">Your answer:</span>
+                                            <span class="text-gray-500 dark:text-gray-400">{{ __('trivia.your_answer') }}</span>
                                             <span class="{{ $answer['is_correct'] ? 'text-emerald-700 dark:text-emerald-300' : 'text-red-600 dark:text-red-400' }} font-medium ml-1">
-                                                {{ is_array($answer['user_answer']) ? implode(', ', $answer['user_answer']) : ($answer['user_answer'] ?: 'No answer') }}
+                                                {{ is_array($answer['user_answer']) ? implode(', ', $answer['user_answer']) : ($answer['user_answer'] ?: __('trivia.no_answer')) }}
                                             </span>
                                         </div>
                                         @if (!$answer['is_correct'])
                                             <div>
-                                                <span class="text-gray-500 dark:text-gray-400">Correct answer:</span>
+                                                <span class="text-gray-500 dark:text-gray-400">{{ __('trivia.correct_answer_label') }}</span>
                                                 <span class="text-emerald-700 dark:text-emerald-300 font-medium ml-1">{{ $answer['correct_answer'] }}</span>
                                             </div>
                                         @endif
                                         <div class="pt-2 border-t border-gray-200 dark:border-gray-700">
-                                            <span class="text-gray-500 dark:text-gray-400">Explanation:</span>
+                                            <span class="text-gray-500 dark:text-gray-400">{{ __('trivia.explanation') }}</span>
                                             <p class="text-gray-700 dark:text-gray-300 mt-1 leading-relaxed">{{ $answer['explanation'] }}</p>
                                         </div>
                                     </div>
@@ -311,7 +313,7 @@
                         <button type="button" wire:click="resetQuiz"
                             class="inline-flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-lg shadow-indigo-600/25 hover:shadow-indigo-600/40 transition-all duration-200">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                            Try Again
+                            {{ __('trivia.try_again') }}
                         </button>
                     </div>
                 @endif

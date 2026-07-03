@@ -12,13 +12,23 @@ class TriviaQuestionSeeder extends Seeder
 {
     public function run(): void
     {
-        $files = glob(database_path('data/trivia/*.yaml'));
+        $this->seedFromDirectory(database_path('data/trivia'), 'en');
+
+        $csDir = database_path('data/trivia/cs');
+        if (is_dir($csDir)) {
+            $this->seedFromDirectory($csDir, 'cs');
+        }
+    }
+
+    private function seedFromDirectory(string $directory, string $locale): void
+    {
+        $files = glob($directory.'/*.yaml');
 
         if ($files === false || $files === []) {
             return;
         }
 
-        TriviaQuestion::truncate();
+        TriviaQuestion::where('locale', $locale)->delete();
 
         $records = [];
 
@@ -41,6 +51,7 @@ class TriviaQuestionSeeder extends Seeder
                         : $question['answer'],
                     'alternatives' => isset($question['alternatives']) ? json_encode($question['alternatives']) : null,
                     'explanation' => $question['explanation'],
+                    'locale' => $locale,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];

@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Model;
     'answer',
     'alternatives',
     'explanation',
+    'locale',
 ])]
 class TriviaQuestion extends Model
 {

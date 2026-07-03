@@ -13,6 +13,7 @@ use App\Models\Course;
 use App\Models\Step;
 use App\Models\StepCompletion;
 use App\Models\User;
+use Illuminate\Support\Facades\App;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -433,5 +434,18 @@ class SmokeTest extends TestCase
             ->assertSee('Laravel Trivia')
             ->assertSee('Test Your Laravel Knowledge')
             ->assertSee(route('quiz'));
+    }
+
+    public function test_czech_locale_shows_placeholder_content(): void
+    {
+        App::setLocale('cs');
+        $user = User::factory()->create(['role' => 'student', 'locale' => 'cs']);
+        $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+        App::setLocale('en');
+
+        $response = $this->actingAs($user)->get('/dashboard');
+        $response->assertOk();
+        $response->assertSee('CS:'); // Czech factory placeholder prefix
     }
 }

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'Laravel With Jiri') }}</title>
+    <title>{{ $title ?? config('app.name', __('navigation.logo_text')) }}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
@@ -21,7 +21,7 @@
             <div class="flex items-center justify-between mb-6">
                 <a href="/" class="inline-flex items-center gap-2 text-xl font-bold text-gray-900 dark:text-white tracking-tight">
                     <x-application-logo class="w-7 h-7 text-indigo-600 dark:text-indigo-300" />
-                    <span>Laravel With <span class="text-indigo-600 dark:text-indigo-300">Jiri</span></span>
+                    <span>{{ __('navigation.logo_text') }}</span>
                 </a>
                 <button @click="document.documentElement.classList.toggle('dark'); localStorage.setItem('dark-mode', document.documentElement.classList.contains('dark'))"
                     class="p-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800" x-data>
@@ -38,7 +38,7 @@
             </div>
         </div>
         <p class="mt-6 text-xs text-gray-400 dark:text-gray-500">
-            &copy; {{ date('Y') }} Laravel With Jiri
+            &copy; {{ date('Y') }} {{ __('navigation.logo_text') }}
         </p>
     </div>
 </body>

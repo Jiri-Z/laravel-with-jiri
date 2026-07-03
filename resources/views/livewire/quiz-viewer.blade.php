@@ -34,7 +34,7 @@
 
     @if (!$submitted)
         <button wire:click="submit" class="inline-flex items-center px-5 py-2.5 bg-indigo-600 border border-transparent rounded-full font-semibold text-sm text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-            Submit All Answers
+            {{ __('steps.quiz_submit') }}
         </button>
     @else
         <div class="flex items-center gap-2 {{ $isCorrect ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">
@@ -42,12 +42,12 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
-                <span class="font-medium">All Correct!</span>
+                <span class="font-medium">{{ __('steps.quiz_all_correct') }}</span>
             @else
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
-                <span class="font-medium">Some answers incorrect</span>
+                <span class="font-medium">{{ __('steps.quiz_some_incorrect') }}</span>
             @endif
         </div>
     @endif

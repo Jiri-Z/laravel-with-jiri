@@ -10,11 +10,9 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
-use Livewire\Attributes\Title;
 use Livewire\Component;
 
 #[Layout('layouts.app')]
-#[Title('Laravel Trivia')]
 class TriviaQuiz extends Component
 {
     public string $screen = 'welcome';
@@ -45,6 +43,7 @@ class TriviaQuiz extends Component
     {
         return TriviaQuestion::query()
             ->select('topic')
+            ->where('locale', app()->getLocale())
             ->distinct()
             ->orderBy('topic')
             ->pluck('topic');
@@ -57,6 +56,7 @@ class TriviaQuiz extends Component
         return TriviaQuestion::query()
             ->select('topic')
             ->selectRaw('count(*) as count')
+            ->where('locale', app()->getLocale())
             ->groupBy('topic')
             ->orderBy('topic')
             ->get();
@@ -68,7 +68,9 @@ class TriviaQuiz extends Component
             return;
         }
 
-        $pool = TriviaQuestion::whereIn('topic', $this->selectedTopics)->get();
+        $pool = TriviaQuestion::where('locale', app()->getLocale())
+            ->whereIn('topic', $this->selectedTopics)
+            ->get();
 
         if ($pool->isEmpty()) {
             return;

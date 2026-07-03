@@ -1,14 +1,14 @@
 <div>
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <a href="{{ route('courses.index') }}" wire:navigate class="text-sm text-gray-600 dark:text-gray-400 hover:underline mb-4 inline-block">&larr; Back to courses</a>
+            <a href="{{ route('courses.index') }}" wire:navigate class="text-sm text-gray-600 dark:text-gray-400 hover:underline mb-4 inline-block">{{ __('courses.back') }}</a>
 
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">{{ $course->title }}</h1>
             <p class="text-gray-600 dark:text-gray-400 mb-4">{{ $course->description }}</p>
 
             <div class="mb-8">
                 <div class="flex items-center justify-between mb-1">
-                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Course progress</span>
+                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('courses.course_progress') }}</span>
                     <span class="text-sm font-medium text-indigo-600 dark:text-indigo-300">{{ $courseProgress }}%</span>
                 </div>
                 <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
@@ -16,7 +16,7 @@
                 </div>
             </div>
 
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Lessons</h2>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">{{ __('courses.lessons') }}</h2>
 
             <div class="space-y-4">
                 @forelse ($course->lessons as $lesson)
@@ -32,14 +32,14 @@
                             </div>
                             <div class="flex items-center gap-3 flex-shrink-0">
                                 @if ($lessonCompletion[$lesson->id])
-                                    <span class="text-sm text-green-600 dark:text-green-400 font-medium">Lesson complete</span>
+                                    <span class="text-sm text-green-600 dark:text-green-400 font-medium">{{ __('courses.lesson_complete') }}</span>
                                 @endif
-                                <span class="text-sm text-gray-500 dark:text-gray-400">Lesson {{ $lesson->order }}</span>
+                                <span class="text-sm text-gray-500 dark:text-gray-400">{{ __('courses.lesson_number', ['order' => $lesson->order]) }}</span>
                             </div>
                         </div>
                     </a>
                 @empty
-                    <p class="text-gray-500 dark:text-gray-400">No lessons available yet.</p>
+                    <p class="text-gray-500 dark:text-gray-400">{{ __('courses.no_lessons') }}</p>
                 @endforelse
             </div>
         </div>
