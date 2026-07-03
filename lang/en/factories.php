@@ -15,14 +15,17 @@ return [
     // StepFactory quizSingle
     'quiz_single_question' => 'What is 2+2?',
     'quiz_single_options' => ['3', '4', '5', '6'],
+    'quiz_single_explanation' => '2+2 equals 4, making option 2 (4) the correct choice.',
 
     // StepFactory quizMultiple
     'quiz_multiple_question' => 'Which are programming languages?',
     'quiz_multiple_options' => ['Python', 'HTML', 'CSS', 'JavaScript'],
+    'quiz_multiple_explanation' => 'Python and JavaScript are programming languages; HTML and CSS are markup/styling languages.',
 
     // StepFactory quizText
     'quiz_text_question' => 'What is the capital of France?',
     'quiz_text_answer' => 'Paris',
+    'quiz_text_explanation' => 'Paris has been the capital of France since the 10th century.',
 
     // StepFactory coding
     'coding_prompt' => 'Write a PHP function that returns the sum of two numbers.',

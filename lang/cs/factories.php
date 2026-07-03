@@ -11,12 +11,15 @@ return [
 
     'quiz_single_question' => 'CS: What is 2+2?',
     'quiz_single_options' => ['3', '4', '5', '6'],
+    'quiz_single_explanation' => 'CS: 2+2 equals 4, making option 2 (4) the correct choice.',
 
     'quiz_multiple_question' => 'CS: Which are programming languages?',
     'quiz_multiple_options' => ['Python', 'HTML', 'CSS', 'JavaScript'],
+    'quiz_multiple_explanation' => 'CS: Python and JavaScript are programming languages; HTML and CSS are markup/styling languages.',
 
     'quiz_text_question' => 'CS: What is the capital of France?',
     'quiz_text_answer' => 'CS: Paris',
+    'quiz_text_explanation' => 'CS: Paris has been the capital of France since the 10th century.',
 
     'coding_prompt' => 'CS: Write a PHP function that returns the sum of two numbers.',
     'coding_initial_code' => "<?php\n\nfunction add(\$a, \$b) {\n    // Your code here\n}\n",

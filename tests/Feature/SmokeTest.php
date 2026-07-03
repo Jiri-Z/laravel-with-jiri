@@ -119,7 +119,7 @@ class SmokeTest extends TestCase
             'title' => 'Quiz Step',
             'type' => StepType::Quiz,
             'content' => json_encode([
-                ['type' => 'single', 'question' => 'What is 2+2?', 'options' => ['3', '4', '5'], 'correct_answer' => 1],
+                ['type' => 'single', 'question' => 'What is 2+2?', 'options' => ['3', '4', '5'], 'answer' => 1, 'explanation' => '', 'difficulty' => 'easy', 'topic' => 'math'],
             ]),
             'order' => 1,
         ]);
@@ -256,7 +256,7 @@ class SmokeTest extends TestCase
             'title' => 'Quiz Submit Step',
             'type' => StepType::Quiz,
             'content' => json_encode([
-                ['type' => 'single', 'question' => 'Pick the right one', 'options' => ['Wrong', 'Right'], 'correct_answer' => 1],
+                ['type' => 'single', 'question' => 'Pick the right one', 'options' => ['Wrong', 'Right'], 'answer' => 1, 'explanation' => '', 'difficulty' => 'easy', 'topic' => 'general'],
             ]),
             'order' => 1,
         ]);
@@ -334,8 +334,8 @@ class SmokeTest extends TestCase
             'title' => 'Multi Quiz Step',
             'type' => StepType::Quiz,
             'content' => json_encode([
-                ['type' => 'single', 'question' => 'Q1', 'options' => ['A', 'B'], 'correct_answer' => 0],
-                ['type' => 'text', 'question' => 'Q2', 'correct_answer' => 'ok'],
+                ['type' => 'single', 'question' => 'Q1', 'options' => ['A', 'B'], 'answer' => 0, 'explanation' => '', 'difficulty' => 'easy', 'topic' => 'general'],
+                ['type' => 'text', 'question' => 'Q2', 'answer' => 'ok', 'alternatives' => null, 'explanation' => '', 'difficulty' => 'easy', 'topic' => 'general'],
             ]),
             'order' => 1,
         ]);
@@ -363,7 +363,7 @@ class SmokeTest extends TestCase
             'title' => 'Multi Submit Step',
             'type' => StepType::Quiz,
             'content' => json_encode([
-                ['type' => 'single', 'question' => 'Q1', 'options' => ['A', 'B'], 'correct_answer' => 0],
+                ['type' => 'single', 'question' => 'Q1', 'options' => ['A', 'B'], 'answer' => 0, 'explanation' => '', 'difficulty' => 'easy', 'topic' => 'general'],
             ]),
             'order' => 1,
         ]);

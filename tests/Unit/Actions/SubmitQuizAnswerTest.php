@@ -244,4 +244,100 @@ class SubmitQuizAnswerTest extends TestCase
 
         $this->assertNotContains('is_correct', $fillable);
     }
+
+    public function test_handles_new_format_single_answer(): void
+    {
+        $user = User::factory()->create();
+        $step = Step::factory()->create([
+            'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+            'type' => StepType::Quiz,
+            'content' => json_encode([
+                [
+                    'type' => 'single',
+                    'question' => 'What is 2+2?',
+                    'options' => ['3', '4', '5', '6'],
+                    'answer' => 1,
+                    'explanation' => '2+2 equals 4',
+                    'difficulty' => 'easy',
+                    'topic' => 'math',
+                ],
+            ]),
+        ]);
+
+        $result = (new SubmitQuizAnswer)->handle($user, $step, 1);
+
+        expect($result->isCorrect)->toBeTrue();
+    }
+
+    public function test_handles_new_format_multiple_answer(): void
+    {
+        $user = User::factory()->create();
+        $step = Step::factory()->create([
+            'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+            'type' => StepType::Quiz,
+            'content' => json_encode([
+                [
+                    'type' => 'multiple',
+                    'question' => 'Which are even numbers?',
+                    'options' => ['1', '2', '3', '4'],
+                    'answer' => [1, 3],
+                    'explanation' => '2 and 4 are even',
+                    'difficulty' => 'easy',
+                    'topic' => 'math',
+                ],
+            ]),
+        ]);
+
+        $result = (new SubmitQuizAnswer)->handle($user, $step, [1, 3]);
+
+        expect($result->isCorrect)->toBeTrue();
+    }
+
+    public function test_handles_new_format_text_answer(): void
+    {
+        $user = User::factory()->create();
+        $step = Step::factory()->create([
+            'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+            'type' => StepType::Quiz,
+            'content' => json_encode([
+                [
+                    'type' => 'text',
+                    'question' => 'What is the capital of France?',
+                    'answer' => 'Paris',
+                    'alternatives' => ['paris'],
+                    'explanation' => 'Paris is the capital',
+                    'difficulty' => 'easy',
+                    'topic' => 'geography',
+                ],
+            ]),
+        ]);
+
+        $result = (new SubmitQuizAnswer)->handle($user, $step, 'Paris');
+
+        expect($result->isCorrect)->toBeTrue();
+    }
+
+    public function test_handles_new_format_text_alternative_answer(): void
+    {
+        $user = User::factory()->create();
+        $step = Step::factory()->create([
+            'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+            'type' => StepType::Quiz,
+            'content' => json_encode([
+                [
+                    'type' => 'text',
+                    'question' => 'Who wrote Romeo and Juliet?',
+                    'answer' => 'William Shakespeare',
+                    'alternatives' => ['Shakespeare', 'W. Shakespeare'],
+                    'explanation' => 'Shakespeare wrote many famous plays',
+                    'difficulty' => 'medium',
+                    'topic' => 'literature',
+                ],
+            ]),
+        ]);
+
+        $result = (new SubmitQuizAnswer)->handle($user, $step, 'Shakespeare');
+
+        expect($result->isCorrect)->toBeTrue();
+    }
 }

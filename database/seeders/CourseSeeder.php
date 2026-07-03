@@ -76,7 +76,7 @@ class CourseSeeder extends Seeder
                 'title' => __('factories.seeder_step2_title'),
                 'type' => StepType::Quiz,
                 'content' => json_encode([
-                    ['type' => 'single', 'question' => __('factories.seeder_quiz1_question'), 'options' => __('factories.seeder_quiz1_options'), 'correct_answer' => 1],
+                    ['type' => 'single', 'question' => __('factories.seeder_quiz1_question'), 'options' => __('factories.seeder_quiz1_options'), 'answer' => 1, 'explanation' => 'MVC is the correct answer.', 'difficulty' => 'easy', 'topic' => 'laravel'],
                 ]),
             ]
         );
@@ -87,7 +87,7 @@ class CourseSeeder extends Seeder
                 'title' => __('factories.seeder_step4_title'),
                 'type' => StepType::Quiz,
                 'content' => json_encode([
-                    ['type' => 'text', 'question' => __('factories.seeder_quiz4_question'), 'correct_answer' => __('factories.seeder_quiz4_answer')],
+                    ['type' => 'text', 'question' => __('factories.seeder_quiz4_question'), 'answer' => __('factories.seeder_quiz4_answer'), 'alternatives' => null, 'explanation' => 'Web routes are defined in routes/web.php.', 'difficulty' => 'easy', 'topic' => 'laravel'],
                 ]),
             ]
         );
@@ -98,8 +98,8 @@ class CourseSeeder extends Seeder
                 'title' => __('factories.seeder_step3_title'),
                 'type' => StepType::Quiz,
                 'content' => json_encode([
-                    ['type' => 'single', 'question' => __('factories.seeder_quiz2_question'), 'options' => __('factories.seeder_quiz2_options'), 'correct_answer' => 1],
-                    ['type' => 'text', 'question' => __('factories.seeder_quiz3_question'), 'correct_answer' => __('factories.seeder_quiz3_answer')],
+                    ['type' => 'single', 'question' => __('factories.seeder_quiz2_question'), 'options' => __('factories.seeder_quiz2_options'), 'answer' => 1, 'explanation' => 'Web routes are defined in routes/web.php.', 'difficulty' => 'easy', 'topic' => 'laravel'],
+                    ['type' => 'text', 'question' => __('factories.seeder_quiz3_question'), 'answer' => __('factories.seeder_quiz3_answer'), 'alternatives' => ['blade', 'Blade templating engine'], 'explanation' => 'Blade is Laravels templating engine.', 'difficulty' => 'easy', 'topic' => 'laravel'],
                 ]),
             ]
         );
@@ -129,7 +129,7 @@ class CourseSeeder extends Seeder
                 'title' => __('factories.seeder_step6_title'),
                 'type' => StepType::Quiz,
                 'content' => json_encode([
-                    ['type' => 'multiple', 'question' => __('factories.seeder_quiz5_question'), 'options' => __('factories.seeder_quiz5_options'), 'correct_answers' => [0, 1, 2, 3]],
+                    ['type' => 'multiple', 'question' => __('factories.seeder_quiz5_question'), 'options' => __('factories.seeder_quiz5_options'), 'answer' => [0, 1, 2, 3], 'explanation' => 'GET, POST, PUT, and DELETE are standard HTTP methods.', 'difficulty' => 'easy', 'topic' => 'laravel'],
                 ]),
             ]
         );

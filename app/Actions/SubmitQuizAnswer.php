@@ -64,14 +64,41 @@ class SubmitQuizAnswer
     private function checkAnswer(string $questionType, array $content, int|string|array|null $answer): bool
     {
         return match ($questionType) {
-            'single' => is_numeric($answer) && (int) $answer === (int) ($content['correct_answer'] ?? -1),
+            'single' => is_numeric($answer) && (int) $answer === (int) ($this->correctAnswer($content) ?? -1),
             'multiple' => is_array($answer)
-                && ! array_diff(array_unique($answer), $content['correct_answers'] ?? [])
-                && ! array_diff($content['correct_answers'] ?? [], array_unique($answer)),
+                && ! array_diff(array_unique($answer), $this->correctAnswer($content) ?? [])
+                && ! array_diff($this->correctAnswer($content) ?? [], array_unique($answer)),
             'text' => is_string($answer)
-                && strcasecmp(trim($answer), trim($content['correct_answer'] ?? '')) === 0,
+                && $this->checkTextAnswer($answer, $content),
             default => false,
         };
+    }
+
+    private function correctAnswer(array $content): array|int|string|null
+    {
+        return $content['answer']
+            ?? $content['correct_answer']
+            ?? $content['correct_answers']
+            ?? null;
+    }
+
+    private function checkTextAnswer(string $answer, array $content): bool
+    {
+        $normalized = trim($answer);
+
+        $correct = $this->correctAnswer($content);
+
+        if (is_string($correct) && strcasecmp($normalized, trim($correct)) === 0) {
+            return true;
+        }
+
+        foreach ($content['alternatives'] ?? [] as $alternative) {
+            if (is_string($alternative) && strcasecmp($normalized, trim($alternative)) === 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function serializeAnswer(string $questionType, int|string|array|null $answer): string

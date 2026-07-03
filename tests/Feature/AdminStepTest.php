@@ -195,7 +195,7 @@ class AdminStepTest extends TestCase
             } else {
                 $content = match ($type) {
                     StepType::Reading => 'Reading text',
-                    StepType::Quiz => '[{"type":"single","question":"Q?","options":["A","B"],"correct_answer":0}]',
+                    StepType::Quiz => '[{"type":"single","question":"Q?","options":["A","B"],"answer":0,"explanation":"","difficulty":"easy","topic":"general"}]',
                 };
                 $test->set('content', $content);
             }
