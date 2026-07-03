@@ -216,5 +216,5 @@ test('dashboard shows trivia card', function () {
         ->get('/dashboard')
         ->assertOk()
         ->assertSee('Laravel Trivia')
-        ->assertSee('Test Your Laravel Knowledge');
+        ->assertSee('Test Your Knowledge');
 });

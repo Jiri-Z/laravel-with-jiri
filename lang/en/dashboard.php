@@ -12,6 +12,7 @@ return [
     'trivia_card_title' => 'Laravel Trivia',
     'trivia_card_subtitle' => 'Test Your Laravel Knowledge',
     'trivia_card_description' => '406 questions across 18 topics — challenge yourself!',
+    'trivia_cta' => 'Test Your Knowledge',
     'step_count' => '{0} 0 steps|[1] 1 step|[2,*] :count steps',
     'course_count' => '{0} 0 courses|[1] 1 course|[2,*] :count courses',
     'lesson_count' => '{0} 0 lessons|[1] 1 lesson|[2,*] :count lessons',

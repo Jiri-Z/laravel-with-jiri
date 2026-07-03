@@ -408,7 +408,9 @@ class SmokeTest extends TestCase
             ->assertOk()
             ->assertSee('Welcome')
             ->assertSee('Dash Course')
-            ->assertSee('Dashboard');
+            ->assertSee('Dashboard')
+            ->assertSee('Laravel Trivia')
+            ->assertSee('from-amber-50');
     }
 
     public function test_trivia_quiz_page_loads(): void
@@ -432,7 +434,7 @@ class SmokeTest extends TestCase
         $this->actingAs($user)->get('/dashboard')
             ->assertOk()
             ->assertSee('Laravel Trivia')
-            ->assertSee('Test Your Laravel Knowledge')
+            ->assertSee('Test Your Knowledge')
             ->assertSee(route('quiz'));
     }
 
