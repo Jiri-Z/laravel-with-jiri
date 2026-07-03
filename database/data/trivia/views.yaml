@@ -1,0 +1,384 @@
+- id: vw-001
+  topic: views
+  type: single
+  difficulty: easy
+  question: What does the view('welcome', ['name' => 'Taylor']) helper function return in Laravel?
+  options:
+  - A string containing the rendered HTML
+  - A Blade template compiler instance
+  - An Illuminate\View\View instance
+  - A Response object ready to send
+  answer: An Illuminate\View\View instance
+  explanation: The view() helper returns a View instance, not a rendered string or Response. The View instance implements __toString(), so when Laravel's response system encounters it, it automatically
+    renders the view and wraps it in a Response. You can also chain methods like ->with() on the View instance before it's rendered.
+- id: vw-002
+  topic: views
+  type: multiple
+  difficulty: easy
+  question: Which of the following are valid ways to pass data to a Laravel view? (Select all that apply)
+  options:
+  - view('welcome')->withName('Taylor')
+  - view('welcome', compact('name'))
+  - view('welcome')->with('name', 'Taylor')
+  - view('welcome', ['name' => 'Taylor'])
+  answers:
+  - view('welcome', ['name' => 'Taylor'])
+  - view('welcome')->with('name', 'Taylor')
+  - view('welcome')->withName('Taylor')
+  - view('welcome', compact('name'))
+  explanation: 'Laravel offers multiple ways to pass data: an associative array as the second argument, chained with() calls, magic __call methods (withName), and PHP''s compact() function. The dynamic
+    method approach (withName) converts the method name by removing ''with'' and lowercasing the first letter to derive the variable name.'
+- id: vw-003
+  topic: views
+  type: text
+  difficulty: easy
+  question: What method checks whether a view file exists before attempting to render it?
+  answer: exists
+  alternatives:
+  - exists()
+  - view()->exists()
+  - View::exists()
+  explanation: 'The exists() method returns a boolean indicating whether the view template file can be found in any of the registered view paths. This is useful for conditionally rendering a view or falling
+    back to an alternative: if (view()->exists(''custom.dashboard'')) { return view(''custom.dashboard''); }. There''s also View::first() which tries multiple views in order.'
+- id: vw-004
+  topic: views
+  type: single
+  difficulty: easy
+  question: Where are Blade view files typically stored in a Laravel application?
+  options:
+  - storage/views/
+  - app/Http/Views/
+  - resources/views/
+  - public/templates/
+  answer: resources/views/
+  explanation: By default, Laravel stores all Blade templates in the resources/views/ directory. This convention separates presentation logic from application code. Subdirectories within this folder map
+    to dot notation in view names — for example, resources/views/dashboard/profile.blade.php is referenced as 'dashboard.profile'.
+- id: vw-005
+  topic: views
+  type: single
+  difficulty: easy
+  question: What does the View::share('key', 'value') method do?
+  options:
+  - Shares data with all views rendered within the current HTTP request lifecycle only, not across requests
+  - Creates a symbolic filesystem link between two separate view directories to share template files between them
+  - Shares a specific view template file with other Laravel applications running on the same server instance
+  - Shares data with all views rendered throughout the entire application lifecycle
+  answer: Shares data with all views rendered throughout the entire application lifecycle
+  explanation: View::share() registers data that is automatically available in every view rendered by the application. It's typically called in a service provider's boot() method. This is useful for global
+    data like navigation menus, site settings, or the current authenticated user. The shared data persists for all subsequent requests, not just the current one.
+- id: vw-006
+  topic: views
+  type: text
+  difficulty: easy
+  question: What method attempts to render the first view that exists from a list of candidate views?
+  answer: first
+  alternatives:
+  - first()
+  - View::first()
+  - view()->first()
+  explanation: View::first(['custom.dashboard', 'dashboard']) tries each view name in order and returns the first one that exists. This is ideal for allowing package or theme overrides — you check for a
+    custom view first, then fall back to a default. It returns a View instance just like view() does.
+- id: vw-007
+  topic: views
+  type: single
+  difficulty: easy
+  question: What is the purpose of the .blade.php extension on view files?
+  options:
+  - It enables detailed PHP error reporting and stack traces specifically for that individual template file
+  - It tells Laravel to compile the file using the Blade template engine
+  - It marks the file as a publicly accessible view that can be accessed directly via a URL route
+  - It configures custom caching rules and TTL settings specifically for that individual view template file
+  answer: It tells Laravel to compile the file using the Blade template engine
+  explanation: The .blade.php extension identifies a file as a Blade template. Laravel's view engine detects this extension and compiles Blade directives (@if, @foreach, etc.) into plain PHP before storing
+    the compiled view in storage/framework/views/. Files with only .php extension are rendered as plain PHP without Blade compilation.
+- id: vw-008
+  topic: views
+  type: multiple
+  difficulty: easy
+  question: Which of the following are true about compiled Blade views? (Select all that apply)
+  options:
+  - Compiled views are cached permanently until manually cleared
+  - Laravel automatically recompiles views when the source Blade file changes
+  - In production with config:cache, view changes won't be detected until cache is cleared
+  - Compiled views are stored in storage/framework/views/
+  answers:
+  - Compiled views are stored in storage/framework/views/
+  - Laravel automatically recompiles views when the source Blade file changes
+  - In production with config:cache, view changes won't be detected until cache is cleared
+  explanation: Blade compiles templates to PHP and caches them in storage/framework/views/. Laravel compares source file modification timestamps to detect changes and recompile as needed. However, when
+    you run php artisan config:cache (common in production), view caching is locked — changes won't be detected until you clear the config cache. This is why view:clear is a common deployment step.
+- id: vw-009
+  topic: views
+  type: single
+  difficulty: easy
+  question: How do you render a view from within another view in Laravel?
+  options:
+  - '@render(''partials.header'')'
+  - '{{ view(''partials.header'') }}'
+  - '@require(''partials.header'')'
+  - '@include(''partials.header'')'
+  answer: '@include(''partials.header'')'
+  explanation: 'The @include Blade directive renders a sub-view within the current view. It accepts the view name and an optional array of data: @include(''partials.header'', [''title'' => ''Home'']). The
+    included view has access to all variables from the parent view, plus any additional data you pass explicitly.'
+- id: vw-010
+  topic: views
+  type: text
+  difficulty: easy
+  question: What artisan command clears all compiled view files from the cache?
+  answer: view:clear
+  alternatives:
+  - php artisan view:clear
+  - artisan view:clear
+  explanation: The php artisan view:clear command deletes all compiled view files from storage/framework/views/. This is useful during development when something seems stuck after a view change, or during
+    deployment to ensure fresh compilation. The complementary view:cache command pre-compiles all views for production performance.
+- id: vw-011
+  topic: views
+  type: single
+  difficulty: medium
+  question: What is the key difference between a View Composer and a View Creator in Laravel?
+  options:
+  - Composers run after the view is created, creators run when the view is first instantiated
+  - Creators run every time the view is rendered, composers only run once per request
+  - There is no difference; they are aliases
+  - Composers can modify data, creators can only read it
+  answer: There is no difference; they are aliases
+  explanation: 'Despite the different names, View::composer() and View::creator() function identically in modern Laravel — both register callbacks that are executed when a view is being composed. Historically
+    there were subtle differences, but in current Laravel versions they serve the same purpose: binding data or logic to views when they are created.'
+- id: vw-012
+  topic: views
+  type: single
+  difficulty: medium
+  question: What is the advantage of using view composers over passing data directly in every controller?
+  options:
+  - View composers allow views to directly modify and override the data that was originally passed by the controller method
+  - View composers are noticeably faster in execution because they completely bypass the service container resolution process
+  - View composers automatically cache all prepared view data in memory for subsequent requests within the same cycle
+  - View composers centralize data logic, ensuring the data is available regardless of which controller renders the view
+  answer: View composers centralize data logic, ensuring the data is available regardless of which controller renders the view
+  explanation: View composers decouple data preparation from controllers. If a sidebar or navigation menu appears on multiple pages, a view composer ensures its data is always available without repeating
+    the same query in every controller. This follows the DRY principle and keeps controllers focused on their specific page logic.
+- id: vw-013
+  topic: views
+  type: multiple
+  difficulty: medium
+  question: Which of the following are valid ways to register a view composer? (Select all that apply)
+  options:
+  - View::composer(['dashboard', 'profile'], DashboardComposer::class);
+  - View::composer('dashboard', function($view) { $view->with('count', 5); });
+  - $view->addComposer('dashboard', DashboardComposer::class);
+  - view()->composer('dashboard', DashboardComposer::class);
+  answers:
+  - View::composer('dashboard', function($view) { $view->with('count', 5); });
+  - View::composer(['dashboard', 'profile'], DashboardComposer::class);
+  - view()->composer('dashboard', DashboardComposer::class);
+  explanation: View composers can be registered using the View facade, the view() helper, or in a service provider. They accept a single view name, an array of view names, or a wildcard pattern (*). The
+    callback receives a View instance, and the class-based composer has its compose() method called with the View instance. There is no addComposer() method.
+- id: vw-014
+  topic: views
+  type: text
+  difficulty: medium
+  question: What wildcard character can be used in a view composer registration to attach data to all views?
+  answer: '*'
+  alternatives:
+  - asterisk
+  - star
+  explanation: Using View::composer('*', Callback) registers a composer that runs for every view in the application. This is similar to View::share() but with the overhead of a callback execution per view
+    render. It's useful when you need to perform logic (like checking authentication) rather than sharing static data.
+- id: vw-015
+  topic: views
+  type: single
+  difficulty: medium
+  question: What happens when you use view()->name('dashboard', 'admin-dashboard')?
+  options:
+  - It creates a named view that can be referenced by 'admin-dashboard' instead of 'dashboard'
+  - It sets the HTML page title to the provided string value, which is then used in the layout template's title tag
+  - It renames the underlying view file on disk to match the new name, updating all references throughout the project
+  - It registers the view as a reusable Blade component that can be invoked using the <x-*> syntax in templates
+  answer: It creates a named view that can be referenced by 'admin-dashboard' instead of 'dashboard'
+  explanation: The name() method assigns an alias to a view path. After calling view()->name('dashboard', 'admin-dashboard'), you can render the view using view('admin-dashboard'). This is useful for creating
+    semantic names for views that might be overridden by packages or themes. Named views are resolved through the same view factory.
+- id: vw-016
+  topic: views
+  type: single
+  difficulty: medium
+  question: Why might you add a custom view namespace in Laravel?
+  options:
+  - To enable Blade's compiled view caching system specifically for views within a certain directory or package
+  - To create fully isolated view directories that have their own separate data scope and don't share variables
+  - To organize views from different sources (e.g., packages) under a common prefix
+  - To change the default resources/views directory to a completely different path on the filesystem
+  answer: To organize views from different sources (e.g., packages) under a common prefix
+  explanation: View namespaces allow you to register view directories under a prefix using View::addNamespace('package', '/path/to/views'). This lets you reference views as 'package::view.name', which prevents
+    naming collisions between your app views and package views. Laravel packages commonly use this pattern to provide their own views while allowing users to override them.
+- id: vw-017
+  topic: views
+  type: multiple
+  difficulty: medium
+  question: Which of the following correctly describe how @includeIf and @includeWhen work? (Select all that apply)
+  options:
+  - '@includeIf only renders the sub-view if the view file exists'
+  - '@includeIf checks if the view data is non-null before rendering'
+  - '@includeWhen also checks if the view file exists before rendering'
+  - '@includeWhen renders the sub-view only if a given condition is true'
+  answers:
+  - '@includeIf only renders the sub-view if the view file exists'
+  - '@includeWhen renders the sub-view only if a given condition is true'
+  - '@includeWhen also checks if the view file exists before rendering'
+  explanation: '@includeIf(''view.name'') silently skips rendering if the view file doesn''t exist, preventing errors. @includeIf($boolean, ''view.name'') renders conditionally based on the boolean. @includeWhen
+    also gracefully handles missing views. These are safer alternatives to @include when views might be optional (e.g., in themes or overrideable packages).'
+- id: vw-018
+  topic: views
+  type: text
+  difficulty: medium
+  question: What Blade directive includes a sub-view and allows you to pass additional variables while also providing a default value if the view doesn't exist?
+  answer: includeFirst
+  alternatives:
+  - '@includeFirst'
+  explanation: '@includeFirst([''custom.view'', ''default.view''], [''data'' => $value]) tries to include the first view that exists. This combines the fallback behavior of View::first() with the convenience
+    of @include. It''s particularly useful for theme overrides where you want to check for a custom template before falling back to a default.'
+- id: vw-019
+  topic: views
+  type: single
+  difficulty: medium
+  question: What is the purpose of the view()->render() method when called explicitly?
+  options:
+  - It renders the view and returns the HTML as a string without sending it as an HTTP response
+  - It converts the Blade template directives into plain PHP code and stores the result in the compiled views cache directory
+  - It sends the rendered view output directly to the browser without wrapping it in a proper HTTP response object
+  - It caches the compiled view permanently in storage so that subsequent renders skip the compilation step entirely
+  answer: It renders the view and returns the HTML as a string without sending it as an HTTP response
+  explanation: The render() method compiles and executes the Blade template, returning the resulting HTML as a string. This is useful when you need the view content as a string — for example, to include
+    it in an email body, generate a PDF, or return it as part of a JSON API response. Normally you don't call render() explicitly because Laravel handles it automatically.
+- id: vw-020
+  topic: views
+  type: single
+  difficulty: medium
+  question: How do you add a custom view path in Laravel without replacing the default resources/views path?
+  options:
+  - Both approaches work and add an additional search path
+  - view()->addLocation('/custom/path')
+  - Config::set('view.paths', array_merge(config('view.paths'), ['/custom/path']))
+  - Neither approach works; you can only have one view path
+  answer: Both approaches work and add an additional search path
+  explanation: Both methods add additional view paths. The view finder searches paths in order, so the first path has priority. This is useful for multi-tenant applications or when a package needs to provide
+    views that coexist with the default views. You can register these in a service provider's boot() method.
+- id: vw-021
+  topic: views
+  type: single
+  difficulty: hard
+  question: When using view composers registered in a service provider, why might you use the 'view' event instead of View::composer()?
+  options:
+  - View::composer() has been fully deprecated and removed in Laravel 13.x in favor of the event-based approach
+  - The 'view' event is the only supported way to pass dynamic data to Blade components in newer Laravel versions
+  - The 'view' event is more performant because it avoids the service container and resolves dependencies lazily
+  - The 'view' event fires for every view render, allowing you to inspect and modify the view object dynamically
+  answer: The 'view' event fires for every view render, allowing you to inspect and modify the view object dynamically
+  explanation: 'The ''composing: viewName'' event (or the wildcard ''composing:*'') fires when any view is being composed. Listening to these events provides more flexibility than composers — you can inspect
+    which view is being rendered and conditionally attach data, modify the view''s path, or log view rendering. This is lower-level and more powerful but less readable than explicit composers.'
+- id: vw-022
+  topic: views
+  type: multiple
+  difficulty: hard
+  question: Which of the following are true about how Laravel resolves view names to file paths? (Select all that apply)
+  options:
+  - View names are case-sensitive on Linux but case-insensitive on Windows
+  - Laravel caches the mapping between view names and file paths to avoid filesystem lookups
+  - Dot notation in view names maps to directory separators (e.g., 'pages.home' → pages/home)
+  - Laravel searches all registered view paths in order until it finds a match
+  answers:
+  - Dot notation in view names maps to directory separators (e.g., 'pages.home' → pages/home)
+  - Laravel searches all registered view paths in order until it finds a match
+  - View names are case-sensitive on Linux but case-insensitive on Windows
+  explanation: View name resolution converts dots to slashes and appends .blade.php or .php. The finder searches registered paths in order, returning the first match. Filesystem case sensitivity depends
+    on the OS, which can cause issues when developing on macOS/Windows (case-insensitive) and deploying to Linux (case-sensitive). Laravel does not cache the view name-to-path mapping — it checks the filesystem
+    each time.
+- id: vw-023
+  topic: views
+  type: text
+  difficulty: hard
+  question: What artisan command pre-compiles all Blade views to improve performance in production?
+  answer: view:cache
+  alternatives:
+  - php artisan view:cache
+  - artisan view:cache
+  explanation: The php artisan view:cache command compiles all Blade templates into plain PHP files upfront. This eliminates the on-demand compilation overhead for the first request of each view. In production,
+    this should be run as part of the deployment process. The compiled files are stored in storage/framework/views/.
+- id: vw-024
+  topic: views
+  type: single
+  difficulty: hard
+  question: What is the practical difference between using a class-based view composer versus a closure-based one?
+  options:
+  - Class-based composers are resolved through the service container, supporting dependency injection
+  - Class-based composers can only be registered inside service provider boot methods, not in route definition files
+  - Closure-based composers are inherently faster because they skip the service container's resolution process entirely
+  - There is no practical difference in behavior; both approaches use the exact same internal resolution mechanism
+  answer: Class-based composers are resolved through the service container, supporting dependency injection
+  explanation: When you register a class-based composer (View::composer('view', MyComposer::class)), Laravel resolves the class through the service container. This means the composer can inject dependencies
+    (repositories, services) in its constructor. Closure-based composers are simpler but don't support automatic dependency injection — you'd need to resolve dependencies manually within the closure.
+- id: vw-025
+  topic: views
+  type: multiple
+  difficulty: hard
+  question: When implementing a class-based view composer, which of the following are valid method signatures? (Select all that apply)
+  options:
+  - public function handle(View $view)
+  - public function __invoke(View $view)
+  - public function compose($view)
+  - 'public function compose(View $view): void'
+  answers:
+  - 'public function compose(View $view): void'
+  - public function compose($view)
+  explanation: Laravel calls the compose() method on class-based view composers, passing the View instance. The method can be typed or untyped. The __invoke() method is not called for composers (that's
+    for invokable controllers). The handle() method is not a recognized method for view composers. The compose method is the single entry point that Laravel looks for.
+- id: vw-026
+  topic: views
+  type: single
+  difficulty: hard
+  question: What happens when you call $view->getEngine() on a View instance?
+  options:
+  - It returns the full absolute filesystem path to the compiled PHP file stored in the framework cache directory
+  - It returns the template engine resolver (CompilerEngine for .blade.php files)
+  - It returns the underlying Blade compiler instance that is responsible for parsing and compiling template directives
+  - It throws a method not found exception because getEngine() is not a public method on the View instance
+  answer: It returns the template engine resolver (CompilerEngine for .blade.php files)
+  explanation: The getEngine() method returns the engine responsible for compiling the view. For .blade.php files, this is a CompilerEngine that wraps the Blade compiler. For plain .php files, it returns
+    a PhpEngine. This is part of Laravel's pluggable view engine architecture — you could theoretically register custom engines for other template languages.
+- id: vw-027
+  topic: views
+  type: text
+  difficulty: hard
+  question: What method on the View factory returns the fully resolved path of a compiled view file (the cached PHP file)?
+  answer: getCompiledPath
+  alternatives:
+  - getCompiledPath()
+  explanation: The getCompiledPath() method returns the absolute path where the compiled PHP version of a Blade view is stored (in storage/framework/views/). The filename is an MD5 hash of the view's path.
+    This method is used internally to check if the compiled file needs to be regenerated based on the source file's modification time.
+- id: vw-028
+  topic: views
+  type: single
+  difficulty: hard
+  question: In a multi-tenant Laravel application, what is the recommended approach to load tenant-specific views while maintaining fallbacks to default views?
+  options:
+  - Use View::addNamespace() to register a tenant namespace and check for views with @includeFirst
+  - Duplicate all of the default application views into each individual tenant's dedicated view directory on disk
+  - Modify the view path dynamically at runtime using config(['view.paths' => [...]]) in a middleware or service provider
+  - Use middleware to dynamically rename and copy view files at the start of each incoming HTTP request
+  answer: Use View::addNamespace() to register a tenant namespace and check for views with @includeFirst
+  explanation: 'The cleanest multi-tenant view approach uses namespaces: register each tenant''s views under a namespace (e.g., ''tenant::dashboard''), then use @includeFirst([''tenant::dashboard'', ''dashboard''])
+    to try the tenant-specific view first and fall back to the default. This avoids duplicating views, maintains clean separation, and allows new tenants to inherit all default views automatically.'
+- id: vw-029
+  topic: views
+  type: multiple
+  difficulty: hard
+  question: Which of the following are consequences of running php artisan view:cache in production? (Select all that apply)
+  options:
+  - All Blade views are pre-compiled to PHP, reducing first-request latency
+  - The application's route cache is also rebuilt automatically
+  - Changes to Blade template files will not be reflected until view:clear is run
+  - Missing view files that are referenced at runtime will throw a 500 error instead of being silently skipped
+  answers:
+  - All Blade views are pre-compiled to PHP, reducing first-request latency
+  - Changes to Blade template files will not be reflected until view:clear is run
+  explanation: view:cache pre-compiles all views for performance but locks the view cache, so template changes won't take effect until you clear the cache. This is expected and desirable in production.
+    It does NOT affect route cache, and missing views throw errors regardless of caching. This is why deployment scripts typically run view:clear followed by view:cache.

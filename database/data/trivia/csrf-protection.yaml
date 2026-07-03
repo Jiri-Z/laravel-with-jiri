@@ -1,0 +1,411 @@
+- id: cs-001
+  topic: csrf-protection
+  type: single
+  difficulty: easy
+  question: What type of attack does Laravel's CSRF protection defend against?
+  options:
+  - SQL injection attacks where malicious SQL statements are embedded in form fields to manipulate or extract database records
+  - Brute-force attacks that systematically attempt to guess user passwords through repeated automated login attempts on authentication forms
+  - Cross-Site Scripting (XSS) attacks, where malicious JavaScript code is injected into your application's pages to steal user data
+  - Cross-Site Request Forgery, where a malicious site tricks a user's browser into making unauthorized requests to your application
+  answer: Cross-Site Request Forgery, where a malicious site tricks a user's browser into making unauthorized requests to your application
+  explanation: CSRF (Cross-Site Request Forgery) exploits the fact that browsers automatically include cookies (including session cookies) with requests to a domain. An attacker can create a page that submits
+    a form to your application, and the browser will include the user's session cookie. Laravel's CSRF protection prevents this by requiring a secret token that an attacker's site cannot know.
+- id: cs-002
+  topic: csrf-protection
+  type: single
+  difficulty: easy
+  question: Which Blade directive generates a hidden HTML input field containing the CSRF token?
+  options:
+  - '@token'
+  - '@protect'
+  - '@secure'
+  - '@csrf'
+  answer: '@csrf'
+  explanation: 'The @csrf Blade directive outputs a hidden input field: <input type="hidden" name="_token" value="...">. This token is automatically validated by the VerifyCsrfToken middleware for all POST,
+    PUT, PATCH, and DELETE requests. It''s the simplest and most common way to include CSRF protection in your HTML forms.'
+- id: cs-003
+  topic: csrf-protection
+  type: multiple
+  difficulty: easy
+  question: Which HTTP methods are exempt from CSRF verification by Laravel's VerifyCsrfToken middleware by default?
+  options:
+  - POST
+  - GET
+  - OPTIONS
+  - HEAD
+  answers:
+  - GET
+  - HEAD
+  - OPTIONS
+  explanation: Laravel exempts GET, HEAD, and OPTIONS requests from CSRF verification. These methods are considered 'safe' by HTTP specification — they should not cause state changes on the server. Only
+    state-changing methods (POST, PUT, PATCH, DELETE) require CSRF token verification. This is why your application should use the proper HTTP method for each action.
+- id: cs-004
+  topic: csrf-protection
+  type: text
+  difficulty: easy
+  question: What is the name of the default input field that Laravel looks for when verifying a CSRF token from a form submission?
+  answer: _token
+  alternatives:
+  - the _token field
+  - _token input
+  explanation: Laravel's VerifyCsrfToken middleware looks for a request input field named '_token' (or an X-XSRF-TOKEN header). When you use the @csrf Blade directive, it creates a hidden input with name='_token'
+    containing the current CSRF token value. The middleware then compares this value against the token stored in the user's session.
+- id: cs-005
+  topic: csrf-protection
+  type: single
+  difficulty: easy
+  question: Where does Laravel store the CSRF token that it uses for comparison during verification?
+  options:
+  - In the application cache (Redis, file cache, etc.)
+  - In an encrypted cookie on the client
+  - In a database table called csrf_tokens
+  - In the user's session data
+  answer: In the user's session data
+  explanation: Laravel stores the CSRF token in the user's session. When a session starts, Laravel generates a CSRF token and saves it in the session data. The token sent with the form (via @csrf) must
+    match the one stored in the session. If the session is regenerated (e.g., after login), a new CSRF token is generated and old tokens become invalid.
+- id: cs-006
+  topic: csrf-protection
+  type: multiple
+  difficulty: easy
+  question: Which of the following are valid ways to include a CSRF token in an AJAX/fetch request in Laravel?
+  options:
+  - Including an X-XSRF-TOKEN header read from the XSRF-TOKEN cookie
+  - Including an X-CSRF-TOKEN header with the value of the meta tag named csrf-token
+  - Adding the token as a query parameter named _token
+  - Setting document.cookie with the CSRF token before the request
+  answers:
+  - Including an X-XSRF-TOKEN header read from the XSRF-TOKEN cookie
+  - Including an X-CSRF-TOKEN header with the value of the meta tag named csrf-token
+  - Adding the token as a query parameter named _token
+  explanation: 'Laravel supports multiple approaches for AJAX: (1) Read the XSRF-TOKEN cookie (automatically set by Laravel) and send it as the X-XSRF-TOKEN header — Laravel''s VerifyCsrfToken checks this
+    header automatically. (2) Read a csrf-token meta tag and send it as X-CSRF-TOKEN. (3) Include _token as a query parameter. All three approaches are validated by the middleware.'
+- id: cs-007
+  topic: csrf-protection
+  type: single
+  difficulty: easy
+  question: What does the csrf_token() helper function return?
+  options:
+  - The current CSRF token string that should be included in forms and AJAX requests
+  - A boolean value indicating whether CSRF protection is currently enabled in the application
+  - A JavaScript function reference that can be called to refresh the current CSRF token string
+  - An encrypted string that contains both the CSRF token and the user's session identifier
+  answer: The current CSRF token string that should be included in forms and AJAX requests
+  explanation: 'The csrf_token() helper returns the plain-text CSRF token string. You can use it programmatically (e.g., in API responses or JavaScript) when the @csrf Blade directive isn''t suitable. For
+    example, you might pass it to your frontend via a meta tag: <meta name=''csrf-token'' content=''{{ csrf_token() }}''>.'
+- id: cs-008
+  topic: csrf-protection
+  type: text
+  difficulty: easy
+  question: What HTTP response status code does Laravel return when a CSRF token validation fails?
+  answer: '419'
+  alternatives:
+  - 419 Page Expired
+  - 419 (Page Expired)
+  explanation: Laravel returns a 419 Page Expired status code when CSRF verification fails. This is a non-standard status code specific to Laravel (it's not in the official HTTP specification). The 419
+    code was chosen to differentiate CSRF failures from the standard 403 Forbidden. The default error page displays '419 Page Expired' to the user.
+- id: cs-009
+  topic: csrf-protection
+  type: multiple
+  difficulty: easy
+  question: Which of the following are true about the XSRF-TOKEN cookie that Laravel sets?
+  options:
+  - It contains the same value as the CSRF token stored in the session
+  - It has a short expiration time matching the session lifetime
+  - It is encrypted like other Laravel cookies by default
+  - It is set automatically by the EncryptCookies middleware's except configuration
+  answers:
+  - It contains the same value as the CSRF token stored in the session
+  - It has a short expiration time matching the session lifetime
+  explanation: The XSRF-TOKEN cookie is set by the VerifyCsrfToken middleware and contains the raw (unencrypted) CSRF token value. It is explicitly excluded from encryption in the EncryptCookies middleware
+    configuration. This allows JavaScript frameworks (like Angular) to read the cookie and send it back as the X-XSRF-TOKEN header. The cookie's lifetime is tied to the session.
+- id: cs-010
+  topic: csrf-protection
+  type: single
+  difficulty: medium
+  question: Why does Laravel encrypt most cookies by default but deliberately excludes the XSRF-TOKEN cookie from encryption?
+  options:
+  - Because the XSRF-TOKEN cookie is set with the HttpOnly flag by default and cannot be accessed by client-side JavaScript regardless of whether it is encrypted or not
+  - Because encryption adds too much computational overhead for a token that changes on every single request, which would significantly slow down the overall AJAX pipeline
+  - Because the XSRF-TOKEN cookie is already signed with a secure HMAC using the application key, providing sufficient integrity protection without the need for additional encryption
+  - Because the XSRF-TOKEN cookie needs to be readable by client-side JavaScript (e.g., Angular, Axios) to include in AJAX headers, and encrypted cookies cannot be read without server-side decryption
+  answer: Because the XSRF-TOKEN cookie needs to be readable by client-side JavaScript (e.g., Angular, Axios) to include in AJAX headers, and encrypted cookies cannot be read without server-side decryption
+  explanation: 'The XSRF-TOKEN cookie is specifically designed to be read by frontend JavaScript frameworks. Axios, for example, automatically reads the XSRF-TOKEN cookie and sends it as the X-XSRF-TOKEN
+    header. If the cookie were encrypted, JavaScript could not read its value. The cookie is still protected because: (1) it''s set by the server, (2) it has the SameSite attribute, and (3) it must match
+    the server-side session token.'
+- id: cs-011
+  topic: csrf-protection
+  type: single
+  difficulty: medium
+  question: What is the correct way to exclude specific routes from CSRF verification in your VerifyCsrfToken middleware?
+  options:
+  - Adding a custom 'csrf-exempt' route middleware to the routes that you want to exclude from verification
+  - Setting the CSRF_ENABLED=false environment variable in the .env file for those specific routes
+  - Adding a @csrf_exempt Blade directive to the corresponding view files for each excluded route
+  - Adding the routes to the $except array property in the VerifyCsrfToken middleware class
+  answer: Adding the routes to the $except array property in the VerifyCsrfToken middleware class
+  explanation: 'The VerifyCsrfToken middleware has a $except property where you can list URI patterns that should skip CSRF verification. For example: protected $except = [''webhooks/*'', ''api/payment/*''];.
+    This is commonly used for webhooks from third-party services (like Stripe or GitHub) that POST to your application and cannot include a CSRF token.'
+- id: cs-012
+  topic: csrf-protection
+  type: multiple
+  difficulty: medium
+  question: Which of the following are reasons why CSRF protection is not applied to API routes by default in Laravel?
+  options:
+  - API requests are always made from the same origin, so CSRF is not a concern
+  - The VerifyCsrfToken middleware is only included in the 'web' middleware group, not the 'api' group
+  - API routes are typically stateless and do not use cookie-based session authentication
+  - API authentication uses tokens (Sanctum, Passport) or OAuth, which are sent in headers rather than cookies, making CSRF attacks impossible
+  answers:
+  - API routes are typically stateless and do not use cookie-based session authentication
+  - API authentication uses tokens (Sanctum, Passport) or OAuth, which are sent in headers rather than cookies, making CSRF attacks impossible
+  - The VerifyCsrfToken middleware is only included in the 'web' middleware group, not the 'api' group
+  explanation: CSRF attacks rely on the browser automatically sending cookies with cross-origin requests. API routes typically use token-based auth (Bearer tokens in Authorization headers), which browsers
+    don't automatically include. Additionally, the VerifyCsrfToken middleware is only in the 'web' middleware group. However, if you use Sanctum's SPA authentication (which uses cookies), CSRF protection
+    is automatically applied.
+- id: cs-013
+  topic: csrf-protection
+  type: single
+  difficulty: medium
+  question: What happens to the CSRF token when a user logs in and the session is regenerated?
+  options:
+  - A new CSRF token is generated for the new session, invalidating any forms that were loaded before login
+  - CSRF verification is temporarily disabled by the framework during the login transition period for a few seconds
+  - The same CSRF token is preserved from the old session and seamlessly transferred to the newly created session
+  - The CSRF token is stored in a persistent encrypted cookie that automatically survives session regeneration events
+  answer: A new CSRF token is generated for the new session, invalidating any forms that were loaded before login
+  explanation: When Laravel regenerates the session (which happens by default after login for security), the old session data — including the CSRF token — is destroyed and a new session with a new token
+    is created. This means any forms rendered before login will have an outdated token. To handle this, you can either reload the page after login or use JavaScript to refresh the CSRF token in the DOM.
+- id: cs-014
+  topic: csrf-protection
+  type: text
+  difficulty: medium
+  question: What meta tag name convention does Laravel recommend for storing the CSRF token in your HTML <head> for use by JavaScript frameworks?
+  answer: csrf-token
+  alternatives:
+  - <meta name='csrf-token'>
+  - meta name csrf-token
+  explanation: 'Laravel''s starter kits and documentation use <meta name=''csrf-token'' content=''{{ csrf_token() }}''>. JavaScript libraries and frameworks can then read this meta tag to include the token
+    in AJAX requests. Axios, for example, can be configured globally to read from this tag: axios.defaults.headers.common[''X-CSRF-TOKEN''] = document.querySelector(''meta[name="csrf-token"]'').getAttribute(''content'');'
+- id: cs-015
+  topic: csrf-protection
+  type: single
+  difficulty: medium
+  question: How does Laravel's SameSite cookie attribute contribute to CSRF protection?
+  options:
+  - SameSite=Strict prevents the browser from including cookies on any cross-site request, completely blocking CSRF attacks without needing a token-based verification mechanism
+  - SameSite=Lax allows cookies to be sent on top-level navigations (GET requests from links) but blocks them on cross-site POST requests, adding a defense-in-depth layer alongside the CSRF token
+  - The SameSite cookie attribute has no direct relationship to CSRF protection — it is designed solely to control whether third-party domains can access cookies in their own context
+  - SameSite=None disables all SameSite cookie restrictions, relying entirely on the application's CSRF token mechanism for protection against cross-site request forgery
+  answer: SameSite=Lax allows cookies to be sent on top-level navigations (GET requests from links) but blocks them on cross-site POST requests, adding a defense-in-depth layer alongside the CSRF token
+  explanation: 'Laravel sets the SameSite=Lax attribute on cookies by default. This means browsers will not include cookies on cross-site POST requests (which are the primary vector for CSRF attacks), while
+    still allowing them for top-level GET navigations (like following links). This provides defense-in-depth: even if the CSRF token is somehow compromised, the SameSite attribute prevents the session cookie
+    from being sent with cross-origin form submissions.'
+- id: cs-016
+  topic: csrf-protection
+  type: multiple
+  difficulty: medium
+  question: Which of the following correctly describe the difference between the X-CSRF-TOKEN and X-XSRF-TOKEN request headers?
+  options:
+  - X-XSRF-TOKEN is the only header that Laravel's built-in Axios configuration sends automatically
+  - X-CSRF-TOKEN expects the raw token value (typically from a meta tag); X-XSRF-TOKEN expects the encrypted cookie value which Laravel decrypts automatically
+  - Both headers are accepted by VerifyCsrfToken, but they expect different token formats
+  - X-CSRF-TOKEN is for POST requests only; X-XSRF-TOKEN is for all request methods
+  answers:
+  - X-CSRF-TOKEN expects the raw token value (typically from a meta tag); X-XSRF-TOKEN expects the encrypted cookie value which Laravel decrypts automatically
+  - Both headers are accepted by VerifyCsrfToken, but they expect different token formats
+  explanation: The VerifyCsrfToken middleware checks both headers but processes them differently. X-CSRF-TOKEN should contain the raw token string (matching what's in the session). X-XSRF-TOKEN should contain
+    the value from the XSRF-TOKEN cookie — Laravel automatically decrypts this cookie value before comparing. Axios reads the XSRF-TOKEN cookie and sends it as X-XSRF-TOKEN, making this the easier approach
+    for AJAX.
+- id: cs-017
+  topic: csrf-protection
+  type: single
+  difficulty: medium
+  question: Why should you never disable CSRF protection entirely for a web application that uses cookie-based authentication?
+  options:
+  - Because disabling CSRF protection also disables session encryption, which would expose sensitive user data to potential interception
+  - Because any malicious website could trick authenticated users into performing unwanted actions by submitting forms to your application
+  - Because Laravel will throw a runtime error if the CSRF middleware is not properly registered in the 'web' middleware group during bootstrap
+  - Because the application's overall performance degrades significantly without the overhead of CSRF token validation on every request
+  answer: Because any malicious website could trick authenticated users into performing unwanted actions by submitting forms to your application
+  explanation: Without CSRF protection, an attacker can create a page on their own domain with a hidden form that auto-submits to your application. Because the user's browser automatically includes session
+    cookies, the request appears authenticated. This could be used to transfer funds, change email addresses, delete data, or perform any action the user is authorized to do. CSRF tokens prevent this because
+    the attacker cannot know the token value.
+- id: cs-018
+  topic: csrf-protection
+  type: text
+  difficulty: medium
+  question: What method on the Illuminate\Http\Request object can you use to retrieve the CSRF token from an incoming request in your controller?
+  answer: token
+  alternatives:
+  - $request->input('_token')
+  - request()->input('_token')
+  - $request->session()->token()
+  - session()->token()
+  - csrf_token()
+  explanation: 'There are multiple ways to access the CSRF token: $request->input(''_token'') gets it from form input, $request->header(''x-csrf-token'') gets it from a header, $request->session()->token()
+    or session()->token() gets it from the session, and csrf_token() is the global helper. The most common use is the csrf_token() helper or the session token method.'
+- id: cs-019
+  topic: csrf-protection
+  type: multiple
+  difficulty: medium
+  question: When configuring webhook endpoints to receive POST requests from external services (like Stripe), which of the following are valid approaches to handle CSRF protection?
+  options:
+  - Verify the webhook using a signature or secret from the external service instead of CSRF tokens
+  - Disable CSRF protection globally in bootstrap/app.php
+  - Add the webhook URI to the $except array in VerifyCsrfToken so CSRF checks are skipped for that route
+  - Create a custom middleware that validates the webhook signature and apply it instead of VerifyCsrfToken
+  answers:
+  - Add the webhook URI to the $except array in VerifyCsrfToken so CSRF checks are skipped for that route
+  - Verify the webhook using a signature or secret from the external service instead of CSRF tokens
+  - Create a custom middleware that validates the webhook signature and apply it instead of VerifyCsrfToken
+  explanation: Webhooks from external services cannot include your CSRF token because they're server-to-server requests. The recommended approach is to exclude the webhook route from CSRF verification and
+    instead validate the webhook's own signature (e.g., Stripe sends a signature header you can verify with your webhook secret). Disabling CSRF globally is never the right approach as it leaves your entire
+    application vulnerable.
+- id: cs-020
+  topic: csrf-protection
+  type: single
+  difficulty: medium
+  question: How does Laravel Sanctum handle CSRF protection for SPA (Single Page Application) authentication?
+  options:
+  - Sanctum uses a custom CSRF middleware that validates tokens using a JWT-based approach rather than the standard session-based token comparison
+  - Sanctum automatically applies the VerifyCsrfToken middleware to SPA cookie-based authentication routes and sets the XSRF-TOKEN cookie for the frontend to read
+  - Sanctum disables CSRF protection entirely for SPA applications since they use token-based authentication that does not rely on browser cookies
+  - Sanctum generates a separate and unique CSRF token for each individual API request and includes it in the response headers for the frontend
+  answer: Sanctum automatically applies the VerifyCsrfToken middleware to SPA cookie-based authentication routes and sets the XSRF-TOKEN cookie for the frontend to read
+  explanation: When using Sanctum's SPA authentication mode (first-party cookie-based auth for SPAs), Sanctum configures the CSRF protection to work with your frontend. It ensures the XSRF-TOKEN cookie
+    is set and the VerifyCsrfToken middleware validates requests. This is different from API token authentication, which doesn't need CSRF protection. The middleware is automatically applied to routes within
+    the 'sanctum.csrf' group or the 'web' group.
+- id: cs-021
+  topic: csrf-protection
+  type: single
+  difficulty: medium
+  question: What is the security implication of using a GET request to perform state-changing actions (like deleting a resource) in a Laravel application with CSRF protection?
+  options:
+  - GET requests are fully protected by CSRF tokens just like POST requests, so there is no additional security risk when using GET for state changes
+  - GET requests are automatically upgraded to POST requests by the browser for enhanced security before they reach the Laravel application's routing layer
+  - GET requests are exempt from CSRF verification, so an attacker could create a link or img tag that triggers the action when the user's browser loads the malicious page
+  - GET requests cannot be used for state-changing actions because Laravel's router automatically blocks any route that modifies application state
+  answer: GET requests are exempt from CSRF verification, so an attacker could create a link or img tag that triggers the action when the user's browser loads the malicious page
+  explanation: Since Laravel exempts GET requests from CSRF verification, any state-changing action accessible via GET is vulnerable. An attacker could embed <img src='https://yourapp.com/users/1/delete'>
+    in an email or webpage, and the user's browser would make the request with their session cookies. Always use POST, PUT, PATCH, or DELETE for state-changing operations — these methods are protected by
+    CSRF tokens.
+- id: cs-022
+  topic: csrf-protection
+  type: text
+  difficulty: medium
+  question: What PHP method does the VerifyCsrfToken middleware use to compare the token from the request against the token stored in the session?
+  answer: hash_equals
+  alternatives:
+  - hash_equals()
+  explanation: Laravel uses PHP's hash_equals() function for timing-safe string comparison when validating CSRF tokens. This prevents timing attacks where an attacker could measure the response time to
+    gradually determine the correct token character by character. Timing-safe comparison always takes the same amount of time regardless of how many characters match, making such attacks infeasible.
+- id: cs-023
+  topic: csrf-protection
+  type: multiple
+  difficulty: medium
+  question: Which of the following scenarios could cause a legitimate user to receive a 419 Page Expired error?
+  options:
+  - The session was regenerated between when the form was loaded and when it was submitted
+  - The user left a form open for a long time and the session expired before they submitted it
+  - The user has cookies disabled in their browser
+  - The application is running in a load-balanced environment without shared session storage
+  answers:
+  - The user left a form open for a long time and the session expired before they submitted it
+  - The session was regenerated between when the form was loaded and when it was submitted
+  - The user has cookies disabled in their browser
+  - The application is running in a load-balanced environment without shared session storage
+  explanation: All of these scenarios can cause CSRF validation failure. Session expiration means the token stored server-side is gone. Session regeneration creates a new token that doesn't match the form's
+    old token. Disabled cookies mean the session (and token) can't be persisted. Without shared sessions in a load balancer, the request may hit a different server that doesn't have the session. Each scenario
+    requires different solutions (session lifetime tuning, token refresh, cookie requirements, session driver configuration).
+- id: cs-024
+  topic: csrf-protection
+  type: single
+  difficulty: hard
+  question: In a Laravel application using multiple guards (web and api) simultaneously, why might a CSRF-protected POST request fail even with a valid token when the request comes from an API client?
+  options:
+  - Because the VerifyCsrfToken middleware only validates tokens for the 'web' authentication guard regardless of the middleware group assigned to the route
+  - Because API requests always use a different encryption key for generating and validating CSRF tokens compared to the web middleware group
+  - Because CSRF tokens expire after a fixed 60-second window regardless of the session lifetime, causing frequent validation failures for slow API calls
+  - Because the CSRF token is tied to the session driver, and API clients using token auth may not have an active session containing the token
+  answer: Because the CSRF token is tied to the session driver, and API clients using token auth may not have an active session containing the token
+  explanation: CSRF tokens are stored in and verified against the session. If an API client authenticates via a Bearer token (not cookies), the session may not be started or may not contain the CSRF token.
+    The VerifyCsrfToken middleware retrieves the token from the session, and without a valid session, it cannot verify. This is why CSRF protection is typically not applied to pure API routes — it relies
+    on the session infrastructure.
+- id: cs-025
+  topic: csrf-protection
+  type: single
+  difficulty: hard
+  question: What potential security issue arises if you implement CSRF protection using only a per-request token (generated fresh for each request) without any persistent session token?
+  options:
+  - The per-request token would prevent the user from using the browser's back button or opening multiple tabs with forms, as each form would have a different token
+  - The per-request token would be vulnerable to cross-site scripting attacks that could steal the fresh token from the DOM before the form is submitted
+  - The per-request token would not provide adequate protection against replay attacks where an attacker intercepts and resubmits a previously captured valid request
+  - The per-request token would cause a race condition when multiple AJAX requests are made simultaneously, as each request would invalidate the token for others
+  answer: The per-request token would prevent the user from using the browser's back button or opening multiple tabs with forms, as each form would have a different token
+  explanation: Laravel uses a per-session token (not per-request) precisely to avoid usability issues. A per-request token would invalidate as soon as any form on the page is submitted, making it impossible
+    to have multiple forms open in different tabs, use the back button, or handle form validation errors. The tradeoff is that a per-session token provides less protection against certain theoretical attacks,
+    but the practical security with SameSite cookies and per-session tokens is considered sufficient.
+- id: cs-026
+  topic: csrf-protection
+  type: multiple
+  difficulty: hard
+  question: When building a custom CSRF token implementation, which security properties must be maintained to match Laravel's level of protection?
+  options:
+  - The token must be unique per session and regenerated when the session is regenerated
+  - The token must be encrypted before being stored in the form to prevent token theft via XSS
+  - The token must be cryptographically random and sufficiently long (at least 40 characters) to prevent brute-force guessing
+  - Token comparison must use timing-safe comparison to prevent timing side-channel attacks
+  answers:
+  - The token must be cryptographically random and sufficiently long (at least 40 characters) to prevent brute-force guessing
+  - Token comparison must use timing-safe comparison to prevent timing side-channel attacks
+  - The token must be unique per session and regenerated when the session is regenerated
+  explanation: 'A secure CSRF implementation needs: (1) cryptographically random tokens using a CSPRNG (Laravel uses Str::random(40)), (2) timing-safe comparison via hash_equals() to prevent timing attacks,
+    and (3) per-session uniqueness with regeneration. The token does NOT need to be encrypted in the form — it''s a public value that must match a server-side secret. Encryption of the token would add no
+    security benefit since the comparison value (in the session) would still be needed.'
+- id: cs-027
+  topic: csrf-protection
+  type: text
+  difficulty: hard
+  question: What Laravel session driver configuration is required when running behind multiple application servers (load balanced) to ensure CSRF tokens remain valid across all servers?
+  answer: A shared session driver (database, Redis, Memcached, or DynamoDB)
+  alternatives:
+  - database
+  - redis
+  - memcached
+  - dynamodb
+  - any driver that stores sessions centrally
+  explanation: The default 'file' session driver stores session data on the local filesystem. In a load-balanced environment with multiple servers, a request may hit Server A (which creates the session
+    and CSRF token) while a subsequent request hits Server B (which doesn't have that session file). You must use a centralized session driver — database, Redis, Memcached, or DynamoDB — so all servers
+    can access the same session data and validate CSRF tokens consistently.
+- id: cs-028
+  topic: csrf-protection
+  type: single
+  difficulty: hard
+  question: How does the interaction between Laravel's EncryptCookies middleware and VerifyCsrfToken middleware create a potential issue if the XSRF-TOKEN cookie is accidentally included in encryption?
+  options:
+  - Encrypting the XSRF-TOKEN cookie would cause a double-encryption vulnerability that weakens the overall encryption
+  - The encrypted cookie value won't match the raw session token, causing CSRF verification to fail even for legitimate requests
+  - The EncryptCookies middleware would strip the cookie from the request before VerifyCsrfToken could read it
+  - The encrypted cookie will grow significantly larger and may exceed the browser's maximum cookie size limit of 4096 bytes
+  answer: The encrypted cookie value won't match the raw session token, causing CSRF verification to fail even for legitimate requests
+  explanation: If the XSRF-TOKEN cookie is encrypted (not in the EncryptCookies $except list), the cookie value will be an encrypted string. When JavaScript reads this cookie and sends it as the X-XSRF-TOKEN
+    header, VerifyCsrfToken will try to decrypt it (it handles XSRF-TOKEN by decrypting) — but if it's double-encrypted or encrypted differently than expected, the comparison will fail. Laravel excludes
+    'XSRF-TOKEN' from encryption by default, but misconfiguration can cause this issue.
+- id: cs-029
+  topic: csrf-protection
+  type: multiple
+  difficulty: hard
+  question: In a microservices architecture where a Laravel gateway proxies requests to internal services, which of the following are valid CSRF protection strategies?
+  options:
+  - Use a shared secret between the gateway and internal services, signing each proxied request with an HMAC
+  - Handle CSRF validation at the gateway level and strip CSRF tokens before forwarding requests to internal services
+  - Pass the validated CSRF token to internal services via a custom header so they can verify the gateway performed validation
+  - Disable CSRF protection on the gateway and implement it independently on each internal service
+  answers:
+  - Handle CSRF validation at the gateway level and strip CSRF tokens before forwarding requests to internal services
+  - Pass the validated CSRF token to internal services via a custom header so they can verify the gateway performed validation
+  - Use a shared secret between the gateway and internal services, signing each proxied request with an HMAC
+  explanation: 'In a gateway pattern, CSRF should be validated at the edge (gateway). Internal services typically communicate server-to-server without browser context, so CSRF is irrelevant there. Valid
+    strategies include: validating at the gateway and not forwarding to internal services, passing validation proof, or using internal authentication (HMAC/shared secret) between gateway and services. Implementing
+    CSRF independently on each internal service would be redundant and complex, and disabling at the gateway removes protection entirely.'

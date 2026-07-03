@@ -1,0 +1,386 @@
+- id: rs-001
+  topic: responses
+  type: single
+  difficulty: easy
+  question: What does the response() helper function return by default in Laravel?
+  options:
+  - A JSON response object with a data payload
+  - A Symfony Response instance directly
+  - A plain text string of the rendered output
+  - An Illuminate\Http\Response instance
+  answer: An Illuminate\Http\Response instance
+  explanation: The response() helper returns an Illuminate\Http\Response instance, which extends Symfony's BaseResponse. You can chain methods like header(), cookie(), and setContent() on it. When you return
+    a string from a controller, Laravel automatically wraps it in a Response object for you.
+- id: rs-002
+  topic: responses
+  type: text
+  difficulty: easy
+  question: What helper function creates a redirect response to the previous URL in Laravel?
+  answer: back
+  alternatives:
+  - back()
+  - redirect()->back()
+  - redirect back
+  explanation: The back() helper (or redirect()->back()) creates a redirect response to the previous URL, using the HTTP Referer header or falling back to a configured fallback URL. This is commonly used
+    after form submissions to return the user to the page they came from, often with validation errors flashed to the session.
+- id: rs-003
+  topic: responses
+  type: single
+  difficulty: easy
+  question: Which method is used to return a JSON response with a specific HTTP status code in a controller?
+  options:
+  - response()->json(['data' => $items], 201)
+  - Response::make($items)->toJson(201)
+  - json(['data' => $items])->status(201)
+  - response()->toJson(['data' => $items], 201)
+  answer: response()->json(['data' => $items], 201)
+  explanation: The response()->json() method accepts the data as the first argument and an optional HTTP status code as the second. It automatically sets the Content-Type header to application/json and
+    encodes the data. This is the standard way to return JSON API responses in Laravel controllers.
+- id: rs-004
+  topic: responses
+  type: multiple
+  difficulty: easy
+  question: Which of the following are valid ways to create a redirect response in a Laravel controller? (Select all that apply)
+  options:
+  - redirect()->route('home')
+  - redirect()->action([HomeController::class, 'index'])
+  - redirect('/home')
+  - redirect()->to('home')
+  answers:
+  - redirect('/home')
+  - redirect()->route('home')
+  - redirect()->action([HomeController::class, 'index'])
+  explanation: 'Laravel provides multiple redirect methods: redirect(''/url'') for direct URLs, redirect()->route(''name'') for named routes with optional parameters, and redirect()->action() for controller
+    actions. The redirect()->to() method also works for URLs. All return a RedirectResponse instance.'
+- id: rs-005
+  topic: responses
+  type: single
+  difficulty: easy
+  question: What does return response()->download($path) do?
+  options:
+  - Creates a temporary file on disk and returns its full system path to the calling code
+  - Sends a file as a download with appropriate Content-Disposition headers
+  - Downloads a file from a remote URL and progressively streams it in chunks to the browser
+  - Moves the specified file from the storage disk to the public directory for direct web access
+  answer: Sends a file as a download with appropriate Content-Disposition headers
+  explanation: The download() method sends the file at the given path as a download response. It sets the Content-Disposition header to 'attachment' and the Content-Type based on the file's MIME type. The
+    browser will prompt the user to save the file rather than displaying it. You can customize the filename with a second parameter.
+- id: rs-006
+  topic: responses
+  type: text
+  difficulty: easy
+  question: What method on a response object allows you to add a cookie to the outgoing HTTP response?
+  answer: cookie
+  alternatives:
+  - cookie()
+  - withCookie
+  explanation: The cookie() method on a response object queues a cookie to be sent with the response. It accepts the cookie name, value, expiration in minutes, path, domain, secure flag, and httpOnly flag.
+    This is the response-side counterpart to reading cookies from requests.
+- id: rs-007
+  topic: responses
+  type: single
+  difficulty: easy
+  question: How do you set a custom header on a Laravel response?
+  options:
+  - response()->setHeader('X-Custom', 'value')
+  - response()->header('X-Custom', 'value')
+  - response()->addHeader('X-Custom', 'value')
+  - response()->pushHeader('X-Custom', 'value')
+  answer: response()->header('X-Custom', 'value')
+  explanation: The header() method on the response object adds a header to the HTTP response. It accepts the header name and value. This is commonly used for custom API headers, CORS headers, or cache control
+    directives. Multiple calls to header() with the same name will replace the previous value.
+- id: rs-008
+  topic: responses
+  type: multiple
+  difficulty: easy
+  question: Which of the following response types are built into Laravel? (Select all that apply)
+  options:
+  - JsonResponse
+  - CsvResponse
+  - RedirectResponse
+  - StreamedResponse
+  answers:
+  - JsonResponse
+  - RedirectResponse
+  - StreamedResponse
+  explanation: Laravel provides JsonResponse for JSON data, RedirectResponse for HTTP redirects, and StreamedResponse for streaming large outputs. There is no built-in CsvResponse — for CSV downloads you
+    would typically use a streamed response with a callback that outputs CSV rows, or use the response()->streamDownload() method.
+- id: rs-009
+  topic: responses
+  type: single
+  difficulty: easy
+  question: What is the default HTTP status code returned when you use redirect() without specifying one?
+  options:
+  - 301 Moved Permanently
+  - 200 OK
+  - 302 Found
+  - 307 Temporary Redirect
+  answer: 302 Found
+  explanation: By default, Laravel's redirect responses use the 302 status code, which is a temporary redirect. You can change this by passing a status code as the second argument or by using specific methods
+    like redirect()->permanentRedirect() which uses 301. For API redirects, 307 or 308 preserve the HTTP method.
+- id: rs-010
+  topic: responses
+  type: text
+  difficulty: easy
+  question: What response method sends a file to the browser for inline display (e.g., showing a PDF in the browser) rather than forcing a download?
+  answer: file
+  alternatives:
+  - file()
+  - response()->file()
+  explanation: The file() method (response()->file($path)) sends the file with a Content-Disposition of 'inline', so the browser attempts to display it directly. In contrast, download() uses 'attachment'
+    which prompts a save dialog. This is useful for serving images, PDFs, or other media that should render in the browser.
+- id: rs-011
+  topic: responses
+  type: single
+  difficulty: medium
+  question: What is the difference between redirect()->with() and redirect()->withInput()?
+  options:
+  - with() is exclusively for flashing validation error messages, while withInput() only flashes old user input data
+  - There is no meaningful difference between them; they are simply aliases that accomplish the exact same redirect behavior
+  - with() flashes data to the session, withInput() flashes only input data to the session
+  - with() permanently persists data in the session storage, while withInput() only retains data for a single subsequent request
+  answer: with() flashes data to the session, withInput() flashes only input data to the session
+  explanation: 'Both methods flash data to the session for the next request. with(''key'', ''value'') flashes arbitrary key-value pairs (like status messages), while withInput() specifically flashes all
+    current request input so forms can be repopulated. They are often used together: redirect()->withInput()->with(''status'', ''Updated!'')'
+- id: rs-012
+  topic: responses
+  type: single
+  difficulty: medium
+  question: Why might you use response()->stream() instead of returning a regular response for a large dataset?
+  options:
+  - It automatically converts the response data into a properly formatted JSON string before sending it to the client
+  - It allows the response output to be cached more efficiently by the server and by CDN edge cache locations
+  - It sends data in chunks as it's generated, reducing memory usage for large outputs
+  - It enables persistent WebSocket connections for real-time bidirectional streaming of the response data to clients
+  answer: It sends data in chunks as it's generated, reducing memory usage for large outputs
+  explanation: The stream() method accepts a callback that receives an output stream. Your code writes to this stream incrementally, and data is sent to the client as it's produced. This avoids loading
+    the entire response into memory, making it ideal for large CSV exports, long-running report generation, or any scenario where the full output would be too large to hold in memory.
+- id: rs-013
+  topic: responses
+  type: multiple
+  difficulty: medium
+  question: When using redirect()->route('profile', ['user' => 1]), which of the following are true? (Select all that apply)
+  options:
+  - The route parameter 'user' is automatically URL-encoded
+  - The 'user' parameter value is passed as a query string parameter, not a route parameter
+  - It generates a URL based on the named route and redirects to it
+  - You can pass Eloquent models instead of IDs and Laravel will extract the route key
+  answers:
+  - The route parameter 'user' is automatically URL-encoded
+  - It generates a URL based on the named route and redirects to it
+  - You can pass Eloquent models instead of IDs and Laravel will extract the route key
+  explanation: The route() redirect method generates a URL from a named route, substituting parameters into the URI. Laravel automatically URL-encodes parameter values, and you can pass Eloquent models
+    as parameter values — Laravel will use the model's route key (typically the ID). Parameters that don't appear in the URI are automatically appended as query string parameters.
+- id: rs-014
+  topic: responses
+  type: text
+  difficulty: medium
+  question: What method on the Redirector allows you to flash validation errors from a validator instance along with the redirect?
+  answer: withErrors
+  alternatives:
+  - withErrors()
+  - withErrors
+  explanation: The withErrors() method accepts a Validator instance, a MessageBag, or a plain array and flashes the errors to the session. When the redirected page renders, the $errors variable is automatically
+    available in your views. This is how Laravel connects form request validation failures to the form that submitted them.
+- id: rs-015
+  topic: responses
+  type: single
+  difficulty: medium
+  question: What is the purpose of response()->noContent() in a REST API?
+  options:
+  - It returns a standard 200 OK response with a null JSON body to indicate an empty but successful result
+  - It returns a 204 No Content status with an empty body, ideal for successful DELETE or PUT operations
+  - It disables all response body compression so that the raw uncompressed content is transmitted to the client
+  - It removes all HTTP headers from the outgoing response, including content-type and cache-control directives
+  answer: It returns a 204 No Content status with an empty body, ideal for successful DELETE or PUT operations
+  explanation: The noContent() method returns an HTTP 204 response with no body, following REST best practices for operations that succeed but have no data to return. This is commonly used after DELETE
+    requests (resource deleted) or PUT/PATCH requests (resource updated) where returning the full resource would be unnecessary overhead.
+- id: rs-016
+  topic: responses
+  type: single
+  difficulty: medium
+  question: How does response()->jsonp($data, $callback) differ from response()->json($data)?
+  options:
+  - json is faster because jsonp requires additional server-side processing to wrap the payload in a callback
+  - There is no functional difference; both methods produce identical output with the same headers and content type
+  - jsonp encodes the response data as XML format with a JSON fallback for compatibility with older browsers
+  - jsonp wraps the JSON in a callback function call for cross-domain requests
+  answer: jsonp wraps the JSON in a callback function call for cross-domain requests
+  explanation: JSONP (JSON with Padding) wraps the JSON response in a function call specified by the callback parameter (e.g., callbackName({...})). This technique allows cross-domain data retrieval by
+    exploiting the fact that <script> tags are not subject to same-origin policy. Note that JSONP is largely obsolete now that CORS is widely supported.
+- id: rs-017
+  topic: responses
+  type: multiple
+  difficulty: medium
+  question: Which of the following methods correctly set cache-related headers on a response? (Select all that apply)
+  options:
+  - response()->setCache(['max_age' => 3600, 'public' => true])
+  - response()->cache('no-store')
+  - response()->header('ETag', $hash)
+  - response()->header('Cache-Control', 'no-cache, no-store')
+  answers:
+  - response()->header('Cache-Control', 'no-cache, no-store')
+  - response()->header('ETag', $hash)
+  - response()->setCache(['max_age' => 3600, 'public' => true])
+  explanation: Cache headers can be set via the generic header() method or the specialized setCache() method which accepts an array of cache directives. ETags can also be set via the header() method. There
+    is no dedicated cache() method on the response object — that name would be ambiguous with Laravel's cache system.
+- id: rs-018
+  topic: responses
+  type: text
+  difficulty: medium
+  question: What is the name of the macroable trait that allows you to define custom methods on Laravel's response object?
+  answer: Macroable
+  alternatives:
+  - Illuminate\Support\Traits\Macroable
+  - Macroable trait
+  explanation: The Macroable trait allows you to add custom methods to Laravel's Response class at runtime using Response::macro('name', function() {}). This is useful for creating reusable response patterns.
+    For example, you might create a macro that returns a standardized API error response format used across all controllers.
+- id: rs-019
+  topic: responses
+  type: single
+  difficulty: medium
+  question: What happens when you return an Eloquent model directly from a Laravel route or controller?
+  options:
+  - Laravel renders a default Blade view template using all of the model's attributes as the view data
+  - Laravel throws a runtime exception because Eloquent models cannot be returned directly from route closures
+  - Laravel serializes the model to an XML document and sets the appropriate XML content-type header
+  - Laravel automatically converts the model to a JSON response with a 200 status
+  answer: Laravel automatically converts the model to a JSON response with a 200 status
+  explanation: When an Eloquent model or collection is returned from a controller, Laravel automatically serializes it to JSON and wraps it in a JsonResponse with a 200 status code. This also applies to
+    Arrayable or Jsonable objects. This convention makes building API endpoints extremely concise — you can simply return a model from your route closure or controller method.
+- id: rs-020
+  topic: responses
+  type: single
+  difficulty: medium
+  question: Why would you use response()->streamDownload() instead of response()->download()?
+  options:
+  - streamDownload natively supports resumable partial downloads using HTTP range headers, while the download method does not
+  - download only works with files on the local filesystem, while streamDownload can fetch from remote URLs and stream them
+  - streamDownload generates file content dynamically via a callback, avoiding loading the entire file into memory
+  - streamDownload is significantly faster for small files because it avoids the overhead of buffering the entire file into memory
+  answer: streamDownload generates file content dynamically via a callback, avoiding loading the entire file into memory
+  explanation: 'The streamDownload() method accepts a callback that receives a writable stream. Your code writes to this stream incrementally, and the response sends the data as it''s generated with Content-Disposition:
+    attachment headers. This is ideal for generating large CSV or PDF exports dynamically without ever holding the entire file contents in memory.'
+- id: rs-021
+  topic: responses
+  type: multiple
+  difficulty: medium
+  question: Which of the following are valid ways to create a cookie on a response in Laravel? (Select all that apply)
+  options:
+  - Session::putCookie('name', 'value', 60)
+  - Cookie::queue('name', 'value', 60)
+  - response()->cookie('name', 'value', 60)
+  - $response->withCookie(cookie('name', 'value', 60))
+  answers:
+  - response()->cookie('name', 'value', 60)
+  - Cookie::queue('name', 'value', 60)
+  - $response->withCookie(cookie('name', 'value', 60))
+  explanation: Cookies can be attached to a specific response via cookie() or withCookie(), or queued globally with Cookie::queue() which will be sent with the final response regardless of which response
+    object is returned. There is no Session::putCookie() method — cookies and sessions are separate concepts in Laravel.
+- id: rs-022
+  topic: responses
+  type: single
+  difficulty: hard
+  question: What is the key difference between a 'resource response' (returning a Resource class) and a 'JSON response' (using response()->json()) for API development?
+  options:
+  - Resource responses automatically handle pagination metadata and field filtering, while json() requires manual structure
+  - There is no practical difference between the two approaches; API resource classes internally call json() to produce the response
+  - json() is noticeably faster in benchmarks because API resources introduce unnecessary transformation overhead and extra method calls
+  - Resource responses can only be used with Eloquent model instances and collections, not with plain PHP arrays or stdClass objects
+  answer: Resource responses automatically handle pagination metadata and field filtering, while json() requires manual structure
+  explanation: API Resources provide a transformation layer between your models and JSON responses. They handle pagination links, conditional field inclusion with when()/whenLoaded(), and relationship loading
+    control. While json() is fine for simple responses, resources give you consistent, maintainable API output formatting that separates the response shape from your internal data structure.
+- id: rs-023
+  topic: responses
+  type: text
+  difficulty: hard
+  question: What method on a response object throws an HttpResponseException immediately, bypassing any remaining code in the controller?
+  answer: throwResponse
+  alternatives:
+  - throwResponse()
+  - abort
+  - abort()
+  explanation: The throwResponse() method takes a response object and throws it as an HttpResponseException, which Laravel's exception handler catches and sends to the browser. The abort() helper uses this
+    internally. This is useful in middleware or services where you need to short-circuit the request cycle and return a specific response immediately.
+- id: rs-024
+  topic: responses
+  type: single
+  difficulty: hard
+  question: When a FormRequest fails validation, what determines whether Laravel returns a redirect or a JSON response?
+  options:
+  - The application's APP_ENV configuration value indicating the current environment
+  - The FAIL_ON_JSON configuration option within the validation.php config file
+  - Whether the request expects JSON (checks Accept header or X-Requested-With)
+  - The route definition — API routes return JSON, web routes return redirects
+  answer: Whether the request expects JSON (checks Accept header or X-Requested-With)
+  explanation: Laravel's FormRequest checks $request->expectsJson() (which inspects the Accept header for application/json) and $request->ajax() to decide the error format. If either is true, it returns
+    a 422 JSON response with validation errors. Otherwise, it redirects back to the previous URL with flashed errors and input. This happens in the failedValidation() method of FormRequest.
+- id: rs-025
+  topic: responses
+  type: multiple
+  difficulty: hard
+  question: Which of the following statements about response macros are correct? (Select all that apply)
+  options:
+  - Macros can accept parameters and return a Response instance
+  - Macros are automatically available on JsonResponse but not on RedirectResponse
+  - Once defined, macros can be called as methods on any response() instance
+  - Macros are defined using Response::macro('name', Closure)
+  answers:
+  - Macros are defined using Response::macro('name', Closure)
+  - Once defined, macros can be called as methods on any response() instance
+  - Macros can accept parameters and return a Response instance
+  explanation: Response macros are registered via Response::macro() and become available on all response instances. They can accept arguments and should return a Response object. However, macros defined
+    on Illuminate\Http\Response are NOT automatically available on JsonResponse or RedirectResponse, since those are different classes — you'd need to register separate macros on each if needed.
+- id: rs-026
+  topic: responses
+  type: single
+  difficulty: hard
+  question: How can you create a response that sets multiple cookies while maintaining clean, reusable code?
+  options:
+  - Chain multiple cookie() calls on the response object — however, only the very first call will actually take effect
+  - Store cookies in the session data and let Laravel automatically move them to the outgoing response headers when sent
+  - Use Cookie::queue() to queue cookies before returning the response, or create a custom response macro
+  - Return an array of cookie objects directly from the controller method and let Laravel attach them to the response
+  answer: Use Cookie::queue() to queue cookies before returning the response, or create a custom response macro
+  explanation: Cookie::queue() is the cleanest approach for multiple cookies — it queues cookies that will be sent with whatever response is ultimately returned, decoupling cookie logic from the response
+    building. Alternatively, you can chain cookie() calls on a response (all calls work, not just the first), or create a response macro that encapsulates a common set of cookies and headers.
+- id: rs-027
+  topic: responses
+  type: text
+  difficulty: hard
+  question: What Symfony class does Laravel's BinaryFileResponse extend, which handles file range requests (partial content / byte serving)?
+  answer: BinaryFileResponse
+  alternatives:
+  - Symfony\Component\HttpFoundation\BinaryFileResponse
+  - Symfony\HttpFoundation\BinaryFileResponse
+  explanation: Laravel's response()->file() and response()->download() both return an instance of Illuminate\Http\BinaryFileResponse, which extends Symfony's BinaryFileResponse. The Symfony base class automatically
+    handles Range headers for byte-serving, supporting features like video seeking and download resumption without additional code on your part.
+- id: rs-028
+  topic: responses
+  type: single
+  difficulty: hard
+  question: In a Laravel application, what is the correct approach to send a response with a 429 Too Many Requests status code?
+  options:
+  - abort(429, 'Too Many Requests')
+  - Neither approach works; you must use a custom exception class
+  - Both approaches work and are valid
+  - response()->json(['error' => 'Too Many Requests'], 429)
+  answer: Both approaches work and are valid
+  explanation: 'Both response()->json([], 429) and abort(429) produce valid 429 responses. The difference is stylistic and contextual: abort() throws an HttpResponseException which is cleaner in middleware
+    or early-return scenarios, while response()->json() gives you more control over the response body. The throttle middleware (RateLimiter) uses the abort approach internally.'
+- id: rs-029
+  topic: responses
+  type: multiple
+  difficulty: hard
+  question: When building a response in a Laravel event listener or service provider, which approaches can correctly return a response to the client? (Select all that apply)
+  options:
+  - Throw an HttpResponseException with the response
+  - Echo the response content and call exit
+  - Set the response on the application instance using $app->response = $response
+  - Return the response from a route closure or controller method
+  answers:
+  - Return the response from a route closure or controller method
+  - Throw an HttpResponseException with the response
+  explanation: In normal Laravel flow, responses are returned from route closures or controllers. However, in contexts outside the controller (middleware, event listeners, service providers), you can throw
+    an HttpResponseException to immediately send a response. Echoing content and calling exit bypasses middleware and is never recommended. Setting the response on the app instance is not a supported mechanism
+    for sending responses.

@@ -1,0 +1,385 @@
+- id: fc-001
+  topic: facades
+  type: single
+  difficulty: easy
+  question: What is a Laravel Facade?
+  options:
+  - A front-end UI component library that offers pre-built view components for Laravel web applications
+  - A security layer that hides internal application structure and routes from external access
+  - A class that provides static-like access to services resolved from the service container
+  - A database query builder abstraction that provides a fluent interface for constructing SQL queries
+  answer: A class that provides static-like access to services resolved from the service container
+  explanation: A Facade provides a static interface to classes that are available in the application's service container. When you call a static method on a Facade, Laravel resolves the underlying service
+    from the container and delegates the method call to that instance. This gives you the convenience of static syntax with the testability of dependency injection.
+- id: fc-002
+  topic: facades
+  type: single
+  difficulty: easy
+  question: Which Facade would you use to interact with the Laravel cache system?
+  options:
+  - 'Storage::'
+  - 'Store::'
+  - 'Cache::'
+  - 'Session::'
+  answer: 'Cache::'
+  explanation: The Cache facade provides access to Laravel's cache system. Through it, you can call methods like Cache::get(), Cache::put(), Cache::remember(), and Cache::forget(). Behind the scenes, it
+    resolves the cache manager from the service container and delegates the method call.
+- id: fc-003
+  topic: facades
+  type: text
+  difficulty: easy
+  question: What magic PHP method do Laravel facades use to intercept static method calls and delegate them to the underlying service?
+  answer: __callStatic
+  alternatives:
+  - __callstatic
+  - __CALLSTATIC
+  explanation: All Laravel facades extend the base Facade class, which implements the __callStatic() magic method. When you call a static method like Cache::get(), PHP triggers __callStatic(), which resolves
+    the underlying service from the container and forwards the method call to it. This is how facades provide static-like syntax for instance methods.
+- id: fc-004
+  topic: facades
+  type: multiple
+  difficulty: easy
+  question: Which of the following are valid Laravel facades?
+  options:
+  - 'Http::'
+  - 'Request::'
+  - 'DB::'
+  - 'Log::'
+  answers:
+  - 'DB::'
+  - 'Log::'
+  - 'Http::'
+  - 'Request::'
+  explanation: DB, Log, Http, and Request are all valid Laravel facades. DB provides access to the database query builder and connection manager, Log to the logging system, Http to the HTTP client, and
+    Request to the current HTTP request instance. Laravel provides facades for nearly every major framework service.
+- id: fc-005
+  topic: facades
+  type: single
+  difficulty: easy
+  question: Where does a facade resolve its underlying service instance from?
+  options:
+  - A global PHP variable
+  - The .env configuration file
+  - A static registry array defined in each facade class
+  - The Laravel service container
+  answer: The Laravel service container
+  explanation: Every facade resolves its underlying service from the service container. The facade's getFacadeAccessor() method returns a string key, and the container uses that key to resolve the actual
+    service instance. This means facades are fundamentally a thin proxy layer over the container.
+- id: fc-006
+  topic: facades
+  type: text
+  difficulty: easy
+  question: What method must a custom facade class implement to tell Laravel which container binding it should proxy?
+  answer: getFacadeAccessor
+  alternatives:
+  - getFacadeAccessor()
+  - protected function getFacadeAccessor()
+  explanation: Every custom facade must implement the getFacadeAccessor() method, returning a string that serves as the key for resolving the service from the container. For example, the Cache facade returns
+    'cache', which the container resolves to the cache manager instance.
+- id: fc-007
+  topic: facades
+  type: single
+  difficulty: easy
+  question: What does the following code do? Facade::clearResolvedInstance('cache');
+  options:
+  - Removes the cached singleton instance of the 'cache' binding from the container
+  - Clears the entire facade class alias mapping from the application's autoloader configuration
+  - Deletes all stored cached data entries from the currently active cache driver instance
+  - Unregisters the Cache service provider from the application's bootstrap service provider stack
+  answer: Removes the cached singleton instance of the 'cache' binding from the container
+  explanation: The clearResolvedInstance() method removes a resolved instance from the container's instance cache. This is useful in testing when you want to force the container to create a fresh instance
+    of a service on the next resolution. It does not affect cached data within the cache driver itself.
+- id: fc-008
+  topic: facades
+  type: multiple
+  difficulty: easy
+  question: Which of the following are valid ways to mock a facade during testing in Laravel?
+  options:
+  - Using Cache::fake()
+  - Using Cache::shouldReceive('get')->andReturn('value')
+  - Using $this->mock(Cache::class)
+  - Overriding the binding in the container with a mock instance
+  answers:
+  - Using Cache::shouldReceive('get')->andReturn('value')
+  - Using Cache::fake()
+  - Overriding the binding in the container with a mock instance
+  explanation: 'Laravel provides multiple testing approaches: the shouldReceive() method uses Mockery expectations on the facade''s underlying instance, the fake() method replaces the real implementation
+    with an in-memory fake (for cache, queue, mail, etc.), and you can manually bind a mock into the container. The third option ($this->mock(Cache::class)) doesn''t work directly since facades are not
+    real classes to mock.'
+- id: fc-009
+  topic: facades
+  type: text
+  difficulty: easy
+  question: What is the name of the feature that lets you use any class as a facade by prefixing it with 'Facades\' in a use statement?
+  answer: Real-time facades
+  alternatives:
+  - Real-time facade
+  - real time facades
+  - real-time facade
+  - realtime facades
+  explanation: Real-time facades allow you to use any class as a facade by aliasing it with the 'Facades\' namespace prefix. For example, 'use Facades\App\Services\InvoiceGenerator;' lets you call InvoiceGenerator::generate()
+    statically, which resolves the service from the container. No custom facade class is needed.
+- id: fc-010
+  topic: facades
+  type: single
+  difficulty: medium
+  question: How do real-time facades determine which service to resolve from the container?
+  options:
+  - They use the fully qualified class name as the container key
+  - They always resolve a singleton instance regardless of the binding type
+  - They look for a getFacadeAccessor() method on the target class
+  - They use the class's short name as the container key
+  answer: They use the fully qualified class name as the container key
+  explanation: When using a real-time facade like 'use Facades\App\Services\InvoiceGenerator', Laravel automatically creates a facade that uses 'App\Services\InvoiceGenerator' as the container binding key.
+    This means the class must be registered in the container (either via a service provider or autowiring) for the real-time facade to work.
+- id: fc-011
+  topic: facades
+  type: single
+  difficulty: medium
+  question: Why are facades considered testable despite using static method calls?
+  options:
+  - Because static methods are inherently easier to mock and test in isolation compared to instance method calls
+  - Because facades automatically detect the test environment and swap to lightweight fake implementations at runtime
+  - Because PHP natively supports mocking static methods through built-in reflection and override features
+  - Because the underlying service is resolved from the container, which can be swapped with a mock during testing
+  answer: Because the underlying service is resolved from the container, which can be swapped with a mock during testing
+  explanation: Although facades use static syntax, they delegate to container-resolved instances. During testing, you can replace the container binding with a mock or use facade-specific testing methods
+    like shouldReceive() or fake(). The static call is just syntactic sugar—the actual work happens on a swappable instance, preserving testability.
+- id: fc-012
+  topic: facades
+  type: multiple
+  difficulty: medium
+  question: Which of the following correctly describe the relationship between facades and the service container?
+  options:
+  - Facades register their own bindings in the container automatically
+  - Facades are essentially static proxies to container-resolved instances
+  - The same service can be accessed via both a facade and constructor injection
+  - Removing a facade binding from the container would cause the facade to throw an exception
+  answers:
+  - Facades are essentially static proxies to container-resolved instances
+  - Removing a facade binding from the container would cause the facade to throw an exception
+  - The same service can be accessed via both a facade and constructor injection
+  explanation: Facades are pure proxies—they don't register anything in the container. Service providers register the bindings, and facades access them. If a binding doesn't exist, the facade throws a RuntimeException.
+    The same underlying service instance is accessible through both the facade and constructor injection, since both resolve from the same container.
+- id: fc-013
+  topic: facades
+  type: text
+  difficulty: medium
+  question: What facade testing method replaces the underlying implementation with an in-memory fake, commonly used with Cache, Queue, and Mail facades?
+  answer: fake
+  alternatives:
+  - fake()
+  explanation: The fake() method replaces the facade's underlying service with an in-memory implementation that doesn't perform real operations. For example, Cache::fake() uses an array-based cache, Queue::fake()
+    captures jobs without executing them, and Mail::fake() intercepts emails. After the test, you can assert that the expected operations were called.
+- id: fc-014
+  topic: facades
+  type: single
+  difficulty: medium
+  question: What is the primary argument critics make against using facades, and how does Laravel address it?
+  options:
+  - Facades don't support method chaining; Laravel addresses this by returning $this
+  - Facades are slow because they use reflection on every call; Laravel addresses this with caching
+  - Facades can't be type-hinted; Laravel addresses this with PHPDoc annotations in IDE stubs
+  - Facades create tight coupling to the framework; Laravel addresses this by making them proxy to the container
+  answer: Facades can't be type-hinted; Laravel addresses this with PHPDoc annotations in IDE stubs
+  explanation: The main criticism of facades is that static calls can't be type-hinted as constructor parameters, making dependencies less visible. Laravel provides IDE helper packages and includes PHPDoc
+    annotations on facade classes, enabling auto-completion and goto-definition in IDEs, mitigating the developer experience concern.
+- id: fc-015
+  topic: facades
+  type: single
+  difficulty: medium
+  question: What happens when you call a method on a facade that doesn't exist on the underlying service?
+  options:
+  - It calls __toString() on the service instead
+  - It forwards the call to the next registered service
+  - It throws a BadMethodCallException
+  - It returns null silently
+  answer: It throws a BadMethodCallException
+  explanation: When you call a method that doesn't exist on the resolved service, PHP's __call() magic method on the service throws a BadMethodCallException. The exception message includes the method name
+    and the class it was called on, making it easy to identify the issue—typically a typo or an incorrect assumption about the available API.
+- id: fc-016
+  topic: facades
+  type: multiple
+  difficulty: medium
+  question: Which of the following are common use cases where facades are particularly appropriate in Laravel?
+  options:
+  - Interacting with global services like Cache, Config, and Log that have no request-specific state
+  - Accessing framework services in Blade templates via directives
+  - Quick one-off calls in routes or closures where constructor injection isn't available
+  - Replacing all constructor dependency injection throughout a codebase
+  answers:
+  - Quick one-off calls in routes or closures where constructor injection isn't available
+  - Interacting with global services like Cache, Config, and Log that have no request-specific state
+  explanation: Facades shine for accessing well-known global services (Cache, Config, Log, DB) and in contexts where constructor injection isn't available (routes, Blade, Artisan commands). They should
+    not replace all dependency injection—the Laravel documentation recommends constructor injection for class dependencies and facades for framework services.
+- id: fc-017
+  topic: facades
+  type: text
+  difficulty: medium
+  question: What method on a facade allows you to swap the underlying container instance during testing, for example to replace a real service with a mock?
+  answer: swap
+  alternatives:
+  - swap()
+  explanation: The swap() method replaces the underlying instance that the facade proxies to. For example, Cache::swap(new ArrayCache()) would replace the cache instance. This is useful in tests when you
+    need to substitute the real service with a test double, giving you full control over the service's behavior.
+- id: fc-018
+  topic: facades
+  type: single
+  difficulty: medium
+  question: How does the shouldReceive() method work when testing facades?
+  options:
+  - It intercepts static calls and records them for assertion without executing the real method
+  - It creates a new test-specific facade class that overrides the method
+  - It modifies the facade's source code at runtime using eval()
+  - It uses Mockery to set expectations on the underlying resolved service instance
+  answer: It uses Mockery to set expectations on the underlying resolved service instance
+  explanation: The shouldReceive() method is a testing helper that uses Mockery to create expectations on the service instance the facade proxies to. When called, it replaces the resolved instance with
+    a Mockery mock that has the specified expectations. After the test, assertions are automatically verified.
+- id: fc-019
+  topic: facades
+  type: single
+  difficulty: medium
+  question: What base class do all Laravel facades extend?
+  options:
+  - "Illuminate\\Support\\Traits\\Facade — a trait that provides facade helper methods"
+  - "Illuminate\\Foundation\\Facade — the base facade class for framework-level facades"
+  - "Laravel\\Facade\\BaseFacade — the root namespace facade class"
+  - "Illuminate\\Support\\Facades\\Facade"
+  answer: Illuminate\Support\Facades\Facade
+  explanation: All Laravel facades extend the abstract base class Illuminate\Support\Facades\Facade. This base class implements the __callStatic() magic method, provides the getFacadeAccessor() contract,
+    and offers testing helpers like shouldReceive(), fake(), and swap(). Custom facades must also extend this class.
+- id: fc-020
+  topic: facades
+  type: multiple
+  difficulty: medium
+  question: Which of the following are valid approaches to creating a custom facade for your own service?
+  options:
+  - Adding a static method to the service class that resolves itself from the container
+  - Creating a class that extends Illuminate\Support\Facades\Facade and implementing getFacadeAccessor()
+  - Using a real-time facade with the Facades\ namespace prefix
+  - Creating an alias in config/app.php pointing to the facade class
+  answers:
+  - Creating a class that extends Illuminate\Support\Facades\Facade and implementing getFacadeAccessor()
+  - Using a real-time facade with the Facades\ namespace prefix
+  explanation: 'There are two primary ways to create facades: the traditional approach (extending the Facade base class and implementing getFacadeAccessor()) and the modern real-time facade approach (prefixing
+    the class with ''Facades\'' in a use statement). Adding static methods to the service class doesn''t create a facade, and in Laravel 13.x, aliases are registered differently.'
+- id: fc-021
+  topic: facades
+  type: text
+  difficulty: medium
+  question: What is the term for the design pattern that Laravel facades implement, which provides a simplified interface to a complex subsystem?
+  answer: Facade pattern
+  alternatives:
+  - Facade
+  - the Facade pattern
+  - facade design pattern
+  explanation: Laravel facades implement the Gang of Four 'Facade' design pattern, which provides a unified interface to a set of interfaces in a subsystem. While Laravel's implementation is unique because
+    it combines the Facade pattern with the Proxy pattern (delegating to container-resolved instances), the fundamental intent—providing a simplified, convenient interface—is the same.
+- id: fc-022
+  topic: facades
+  type: single
+  difficulty: medium
+  question: What is the difference between how Facade::fake() and Facade::shouldReceive() work in tests?
+  options:
+  - fake() only works within feature tests while shouldReceive() is restricted to isolated unit test scenarios
+  - shouldReceive() completely replaces the service instance; fake() only intercepts method calls without replacing it
+  - There is no functional difference between the two approaches; they are aliases for the same testing mechanism
+  - fake() replaces the entire service with a fake implementation; shouldReceive() uses Mockery to mock specific methods
+  answer: fake() replaces the entire service with a fake implementation; shouldReceive() uses Mockery to mock specific methods
+  explanation: fake() swaps the entire underlying service with a lightweight fake implementation (like ArrayCache, FakeQueue). shouldReceive() uses Mockery to create a partial mock where only specified
+    methods are mocked while others pass through to the real implementation. Use fake() for 'don't do real things but let me assert calls,' and shouldReceive() for 'this specific method should be called
+    with these args.'
+- id: fc-023
+  topic: facades
+  type: single
+  difficulty: hard
+  question: How does Laravel's facade aliasing system (used for 'use Cache;') resolve the short facade name to the actual class?
+  options:
+  - The Application class maintains an alias loader that maps short names to fully qualified facade classes
+  - Each facade registers itself in a global static registry array the first time it is referenced or instantiated
+  - Composer's classmap autoloader automatically discovers and registers all available facade aliases at install time
+  - PHP's built-in class autoloader searches the include paths for classes matching the short facade name
+  answer: The Application class maintains an alias loader that maps short names to fully qualified facade classes
+  explanation: Laravel registers an alias loader using spl_autoload_register that maps short facade names (like 'Cache') to their fully qualified class names (like 'Illuminate\Support\Facades\Cache'). In
+    Laravel 13.x, this is configured in the bootstrap/app.php file. When PHP encounters an undefined class, the alias loader intercepts it and maps it to the correct facade class.
+- id: fc-024
+  topic: facades
+  type: multiple
+  difficulty: hard
+  question: In the context of real-time facades, which of the following are true about how Laravel creates the facade class at runtime?
+  options:
+  - Real-time facades use eval() to define the class in the current scope
+  - The generated facade class is written to storage/framework/cache/ and loaded on subsequent requests
+  - Laravel generates a dynamic facade class extending the base Facade class
+  - The generated class implements getFacadeAccessor() returning the original class's FQCN
+  answers:
+  - Laravel generates a dynamic facade class extending the base Facade class
+  - The generated class implements getFacadeAccessor() returning the original class's FQCN
+  explanation: When using a real-time facade, Laravel dynamically creates a new class at runtime that extends the base Facade and implements getFacadeAccessor() with the target class's FQCN. The class is
+    not written to disk—Laravel uses eval() internally to define it. It works entirely in memory without persistent caching.
+- id: fc-025
+  topic: facades
+  type: text
+  difficulty: hard
+  question: When a facade method is called, what does the base Facade class's __callStatic method return if the underlying service method returns a value?
+  answer: The return value of the underlying method call
+  alternatives:
+  - the return value of the underlying method
+  - whatever the underlying method returns
+  - the method's return value
+  explanation: The __callStatic() method resolves the underlying service, calls the requested method on it with the given arguments, and returns whatever that method returns. This means facades are fully
+    transparent proxies—any return value, including objects for method chaining, is passed through unchanged.
+- id: fc-026
+  topic: facades
+  type: single
+  difficulty: hard
+  question: What potential issue arises when using real-time facades with concrete classes that are not registered in the service container?
+  options:
+  - Laravel throws a FacadeNotRegisteredException indicating that no container binding exists for the facade
+  - The container will attempt to autowire the class, which works but bypasses any explicit bindings or configuration
+  - The facade returns null for every method call and silently discards any arguments that are passed to it
+  - The facade automatically registers the unresolved class as a singleton binding in the service container
+  answer: The container will attempt to autowire the class, which works but bypasses any explicit bindings or configuration
+  explanation: If the target class isn't explicitly bound in the container, Laravel falls back to autowiring. This means the class is instantiated with its constructor dependencies automatically resolved.
+    While this works for simple classes, it bypasses any custom configuration, singletons, or contextual bindings you might have intended, which can lead to unexpected behavior.
+- id: fc-027
+  topic: facades
+  type: multiple
+  difficulty: hard
+  question: Which of the following statements correctly describe the performance characteristics of Laravel facades?
+  options:
+  - Using facades is significantly slower than constructor injection due to reflection on every call
+  - Facade calls add negligible overhead compared to direct instance method calls
+  - Each facade call triggers a container resolution, but resolved instances are cached for singleton bindings
+  - Laravel caches the mapping between facade classes and their container bindings
+  answers:
+  - Each facade call triggers a container resolution, but resolved instances are cached for singleton bindings
+  - Laravel caches the mapping between facade classes and their container bindings
+  explanation: Each facade method call resolves the service from the container, but for singletons (which most facades use), the instance is cached after the first resolution. Laravel also caches the facade-to-binding
+    mapping. The actual overhead per call is minimal—just an array lookup and a method dispatch—making facades performant enough for production use.
+- id: fc-028
+  topic: facades
+  type: single
+  difficulty: hard
+  question: How can you access the resolved instance behind a facade without calling any specific method on it?
+  options:
+  - Facade::getFacadeRoot()
+  - Facade::getInstance()
+  - Facade::resolvedInstance()
+  - app(Facade::class)
+  answer: Facade::getFacadeRoot()
+  explanation: The static getFacadeRoot() method on the base Facade class returns the resolved service instance from the container. This is useful when you need to pass the underlying instance to another
+    service or perform operations that aren't available through the facade interface. Each facade also has a getFacadeRoot() alias at the instance level.
+- id: fc-029
+  topic: facades
+  type: text
+  difficulty: hard
+  question: What design pattern, combined with the Facade pattern, does Laravel use to provide static access to container-resolved service instances?
+  answer: Proxy pattern
+  alternatives:
+  - Proxy
+  - the Proxy pattern
+  - Service Locator
+  - service locator pattern
+  explanation: Laravel facades combine the Facade pattern (providing a simplified interface) with the Proxy pattern (forwarding calls to another object). The static facade class acts as a proxy to the container-resolved
+    instance. Some also describe this as a variant of the Service Locator pattern, since the container acts as a locator that the facade queries to find the service.

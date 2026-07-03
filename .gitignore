@@ -28,6 +28,8 @@ Homestead.yaml
 Thumbs.db
 plan.txt
 
+/examples
+
 # Laravel Boost machine-local config
 boost.json
 .mcp.json

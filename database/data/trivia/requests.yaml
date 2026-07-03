@@ -1,0 +1,380 @@
+- id: rq-001
+  topic: requests
+  type: single
+  difficulty: easy
+  question: What is the key difference between $request->input('name') and $request->query('name') in Laravel?
+  options:
+  - "query() checks both query string and request body, while input() only checks the body"
+  - "input() checks both query string and request body, while query() only checks the query string"
+  - "There is no difference between the two methods — they serve as interchangeable aliases"
+  - "input() only reads from the request body, while query() only reads from the URL query string"
+  answer: input() checks both query string and request body, while query() only checks the query string
+  explanation: The input() method retrieves values from the entire request payload including the query string, request body, and even route parameters. In contrast, query() specifically targets query string
+    parameters only. This distinction matters when a parameter name exists in both the body and the query string, as input() will prioritize the body value.
+- id: rq-002
+  topic: requests
+  type: single
+  difficulty: easy
+  question: What does $request->has('email') return if 'email' is present in the request but its value is an empty string?
+  options:
+  - It throws an exception
+  - 'null'
+  - 'true'
+  - 'false'
+  answer: 'true'
+  explanation: The has() method checks for the presence of a key in the request data regardless of its value. Even if the 'email' field is an empty string (''), has() returns true because the key itself
+    exists. If you need to check that a value is not only present but also non-empty, use filled() instead.
+- id: rq-003
+  topic: requests
+  type: multiple
+  difficulty: easy
+  question: Which of the following methods can retrieve the 'name' input from a request? (Select all that apply)
+  options:
+  - $request->name
+  - $request->get('name')
+  - $request->retrieve('name')
+  - $request->input('name')
+  answers:
+  - $request->input('name')
+  - $request->name
+  - $request->get('name')
+  explanation: Laravel provides multiple ways to access input data. The input() method is the most common, get() is an alias for input(), and dynamic properties ($request->name) also work by proxying to
+    input(). There is no retrieve() method on the Request object — attempting to call it would trigger an error.
+- id: rq-004
+  topic: requests
+  type: text
+  difficulty: easy
+  question: What global PHP helper function in Laravel provides quick access to the current request's input values, equivalent to using $request->input()?
+  answer: request()
+  alternatives:
+  - request
+  explanation: The request() helper function is a convenient way to access the current request instance or retrieve input values directly. You can call request('key', 'default') to get a specific input
+    value with an optional default, making it a concise alternative to injecting the Request object in simple scenarios.
+- id: rq-005
+  topic: requests
+  type: single
+  difficulty: easy
+  question: How do you retrieve a subset of input data as an associative array, such as only 'name' and 'email'?
+  options:
+  - $request->get(['name', 'email'])
+  - $request->only(['name', 'email'])
+  - $request->subset('name', 'email')
+  - $request->filter(['name', 'email'])
+  answer: $request->only(['name', 'email'])
+  explanation: The only() method accepts an array of keys and returns a new associative array containing only those input values. This is useful when you want to extract a specific subset of data, such
+    as for mass assignment on a model. The complementary except() method works the opposite way, returning everything except the specified keys.
+- id: rq-006
+  topic: requests
+  type: single
+  difficulty: easy
+  question: Which HTTP method is used for file uploads in HTML forms, and what Laravel middleware handles multipart requests?
+  options:
+  - POST — no special middleware is needed; Laravel handles multipart/form-data natively
+  - GET requests paired with the FileMiddleware to handle file stream processing on upload
+  - POST with the TrimStrings and ConvertEmptyStringsToNull middleware processing the upload data
+  - PUT with the HandleFileUploads middleware to process multipart file upload requests
+  answer: POST — no special middleware is needed; Laravel handles multipart/form-data natively
+  explanation: HTML forms use POST (or PUT/PATCH) with enctype='multipart/form-data' for file uploads. Laravel automatically detects the multipart content type and makes uploaded files accessible via the
+    $request->file() method or dynamic properties. No additional middleware configuration is required for basic file handling.
+- id: rq-007
+  topic: requests
+  type: text
+  difficulty: easy
+  question: What method on the Request object checks whether the current request is an AJAX request (specifically, one that requests JSON)?
+  answer: wantsJson
+  alternatives:
+  - wantsJson()
+  explanation: The wantsJson() method returns true if the request has the Accept header set to application/json or */* with JSON preference. This is commonly used in controllers to decide whether to return
+    a JSON response or a view. It is more precise than the older ajax() method, which only checks for the X-Requested-With header.
+- id: rq-008
+  topic: requests
+  type: multiple
+  difficulty: easy
+  question: Which of the following are valid ways to access a cookie named 'theme' from the request? (Select all that apply)
+  options:
+  - $request->cookie('theme')
+  - Cookie::get('theme')
+  - $request->cookies->get('theme')
+  - $request->input('theme')
+  answers:
+  - $request->cookie('theme')
+  - $request->cookies->get('theme')
+  - Cookie::get('theme')
+  explanation: Cookies sent by the browser can be accessed via the Request object using cookie(), through the underlying cookie bag with cookies->get(), or via the Cookie facade. However, $request->input('theme')
+    will NOT retrieve cookies — input() only accesses query string, body, and route parameters, not cookies.
+- id: rq-009
+  topic: requests
+  type: single
+  difficulty: easy
+  question: What does the $request->ip() method return?
+  options:
+  - An array of all proxy IP addresses
+  - The domain name of the client
+  - The server's IP address
+  - The client's IP address
+  answer: The client's IP address
+  explanation: The ip() method returns the IP address of the client making the request. If your application is behind a proxy or load balancer, you should ensure the TrustProxies middleware is properly
+    configured so that ip() returns the real client IP rather than the proxy's IP.
+- id: rq-010
+  topic: requests
+  type: text
+  difficulty: easy
+  question: What method returns the full URL of the current request, including the query string?
+  answer: fullUrl
+  alternatives:
+  - fullUrl()
+  - $request->fullUrl()
+  explanation: The fullUrl() method returns the complete URL including the scheme, host, path, and query string. In contrast, url() returns the URL without the query string, and path() returns only the
+    path portion. This is useful for logging or redirecting back to the current page with all its parameters.
+- id: rq-011
+  topic: requests
+  type: single
+  difficulty: medium
+  question: Why might $request->input('items.0.name') be used instead of $request->input('items')?
+  options:
+  - It prevents cross-site scripting attacks when accessing nested data structures in user input
+  - Dot notation is required when accessing JSON request bodies but is optional for standard form data submissions
+  - Dot notation allows accessing nested array elements directly without manually traversing the array
+  - The input() method does not support reading nested arrays at all without using the dot notation syntax
+  answer: Dot notation allows accessing nested array elements directly without manually traversing the array
+  explanation: Laravel's input() method supports dot notation to retrieve values from nested arrays or objects. Using 'items.0.name' directly accesses $items[0]['name'] without needing to first retrieve
+    'items' and then index into it. This works for both form-encoded arrays and JSON request bodies, making it a powerful and consistent way to access nested data.
+- id: rq-012
+  topic: requests
+  type: single
+  difficulty: medium
+  question: 'What is the purpose of the ''X-Requested-With: XMLHttpRequest'' header in Laravel requests?'
+  options:
+  - It enables CORS headers for the request and allows cross-origin resource sharing
+  - It signals Laravel to bypass CSRF verification checks on the incoming request
+  - It authenticates the request using bearer tokens from the authorization header
+  - It identifies AJAX requests, which the $request->ajax() method checks for
+  answer: It identifies AJAX requests, which the $request->ajax() method checks for
+  explanation: Many JavaScript libraries like jQuery and Axios automatically set the X-Requested-With header to XMLHttpRequest. Laravel's $request->ajax() method checks for this header to determine if a
+    request was made via AJAX. While useful, the modern prefersJson()/wantsJson() methods are often more appropriate for API-driven applications.
+- id: rq-013
+  topic: requests
+  type: multiple
+  difficulty: medium
+  question: Which of the following methods correctly retrieve an uploaded file from a request with a form field named 'avatar'? (Select all that apply)
+  options:
+  - $request->avatar
+  - UploadedFile::find('avatar')
+  - $request->input('avatar')
+  - $request->file('avatar')
+  answers:
+  - $request->file('avatar')
+  - $request->avatar
+  explanation: Uploaded files can be retrieved using the file() method or via dynamic properties on the request object. Both return an instance of Illuminate\Http\UploadedFile. However, input('avatar')
+    would return the file's original client-side filename as a string, not the uploaded file object. There is no UploadedFile::find() method.
+- id: rq-014
+  topic: requests
+  type: single
+  difficulty: medium
+  question: What happens when you call $request->merge(['role' => 'admin']) during a request lifecycle?
+  options:
+  - It conditionally adds the 'role' key only if it does not already exist in the request's input data
+  - It stores the 'role' value in the session instead of merging it into the current request input
+  - It adds or overwrites the 'role' key in the existing request input without affecting other inputs
+  - It completely overwrites the entire request input array, replacing all keys with only the 'role' key
+  answer: It adds or overwrites the 'role' key in the existing request input without affecting other inputs
+  explanation: The merge() method combines the provided array with the existing request input. If a key already exists, its value is overwritten; if it doesn't exist, it's added. All other input values
+    remain untouched. This is commonly used in middleware to augment request data before it reaches the controller.
+- id: rq-015
+  topic: requests
+  type: text
+  difficulty: medium
+  question: What method on the Request object should you use to check if the request contains ANY of the given keys, rather than ALL of them?
+  answer: hasAny
+  alternatives:
+  - hasAny()
+  - $request->hasAny()
+  explanation: The hasAny() method accepts an array of keys and returns true if at least one of them is present in the request. This is the complement to has(), which checks that all specified keys exist.
+    There's also a corresponding filledAny() method that checks whether any of the given keys have non-empty values.
+- id: rq-016
+  topic: requests
+  type: single
+  difficulty: medium
+  question: In a FormRequest class, where should you place authorization logic that determines whether the current user is allowed to make this request?
+  options:
+  - In the rules() method
+  - In the authorize() method
+  - In the __construct() method
+  - In the messages() method
+  answer: In the authorize() method
+  explanation: FormRequest classes separate authorization from validation. The authorize() method should return true or false (or throw an exception) to gate whether the request should proceed. If it returns
+    false, Laravel automatically returns a 403 Forbidden response. The rules() method is exclusively for defining validation rules.
+- id: rq-017
+  topic: requests
+  type: single
+  difficulty: medium
+  question: How does Laravel's 'TrimStrings' middleware affect incoming request data?
+  options:
+  - It removes whitespace from the beginning and end of all string input values
+  - It removes all whitespace characters from every string value in the entire request body payload
+  - It converts all empty string values to null values throughout the request input data
+  - It trims whitespace from only specific whitelisted input fields defined in a configuration array
+  answer: It removes whitespace from the beginning and end of all string input values
+  explanation: The TrimStrings middleware, enabled by default in Laravel, automatically trims leading and trailing whitespace from all string values in the request input. This happens before validation
+    runs, so your validation rules receive clean data. You can exclude specific fields from trimming by adding them to the $except property on the middleware.
+- id: rq-018
+  topic: requests
+  type: multiple
+  difficulty: medium
+  question: Which of the following are properties you can configure on a FormRequest class to customize its behavior? (Select all that apply)
+  options:
+  - $stopOnFirstFailure
+  - $redirectRoute
+  - $redirect
+  - $validator
+  answers:
+  - $redirect
+  - $redirectRoute
+  - $stopOnFirstFailure
+  explanation: FormRequest classes expose several configuration properties. $redirect specifies a URL to redirect to on validation failure, $redirectRoute names a route to redirect to, and $stopOnFirstFailure
+    (boolean) stops validation after the first rule fails. The $validator property is not a configurable override — it's set internally after validation runs.
+- id: rq-019
+  topic: requests
+  type: text
+  difficulty: medium
+  question: What is the name of the hidden form field Laravel uses to spoof HTTP methods like PUT and DELETE in HTML forms?
+  answer: _method
+  alternatives:
+  - _method
+  - the _method field
+  explanation: HTML forms only support GET and POST methods natively. Laravel's method spoofing uses a hidden _method field to specify the actual HTTP method (PUT, PATCH, DELETE). The ConvertEmptyStringsToNull
+    and TrimStrings middleware process this before routing. The App\Http\Middleware\ConvertEmptyStringsToNull middleware runs in the global middleware stack.
+- id: rq-020
+  topic: requests
+  type: single
+  difficulty: medium
+  question: Why does the $request->boolean('active') method exist instead of simply using $request->input('active')?
+  options:
+  - boolean() inspects the HTML input type attribute to determine how to process the submitted value
+  - The input() method is fundamentally unable to read checkbox values submitted from HTML forms
+  - boolean() returns a proper boolean type instead of the raw string '1' or '0'
+  - There is no practical difference between the two methods when handling standard form submissions
+  answer: boolean() returns a proper boolean type instead of the raw string '1' or '0'
+  explanation: HTML forms submit checkbox and radio values as strings like '1', '0', 'true', or 'false'. The boolean() method converts these to actual PHP boolean values (true or false), handling various
+    truthy/falsy string representations. This is especially useful for toggling boolean database columns without manual type casting.
+- id: rq-021
+  topic: requests
+  type: single
+  difficulty: medium
+  question: What is the difference between $request->collect('items') and collect($request->input('items'))?
+  options:
+  - There is no difference; they produce identical collections
+  - $request->collect() can accept dot notation and defaults to an empty collection, while collect() on null returns an empty collection with different behavior
+  - collect() on the input creates a lazy collection while $request->collect() creates an eager collection
+  - $request->collect() is deprecated in Laravel 13.x
+  answer: There is no difference; they produce identical collections
+  explanation: Both approaches create an Illuminate\Support\Collection instance from the request input. The $request->collect() method is a convenience wrapper that internally calls collect() on the input
+    value. If the key doesn't exist, $request->collect() returns an empty collection, matching the behavior of collect($request->input('items')) when the input is null.
+- id: rq-022
+  topic: requests
+  type: multiple
+  difficulty: medium
+  question: Which of the following request methods return information about the HTTP request headers? (Select all that apply)
+  options:
+  - $request->header('Content-Type')
+  - $request->getHeader('Content-Type')
+  - $request->bearerToken()
+  - $request->headers->get('Content-Type')
+  answers:
+  - $request->header('Content-Type')
+  - $request->headers->get('Content-Type')
+  - $request->bearerToken()
+  explanation: Request headers can be accessed via the header() helper method, through the Symfony HttpFoundation headers bag using headers->get(), or specifically for bearer tokens with bearerToken().
+    There is no direct getHeader() method on Laravel's Request class — that's a PSR-7 interface method.
+- id: rq-023
+  topic: requests
+  type: text
+  difficulty: medium
+  question: What method on the UploadedFile object returns the original client-side filename (not the temporary path)?
+  answer: getClientOriginalName
+  alternatives:
+  - getClientOriginalName()
+  - getClientOriginalName
+  explanation: The getClientOriginalName() method returns the filename as it was on the client's machine before the upload. This should be used cautiously since client-provided filenames can be malicious.
+    The hashName() method is generally preferred for storing files, as it generates a safe, unique filename.
+- id: rq-024
+  topic: requests
+  type: single
+  difficulty: medium
+  question: How do you retrieve the value of a route parameter within a FormRequest's rules() method?
+  options:
+  - route_param('id')
+  - $this->input('id')
+  - $this->parameter('id')
+  - $this->route('id')
+  answer: $this->route('id')
+  explanation: 'Inside a FormRequest class, $this->route(''parameter_name'') accesses route parameters. This is essential for validation rules like unique that need to exclude the current model: ''unique:users,email,''
+    . $this->route(''user''). Using $this->input() would not reliably access URI parameters defined in the route definition.'
+- id: rq-025
+  topic: requests
+  type: single
+  difficulty: hard
+  question: When using $request->validate() directly in a controller, how does Laravel's behavior differ from using a FormRequest class?
+  options:
+  - There is no meaningful difference in behavior between the two validation approaches in standard web request scenarios
+  - FormRequest always returns JSON-formatted error responses, while inline validate() only returns redirect responses
+  - validate() in a controller does not support the 'StopOnFirstFailure' feature that FormRequest classes can configure
+  - validate() in a controller redirects to the previous URL on failure, while FormRequest can customize the redirect
+  answer: validate() in a controller redirects to the previous URL on failure, while FormRequest can customize the redirect
+  explanation: 'Both approaches run the same validation engine. However, FormRequest classes provide more control: you can override the failedValidation() method for custom error responses, set $redirect
+    or $redirectRoute properties, and separate authorization logic in authorize(). The inline validate() method always redirects to the previous URL for web requests or returns JSON for AJAX requests.'
+- id: rq-026
+  topic: requests
+  type: multiple
+  difficulty: hard
+  question: Which of the following correctly describe the behavior of $request->whenHas('name', callback)? (Select all that apply)
+  options:
+  - The callback only fires if 'name' is present in the request
+  - The callback receives the value of 'name' as its first argument
+  - It throws a 422 error if 'name' is not present
+  - An optional second closure can be provided as a default when the key is missing
+  answers:
+  - The callback receives the value of 'name' as its first argument
+  - The callback only fires if 'name' is present in the request
+  - An optional second closure can be provided as a default when the key is missing
+  explanation: The whenHas() method conditionally executes a closure when a key is present in the request. The closure receives the value as its argument. A second closure can be passed to execute when
+    the key is absent. This is a functional alternative to wrapping has() checks in if statements. It never throws errors — it simply doesn't call the first closure if the key is missing.
+- id: rq-027
+  topic: requests
+  type: text
+  difficulty: hard
+  question: What interface must a Laravel FormRequest class implement to be automatically resolved and validated by the framework?
+  answer: ValidatesWhenResolved
+  alternatives:
+  - Illuminate\Contracts\Validation\ValidatesWhenResolved
+  explanation: FormRequest classes implement ValidatesWhenResolved (via the base FormRequest class). This interface is checked by Laravel's service container during dependency injection. When a controller
+    type-hints a FormRequest, the container resolves it, calls validate(), and only then injects it into the controller — meaning the controller never executes with invalid data.
+- id: rq-028
+  topic: requests
+  type: single
+  difficulty: hard
+  question: What is the primary reason to use $request->json('data.items') instead of $request->input('data.items') when receiving an API request?
+  options:
+  - json() automatically decodes any base64-encoded JSON payloads before parsing the underlying structured data
+  - The input() method cannot parse deeply nested JSON structures and only supports flat key-value pair access
+  - json() is faster because it directly accesses the parsed body and skips all middleware processing entirely
+  - json() only reads from the JSON body, while input() also checks query string and may cause unintended matches
+  answer: json() only reads from the JSON body, while input() also checks query string and may cause unintended matches
+  explanation: The json() method retrieves data exclusively from the decoded JSON request body. In contrast, input() checks the query string first, then the body. When building APIs, using json() is more
+    explicit and prevents query string parameters from accidentally overriding or interfering with JSON body data. Both methods support dot notation for nested structures.
+- id: rq-029
+  topic: requests
+  type: multiple
+  difficulty: hard
+  question: Which of the following are true about how Laravel processes request input before it reaches your controller? (Select all that apply)
+  options:
+  - ConvertEmptyStringsToNull middleware converts empty strings to null
+  - TrimStrings middleware trims whitespace from string values
+  - The global input is automatically sanitized against SQL injection
+  - Request headers are merged into the input bag
+  answers:
+  - TrimStrings middleware trims whitespace from string values
+  - ConvertEmptyStringsToNull middleware converts empty strings to null
+  explanation: 'Two global middleware process all incoming requests by default: TrimStrings removes leading/trailing whitespace from string inputs, and ConvertEmptyStringsToNull converts empty strings to
+    null. These run before validation. Laravel does NOT automatically sanitize against SQL injection through the request layer — that''s handled by Eloquent''s parameter binding. Headers are stored separately
+    and are never merged into the input bag.'

@@ -1,0 +1,135 @@
+- id: ug-001
+  topic: url-generation
+  type: single
+  difficulty: easy
+  question: Which helper function generates a URL to the application's root when called with no arguments?
+  options:
+  - route('/')
+  - url('/')
+  - base_url()
+  - asset('/')
+  answer: url('/')
+  explanation: The `url()` helper generates a fully qualified URL. When called as `url('/')`, it produces the application's root URL (e.g., `https://example.com/`). The `route()` helper requires a named
+    route, not a path. The `asset()` helper is specifically for public asset files.
+- id: ug-002
+  topic: url-generation
+  type: text
+  difficulty: easy
+  question: What Laravel helper function generates a URL to a named route, given the route name as its first argument?
+  answer: route
+  alternatives:
+  - route()
+  explanation: 'The `route()` helper generates URLs for named routes. For example, if you have `Route::get(''/profile'', [ProfileController::class, ''show''])->name(''profile'')`, then `route(''profile'')`
+    generates the URL `/profile`. You can also pass parameters as the second argument: `route(''profile'', [''id'' => 1])`.'
+- id: ug-003
+  topic: url-generation
+  type: multiple
+  difficulty: easy
+  question: Which of the following are valid ways to access URL generation functionality in Laravel? (Select all that apply)
+  options:
+  - The URL facade
+  - The Illuminate\Support\Facades\URL class
+  - The url() global helper function
+  - The UrlGenerator singleton from the service container
+  answers:
+  - The url() global helper function
+  - The URL facade
+  - The Illuminate\Support\Facades\URL class
+  - The UrlGenerator singleton from the service container
+  explanation: Laravel provides multiple ways to generate URLs. The `url()` helper is a quick global function. The `URL` facade provides static-like access. Behind the scenes, the facade resolves the `Illuminate\Routing\UrlGenerator`
+    singleton from the service container. All four approaches ultimately use the same underlying URL generator.
+- id: ug-004
+  topic: url-generation
+  type: single
+  difficulty: medium
+  question: What does passing `true` as the third argument to the route() helper accomplish?
+  options:
+  - It forces HTTPS regardless of the current request scheme
+  - It generates an absolute URL instead of a relative one
+  - It redirects to the route immediately
+  - It validates the route parameters before generating the URL
+  answer: It generates an absolute URL instead of a relative one
+  explanation: The `route()` helper's third argument is `$absolute`. By default, `route()` generates absolute URLs (full URLs with protocol and domain). Passing `false` as the third argument produces a
+    relative path (e.g., `/users/1` instead of `https://example.com/users/1`). This is useful when you want protocol-relative or path-only URLs.
+- id: ug-005
+  topic: url-generation
+  type: text
+  difficulty: medium
+  question: What method on the URL facade generates a URL with a temporary, expiring signature for verifying the URL has not been tampered with?
+  answer: temporarySignedRoute
+  alternatives:
+  - signedRoute
+  - URL::temporarySignedRoute
+  - temporarySignedUrl
+  explanation: '`URL::temporarySignedRoute()` generates a URL with a time-limited cryptographic signature. It accepts the route name, an expiration time in seconds (or a DateTime), and optional route parameters.
+    The signed URL appends a `signature` query parameter and an `expires` timestamp, which Laravel''s `signed` middleware can validate. This is ideal for email verification links, password resets, and other
+    time-sensitive actions.'
+- id: ug-006
+  topic: url-generation
+  type: single
+  difficulty: medium
+  question: How do you generate a URL for a controller action without using a named route?
+  options:
+  - action([UserController::class, 'show'], ['id' => 1])
+  - URL::toController('UserController@show', ['id' => 1])
+  - url()->controller('UserController@show', ['id' => 1])
+  - generate_action('UserController@show', ['id' => 1])
+  answer: action([UserController::class, 'show'], ['id' => 1])
+  explanation: The `action()` helper generates a URL based on a controller action. It accepts an array of the controller class and method name as the first argument, with parameters as the second. While
+    named routes are preferred (they're more maintainable since they don't couple URLs to controller structure), `action()` is useful when you don't control the route definitions.
+- id: ug-007
+  topic: url-generation
+  type: multiple
+  difficulty: medium
+  question: What query parameters are appended by Laravel when generating a signed URL? (Select all that apply)
+  options:
+  - timestamp
+  - signature
+  - token
+  - expires
+  answers:
+  - signature
+  - expires
+  explanation: When you generate a signed or temporary signed URL, Laravel appends a `signature` parameter (a base64-encoded HMAC hash of the URL) and an `expires` parameter (a Unix timestamp indicating
+    when the URL expires). The `signature` query parameter is also used for permanent signed URLs, while `expires` only appears on temporary ones.
+- id: ug-008
+  topic: url-generation
+  type: single
+  difficulty: hard
+  question: What happens if you call route('profile', ['id' => 1]) but the 'profile' route also requires a 'slug' parameter that you omit?
+  options:
+  - It throws a MissingRouteParametersException
+  - It generates the URL with a blank slug value
+  - It falls back to the current request's slug value
+  - It automatically generates a slug from the id
+  answer: It throws a MissingRouteParametersException
+  explanation: Laravel strictly requires all route parameters to be provided when generating a URL. If any required parameter is missing from the array passed to `route()`, Laravel throws an `Illuminate\Routing\Exceptions\MissingRouteParametersException`.
+    You must explicitly provide all required parameters or define default values in your route definition.
+- id: ug-009
+  topic: url-generation
+  type: text
+  difficulty: hard
+  question: What middleware must you apply to a route to validate that an incoming request has a valid signed URL signature?
+  answer: signed
+  alternatives:
+  - signed.middleware
+  - App\Http\Middleware\Signed
+  - Illuminate\Routing\Middleware\Signed
+  explanation: The `signed` middleware (`Illuminate\Routing\Middleware\ValidateSignature`) checks that the request's `signature` parameter matches a valid HMAC of the URL. For temporary signed URLs, it
+    also verifies the `expires` timestamp hasn't passed. You apply it via `->middleware('signed')` on the route. If validation fails, it returns a 403 Forbidden response.
+- id: ug-010
+  topic: url-generation
+  type: multiple
+  difficulty: hard
+  question: Which of the following correctly describe the behavior of URL::forceRootUrl()? (Select all that apply)
+  options:
+  - It overrides the URL generator's root URL for the entire request lifecycle
+  - It changes the APP_URL configuration value permanently
+  - It affects both url() and route() helper output
+  - It is commonly used in CLI commands or queued jobs where there is no incoming HTTP request
+  answers:
+  - It overrides the URL generator's root URL for the entire request lifecycle
+  - It is commonly used in CLI commands or queued jobs where there is no incoming HTTP request
+  - It affects both url() and route() helper output
+  explanation: '`URL::forceRootUrl(''https://example.com'')` overrides the root URL used by the URL generator. This is essential in Artisan commands or queued jobs where no HTTP request exists to infer
+    the base URL from. It affects all URL generation (both `url()` and `route()`) for the current process. It does NOT modify the `.env` file or config — it''s a runtime-only override.'

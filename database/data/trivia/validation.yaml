@@ -1,0 +1,133 @@
+- id: vd-001
+  topic: validation
+  type: single
+  difficulty: easy
+  question: Which method on a FormRequest class should you override to define your validation rules?
+  options:
+  - authorize()
+  - validate()
+  - rules()
+  - getRules()
+  answer: rules()
+  explanation: In a FormRequest class, the `rules()` method returns an array of validation rules that Laravel automatically applies before your controller method is called. The `authorize()` method determines
+    if the current user is authorized to make the request. The `validate()` method is used on the `Validator` facade or `$request` object directly, not inside FormRequest.
+- id: vd-002
+  topic: validation
+  type: text
+  difficulty: easy
+  question: What validation rule ensures a field is required and must be a valid email format?
+  answer: required|email
+  alternatives:
+  - email|required
+  explanation: Laravel validation rules are pipe-delimited strings. `required|email` first checks that the field is present and not empty, then validates it matches email format. The order doesn't matter
+    — Laravel evaluates all rules independently. You can use this in FormRequest `rules()`, the `$request->validate()` method, or the `Validator` facade.
+- id: vd-003
+  topic: validation
+  type: multiple
+  difficulty: easy
+  question: Which of the following are valid ways to validate incoming request data in a controller? (Select all that apply)
+  options:
+  - Using the Validator::make() facade
+  - Calling $request->validate() inside the controller
+  - Injecting a FormRequest class in the controller method signature
+  - Calling validate() on the Eloquent model
+  answers:
+  - Injecting a FormRequest class in the controller method signature
+  - Calling $request->validate() inside the controller
+  - Using the Validator::make() facade
+  explanation: 'Laravel offers three primary validation approaches: (1) FormRequest classes injected as method parameters — they auto-validate before the controller runs, (2) `$request->validate()` called
+    manually inside the controller for quick inline validation, and (3) `Validator::make()` for full manual control including custom failure handling. Eloquent models don''t have a `validate()` method by
+    default.'
+- id: vd-004
+  topic: validation
+  type: single
+  difficulty: medium
+  question: What happens when $request->validate() fails in a controller?
+  options:
+  - It returns null from the controller and sets the validation errors on the request object
+  - It throws a generic runtime Exception containing the validation error message and field names
+  - It throws a ValidationException that redirects back with errors and old input
+  - It always returns a JSON response with a 422 status code regardless of the request type
+  answer: It throws a ValidationException that redirects back with errors and old input
+  explanation: When `$request->validate()` fails, Laravel throws a `ValidationException`. For web requests, the exception handler automatically redirects back to the previous page with validation errors
+    flashed to the session and old input flashed for form repopulation. For AJAX/XHR requests, it returns a JSON response with a 422 status code and the error messages.
+- id: vd-005
+  topic: validation
+  type: text
+  difficulty: medium
+  question: What validation rule ensures that the value of one field must match the value of another field (e.g., password confirmation)?
+  answer: confirmed
+  alternatives:
+  - confirmed:field
+  explanation: The `confirmed` rule checks that a field has a matching `{field}_confirmation` counterpart. For example, if your field is `password`, Laravel looks for a `password_confirmation` field and
+    ensures they match. This is commonly used for password changes and email verification forms. You don't need to specify the target field — it's convention-based.
+- id: vd-006
+  topic: validation
+  type: single
+  difficulty: medium
+  question: Why would you use the 'sometimes' validation rule prefix instead of making a field optional with 'nullable'?
+  options:
+  - sometimes only applies its validation logic when the field contains a string data type
+  - sometimes skips all validation rules if the field is not present
+  - There is no real functional difference between the two approaches in Laravel 13
+  - nullable has been fully deprecated and removed in the Laravel 13.x framework release
+  answer: sometimes skips all validation rules if the field is not present
+  explanation: '`sometimes` is a rule prefix that tells Laravel to skip all validation for that field if it''s completely absent from the request. This is useful for conditional validation in PATCH requests
+    where only some fields are sent. `nullable`, by contrast, allows the field to be present but empty (null/empty string) while still running other rules. `sometimes` prevents rules from running at all
+    when the key is missing.'
+- id: vd-007
+  topic: validation
+  type: multiple
+  difficulty: medium
+  question: Which of the following are conditional validation rules that execute based on other input values? (Select all that apply)
+  options:
+  - required_if:field,value
+  - exclude_if:field,value
+  - nullable
+  - required_with:field
+  answers:
+  - required_if:field,value
+  - required_with:field
+  - exclude_if:field,value
+  explanation: Laravel provides rich conditional validation. `required_if:field,value` makes a field required when another field equals a specific value. `required_with:field` makes it required when another
+    field is present. `exclude_if:field,value` removes the field from validation entirely when a condition is met. `nullable` is not conditional — it simply allows null/empty values.
+- id: vd-008
+  topic: validation
+  type: single
+  difficulty: hard
+  question: When using the 'unique' validation rule to check against the database, how do you ignore the current record during an update operation?
+  options:
+  - unique:users,email,except:id
+  - unique:users,email,{{$id}}
+  - unique:users,email,{{ $id }}
+  - unique:users,email,ignore:id
+  answer: unique:users,email,{{$id}}
+  explanation: 'The `unique` rule accepts an ignore parameter as the third column-separated value. The syntax is `unique:table,column,except`. You use Blade''s `{{ }}` syntax to inject the current model''s
+    ID: `unique:users,email,{{$user->id}}`. This tells Laravel to skip the uniqueness check for the current record. Without this, updating a record would fail because the unique check would find the record''s
+    own existing value.'
+- id: vd-009
+  topic: validation
+  type: text
+  difficulty: hard
+  question: What method can you define in a FormRequest class to customize the error messages for specific fields and rules?
+  answer: messages
+  alternatives:
+  - messages()
+  - customMessages
+  explanation: In a FormRequest class, defining a `messages()` method lets you override default validation error messages. It returns an associative array where keys use the format `'field.rule'` (e.g.,
+    `'email.required' => 'We need your email'`). This gives you field-specific, rule-specific control over error messaging without modifying language files.
+- id: vd-010
+  topic: validation
+  type: multiple
+  difficulty: hard
+  question: When creating a custom validation rule object using 'php artisan make:rule', which two methods must you implement? (Select all that apply)
+  options:
+  - message()
+  - rules()
+  - validate($attribute, $value, $fail)
+  - passes($attribute, $value)
+  answers:
+  - validate($attribute, $value, $fail)
+  - message()
+  explanation: 'In Laravel 13.x, custom rule objects generated by `make:rule` implement two methods: `validate($attribute, $value, $fail)` — which contains your validation logic (call `$fail(''message'')`
+    on failure), and `message()` — which returns the default error message string. The older `passes()` and `message()` pattern was used in Laravel 9 and earlier, but `validate()` is now the standard approach.'

@@ -8,6 +8,7 @@ use App\Livewire\AdminLessonList;
 use App\Livewire\AdminStepList;
 use App\Livewire\QuizViewer;
 use App\Livewire\StepViewer;
+use App\Livewire\TriviaQuiz;
 use App\Models\Course;
 use App\Models\Step;
 use App\Models\StepCompletion;
@@ -407,5 +408,30 @@ class SmokeTest extends TestCase
             ->assertSee('Welcome')
             ->assertSee('Dash Course')
             ->assertSee('Dashboard');
+    }
+
+    public function test_trivia_quiz_page_loads(): void
+    {
+        $user = User::factory()->create(['role' => 'student']);
+
+        $this->actingAs($user)->get('/quiz')
+            ->assertOk()
+            ->assertSee('Laravel Trivia');
+
+        Livewire::actingAs($user)
+            ->test(TriviaQuiz::class)
+            ->assertOk()
+            ->assertSee('Select Topics');
+    }
+
+    public function test_dashboard_shows_trivia_card(): void
+    {
+        $user = User::factory()->create(['role' => 'student']);
+
+        $this->actingAs($user)->get('/dashboard')
+            ->assertOk()
+            ->assertSee('Laravel Trivia')
+            ->assertSee('Test Your Laravel Knowledge')
+            ->assertSee(route('quiz'));
     }
 }

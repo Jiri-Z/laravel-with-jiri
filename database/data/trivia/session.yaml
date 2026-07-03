@@ -1,0 +1,133 @@
+- id: ss-001
+  topic: session
+  type: single
+  difficulty: easy
+  question: Which configuration file controls Laravel's session settings, including the driver and lifetime?
+  options:
+  - "config/session.php — manages session drivers, lifetime, and other session-related settings"
+  - "config/auth.php — handles authentication guards, providers, and password reset settings"
+  - "config/app.php — manages application-level settings like timezone, locale, and debugging"
+  - "config/cache.php — configures cache stores, default cache driver, and cache prefix"
+  answer: "config/session.php — manages session drivers, lifetime, and other session-related settings"
+  explanation: The `config/session.php` file controls all session-related settings in Laravel, including the session driver (file, database, redis, etc.), session lifetime, cookie name, path, domain, and
+    encryption settings. This is where you customize how sessions behave in your application.
+- id: ss-002
+  topic: session
+  type: text
+  difficulty: easy
+  question: What is the default session driver used by a fresh Laravel installation?
+  answer: file
+  alternatives:
+  - file driver
+  explanation: Laravel's default session driver is `file`, which stores session data in the `storage/framework/sessions/` directory. This is sufficient for most single-server applications. For distributed
+    applications, you'd switch to `database`, `redis`, `memcached`, or `dynamodb` drivers so sessions can be shared across multiple servers.
+- id: ss-003
+  topic: session
+  type: multiple
+  difficulty: easy
+  question: Which of the following are valid built-in session drivers in Laravel 13.x? (Select all that apply)
+  options:
+  - cookie
+  - database
+  - file
+  - redis
+  answers:
+  - file
+  - cookie
+  - database
+  - redis
+  explanation: 'Laravel ships with several session drivers: `file` (filesystem), `cookie` (encrypted cookies on the client), `database` (relational DB table), `redis`, `memcached`, `dynamodb`, `array` (in-memory,
+    for testing), and `null` (no session). Each driver has different trade-offs in terms of performance, scalability, and security.'
+- id: ss-004
+  topic: session
+  type: single
+  difficulty: medium
+  question: Why should you never store passwords or sensitive tokens in the session when using the 'cookie' session driver?
+  options:
+  - The cookie driver stores session data without any form of encryption applied
+  - Cookies have a strict 4KB size limit that prevents storing large session payloads
+  - Cookies expire after a fixed 30-minute window regardless of any lifetime configuration
+  - Cookie data is stored on the client's browser and could potentially be decoded
+  answer: Cookie data is stored on the client's browser and could potentially be decoded
+  explanation: The `cookie` session driver encrypts all session data before storing it in the client's browser cookie. However, since the encrypted payload is stored client-side, it persists on the user's
+    device. While Laravel's encryption (AES-256-CBC) is strong, best practice is to avoid storing highly sensitive credentials in any client-side storage. The encryption key compromise would expose all
+    session data.
+- id: ss-005
+  topic: session
+  type: text
+  difficulty: medium
+  question: What Artisan command generates the migration file needed to use the 'database' session driver?
+  answer: php artisan session:table
+  alternatives:
+  - artisan session:table
+  explanation: Running `php artisan session:table` creates a migration that adds a `sessions` table with columns for `id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`, and appropriate
+    indexes. After running the migration, you can set `SESSION_DRIVER=database` in your `.env` file to store sessions in the database.
+- id: ss-006
+  topic: session
+  type: multiple
+  difficulty: medium
+  question: Which of the following session methods will store data that persists beyond the next request? (Select all that apply)
+  options:
+  - $request->session()->flash('key', 'value')
+  - session(['key' => 'value'])
+  - $request->session()->now('key', 'value')
+  - $request->session()->put('key', 'value')
+  answers:
+  - $request->session()->put('key', 'value')
+  - session(['key' => 'value'])
+  explanation: '`put()` and the global `session()` helper with an array argument store data persistently — it remains in the session until explicitly removed. `flash()` stores data only for the next request
+    (then auto-deletes), and `now()` stores data only for the current request (not even available on the next request). Understanding these lifetime differences is key to proper flash message handling.'
+- id: ss-007
+  topic: session
+  type: single
+  difficulty: medium
+  question: What is the difference between session()->flash() and session()->now()?
+  options:
+  - flash() persists for the next request; now() only exists in the current request
+  - now() persists for the next request; flash() only exists in the current request
+  - There is no meaningful difference between the two — they serve as interchangeable aliases
+  - flash() encrypts the session data before storing, while now() stores it in plain text
+  answer: flash() persists for the next request; now() only exists in the current request
+  explanation: '`flash()` stores session data that will be available in the current and the next request, then is automatically removed. This is ideal for status messages after redirects. `now()` stores
+    data only for the current request''s lifetime — it won''t be available on subsequent requests. This is useful for temporary data you need within the same request cycle.'
+- id: ss-008
+  topic: session
+  type: single
+  difficulty: hard
+  question: When using the 'database' session driver, why does Laravel store a user_id in the sessions table when a user is authenticated?
+  options:
+  - To speed up session retrieval queries by providing a secondary database index on user_id
+  - To allow administrators to query and invalidate all sessions for a specific user
+  - To enforce a strict single-session policy so each user can only have one active session
+  - To automatically restore the user's previous session data upon successful authentication
+  answer: To allow administrators to query and invalidate all sessions for a specific user
+  explanation: The `user_id` column in the sessions table enables you to target a specific user's sessions. This is critical for features like 'logout from all other devices' or forcing password changes
+    by invalidating all existing sessions for a user. You can query `DB::table('sessions')->where('user_id', $userId)->delete()` to achieve this. It's not about enforcing single sessions or performance.
+- id: ss-009
+  topic: session
+  type: text
+  difficulty: hard
+  question: What method on the session instance keeps a flashed value alive for one additional request, preventing its automatic deletion?
+  answer: reflash
+  alternatives:
+  - keep
+  - session()->reflash
+  - session()->keep
+  explanation: Both `reflash()` and `keep()` prevent flashed data from being deleted. `reflash()` keeps all currently flashed values for another request. `keep(['key'])` is more selective — it keeps only
+    the specified keys. This is useful in multi-step form wizards where you need flash data to persist through several redirect cycles.
+- id: ss-010
+  topic: session
+  type: multiple
+  difficulty: hard
+  question: Which middleware must be present on your route for $request->session() to work properly? (Select all that apply)
+  options:
+  - StartSession
+  - EncryptCookies
+  - Authenticate
+  - VerifyCsrfToken
+  answers:
+  - StartSession
+  - EncryptCookies
+  explanation: The `StartSession` middleware (which reads/writes session data) and `EncryptCookies` middleware (which decrypts the Laravel session cookie before the session starts) must both be present
+    in the middleware stack for sessions to function. Without `EncryptCookies`, the session ID cookie cannot be decrypted. Without `StartSession`, the session is never initialized. `VerifyCsrfToken` uses
+    the session but isn't required for session functionality itself.

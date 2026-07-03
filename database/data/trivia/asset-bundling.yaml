@@ -1,0 +1,130 @@
+- id: ab-001
+  topic: asset-bundling
+  type: single
+  difficulty: easy
+  question: Which tool does Laravel 13.x use as its default asset bundler?
+  options:
+  - Parcel
+  - Vite
+  - esbuild directly
+  - Webpack via Laravel Mix
+  answer: Vite
+  explanation: Laravel 13.x ships with Vite as its default asset bundler. Vite replaced Laravel Mix (which was based on Webpack) starting in Laravel 9.x. Vite offers significantly faster hot module replacement
+    (HMR) and a more modern development experience compared to Webpack-based solutions.
+- id: ab-002
+  topic: asset-bundling
+  type: text
+  difficulty: easy
+  question: What is the name of the JavaScript configuration file that Laravel uses to configure Vite in the project root?
+  answer: vite.config.js
+  alternatives:
+  - vite.config.ts
+  explanation: Laravel's Vite configuration lives in `vite.config.js` (or `vite.config.ts` for TypeScript projects) at the project root. This file defines your entry points, plugins (like the `laravel-vite-plugin`),
+    and any Vite-specific settings such as server host or aliases.
+- id: ab-003
+  topic: asset-bundling
+  type: single
+  difficulty: easy
+  question: Which Blade directive is used to load Vite-managed CSS and JavaScript assets in a Laravel layout?
+  options:
+  - '@webpack'
+  - '@vite'
+  - '@mix'
+  - '@assets'
+  answer: '@vite'
+  explanation: The `@vite` Blade directive renders the necessary `<script>` and `<link>` tags to load your Vite-bundled assets. In development, it points to the Vite dev server for HMR. In production, it
+    loads versioned, hashed filenames from the `build` directory for cache busting.
+- id: ab-004
+  topic: asset-bundling
+  type: multiple
+  difficulty: medium
+  question: Which of the following are valid default entry points configured in a standard Laravel Vite setup?
+  options:
+  - resources/js/app.js
+  - assets/js/main.js
+  - public/css/app.css
+  - resources/css/app.css
+  answers:
+  - resources/css/app.css
+  - resources/js/app.js
+  explanation: Laravel's default Vite configuration registers `resources/css/app.css` and `resources/js/app.js` as entry points. These are the files imported by the `@vite` Blade directive. The `resources/`
+    directory is the conventional location for source assets, not `public/` or `assets/`.
+- id: ab-005
+  topic: asset-bundling
+  type: text
+  difficulty: medium
+  question: What npm command do you run to compile and version your assets for production in a Laravel project using Vite?
+  answer: npm run build
+  alternatives:
+  - npm run prod
+  explanation: Running `npm run build` executes Vite in production mode, which minifies, tree-shakes, and outputs your assets to the `public/build` directory with content hashes in filenames. This ensures
+    long-term cache busting. The older `npm run prod` command was used with Laravel Mix but `npm run build` is the Vite equivalent.
+- id: ab-006
+  topic: asset-bundling
+  type: single
+  difficulty: medium
+  question: Why does the @vite directive need to reference both CSS and JS entry points when they are already imported within your JavaScript files?
+  options:
+  - Laravel's Vite plugin needs both to generate proper manifest entries for the HTML
+  - CSS must be loaded separately to avoid a flash of unstyled content (FOUC)
+  - It doesn't — you only need to reference the JS entry point
+  - Vite requires explicit CSS registration for hot module replacement to work
+  answer: It doesn't — you only need to reference the JS entry point
+  explanation: If your JavaScript entry point already imports your CSS (e.g., `import './bootstrap.css'`), you only need to reference the JS file in the `@vite` directive. Vite will automatically extract
+    the CSS and inject a `<link>` tag. However, listing the CSS entry point separately is useful if you want it loaded as a blocking resource in the `<head>` while deferring JS.
+- id: ab-007
+  topic: asset-bundling
+  type: multiple
+  difficulty: medium
+  question: What happens when you run `npm run dev` in a Laravel project using Vite? (Select all that apply)
+  options:
+  - Assets are compiled and written to the public/build directory with hashes
+  - Hot Module Replacement (HMR) is enabled for instant browser updates
+  - The application automatically runs in the local environment
+  - The Vite dev server starts and listens for file changes
+  answers:
+  - The Vite dev server starts and listens for file changes
+  - Hot Module Replacement (HMR) is enabled for instant browser updates
+  explanation: '`npm run dev` starts the Vite development server, which serves assets on demand without bundling them to disk. It enables HMR, so when you save a file, the browser updates almost instantly
+    without a full page reload. Assets are NOT written to `public/build` — that only happens during `npm run build`.'
+- id: ab-008
+  topic: asset-bundling
+  type: single
+  difficulty: hard
+  question: How does the `laravel-vite-plugin` determine whether to serve assets from the Vite dev server or the built manifest in production?
+  options:
+  - It checks if the Vite dev server is running by attempting an HTTP connection to it
+  - It reads a dedicated environment flag configured inside the vite.config.js file to determine the mode
+  - It always reads from the manifest file and falls back to the dev server
+  - It reads the APP_ENV environment variable from the .env file and switches mode accordingly
+  answer: It checks if the Vite dev server is running by attempting an HTTP connection to it
+  explanation: The `laravel-vite-plugin` intelligently detects the environment by trying to connect to the Vite dev server at its configured hot URL. If the connection succeeds, it injects dev server scripts.
+    If it fails (as in production), it falls back to reading the `public/build/manifest.json` for versioned asset URLs. This means you don't need to toggle configuration between environments.
+- id: ab-009
+  topic: asset-bundling
+  type: text
+  difficulty: hard
+  question: What Vite plugin method call is used in vite.config.js to configure Laravel's integration with Vite?
+  answer: laravel()
+  alternatives:
+  - laravel({})
+  - laravel-vite-plugin
+  explanation: 'Inside `vite.config.js`, you call `laravel()` as a plugin, which is imported from `laravel-vite-plugin`. This function configures the input entry points, sets up the hot file for the dev
+    server, and manages the build manifest. The typical usage is `laravel({ input: [''resources/css/app.css'', ''resources/js/app.js''] })`.'
+- id: ab-010
+  topic: asset-bundling
+  type: multiple
+  difficulty: hard
+  question: Which of the following are true about how Vite handles SSR (Server-Side Rendering) in Laravel? (Select all that apply)
+  options:
+  - You must configure a separate SSR entry point in vite.config.js
+  - The SSR bundle is generated alongside the client bundle during npm run build
+  - Laravel provides a Vite::render() method to render SSR entry points on the server
+  - SSR with Vite requires installing the laravel-vite-plugin-ssr package
+  answers:
+  - Laravel provides a Vite::render() method to render SSR entry points on the server
+  - The SSR bundle is generated alongside the client bundle during npm run build
+  - You must configure a separate SSR entry point in vite.config.js
+  explanation: 'Laravel''s Vite integration supports SSR out of the box. You configure a separate SSR entry point (e.g., `resources/js/ssr.js`) via `laravel({ ssr: ''resources/js/ssr.js'' })`. Running `npm
+    run build` produces both client and SSR bundles. You can then use `Vite::render()` or the `@viteReactRefresh` directive for SSR rendering. No separate SSR package is needed — it''s all built into the
+    `laravel-vite-plugin`.'

@@ -1,0 +1,401 @@
+- id: ct-001
+  topic: controllers
+  type: single
+  difficulty: easy
+  question: What is the default namespace for controllers in a Laravel application?
+  options:
+  - App\Controllers
+  - App\Http\Controllers
+  - App\Http\Controllers\Controller
+  - App\Http\Controller
+  answer: App\Http\Controllers
+  explanation: All controllers in a Laravel application reside in the App\Http\Controllers namespace by default. The base controller class (Controller.php) is also in this namespace and provides shared
+    functionality like the authorize() and validate() methods that all controllers inherit.
+- id: ct-002
+  topic: controllers
+  type: single
+  difficulty: easy
+  question: Which artisan command creates a new resource controller with all seven RESTful methods (index, create, store, show, edit, update, destroy)?
+  options:
+  - php artisan make:controller PostController --restful
+  - php artisan make:controller PostController --resource
+  - php artisan create:controller PostController --all
+  - php artisan make:resource PostController
+  answer: php artisan make:controller PostController --resource
+  explanation: 'The --resource flag generates a controller with all seven standard RESTful actions: index (list all), create (show create form), store (save new), show (display one), edit (show edit form),
+    update (save changes), and destroy (delete). This provides a consistent convention for CRUD operations that Laravel developers are familiar with.'
+- id: ct-003
+  topic: controllers
+  type: multiple
+  difficulty: easy
+  question: Which of the following are valid methods that Laravel's base Controller class provides to its subclasses?
+  options:
+  - $this->validate($request, $rules)
+  - $this->response($data, $status)
+  - $this->middleware($middleware)
+  - $this->authorize($ability, $arguments)
+  answers:
+  - $this->validate($request, $rules)
+  - $this->authorize($ability, $arguments)
+  explanation: The base Controller class (which uses the AuthorizesRequests, ValidatesRequests, and ValidatesInput traits) provides validate() for request validation and authorize() for policy/gate authorization
+    checks. The middleware() method is available on controllers but comes from the ControllerMiddleware trait. There is no built-in response() helper method on the base controller — you use the response()
+    global helper or return Response objects directly.
+- id: ct-004
+  topic: controllers
+  type: text
+  difficulty: easy
+  question: What artisan command is used to create a controller that is already bound to a specific Eloquent model (an API resource controller)?
+  answer: php artisan make:controller PostController --api --model=Post
+  alternatives:
+  - php artisan make:controller PostController --api --resource --model=Post
+  - php artisan make:api:controller PostController --model=Post
+  explanation: The --api flag creates a resource controller with only the API-relevant methods (index, store, show, update, destroy — omitting create and edit which are for HTML forms). The --model=Post
+    flag adds type-hints and route model binding to the method signatures. This combination is the standard way to scaffold API controllers in Laravel.
+- id: ct-005
+  topic: controllers
+  type: single
+  difficulty: easy
+  question: What does the Route::resource() method do when mapping a controller to routes?
+  options:
+  - It creates a single route entry that dynamically dispatches requests to different controller methods based on the HTTP method
+  - It registers multiple routes for standard CRUD operations, mapping each HTTP verb and path to the appropriate controller method
+  - It creates a controller class at runtime that contains predefined resource-specific action methods for each HTTP verb
+  - It registers resource-based middleware that automatically handles all standard CRUD operations on the route group
+  answer: It registers multiple routes for standard CRUD operations, mapping each HTTP verb and path to the appropriate controller method
+  explanation: 'Route::resource(''posts'', PostController::class) creates seven routes: GET /posts (index), GET /posts/create (create), POST /posts (store), GET /posts/{post} (show), GET /posts/{post}/edit
+    (edit), PUT/PATCH /posts/{post} (update), and DELETE /posts/{post} (destroy). This provides a conventional RESTful routing pattern.'
+- id: ct-006
+  topic: controllers
+  type: multiple
+  difficulty: easy
+  question: Which of the following are valid options for the Route::resource() method to customize which routes are registered?
+  options:
+  - except
+  - constraints
+  - only
+  - names
+  answers:
+  - only
+  - except
+  - names
+  explanation: 'Route::resource() supports several customizing options: only (specify which routes to include), except (specify which to exclude), names (custom name mapping), parameters (custom parameter
+    names), and middleware (per-route middleware). The ''constraints'' option is not a valid resource option — you use ->where() for parameter constraints.'
+- id: ct-007
+  topic: controllers
+  type: single
+  difficulty: easy
+  question: What is the difference between a regular controller and an invokable controller in Laravel?
+  options:
+  - A regular controller returns views for display; an invokable controller exclusively returns JSON-formatted API responses
+  - A regular controller handles multiple web routes; an invokable controller is designed specifically for API endpoint routes
+  - A regular controller has multiple methods; an invokable controller has a single __invoke() method that handles the request
+  - An invokable controller extends a separate InvokableController base class rather than the standard Controller class
+  answer: A regular controller has multiple methods; an invokable controller has a single __invoke() method that handles the request
+  explanation: 'Invokable controllers implement the __invoke() magic method, allowing them to be used as a single-action controller. Instead of referencing PostController@store, you reference PostController::class
+    directly. This is useful for controllers that only perform one action. You create them with: php artisan make:controller PublishPostController --invokable.'
+- id: ct-008
+  topic: controllers
+  type: text
+  difficulty: easy
+  question: What trait does Laravel's base Controller class use to provide the validate() method for inline request validation?
+  answer: ValidatesRequests
+  alternatives:
+  - Illuminate\Foundation\Validation\ValidatesRequests
+  - the ValidatesRequests trait
+  explanation: The ValidatesRequests trait provides the validate() method that all controllers inherit. This method accepts a Request object and validation rules, runs the validation, and automatically
+    redirects back with errors on failure or continues execution on success. It's a convenient alternative to creating separate FormRequest classes for simple validation scenarios.
+- id: ct-009
+  topic: controllers
+  type: multiple
+  difficulty: easy
+  question: Which of the following are valid ways to return a response from a Laravel controller method?
+  options:
+  - return redirect()->route('posts.show', ['post' => $post->id]);
+  - return response()->json(['data' => $post]);
+  - return new JsonResponse($data, 200);
+  - return view('posts.index', ['posts' => $posts]);
+  answers:
+  - return view('posts.index', ['posts' => $posts]);
+  - return redirect()->route('posts.show', ['post' => $post->id]);
+  - return response()->json(['data' => $post]);
+  - return new JsonResponse($data, 200);
+  explanation: Laravel controllers are flexible about return types. You can return view responses (for HTML pages), redirect responses (for form submissions), JSON responses (for APIs), and even Response
+    objects directly. Laravel's router automatically converts these different return types into proper HTTP responses. You can also return strings, arrays (converted to JSON), or Eloquent models.
+- id: ct-010
+  topic: controllers
+  type: single
+  difficulty: medium
+  question: Why is it recommended to use FormRequest classes for validation in controllers rather than the inline $this->validate() method?
+  options:
+  - FormRequest classes separate validation logic from controllers, making code more reusable, testable, and following the Single Responsibility Principle
+  - FormRequest classes provide automatic type conversion and database column casting for all submitted input fields, which inline validation cannot perform
+  - FormRequest classes are significantly faster than inline validation because their validation rules are pre-compiled into cached PHP files at boot time
+  - Inline validation has a known limitation where it cannot properly process file upload fields or validate deeply nested array input structures at all
+  answer: FormRequest classes separate validation logic from controllers, making code more reusable, testable, and following the Single Responsibility Principle
+  explanation: 'FormRequest classes encapsulate validation rules and authorization logic in a dedicated class. Benefits include: (1) controllers stay focused on request handling, (2) validation rules can
+    be reused across multiple controllers, (3) FormRequests can be unit tested independently, and (4) the authorized() method provides a clean separation of authorization checks. Inline validation is fine
+    for simple cases but doesn''t scale well.'
+- id: ct-011
+  topic: controllers
+  type: single
+  difficulty: medium
+  question: What happens when a FormRequest's authorized() method returns false?
+  options:
+  - The controller method still executes normally but the $request object receives an additional 'unauthorized' flag property
+  - The request is automatically redirected to the login page with a flash error message indicating the authorization failure
+  - Laravel throws a 403 Forbidden HTTP exception before the controller method is called, preventing it from executing
+  - The FormRequest throws a ValidationException containing a custom authorization error message and a 401 status code
+  answer: Laravel throws a 403 Forbidden HTTP exception before the controller method is called, preventing it from executing
+  explanation: When a FormRequest's authorized() method returns false, Laravel automatically aborts with a 403 HTTP exception. The controller method never executes. You can customize this behavior by overriding
+    the failedAuthorization() method in your FormRequest class. This provides a clean way to gate access at the request level before any business logic runs.
+- id: ct-012
+  topic: controllers
+  type: multiple
+  difficulty: medium
+  question: Which of the following are valid ways to apply middleware to a controller in Laravel?
+  options:
+  - Applying middleware to the route definition using ->middleware()
+  - Using the $this->middleware() method inside the controller's __construct() method
+  - Defining a protected $middleware array property on the controller class
+  - 'Using the #[Middleware] PHP 8 attribute on the controller class or individual methods'
+  answers:
+  - Using the $this->middleware() method inside the controller's __construct() method
+  - Applying middleware to the route definition using ->middleware()
+  - 'Using the #[Middleware] PHP 8 attribute on the controller class or individual methods'
+  explanation: 'Laravel supports three ways to apply middleware to controllers: (1) in the constructor with $this->middleware(''auth''), optionally with ->only() or ->except() to target specific methods;
+    (2) on the route definition; (3) using PHP 8 attributes like #[Middleware(''auth'')]. There is no $middleware array property on the controller — that''s the HTTP Kernel''s approach.'
+- id: ct-013
+  topic: controllers
+  type: single
+  difficulty: medium
+  question: What is the purpose of the $this->authorizeResource() method in a controller's constructor?
+  options:
+  - It generates scoped API authentication tokens for the resource model and automatically registers dedicated token-verification middleware on every controller method
+  - It automatically generates a new policy class for the controller's associated Eloquent model with default deny-all authorization rules for every action
+  - It authorizes all authenticated users to freely access every action on the resource controller, completely bypassing any permission checks or policy gates
+  - It registers authorization middleware that maps each resource controller method to its corresponding policy method (e.g., 'index' maps to 'viewAny', 'show' maps to 'view')
+  answer: It registers authorization middleware that maps each resource controller method to its corresponding policy method (e.g., 'index' maps to 'viewAny', 'show' maps to 'view')
+  explanation: 'The authorizeResource() method automatically maps resource controller methods to policy methods: index→viewAny, create→create, store→create, show→view, edit→update, update→update, destroy→delete.
+    This means every request to the resource controller automatically checks the corresponding policy method before the controller action runs, providing comprehensive authorization without manual checks
+    in each method.'
+- id: ct-014
+  topic: controllers
+  type: text
+  difficulty: medium
+  question: What artisan command creates a FormRequest class for validating and authorizing incoming requests?
+  answer: php artisan make:request StorePostRequest
+  alternatives:
+  - php artisan make:request
+  - make:request
+  explanation: 'The make:request command creates a FormRequest class in app/Http/Requests/. The generated class has two key methods: rules() returns an array of validation rules, and authorize() returns
+    a boolean for authorization. By convention, request classes are named after the action they validate (e.g., StorePostRequest, UpdateUserRequest).'
+- id: ct-015
+  topic: controllers
+  type: single
+  difficulty: medium
+  question: How does Laravel handle dependency injection in controller method parameters for objects like Request, Eloquent models, or custom services?
+  options:
+  - Dependency injection only works for the Request object in controllers; all other service types must be resolved manually using app()
+  - Laravel's service container resolves each parameter by type, injecting the appropriate instance regardless of parameter order
+  - Parameters are injected based on their position — the first parameter must always be Request, the second the model
+  - You must manually instantiate each dependency using the app() or resolve() helper functions inside the body of the controller method
+  answer: Laravel's service container resolves each parameter by type, injecting the appropriate instance regardless of parameter order
+  explanation: Laravel's service container performs method injection by inspecting the controller method's type hints and resolving each parameter from the container. You can type-hint the Request, Eloquent
+    models (for route model binding), and any registered service. The order doesn't matter — Laravel matches by type, not position. This makes controllers clean and easily testable through dependency mocking.
+- id: ct-016
+  topic: controllers
+  type: multiple
+  difficulty: medium
+  question: Which of the following are true about singleton resource controllers in Laravel?
+  options:
+  - They do not register the 'index' route since there's no collection to list
+  - They do not register 'create' and 'store' routes since the resource has only one instance
+  - They use Route::singleton() instead of Route::resource()
+  - They automatically add an 'adhesion' route for managing the singleton's child resources
+  answers:
+  - They use Route::singleton() instead of Route::resource()
+  - They do not register 'create' and 'store' routes since the resource has only one instance
+  - They do not register the 'index' route since there's no collection to list
+  explanation: Singleton controllers are for resources where there is exactly one instance (like a user's profile or site settings). Route::singleton('profile', ProfileController::class) registers only
+    show, edit, update, and destroy (no index, create, or store). You can add 'creation' routes with ->creatable() if the singleton can be created but not duplicated.
+- id: ct-017
+  topic: controllers
+  type: single
+  difficulty: medium
+  question: What is the practical advantage of using resource routing with API controllers (Route::apiResource()) over regular resource routing?
+  options:
+  - apiResource automatically registers all resource routes with a mandatory /api/ URI prefix and applies API-specific middleware configurations
+  - apiResource omits the 'create' and 'edit' routes which serve HTML forms, providing only the data-manipulation routes appropriate for APIs
+  - apiResource automatically applies the 'auth:api' middleware guard to all registered routes for secure token-based API authentication
+  - apiResource automatically adds JSON response formatting, error handling, and pagination to all controller methods in the resource
+  answer: apiResource omits the 'create' and 'edit' routes which serve HTML forms, providing only the data-manipulation routes appropriate for APIs
+  explanation: Route::apiResource() registers five routes (index, store, show, update, destroy) instead of the seven from Route::resource(). The 'create' and 'edit' routes are omitted because they typically
+    return HTML forms for creating and editing resources — functionality that an API doesn't need. The API consumer creates resources via POST and edits via PUT/PATCH.
+- id: ct-018
+  topic: controllers
+  type: text
+  difficulty: medium
+  question: What PHP attribute can you use in Laravel to restrict a controller method to only accept specific HTTP verbs, as an alternative to route definition?
+  answer: '#[Method]'
+  alternatives:
+  - Illuminate\Routing\Attributes\Method
+  explanation: 'Laravel supports PHP 8 attributes for route definition. The #[Method(''GET'')] attribute (along with #[Get], #[Post], #[Put], #[Patch], #[Delete]) can be placed on controller methods. When
+    combined with #[Controller], Laravel auto-discovers these routes without manual route file entries. This provides an alternative routing style similar to frameworks like Symfony and ASP.NET.'
+- id: ct-019
+  topic: controllers
+  type: multiple
+  difficulty: medium
+  question: Which of the following are valid approaches to handle validation errors in a controller that returns JSON responses (API context)?
+  options:
+  - Set the Accept header to application/json and let Laravel's exception handler format the error response
+  - Rely on the default FormRequest behavior which returns a 422 JSON response with error messages when validation fails
+  - Catch the ValidationException in the controller's try-catch block and manually return a JSON error response
+  - Override the failedValidation() method in the FormRequest class to customize the JSON error response format
+  answers:
+  - Rely on the default FormRequest behavior which returns a 422 JSON response with error messages when validation fails
+  - Override the failedValidation() method in the FormRequest class to customize the JSON error response format
+  - Set the Accept header to application/json and let Laravel's exception handler format the error response
+  explanation: 'Laravel automatically detects API requests (via Accept: application/json header or the ''api'' middleware group) and returns validation errors as JSON. FormRequest throws ValidationException,
+    which Laravel''s exception handler converts to a 422 JSON response. You can customize this by overriding failedValidation() in your FormRequest, or by customizing the exception handler''s render method.'
+- id: ct-020
+  topic: controllers
+  type: single
+  difficulty: medium
+  question: What is the recommended way to share data (like navigation menu items or user notifications) with all views from a controller without repeating the logic in every method?
+  options:
+  - Use view composers in a service provider to inject data into specific views or all views automatically
+  - Store the shared data in a static class property that Blade templates can access through a global helper function
+  - Add the data to the session in middleware and then read it from the session object in your Blade templates
+  - Override the base Controller's __call() method to automatically inject the shared data into every response view
+  answer: Use view composers in a service provider to inject data into specific views or all views automatically
+  explanation: View composers are callbacks or classes that are executed when a view is rendered. You can register them in a service provider using View::composer('layouts.app', function ($view) { $view->with('notifications',
+    auth()->user()->unreadNotifications); }). This keeps controller methods focused on their specific responsibilities while ensuring shared data is always available to views. This is a cleaner approach
+    than repeating logic in every controller.
+- id: ct-021
+  topic: controllers
+  type: single
+  difficulty: medium
+  question: When a controller method returns an Eloquent model directly, how does Laravel handle the response?
+  options:
+  - Laravel attempts to render a default Blade view named after the model's class name
+  - Laravel throws an exception because controllers must always return a proper Response object
+  - Laravel serializes the model to an XML format response with appropriate content-type headers
+  - Laravel automatically converts the model to a JSON response with a 200 status code
+  answer: Laravel automatically converts the model to a JSON response with a 200 status code
+  explanation: Laravel's router checks if the controller returns an object that implements Responsable, is a Response, or is a Model/Collection. Eloquent models and collections are automatically converted
+    to JSON with a 200 status. This makes API controllers very concise — you can simply 'return $post;' instead of 'return response()->json($post);'. This also works for arrays.
+- id: ct-022
+  topic: controllers
+  type: text
+  difficulty: medium
+  question: When using $this->middleware('auth')->only('create', 'store') in a controller constructor, which controller methods will have the auth middleware applied?
+  answer: create and store
+  alternatives:
+  - create, store
+  - only the create and store methods
+  - the create() and store() methods
+  explanation: The ->only() method on middleware applied in a controller's constructor restricts the middleware to specific methods. In this case, only the create() and store() methods will require authentication.
+    Other methods like index(), show(), edit(), update(), and destroy() will be accessible without authentication. The inverse, ->except(), applies the middleware to all methods except those specified.
+- id: ct-023
+  topic: controllers
+  type: multiple
+  difficulty: medium
+  question: Which of the following are true about using PHP 8 constructor property promotion in Laravel controllers?
+  options:
+  - Constructor promotion is required for all controller dependencies in Laravel 13
+  - Constructor promotion works with Laravel's method injection for controller actions
+  - Using constructor promotion for dependencies that have state (like repositories with database connections) can cause issues in long-running processes like Octane
+  - You can use constructor promotion to inject and declare dependencies in a single step in the constructor
+  answers:
+  - You can use constructor promotion to inject and declare dependencies in a single step in the constructor
+  - Constructor promotion works with Laravel's method injection for controller actions
+  - Using constructor promotion for dependencies that have state (like repositories with database connections) can cause issues in long-running processes like Octane
+  explanation: PHP 8's constructor promotion (public function __construct(private UserRepository $repo)) works well with Laravel's container. However, in long-running processes like Octane, constructor-injected
+    services are resolved once and reused across requests, which can cause stale state issues. This is why method injection is often preferred in Octane environments. Constructor promotion is optional —
+    Laravel does not require it.
+- id: ct-024
+  topic: controllers
+  type: single
+  difficulty: hard
+  question: What happens when a controller method has a parameter type-hinted as an Eloquent model, but the corresponding route parameter value doesn't match any database record?
+  options:
+  - Laravel automatically throws a 404 Not Found exception via ModelNotFoundException
+  - Laravel creates a new model instance with the parameter value as the primary key
+  - The parameter receives null and the controller method executes normally
+  - The controller method receives an empty string as the parameter value
+  answer: Laravel automatically throws a 404 Not Found exception via ModelNotFoundException
+  explanation: With route model binding, Laravel attempts to query the database for the model. If no record is found, it throws a ModelNotFoundException, which Laravel's exception handler converts to a
+    404 response. If you want different behavior, you can use the newOrFail() method on the binding closure, or use explicit binding with a custom resolution that returns null (though this requires a nullable
+    type hint).
+- id: ct-025
+  topic: controllers
+  type: single
+  difficulty: hard
+  question: When using a nested resource route like Route::resource('posts.comments', CommentController::class), what is the expected controller method signature for the 'show' action?
+  options:
+  - public function show(Post $post, int $commentId)
+  - public function show(Post $post, Comment $comment)
+  - public function show(Comment $comment, ?Post $post)
+  - public function show(int $postId, int $commentId)
+  answer: public function show(Post $post, Comment $comment)
+  explanation: Nested resource routes have two parameters (e.g., /posts/{post}/comments/{comment}). With implicit route model binding, both parameters are resolved to their Eloquent models. The method signature
+    should include both models in the order the parameters appear in the URI. This also enables scoped binding — if you use Route::scopeBindings(), the comment is automatically scoped to only match within
+    the parent post.
+- id: ct-026
+  topic: controllers
+  type: multiple
+  difficulty: hard
+  question: Which of the following are correct ways to implement the Responsable interface in a custom response class used by a controller?
+  options:
+  - Returning the custom class instance directly from the controller method, letting Laravel call toResponse() automatically
+  - Implementing the __toString() method instead of toResponse() for simpler string-based responses
+  - The class must extend Illuminate\Http\Response to implement Responsable
+  - Implementing the toResponse($request) method that returns an Illuminate\Http\Response instance
+  answers:
+  - Implementing the toResponse($request) method that returns an Illuminate\Http\Response instance
+  - Returning the custom class instance directly from the controller method, letting Laravel call toResponse() automatically
+  explanation: The Responsable interface requires implementing toResponse($request). When a controller returns an object implementing this interface, Laravel automatically calls toResponse() to convert
+    it to an HTTP response. This is useful for creating reusable response types (e.g., an InvoicePdfResponse class). The class does NOT need to extend Response — it just needs to implement the interface
+    and return a Response from toResponse().
+- id: ct-027
+  topic: controllers
+  type: text
+  difficulty: hard
+  question: What is the name of the trait that provides the $this->middleware() method to controllers, allowing them to register middleware from their constructor?
+  answer: ControllerMiddleware
+  alternatives:
+  - Illuminate\Routing\ControllerMiddleware
+  - the ControllerMiddleware trait
+  explanation: The ControllerMiddleware trait provides the middleware() method used in controller constructors. This method registers middleware with the router, with support for ->only() and ->except()
+    to target specific methods. It's used in the base Controller class, which is why all Laravel controllers can use $this->middleware() in their constructors.
+- id: ct-028
+  topic: controllers
+  type: single
+  difficulty: hard
+  question: In a controller that uses route model binding with a custom key (e.g., Route::get('/posts/{post:slug}', ...)), what happens if the 'slug' column is not unique in the database?
+  options:
+  - Laravel adds an ORDER BY clause on the created_at column and returns the most recent record
+  - Laravel throws a MultipleRecordsFoundException if more than one record matches
+  - Laravel returns a 404 because the query returns multiple results and cannot determine which one to use
+  - Laravel returns the first matching record found in the database query results
+  answer: Laravel returns the first matching record found in the database query results
+  explanation: When using a custom key for route model binding (like 'slug'), Laravel queries WHERE slug = ? and takes the first result using firstOrFail(). It does NOT check for uniqueness — if multiple
+    records have the same slug, it returns whichever one the database returns first (typically the one with the lowest primary key). This is why you should ensure custom binding keys are unique in your
+    database, or use scoped binding to narrow the results.
+- id: ct-029
+  topic: controllers
+  type: multiple
+  difficulty: hard
+  question: When writing controller tests, which of the following are valid approaches to test a controller that uses dependency injection?
+  options:
+  - Use the $this->mock() method provided by Laravel's test framework to automatically mock an interface and bind it in the container
+  - Use the $this->withMiddleware() method to replace middleware that interferes with the test
+  - Manually instantiate the controller with mock dependencies and call methods directly, bypassing the router
+  - Use the app()->instance() method to bind a mock implementation before the test makes a request
+  answers:
+  - Use the app()->instance() method to bind a mock implementation before the test makes a request
+  - Use the $this->mock() method provided by Laravel's test framework to automatically mock an interface and bind it in the container
+  - Manually instantiate the controller with mock dependencies and call methods directly, bypassing the router
+  explanation: 'Laravel provides multiple testing strategies for controllers: (1) app()->instance() or app()->bind() to swap a service in the container, (2) $this->mock(Interface::class) for automatic mocking,
+    (3) direct instantiation for unit tests that don''t need the full HTTP stack. The withMiddleware() method is for middleware configuration, not dependency mocking. Each approach has tradeoffs between
+    integration coverage and test isolation.'

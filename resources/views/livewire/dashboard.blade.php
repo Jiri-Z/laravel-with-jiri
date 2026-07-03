@@ -62,6 +62,21 @@
                 @endif
             </div>
 
+            <div class="mb-8">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Laravel Trivia</h2>
+                <a href="{{ route('quiz') }}" wire:navigate class="group block bg-white dark:bg-gray-750 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-base font-semibold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors">Test Your Laravel Knowledge</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">406 questions across 18 topics — challenge yourself!</p>
+                        </div>
+                        <svg class="w-5 h-5 text-gray-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </a>
+            </div>
+
             @if ($recentCompletions->isNotEmpty())
                 <div>
                     <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">Recent Activity</h2>

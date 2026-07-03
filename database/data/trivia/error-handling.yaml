@@ -1,0 +1,105 @@
+- id: eh-001
+  topic: error-handling
+  type: single
+  difficulty: easy
+  question: Where does Laravel register its exception handling logic for all HTTP and console exceptions?
+  options:
+  - app/Http/Kernel.php
+  - app/Providers/ExceptionHandlerServiceProvider.php
+  - bootstrap/app.php
+  - app/Exceptions/Handler.php
+  answer: bootstrap/app.php
+  explanation: In Laravel 13.x, exception handling is configured in `bootstrap/app.php` using the `$app->withExceptions()` method. Previous versions used `app/Exceptions/Handler.php`, but Laravel 13 simplifies
+    this by configuring the exception handler directly in the application bootstrap. You can customize reporting and rendering behavior through the closure passed to `withExceptions()`.
+- id: eh-002
+  topic: error-handling
+  type: text
+  difficulty: easy
+  question: What method inside bootstrap/app.php's withExceptions closure lets you customize how exceptions are reported (e.g., sent to logging services)?
+  answer: report
+  alternatives:
+  - reportable
+  - reportUsing
+  explanation: Inside the `withExceptions()` closure, the `report()` method (or `reportable()`) lets you customize exception reporting. You can use `$exceptions->report(function (SomeException $e) { ...
+    })` to define custom reporting logic for specific exception types. You can also use `$exceptions->report()` without arguments to add a global reporter that runs for every exception.
+- id: eh-003
+  topic: error-handling
+  type: multiple
+  difficulty: medium
+  question: Which of the following happen automatically when an unhandled exception occurs in a Laravel web route? (Select all that apply)
+  options:
+  - The exception is rendered as an HTTP response
+  - A generic 500.html page is returned to the user
+  - The application terminates immediately
+  - The exception is reported to the log
+  answers:
+  - The exception is reported to the log
+  - The exception is rendered as an HTTP response
+  explanation: 'Laravel''s exception handler has two phases: reporting and rendering. Every unhandled exception is reported (logged or sent to configured services) and then rendered as an HTTP response.
+    For web requests, this results in an error page (the detailed Ignition page in local, or a generic error page in production). The application handles the exception gracefully rather than crashing.'
+- id: eh-004
+  topic: error-handling
+  type: single
+  difficulty: medium
+  question: How do you prevent a specific exception type from being reported to your logs while still allowing it to be rendered to the user?
+  options:
+  - Use $exceptions->dontReport() in bootstrap/app.php
+  - Catch the exception in every controller method where it might be thrown
+  - Set the APP_REPORT_LEVEL environment variable in .env to suppress exception reporting
+  - Throw the exception with a custom 'dont-report' property attached to the instance
+  answer: Use $exceptions->dontReport() in bootstrap/app.php
+  explanation: In `bootstrap/app.php`, within the `withExceptions()` closure, you can call `$exceptions->dontReport([SomeException::class])` to prevent specific exception types from being reported to logs.
+    The exception will still be rendered as an HTTP response to the user. This is useful for expected exceptions that don't need logging, like validation errors or user-not-found scenarios.
+- id: eh-005
+  topic: error-handling
+  type: single
+  difficulty: medium
+  question: What is the purpose of the 'render' callback in Laravel's exception handling configuration?
+  options:
+  - To log the exception to a dedicated channel with additional debug context information
+  - To automatically retry the failed HTTP request after a brief configurable cooldown period
+  - To convert an exception into a custom HTTP response
+  - To send an email notification to the developer about the exception that occurred
+  answer: To convert an exception into a custom HTTP response
+  explanation: The `render()` callback in `withExceptions()` lets you customize the HTTP response sent back to the user for a specific exception type. For example, `$exceptions->render(function (ModelNotFoundException
+    $e, $request) { return response()->json(['error' => 'Not found'], 404); })`. This separates rendering logic from reporting logic, giving you fine-grained control over what the user sees.
+- id: eh-006
+  topic: error-handling
+  type: text
+  difficulty: hard
+  question: What HTTP status code does Laravel return by default when a ModelNotFoundException is thrown during route model binding?
+  answer: '404'
+  alternatives:
+  - 404 Not Found
+  explanation: When route model binding fails to find a model (e.g., visiting `/users/999` and user 999 doesn't exist), Laravel throws a `ModelNotFoundException`. The default exception renderer converts
+    this to a 404 Not Found response. This makes sense because a missing model resource is semantically equivalent to a missing page.
+- id: eh-007
+  topic: error-handling
+  type: multiple
+  difficulty: hard
+  question: Which of the following are valid ways to customize exception handling in Laravel 13.x? (Select all that apply)
+  options:
+  - Overriding the report() method in a custom exception class
+  - Defining render() callbacks for specific exception types in bootstrap/app.php
+  - Registering a custom Handler class in config/app.php
+  - Creating custom exception classes that implement Responsable
+  answers:
+  - Defining render() callbacks for specific exception types in bootstrap/app.php
+  - Creating custom exception classes that implement Responsable
+  - Overriding the report() method in a custom exception class
+  explanation: 'Laravel 13.x supports multiple customization approaches: (1) render/report callbacks in `bootstrap/app.php`, (2) custom exceptions implementing `Responsable` to define their own response,
+    (3) overriding `report()` on exception classes for custom reporting logic. Registering a custom Handler class in config is an older pattern no longer used in Laravel 13.'
+- id: eh-008
+  topic: error-handling
+  type: single
+  difficulty: hard
+  question: What is the key difference between the 'report' and 'render' phases of Laravel's exception handling?
+  options:
+  - Report is exclusively for HTTP-based exceptions; render is exclusively for console exceptions
+  - Report only executes in the production environment; render only executes in local development
+  - There is no meaningful difference — they are simply aliases for the same internal process
+  - Report handles logging/monitoring; render handles HTTP response generation
+  answer: Report handles logging/monitoring; render handles HTTP response generation
+  explanation: The report phase is about observability — logging exceptions, sending them to services like Sentry or Flare, and notifying developers. The render phase is about the user experience — converting
+    the exception into an appropriate HTTP response. This separation lets you independently control what gets tracked versus what the user sees. A validation exception, for example, might be reported to
+    analytics but rendered as a friendly form error.

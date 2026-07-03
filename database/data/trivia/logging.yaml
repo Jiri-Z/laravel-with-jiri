@@ -1,0 +1,133 @@
+- id: lg-001
+  topic: logging
+  type: single
+  difficulty: easy
+  question: Which PSR-3 log level should you use for a condition that requires immediate attention, such as a database being unavailable?
+  options:
+  - critical
+  - error
+  - emergency
+  - alert
+  answer: alert
+  explanation: 'PSR-3 defines eight log levels in order of severity: debug, info, notice, warning, error, critical, alert, emergency. `alert` means action must be taken immediately — a site being down or
+    a service being unavailable fits this. `critical` is for critical conditions, but `alert` is specifically for situations requiring urgent human intervention. `emergency` is reserved for the system being
+    unusable.'
+- id: lg-002
+  topic: logging
+  type: text
+  difficulty: easy
+  question: What configuration file defines Laravel's logging channels and the default logging channel?
+  answer: config/logging.php
+  alternatives:
+  - logging.php
+  explanation: 'The `config/logging.php` file defines all logging channels available to your application and specifies which channel is the default. Each channel configuration includes a driver (single,
+    daily, syslog, stderr, custom, etc.), the log path, log level threshold, and any driver-specific options. You reference channel names when writing logs: `Log::channel(''slack'')->info(...)`.'
+- id: lg-003
+  topic: logging
+  type: multiple
+  difficulty: easy
+  question: Which of the following are valid built-in logging channel drivers in Laravel? (Select all that apply)
+  options:
+  - stack
+  - single
+  - monolog
+  - daily
+  answers:
+  - single
+  - daily
+  - stack
+  - monolog
+  explanation: 'Laravel provides several built-in drivers: `single` writes to one log file, `daily` rotates log files by day (with configurable retention), `stack` combines multiple channels, `monolog`
+    allows direct Monolog configuration, `syslog` and `stderr` write to system logging, and `custom` lets you create driver classes. All are defined in `config/logging.php`.'
+- id: lg-004
+  topic: logging
+  type: single
+  difficulty: medium
+  question: What is the key advantage of the 'daily' log driver over the default 'single' driver?
+  options:
+  - It enables real-time log streaming to external monitoring and alerting services
+  - It writes log entries directly to the database instead of writing to local files
+  - It automatically rotates log files daily and prunes old ones
+  - It captures and logs more detailed debug messages with full stack trace information
+  answer: It automatically rotates log files daily and prunes old ones
+  explanation: The `daily` driver creates a new log file for each day (e.g., `laravel-2025-01-15.log`) and removes files older than a configurable number of days (default 7). This prevents single log files
+    from growing unboundedly, which is a common problem with the `single` driver in production. The `days` configuration option controls retention.
+- id: lg-005
+  topic: logging
+  type: text
+  difficulty: medium
+  question: What Log facade method adds contextual data that will be included with every subsequent log entry in the current request?
+  answer: withContext
+  alternatives:
+  - Log::withContext
+  - shareContext
+  explanation: '`Log::withContext([''user_id'' => $user->id])` adds contextual data that gets appended to every log message for the remainder of the current request. This is useful for adding request-specific
+    metadata like user ID, request ID, or tenant ID. Note: `Log::shareContext()` is different — it shares context across the entire process (useful for queued jobs), while `withContext()` is request-scoped.'
+- id: lg-006
+  topic: logging
+  type: single
+  difficulty: medium
+  question: What does the 'stack' channel driver do in Laravel's logging configuration?
+  options:
+  - It batches log messages and writes them all at once for performance
+  - It stores log messages in a stack-based data structure for LIFO retrieval
+  - It sends log messages to multiple channels simultaneously
+  - It compresses log files into a tarball archive
+  answer: It sends log messages to multiple channels simultaneously
+  explanation: The `stack` driver allows you to write a single log message to multiple channels. You configure it with an array of channel names under the `channels` key. For example, a `stack` channel
+    might write to both a `daily` file channel and a `slack` notification channel. This lets you maintain comprehensive logging while routing specific types of messages to appropriate destinations.
+- id: lg-007
+  topic: logging
+  type: multiple
+  difficulty: medium
+  question: Which of the following correctly describe how to write log messages in Laravel? (Select all that apply)
+  options:
+  - Logger::write('info', 'Message')
+  - info('User logged in') using the global info() helper
+  - Log::info('User logged in', ['user_id' => 1])
+  - Log::channel('stderr')->debug('Debug message')
+  answers:
+  - Log::info('User logged in', ['user_id' => 1])
+  - info('User logged in') using the global info() helper
+  - Log::channel('stderr')->debug('Debug message')
+  explanation: Laravel provides the `Log` facade with level-specific methods (`debug`, `info`, `warning`, `error`, etc.), global helper functions (`info()`, `logger()`), and channel-specific logging via
+    `Log::channel('name')`. The second argument is an optional context array. `Logger::write()` is not a valid Laravel method.
+- id: lg-008
+  topic: logging
+  type: single
+  difficulty: hard
+  question: Why might you use Log::shareContext() instead of Log::withContext() in an application that uses queued jobs?
+  options:
+  - "shareContext() encrypts the context data before passing it to the logging channel driver"
+  - "shareContext() is noticeably faster than withContext() because it avoids re-parsing"
+  - "shareContext() persists context across queued job processes, while withContext() is request-scoped"
+  - "There is no functional difference — they are fully interchangeable in all scenarios"
+  answer: shareContext() persists context across queued job processes, while withContext() is request-scoped
+  explanation: '`Log::withContext()` adds context only for the current request lifecycle. When a queued job runs in a separate process, that context is lost. `Log::shareContext()`, however, shares context
+    across the entire process and is automatically passed to queued jobs. This is essential when you need a request ID or tenant ID to persist from a controller through to a dispatched job''s log entries.'
+- id: lg-009
+  topic: logging
+  type: text
+  difficulty: hard
+  question: What method on the Log facade creates a new logging channel instance with an additional custom context, without affecting the default channel?
+  answer: build
+  alternatives:
+  - Log::build
+  - Log::stack
+  explanation: '`Log::build()` creates a one-off channel instance with its own configuration and optional additional context. For example: `Log::build([''driver'' => ''single'', ''path'' => storage_path(''logs/custom.log'')])->info(''Message'')`.
+    This is useful when you need to write to a non-configured channel or a channel with runtime-specific settings without modifying `config/logging.php` or affecting the default channel.'
+- id: lg-010
+  topic: logging
+  type: multiple
+  difficulty: hard
+  question: When creating a custom logging channel using the 'custom' driver, what must you provide in the channel configuration? (Select all that apply)
+  options:
+  - A 'handler' class that extends Monolog\Handler\HandlerInterface
+  - A 'via' key pointing to a callable that creates a Logger instance
+  - A 'path' key specifying where logs should be written
+  - A 'driver' key set to 'custom'
+  answers:
+  - A 'driver' key set to 'custom'
+  - A 'via' key pointing to a callable that creates a Logger instance
+  explanation: 'A custom logging channel requires `driver` set to `custom` and a `via` key. The `via` value is a callable (typically an invokable class or [Class::class, ''method'']) that receives the channel''s
+    configuration array and must return a `Psr     og     oggerInterface` instance. Inside this callable, you configure Monolog handlers and processors. There''s no required `path` or `handler` key — those are implementation details you define yourself.'

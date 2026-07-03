@@ -13,6 +13,7 @@ use App\Livewire\CourseList;
 use App\Livewire\Dashboard;
 use App\Livewire\LessonDetail;
 use App\Livewire\StepViewer;
+use App\Livewire\TriviaQuiz;
 use App\Models\Course;
 use Illuminate\Support\Facades\Route;
 
@@ -23,6 +24,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/courses/{course:slug}', CourseDetail::class)->name('courses.show');
     Route::get('/courses/{course:slug}/lessons/{lesson:slug}', LessonDetail::class)->name('lessons.show');
     Route::get('/courses/{course:slug}/lessons/{lesson:slug}/steps/{step}', StepViewer::class)->name('steps.show');
+
+    Route::get('/quiz', TriviaQuiz::class)->name('quiz');
 
     Route::post('/enroll/{course}', function (Course $course) {
         $action = app(EnrollInCourse::class);

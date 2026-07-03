@@ -1,0 +1,378 @@
+- id: sc-001
+  topic: service-container
+  type: single
+  difficulty: easy
+  question: What is the Laravel service container?
+  options:
+  - A centralized database connection pooling system that manages and recycles persistent database connections efficiently
+  - A package management system similar to Composer that handles automatic dependency resolution and installation
+  - A template rendering engine for Blade views that handles compilation and caching of view template files
+  - A powerful tool for managing class dependencies and performing dependency injection
+  answer: A powerful tool for managing class dependencies and performing dependency injection
+  explanation: The Laravel service container is the core dependency injection (DI) container. It manages the instantiation of classes, resolves their dependencies automatically, and allows you to bind interfaces
+    to concrete implementations. It is the foundation for Laravel's elegant dependency injection system.
+- id: sc-002
+  topic: service-container
+  type: single
+  difficulty: easy
+  question: How do you bind a simple closure into the service container?
+  options:
+  - $app->bind('key', fn() => new Service());
+  - Container::add('key', fn() => new Service());
+  - $app->register('key', fn() => new Service());
+  - $app->set('key', fn() => new Service());
+  answer: $app->bind('key', fn() => new Service());
+  explanation: The bind() method registers a binding in the container. Every time the container resolves this abstract, it executes the closure to create a new instance. This is the most basic way to register
+    services that should be freshly instantiated each time they are resolved.
+- id: sc-003
+  topic: service-container
+  type: text
+  difficulty: easy
+  question: What method on the service container registers a class or interface so that the same instance is returned every time it is resolved?
+  answer: singleton
+  alternatives:
+  - singleton()
+  explanation: The singleton() method tells the container to resolve the binding once and then return the same instance on all subsequent requests. This is useful for services like database connections,
+    cache drivers, or configuration repositories that should maintain state across the application.
+- id: sc-004
+  topic: service-container
+  type: multiple
+  difficulty: easy
+  question: Which of the following are valid ways to resolve a service from the Laravel container?
+  options:
+  - Type-hinting the class in a controller constructor
+  - Using the resolve() global helper function
+  - Calling $container->make('ServiceName')
+  - Using the app() helper function
+  answers:
+  - Using the app() helper function
+  - Type-hinting the class in a controller constructor
+  - Calling $container->make('ServiceName')
+  - Using the resolve() global helper function
+  explanation: 'Laravel provides multiple ways to resolve services: the app() helper, the resolve() helper, the make() method on the container, and automatic resolution via constructor type-hints. All of
+    these ultimately use the container''s resolution mechanism to instantiate or retrieve the requested service.'
+- id: sc-005
+  topic: service-container
+  type: single
+  difficulty: easy
+  question: What does 'automatic resolution' (or autowiring) mean in the context of the Laravel service container?
+  options:
+  - The container automatically generates boilerplate PHP code for registering and configuring new service classes
+  - The container inspects constructor type-hints and resolves dependencies without explicit binding
+  - The container auto-discovers and loads service configuration files from the config directory at boot time
+  - The container automatically registers and bootstraps all classes found within the app directory of the project
+  answer: The container inspects constructor type-hints and resolves dependencies without explicit binding
+  explanation: Autowiring means the container uses PHP's Reflection API to inspect a class's constructor, identify the type-hinted dependencies, and recursively resolve them. You don't need to explicitly
+    bind concrete classes—the container can instantiate them automatically if all their dependencies are resolvable.
+- id: sc-006
+  topic: service-container
+  type: text
+  difficulty: easy
+  question: What is the name of the container method that binds an already instantiated object into the container?
+  answer: instance
+  alternatives:
+  - instance()
+  explanation: The instance() method binds an existing object instance into the container. Unlike bind() which uses a closure to create new instances, instance() stores the exact object you pass in. This
+    is commonly used during testing to swap real services with mocks or stubs.
+- id: sc-007
+  topic: service-container
+  type: single
+  difficulty: easy
+  question: What happens if the container cannot resolve a dependency because it has no binding and the class has unresolvable constructor parameters?
+  options:
+  - It throws a BindingResolutionException
+  - It returns null silently
+  - It creates the class without the missing dependency
+  - It falls back to using a default empty constructor
+  answer: It throws a BindingResolutionException
+  explanation: When the container cannot resolve a dependency—either because no binding exists and the class isn't concrete, or because required constructor parameters cannot be satisfied—it throws a BindingResolutionException.
+    This helps developers identify missing bindings early.
+- id: sc-008
+  topic: service-container
+  type: multiple
+  difficulty: easy
+  question: Which of the following container methods register a binding that creates a NEW instance on every resolution?
+  options:
+  - $app->bind('Service', fn($app) => new Service())
+  - $app->singleton('Service', fn($app) => new Service())
+  - $app->scoped('Service', fn($app) => new Service())
+  - $app->bind(Service::class, ConcreteService::class)
+  answers:
+  - $app->bind('Service', fn($app) => new Service())
+  - $app->bind(Service::class, ConcreteService::class)
+  explanation: The bind() method always creates a new instance. Both passing a closure and passing a class name to bind() result in a fresh instance per resolution. singleton() returns the same instance,
+    and scoped() returns the same instance within a given Laravel request/lifecycle.
+- id: sc-009
+  topic: service-container
+  type: text
+  difficulty: easy
+  question: What global helper function is the most common shorthand way to resolve something from the Laravel service container?
+  answer: app
+  alternatives:
+  - app()
+  explanation: The app() helper function is the most commonly used way to resolve services from the container. When called with no arguments, it returns the container instance itself. When called with a
+    class or interface name, it resolves and returns an instance of that class from the container.
+- id: sc-010
+  topic: service-container
+  type: single
+  difficulty: medium
+  question: Why would you bind an interface to a concrete implementation in the service container?
+  options:
+  - To enable dependency injection based on abstractions, allowing you to swap implementations without changing consuming code
+  - To automatically generate database migration files for the concrete class when it is first resolved from the container
+  - To make the concrete class directly accessible and invokable via Artisan CLI commands without any manual registration
+  - To register the interface as a global middleware that intercepts and wraps every HTTP request passing through the application
+  answer: To enable dependency injection based on abstractions, allowing you to swap implementations without changing consuming code
+  explanation: Binding an interface to a concrete class is the foundation of the dependency inversion principle. Controllers and services type-hint the interface, and the container resolves it to the bound
+    concrete implementation. This means you can swap implementations (e.g., for testing or feature flags) by changing a single binding, without modifying any consuming code.
+- id: sc-011
+  topic: service-container
+  type: single
+  difficulty: medium
+  question: What is the difference between singleton() and scoped() bindings in the service container?
+  options:
+  - scoped has been deprecated in Laravel 13.x in favor of using singleton for all shared instance use cases
+  - singleton persists across requests, while scoped creates one instance per request/lifecycle
+  - There is no meaningful difference between the two methods; they function as interchangeable aliases in the container
+  - scoped persists across multiple requests, while singleton creates and discards one new instance per request lifecycle
+  answer: singleton persists across requests, while scoped creates one instance per request/lifecycle
+  explanation: A singleton binding returns the same instance for the entire application lifetime. In contrast, a scoped binding returns the same instance within a single request lifecycle but creates a
+    new instance for the next request. This distinction becomes especially important when using Laravel Octane, where the application stays in memory across requests.
+- id: sc-012
+  topic: service-container
+  type: text
+  difficulty: medium
+  question: What container method allows you to provide different implementations of an interface depending on which class is consuming it?
+  answer: when
+  alternatives:
+  - when()
+  - addContextualBinding
+  explanation: The when() method enables contextual binding. It lets you instruct the container to inject different implementations of the same interface depending on which class is being resolved. For
+    example, you can inject a FilesystemLogger when ReportGenerator is resolved, but a DatabaseLogger when OrderProcessor is resolved.
+- id: sc-013
+  topic: service-container
+  type: multiple
+  difficulty: medium
+  question: Which of the following are valid ways to inject primitive values (strings, integers) into a service via the container?
+  options:
+  - Using contextual binding with $app->when()->needs()->give()
+  - Defining default values in the constructor
+  - Using $app->bindPrimitive('key', 'value')
+  - Passing additional parameters to $app->make(Service::class, ['key' => 'value'])
+  answers:
+  - Using contextual binding with $app->when()->needs()->give()
+  - Passing additional parameters to $app->make(Service::class, ['key' => 'value'])
+  - Defining default values in the constructor
+  explanation: The container cannot autowire primitive types. You can pass primitives via contextual binding (when/needs/give), override them with make()'s second parameter, or define them as default values
+    in the constructor. There is no bindPrimitive() method—the first three approaches are the standard solutions.
+- id: sc-014
+  topic: service-container
+  type: single
+  difficulty: medium
+  question: How does the container handle circular dependencies when two classes each depend on the other?
+  options:
+  - It creates both classes simultaneously using cloning
+  - It throws a CircularDependencyException
+  - It uses lazy proxies to break the cycle automatically
+  - It silently ignores one of the dependencies
+  answer: It throws a CircularDependencyException
+  explanation: When the container detects a circular dependency (e.g., ClassA depends on ClassB which depends on ClassA), it throws a CircularDependencyException. Developers must break the cycle themselves,
+    typically by using lazy loading, setter injection, or restructuring the code to remove the circular relationship.
+- id: sc-015
+  topic: service-container
+  type: single
+  difficulty: medium
+  question: What is the purpose of the 'extend' method on the service container?
+  options:
+  - To dynamically add new methods to an existing service class at runtime using PHP's magic method interception
+  - To modify or decorate a resolved service after the container creates it
+  - To extend the container by registering additional service providers that will be booted during application startup
+  - To increase the lifetime of a singleton binding so it persists even after the application is terminated
+  answer: To modify or decorate a resolved service after the container creates it
+  explanation: The extend() method wraps or decorates a previously resolved service. When the container resolves the binding, it first creates the original instance, then passes it through the extend closure.
+    This is useful for adding cross-cutting behavior (like logging, caching, or validation) to existing services without modifying their source code.
+- id: sc-016
+  topic: service-container
+  type: multiple
+  difficulty: medium
+  question: Which of the following are true about container 'tagging'?
+  options:
+  - Tags allow you to resolve multiple bindings at once by their shared tag
+  - You can tag bindings during registration with ->tag('report', 'export')
+  - You resolve tagged services using $app->tagged('tagname')
+  - Tagged bindings must all implement the same interface
+  answers:
+  - Tags allow you to resolve multiple bindings at once by their shared tag
+  - You can tag bindings during registration with ->tag('report', 'export')
+  - You resolve tagged services using $app->tagged('tagname')
+  explanation: Container tagging lets you categorize related bindings under one or more tags. You add tags when registering bindings, and later resolve all services with a given tag using $app->tagged().
+    The services do NOT need to share a common interface. This is useful for event handlers, report generators, or any plugin-style architecture.
+- id: sc-017
+  topic: service-container
+  type: text
+  difficulty: medium
+  question: What method can you call on the container to check if a given abstract type has been bound in the container?
+  answer: bound
+  alternatives:
+  - bound()
+  - has
+  - has()
+  explanation: The bound() method checks whether a given abstract (class name, interface, or string key) has been registered in the container. It returns true if a binding exists, including singleton, instance,
+    and regular bindings. This is useful for conditional logic when registering services or checking for optional dependencies.
+- id: sc-018
+  topic: service-container
+  type: single
+  difficulty: medium
+  question: When using contextual binding with $app->when(ReportGenerator::class)->needs(Filesystem::class)->give(), what does Filesystem::class represent?
+  options:
+  - The class that will consume the dependency in its constructor method
+  - The service provider class responsible for registering the binding
+  - The constructor parameter type-hint that needs to be satisfied
+  - The name of the service provider registering the binding
+  answer: The constructor parameter type-hint that needs to be satisfied
+  explanation: In the contextual binding chain, Filesystem::class passed to needs() specifies which constructor parameter of ReportGenerator should be overridden. The give() method then provides the concrete
+    implementation or value to inject. This lets you provide different implementations for the same interface depending on the consuming class.
+- id: sc-019
+  topic: service-container
+  type: single
+  difficulty: medium
+  question: What advantage does method injection provide over constructor injection when working with the container?
+  options:
+  - Method injection is the only approach that allows injecting services into closure-based route definitions and controller methods
+  - Method injection automatically registers each injected dependency as a singleton, ensuring only one instance exists in the container
+  - Method injection is significantly faster in benchmarks because it completely bypasses the container's reflection-based resolution
+  - Method injection allows injecting dependencies that are only needed for specific methods, reducing unnecessary object creation
+  answer: Method injection allows injecting dependencies that are only needed for specific methods, reducing unnecessary object creation
+  explanation: Method injection (type-hinting dependencies in controller or service methods) lets the container resolve dependencies only when that specific method is called. This is more efficient than
+    constructor injection for dependencies that aren't used by every method, and Laravel's router and container fully support this pattern.
+- id: sc-020
+  topic: service-container
+  type: text
+  difficulty: medium
+  question: What container event fires AFTER a service has been fully resolved, allowing you to perform additional setup on the resolved instance?
+  answer: afterResolving
+  alternatives:
+  - after resolving
+  - after_resolving
+  explanation: The afterResolving() method registers a callback that fires after a service has been fully resolved from the container. Unlike resolving() which fires before the service is returned, afterResolving()
+    lets you perform additional configuration on the fully-constructed instance. This is useful for applying default settings or registering event listeners on a service.
+- id: sc-021
+  topic: service-container
+  type: multiple
+  difficulty: medium
+  question: Which of the following are legitimate use cases for the service container's rebinding feature?
+  options:
+  - Re-registering event listeners when a logger implementation is swapped
+  - Notifying other services when a binding is overridden
+  - Refreshing cached data when a configuration binding changes
+  - Automatically migrating the database when a model binding changes
+  answers:
+  - Refreshing cached data when a configuration binding changes
+  - Re-registering event listeners when a logger implementation is swapped
+  - Notifying other services when a binding is overridden
+  explanation: 'The rebinding() method registers a callback that fires when a binding is overridden. This is useful for refreshing dependent state: if you swap a cache driver, you might need to clear caches;
+    if you swap a logger, you might need to re-register handlers. It should not be used for database migrations—that''s a deployment concern.'
+- id: sc-022
+  topic: service-container
+  type: single
+  difficulty: medium
+  question: What does the container do when you call $app->make(Service::class, ['timeout' => 30])?
+  options:
+  - It creates a new service provider instance pre-configured with the specified timeout value for that service
+  - It adds the timeout value to the service's existing singleton instance stored in the container
+  - It registers a brand new binding for the Service class with the timeout parameter permanently set to 30
+  - It resolves the service and overrides any constructor parameter named '$timeout' with the value 30
+  answer: It resolves the service and overrides any constructor parameter named '$timeout' with the value 30
+  explanation: The second parameter to make() (or resolve()) allows you to override specific constructor parameters by name. The container resolves all other dependencies normally but substitutes the explicitly
+    provided values. This is particularly useful for injecting primitive values that can't be autowired.
+- id: sc-023
+  topic: service-container
+  type: text
+  difficulty: medium
+  question: In the context of the service container, what is the term for the string or class name you use to register and later retrieve a binding (e.g., the first argument to bind())?
+  answer: abstract
+  alternatives:
+  - abstract type
+  explanation: In Laravel's container terminology, the first argument to bind(), singleton(), etc., is called the 'abstract.' It's the key (usually an interface or class name) that you use to register and
+    later resolve a binding. The container maps this abstract to a 'concrete' (the closure, class name, or instance that actually gets resolved).
+- id: sc-024
+  topic: service-container
+  type: single
+  difficulty: hard
+  question: How does the container resolve a class that has a variadic constructor parameter (e.g., array $reports) when using autowiring?
+  options:
+  - It passes an empty array by default since variadic constructor parameters cannot be automatically autowired
+  - It throws a BindingResolutionException because the container cannot autowire variadic parameters
+  - It uses reflection to find all classes implementing the parameter's type-hint and injects them all
+  - It resolves all bindings that share the same tag name as the variadic parameter and injects them all
+  answer: It uses reflection to find all classes implementing the parameter's type-hint and injects them all
+  explanation: When a constructor has a variadic parameter with a type-hint (e.g., iterable $reports), the container uses reflection to find all registered bindings that implement that interface, then injects
+    all of them as an array. This works with tagged bindings as well, making it powerful for plugin-style architectures where multiple implementations need to be collected.
+- id: sc-025
+  topic: service-container
+  type: multiple
+  difficulty: hard
+  question: In Laravel Octane with Swoole, which container binding types can cause stale state issues between requests?
+  options:
+  - Instance bindings set during a previous request
+  - scoped bindings that are incorrectly registered as singletons
+  - bind() closures, since they always create new instances
+  - singleton bindings that store request-specific data
+  answers:
+  - singleton bindings that store request-specific data
+  - scoped bindings that are incorrectly registered as singletons
+  - Instance bindings set during a previous request
+  explanation: In Octane, the process persists between requests, so singletons and instance bindings that store request-specific data will leak state. For example, a singleton storing the current authenticated
+    user would serve the wrong user to the next request. bind() closures are safe because they create fresh instances. Using scoped() instead of singleton() is the recommended fix.
+- id: sc-026
+  topic: service-container
+  type: text
+  difficulty: hard
+  question: What container method allows you to execute a closure only once, storing and returning the result for all subsequent calls, similar to a lazy singleton?
+  answer: remember
+  alternatives:
+  - remember()
+  explanation: The remember() method on the container executes a closure on first call and caches the result. On subsequent calls, it returns the cached result without re-executing the closure. This is
+    essentially a lazy singleton pattern—it defers the expensive operation until the first time it's needed, then reuses the result.
+- id: sc-027
+  topic: service-container
+  type: single
+  difficulty: hard
+  question: When the container uses reflection to build a class, what is the correct order of resolution for constructor dependencies?
+  options:
+  - All dependencies are resolved purely through autowiring, and any explicitly registered bindings are completely ignored
+  - Contextual bindings are checked first, then explicit make() overrides, then the container's registered bindings, then autowiring
+  - Explicit bindings take priority first, followed by autowiring, then contextual bindings override, and finally make() parameters
+  - Autowiring happens first via reflection, then contextual bindings can override, and finally make() parameters take precedence
+  answer: Contextual bindings are checked first, then explicit make() overrides, then the container's registered bindings, then autowiring
+  explanation: 'The container follows a clear precedence: it first checks for contextual bindings specific to the consuming class, then looks for explicit parameters passed to make(), then checks for registered
+    bindings (bind/singleton/scoped), and finally falls back to autowiring the concrete class via reflection. This order ensures the most specific configuration always wins.'
+- id: sc-028
+  topic: service-container
+  type: single
+  difficulty: hard
+  question: What is the primary risk of using too many 'instance' bindings (binding pre-created objects) during testing?
+  options:
+  - It can create tightly coupled tests that break when the container's binding structure changes
+  - The container rejects instance bindings registered after the boot phase, throwing a runtime exception
+  - It makes tests run slower because of the performance overhead from many pre-created object instances
+  - Instance bindings can only be used with concrete classes, not with interfaces or abstract types
+  answer: It can create tightly coupled tests that break when the container's binding structure changes
+  explanation: Overusing instance() bindings in tests can make them fragile. If tests rely on specific object instances being bound, they become coupled to the container's internal state rather than testing
+    behavior through the public API. The preferred approach is to use interface bindings or dependency injection, keeping tests decoupled from the container's implementation details.
+- id: sc-029
+  topic: service-container
+  type: multiple
+  difficulty: hard
+  question: Which of the following statements correctly describe how the container handles the 'build' step for a concrete class with no registered binding?
+  options:
+  - It recursively resolves each constructor parameter before instantiating the class
+  - It requires all constructor parameters to have default values if not type-hinted
+  - It uses PHP's ReflectionClass to inspect the constructor
+  - It caches the reflection results for faster subsequent resolutions
+  answers:
+  - It uses PHP's ReflectionClass to inspect the constructor
+  - It recursively resolves each constructor parameter before instantiating the class
+  - It caches the reflection results for faster subsequent resolutions
+  explanation: When building an unregistered concrete class, the container uses ReflectionClass to analyze the constructor, recursively resolves each type-hinted dependency, and instantiates the class.
+    It also caches reflection results in a build stack to avoid redundant reflection on subsequent requests. Parameters without type-hints must have default values to be resolvable.

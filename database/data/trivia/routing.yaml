@@ -1,0 +1,389 @@
+- id: rt-001
+  topic: routing
+  type: single
+  difficulty: easy
+  question: What happens when you define two routes with the same URI and HTTP method but different closures in the same route file?
+  options:
+  - Both routes execute in order, combining both responses
+  - The last defined route overwrites the first
+  - Laravel throws a LogicException at boot time indicating ambiguous route definitions
+  - The first defined route wins; the second is ignored silently
+  answer: The first defined route wins; the second is ignored silently
+  explanation: Laravel's router stores routes in an associative array keyed by HTTP method and URI. When a duplicate is registered, the second simply overwrites the first entry in the internal collection,
+    but during matching, the first match from the compiled route list is returned. In practice, you should avoid duplicate route definitions to prevent confusing behavior.
+- id: rt-002
+  topic: routing
+  type: single
+  difficulty: easy
+  question: Which HTTP verb does Laravel automatically register alongside a GET route to handle HEAD requests?
+  options:
+  - HEAD
+  - PATCH
+  - POST
+  - OPTIONS
+  answer: HEAD
+  explanation: When you register a GET route, Laravel automatically registers a corresponding HEAD route for you. This follows HTTP specification requirements where a HEAD request should return the same
+    headers as a GET request but with an empty body. You cannot disable this behavior per-route.
+- id: rt-003
+  topic: routing
+  type: multiple
+  difficulty: easy
+  question: Which of the following are valid route file locations that Laravel loads by default in a standard installation?
+  options:
+  - routes/api.php
+  - routes/graphql.php
+  - routes/channels.php
+  - routes/web.php
+  answers:
+  - routes/web.php
+  - routes/api.php
+  - routes/channels.php
+  explanation: Laravel's default routing setup loads routes/web.php (for web middleware group including CSRF, sessions, cookies), routes/api.php (for stateless API routes with rate limiting), and routes/channels.php
+    (for broadcast channel authorization). The graphql.php file is not a default Laravel route file.
+- id: rt-004
+  topic: routing
+  type: single
+  difficulty: easy
+  question: What is the primary purpose of naming a route using the ->name() method?
+  options:
+  - To improve SEO by providing a canonical URL name that search engines can use when indexing the HTML response pages
+  - To allow generating URLs and redirects using the route name instead of hardcoding URIs, making refactoring easier
+  - To enable Laravel's built-in route documentation generator that automatically creates API documentation from route names
+  - To assign a custom middleware group to the route and all of its nested child route definitions within the group
+  answer: To allow generating URLs and redirects using the route name instead of hardcoding URIs, making refactoring easier
+  explanation: Named routes let you reference routes by a memorable string (e.g., 'profile.update') instead of by URI. You can then use route('profile.update') or redirect()->route('profile.update') to
+    generate URLs. If the URI changes, you only update the route definition, not every reference throughout your codebase.
+- id: rt-005
+  topic: routing
+  type: text
+  difficulty: easy
+  question: What artisan command displays a table of all registered routes, their HTTP verbs, URIs, and associated controller actions?
+  answer: php artisan route:list
+  alternatives:
+  - artisan route:list
+  - php artisan route:list --columns=Method,URI
+  - route:list
+  explanation: The route:list command is essential for debugging routing issues. It shows all registered routes with their HTTP methods, URIs, controller actions, middleware, and names. You can filter results
+    with --path=, --name=, or --method= flags to narrow down the output.
+- id: rt-006
+  topic: routing
+  type: single
+  difficulty: easy
+  question: What does the where() method on a route definition allow you to do?
+  options:
+  - Constrain route parameters using regular expressions to control what values match the parameter
+  - Set default fallback values for route parameters when they are missing from the incoming request URI
+  - Filter incoming requests by their HTTP header values before the request reaches the controller method
+  - Redirect the request to a completely different URL based on the evaluated parameter values in the route
+  answer: Constrain route parameters using regular expressions to control what values match the parameter
+  explanation: The where() method lets you restrict what a route parameter can match using regex. For example, Route::get('/users/{id}', ...)->where('id', '[0-9]+') ensures {id} only matches numeric values.
+    If the parameter doesn't match the constraint, the route is skipped and Laravel continues searching.
+- id: rt-007
+  topic: routing
+  type: multiple
+  difficulty: easy
+  question: Which of the following are built-in route parameter constraint shortcuts provided by Laravel?
+  options:
+  - whereUuid()
+  - whereNumber()
+  - whereEmail()
+  - whereAlpha()
+  answers:
+  - whereNumber()
+  - whereAlpha()
+  - whereUuid()
+  explanation: 'Laravel provides convenient constraint methods: whereNumber() constrains to [0-9]+, whereAlpha() to [a-zA-Z]+, and whereUuid() to UUID format. These are syntactic sugar over the where()
+    method. There is no built-in whereEmail() method, though you could achieve this with where(''email'', ''^[^@]+@[^@]+\.[^@]+$'').'
+- id: rt-008
+  topic: routing
+  type: text
+  difficulty: easy
+  question: Which Blade directive is used to generate a hidden form input field containing the CSRF token?
+  answer: '@csrf'
+  alternatives:
+  - '{{ csrf_field() }}'
+  explanation: The @csrf Blade directive generates an HTML hidden input field with the name '_token' and the current CSRF token value. It is the standard way to include CSRF protection in HTML forms. The
+    older {{ csrf_field() }} helper also works but the directive is preferred in modern Blade templates.
+- id: rt-009
+  topic: routing
+  type: multiple
+  difficulty: easy
+  question: Which of the following route registrar methods accept an array of URIs as the first argument?
+  options:
+  - Route::any()
+  - Route::match()
+  - Route::post()
+  - Route::get()
+  answers:
+  - Route::get()
+  - Route::post()
+  explanation: Route::get() and Route::post() accept either a single URI string or an array of URIs, registering the same handler for multiple paths. Route::match() and Route::any() do not support array
+    URIs — they accept a single URI string (or path definition) as their argument.
+- id: rt-010
+  topic: routing
+  type: single
+  difficulty: medium
+  question: Why does php artisan route:cache fail when any route file contains a closure-based route?
+  options:
+  - Closure-based routes are inherently unsafe for production caching, and Laravel proactively blocks them from being serialized for security
+  - Closures cannot be serialized by PHP, and the route cache works by serializing the compiled route collection to a file
+  - Closures do not include HTTP method metadata, making it completely impossible to reconstruct the full route definition on cache load
+  - The route cache compiler requires a fully qualified controller class name to properly generate a valid and unique cache key
+  answer: Closures cannot be serialized by PHP, and the route cache works by serializing the compiled route collection to a file
+  explanation: Laravel's route cache serializes the entire route collection using var_export() to generate a cached PHP file. Since PHP closures cannot be serialized, any route using a closure instead of
+    a controller action will cause the cache command to throw an exception. This is why all routes must use controller methods in production.
+- id: rt-011
+  topic: routing
+  type: single
+  difficulty: medium
+  question: How does implicit route model binding determine which model to resolve when a route parameter name doesn't match any model's default key?
+  options:
+  - "It always defaults to using the 'id' column for resolution, regardless of the parameter name"
+  - "It throws a ModelNotFoundException immediately since no model can be matched"
+  - "It does not resolve the parameter and passes the raw string value to the controller"
+  - "It falls back to searching all registered Eloquent models for a matching column name"
+  answer: It does not resolve the parameter and passes the raw string value to the controller
+  explanation: Implicit binding works by matching the parameter name (e.g., {user}) to a model class by convention — it looks for an Eloquent model with a singular version of that name (e.g., App\Models\User).
+    If no model matches by convention, the parameter is treated as a plain string. You can customize this with explicit binding in RouteServiceProvider.
+- id: rt-012
+  topic: routing
+  type: multiple
+  difficulty: medium
+  question: Which of the following are valid ways to define a fallback route that handles all unmatched requests?
+  options:
+  - Route::view('/404', 'errors.404')->name('fallback');
+  - Route::any('{fallback}', function () { ... });
+  - Route::match(['get', 'post', 'put', 'patch', 'delete'], '/{any}', ...)->where('any', '.*');
+  - Route::fallback(function () { ... });
+  answers:
+  - Route::fallback(function () { ... });
+  - Route::any('{fallback}', function () { ... });
+  explanation: Route::fallback() is the built-in method that registers a catch-all route, always placed last. You can also manually create a catch-all with Route::any() and a regex constraint. Route::view()
+    simply maps a URI to a view but does not catch unmatched routes — it only responds to that specific URI.
+- id: rt-013
+  topic: routing
+  type: single
+  difficulty: medium
+  question: What is the key difference between Route::redirect() and Route::permanentRedirect()?
+  options:
+  - redirect() is for internal routes only, while permanentRedirect() can redirect to external URLs
+  - There is no real difference between the two; they are aliases for the same redirect method
+  - redirect() preserves all query parameters; permanentRedirect() strips them from the target URL
+  - redirect() sends a 302 temporary redirect; permanentRedirect() sends a 301 permanent redirect
+  answer: redirect() sends a 302 temporary redirect; permanentRedirect() sends a 301 permanent redirect
+  explanation: Route::redirect() returns a 302 Found (temporary) status code by default, meaning browsers and search engines should continue using the original URL. Route::permanentRedirect() returns a
+    301 Moved Permanently, signaling that the resource has permanently moved. This distinction matters for SEO, as search engines transfer page ranking to the 301 target.
+- id: rt-014
+  topic: routing
+  type: text
+  difficulty: medium
+  question: What method do you call on a route definition to specify that it should only be accessible when running tests?
+  answer: env
+  alternatives:
+  - ->env('testing')
+  explanation: The ->env() method restricts a route to only be registered in specific application environments. For example, Route::get('/test-endpoint', ...)->env('testing') ensures this route only exists
+    when APP_ENV=testing. This is useful for endpoints that should never be accessible in production but are needed during testing.
+- id: rt-015
+  topic: routing
+  type: multiple
+  difficulty: medium
+  question: In Laravel 11+, how can you configure the API route's rate limiting using the fluent route definition in bootstrap/app.php?
+  options:
+  - ->middleware('throttle:api')
+  - ->middleware('throttle:60,1')
+  - ->limit(60)
+  - ->middleware(ThrottleRequests::class.':api')
+  answers:
+  - ->middleware('throttle:api')
+  - ->middleware(ThrottleRequests::class.':api')
+  explanation: In Laravel 11+, rate limiting is configured using the throttle middleware, either by alias name ('throttle:api') or by class reference. The 'api' named limiter is defined in the RateLimiter
+    facade. The ->limit(60) method is not a built-in route definition method; rate limiting is handled through middleware, not a direct route method.
+- id: rt-016
+  topic: routing
+  type: single
+  difficulty: medium
+  question: When using route group prefixes, what happens if a nested route group also defines a prefix?
+  options:
+  - Only the longest prefix string is used and the shorter one is silently discarded during compilation
+  - The prefixes are concatenated, with a slash added between them, forming a compound path
+  - The inner prefix completely replaces the outer prefix, discarding any previously defined path segments
+  - Laravel throws an exception for conflicting prefix definitions that would create ambiguous route paths
+  answer: The prefixes are concatenated, with a slash added between them, forming a compound path
+  explanation: Route group prefixes are cumulative and nested. If an outer group has prefix('api') and an inner group has prefix('v1/users'), the resulting URI prefix is /api/v1/users. This composability
+    lets you organize routes hierarchically, keeping related route definitions close together while building up the full URI path.
+- id: rt-017
+  topic: routing
+  type: text
+  difficulty: medium
+  question: What method on a route group allows you to share controller namespace across multiple routes without repeating the full controller path?
+  answer: namespace
+  alternatives:
+  - ->namespace('App\\Http\\Controllers\\Admin')
+  - namespace()
+  explanation: The ->namespace() method on a route group sets a base controller namespace. For example, Route::namespace('Admin')->group(...) lets you reference controllers as 'UserController' instead of
+    'App\Http\Controllers\Admin\UserController'. In Laravel 11+, with the simplified routing structure, this is less commonly needed but still available.
+- id: rt-018
+  topic: routing
+  type: single
+  difficulty: medium
+  question: Why might a route with a pattern constraint like /posts/{slug} still match URLs with slashes in the slug parameter unless you add an explicit regex constraint?
+  options:
+  - Route parameters always match greedily across multiple URL segments unless they are explicitly restricted by a regex constraint
+  - The route matching engine splits the URL on slashes first, then matches each parameter segment by segment in order
+  - Laravel's default parameter regex is [^/]+ which excludes slashes, so the route would NOT match a URL with slashes in the slug
+  - Route parameters match any character except whitespace by default, including forward slashes in the parameter value
+  answer: Laravel's default parameter regex is [^/]+ which excludes slashes, so the route would NOT match a URL with slashes in the slug
+  explanation: By default, Laravel route parameters use the regex pattern [^/]+, meaning they match one or more characters that are NOT a forward slash. This ensures each parameter captures exactly one
+    URI segment. To allow slashes in a parameter, you must explicitly override the constraint, e.g., ->where('slug', '.*').
+- id: rt-019
+  topic: routing
+  type: multiple
+  difficulty: medium
+  question: Which of the following correctly describe the behavior of signed URLs in Laravel?
+  options:
+  - Signed URLs require the user to be authenticated to be valid
+  - Signed URLs are generated using the URL::signedRoute() or URL::temporarySignedRoute() helpers
+  - Signed URLs automatically expire after the Laravel session ends
+  - A signed URL appends a hash-based signature as a query parameter to verify the URL has not been tampered with
+  answers:
+  - A signed URL appends a hash-based signature as a query parameter to verify the URL has not been tampered with
+  - Signed URLs are generated using the URL::signedRoute() or URL::temporarySignedRoute() helpers
+  explanation: Signed URLs use HMAC to create a cryptographic signature appended to the URL. URL::signedRoute() creates a URL that is valid indefinitely, while URL::temporarySignedRoute() adds an expiration
+    time. They do not require authentication — the security comes from the secret key used to generate the signature, making them ideal for public links like email verification.
+- id: rt-020
+  topic: routing
+  type: single
+  difficulty: medium
+  question: What is the practical effect of calling Route::pattern('id', '[0-9]+') in the boot method of your RouteServiceProvider?
+  options:
+  - It creates a named route pattern that can be referenced using ->where('id', 'pattern:id') in individual route definitions
+  - It defines a global regex constraint that applies to every route parameter named 'id' across the entire application
+  - It registers a new fallback route that only matches when the 'id' URI segment contains a purely numeric value
+  - It modifies the application's database migration schema to enforce strict auto-incrementing constraints on ID columns
+  answer: It defines a global regex constraint that applies to every route parameter named 'id' across the entire application
+  explanation: Route::pattern() sets a global parameter constraint. Once defined, any route with a parameter named 'id' will automatically use the [0-9]+ constraint without needing ->where('id', '[0-9]+')
+    on each individual route. This is DRY-friendly and prevents accidentally accepting non-numeric values for ID parameters throughout your application.
+- id: rt-021
+  topic: routing
+  type: text
+  difficulty: medium
+  question: When defining a route with scoped model binding using Route::scopeBinding(), what must the nested model's route parameter name match for automatic scoping to work?
+  answer: The parent model's relationship method name
+  alternatives:
+  - the relationship method name
+  - the name of the relationship method on the parent model
+  - relationship method
+  explanation: With scoped binding enabled, for a route like /users/{user}/posts/{post}, the {post} parameter is automatically scoped to the {user} parent. This works because Laravel looks for a 'posts'
+    relationship method on the User model (the parameter name 'post' is singularized to find the 'posts' relationship). The parameter name must correspond to the relationship method name for automatic resolution.
+- id: rt-022
+  topic: routing
+  type: single
+  difficulty: medium
+  question: What happens when you access a subdomain route like {tenant}.myapp.com but the main domain also has a route for the same path?
+  options:
+  - Laravel throws an AmbiguousRouteException
+  - Both routes are registered and the one defined first in the route file matches
+  - The more specific subdomain route matches first because Laravel evaluates subdomain routes before domainless routes
+  - The main domain route always takes priority regardless of definition order
+  answer: Both routes are registered and the one defined first in the route file matches
+  explanation: Subdomain routing doesn't get special priority in matching. Laravel evaluates routes in registration order. However, the router also checks the current request's host against the domain constraint.
+    If the request matches the subdomain pattern, only subdomain-constrained routes that also match the path will be candidates. A main-domain route without a domain constraint will still be a candidate
+    for any host.
+- id: rt-023
+  topic: routing
+  type: multiple
+  difficulty: medium
+  question: Which of the following statements about the routes/web.php middleware group are correct?
+  options:
+  - It automatically applies the 'web' middleware group, which includes session and CSRF protection
+  - It is loaded by bootstrap/app.php using the web middleware group configuration
+  - Routes defined here receive the 'api' middleware group by default in Laravel 13
+  - Routes in this file use the 'web' guard for authentication by default
+  answers:
+  - It automatically applies the 'web' middleware group, which includes session and CSRF protection
+  - It is loaded by bootstrap/app.php using the web middleware group configuration
+  explanation: In Laravel 11+, bootstrap/app.php configures routes/web.php to use the 'web' middleware group, which includes EncryptCookies, StartSession, VerifyCsrfToken, and other session-related middleware.
+    The 'api' guard is not automatically applied — authentication guards are configured separately. The web middleware group is what differentiates web routes from API routes.
+- id: rt-024
+  topic: routing
+  type: single
+  difficulty: hard
+  question: When using explicit route model binding with a custom key in RouteServiceProvider::bind(), how does Laravel handle the resolution when the bound closure returns null?
+  options:
+  - It skips the route and continues matching against remaining routes
+  - It passes null to the controller and lets the controller handle it
+  - It throws a 404 Not Found exception automatically
+  - It retries the resolution using the default 'id' column as a fallback
+  answer: It throws a 404 Not Found exception automatically
+  explanation: When explicit binding resolves a model and returns null, Laravel's router treats this as 'model not found' and automatically throws a ModelNotFoundException, which is converted to a 404 HTTP
+    response. This is the same behavior as implicit binding — if the model cannot be found, the user gets a 404. You can customize this behavior by returning a different response from the binding closure.
+- id: rt-025
+  topic: routing
+  type: single
+  difficulty: hard
+  question: How does Laravel's route matching engine handle trailing slashes in route definitions versus incoming request URIs?
+  options:
+  - Laravel requires all route definitions to include a trailing slash for consistency
+  - Route definitions with trailing slashes are silently removed, and request URIs are matched without trailing slashes
+  - Laravel automatically strips trailing slashes from both route definitions and request URIs before matching
+  - 'Laravel normalizes trailing slashes: /posts and /posts/ are treated as different routes unless you define both'
+  answer: 'Laravel normalizes trailing slashes: /posts and /posts/ are treated as different routes unless you define both'
+  explanation: Laravel does NOT automatically normalize trailing slashes. A route defined as '/posts' will NOT match a request to '/posts/', and vice versa. If you want to handle both, you need to either
+    define both routes or add a redirect. You can add middleware to globally strip trailing slashes if this behavior is undesirable for your application.
+- id: rt-026
+  topic: routing
+  type: multiple
+  difficulty: hard
+  question: Which of the following are true about how Laravel compiles and caches route information in the bootstrap/cache/routes-v7.php file?
+  options:
+  - The cached file contains serialized route definitions that PHP includes directly instead of parsing route files
+  - Route caching dramatically improves request performance by skipping route registration on each request
+  - The cached file includes closure-based routes by converting them to anonymous class methods
+  - The cached file avoids loading the framework's service container for route resolution
+  answers:
+  - The cached file contains serialized route definitions that PHP includes directly instead of parsing route files
+  - Route caching dramatically improves request performance by skipping route registration on each request
+  explanation: When you run route:cache, Laravel serializes the compiled route collection into a PHP file in bootstrap/cache/. On subsequent requests, this file is loaded directly, bypassing the entire
+    route registration phase. This significantly improves performance in production. However, closure-based routes cannot be cached (they throw an exception), and the service container is still needed for
+    controller resolution.
+- id: rt-027
+  topic: routing
+  type: text
+  difficulty: hard
+  question: What configuration key in config/app.php controls the set of valid middleware group names that can be applied to route files in bootstrap/app.php?
+  answer: middleware
+  alternatives:
+  - '''middleware'''
+  - the middleware configuration key
+  explanation: The 'middleware' key in config/app.php (or the middleware configuration in bootstrap/app.php for Laravel 11+) defines the available middleware groups and aliases. In Laravel 11+, the withMiddleware()
+    method in bootstrap/app.php is used to configure middleware groups, aliases, and priority, which then apply to route definitions. The concept of middleware groups is fundamental to how web and API routes
+    get different middleware stacks.
+- id: rt-028
+  topic: routing
+  type: single
+  difficulty: hard
+  question: In a scenario where both Route::view('/about', 'pages.about') and Route::get('/about', [PageController::class, 'about']) are defined, what determines which handler executes?
+  options:
+  - The controller route takes precedence because controller-based routes are considered more specific than view routes
+  - Route::view takes precedence over Route::get because view routes are registered in a higher-priority internal route collection
+  - The route defined first in the route file wins because Laravel uses a first-match strategy during route resolution
+  - Laravel merges both route handlers together and executes them in sequence, combining both response outputs
+  answer: The route defined first in the route file wins because Laravel uses a first-match strategy during route resolution
+  explanation: Laravel's router iterates through routes in the order they were registered and returns the first route whose method, URI, and constraints match. There is no inherent priority difference between
+    Route::view() and Route::get() — the first one registered wins. This is why route definition order matters and why you should avoid defining two routes with the same method and URI.
+- id: rt-029
+  topic: routing
+  type: multiple
+  difficulty: hard
+  question: When using the RateLimiter facade to configure named rate limiters referenced in route middleware, which of the following are valid approaches?
+  options:
+  - RateLimiter::for('api', function (Request $request) { return Limit::perSecond(1); });
+  - RateLimiter::for('api', function (Request $request) { return Limit::perMinute(60)->by($request->ip()); });
+  - RateLimiter::for('api', function (Request $request) { return Limit::perMinute(60); });
+  - RateLimiter::for('api', function (Request $request) { return [Limit::perMinute(60), Limit::perDay(1000)]; });
+  answers:
+  - RateLimiter::for('api', function (Request $request) { return Limit::perMinute(60); });
+  - RateLimiter::for('api', function (Request $request) { return Limit::perMinute(60)->by($request->ip()); });
+  - RateLimiter::for('api', function (Request $request) { return [Limit::perMinute(60), Limit::perDay(1000)]; });
+  explanation: 'The RateLimiter facade supports all these patterns: returning a single Limit, chaining ->by() to scope the limit per-user/IP, returning an array of multiple limits (both must pass), and
+    using per-second limits. The ''api'' named limiter is then referenced via middleware(''throttle:api''). This flexible system supports both per-minute and per-second granular rate limiting.'

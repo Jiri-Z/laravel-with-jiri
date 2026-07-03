@@ -1,0 +1,375 @@
+- id: bt-001
+  topic: blade-templates
+  type: single
+  difficulty: easy
+  question: What is the primary difference between {{ $name }} and {!! $name !!} in Blade templates?
+  options:
+  - '{{ }} escapes HTML entities automatically, while {!! !!} outputs raw unescaped HTML'
+  - There is no difference between the two syntaxes; they are fully interchangeable in all Blade template contexts
+  - '{{ }} is faster because it uses a simpler compilation path; {!! !!} is slower due to additional parsing'
+  - '{{ }} only works with string variables, while {!! !!} is required when rendering arrays or collection data'
+  answer: '{{ }} escapes HTML entities automatically, while {!! !!} outputs raw unescaped HTML'
+  explanation: The double curly braces {{ }} automatically escape HTML special characters using PHP's htmlspecialchars(), preventing XSS attacks. The {!! !!} syntax outputs content as-is, which is dangerous
+    with user input. Only use {!! !!} when you have trusted, pre-sanitized HTML content that should be rendered as HTML.
+- id: bt-002
+  topic: blade-templates
+  type: single
+  difficulty: easy
+  question: What does the @csrf Blade directive output in a form?
+  options:
+  - A hidden input field containing a CSRF token
+  - A meta tag containing the CSRF token
+  - A JavaScript function that fetches a CSRF token via AJAX
+  - A cookie with the CSRF token
+  answer: A hidden input field containing a CSRF token
+  explanation: The @csrf directive generates a hidden <input type="hidden" name="_token" value="..."> field. This token is verified by the VerifyCsrfToken middleware on POST, PUT, PATCH, and DELETE requests.
+    It's essential for protecting against Cross-Site Request Forgery attacks in all HTML forms.
+- id: bt-003
+  topic: blade-templates
+  type: text
+  difficulty: easy
+  question: What Blade directive is used to define a section of content in a child template that will be injected into a parent layout's @yield?
+  answer: '@section'
+  alternatives:
+  - section
+  explanation: The @section directive defines a block of content that maps to a @yield in the parent layout. For example, @section('title', 'Home') defines a short section, while @section('content') ...
+    @endsection defines a block. The parent layout uses @yield('title') and @yield('content') to place the child's content.
+- id: bt-004
+  topic: blade-templates
+  type: multiple
+  difficulty: easy
+  question: Which of the following Blade directives are used for template inheritance? (Select all that apply)
+  options:
+  - '@section'
+  - '@import'
+  - '@extends'
+  - '@yield'
+  answers:
+  - '@extends'
+  - '@yield'
+  - '@section'
+  explanation: Template inheritance in Blade uses @extends('layout.name') in the child to specify the parent, @yield('name') in the parent to define placeholder slots, and @section('name') in the child
+    to fill those slots. There is no @import directive in Blade — that concept belongs to other template engines.
+- id: bt-005
+  topic: blade-templates
+  type: single
+  difficulty: easy
+  question: What does the @foreach directive provide automatically that a plain PHP foreach does not?
+  options:
+  - Built-in pagination support that automatically generates page links and manages the current page state
+  - A $loop variable with information about the current iteration (index, count, first, last, etc.)
+  - Automatic CSRF protection for loop contents, ensuring each form rendered in the loop has a valid token
+  - Automatic SQL query optimization that reduces the number of database queries executed during iteration
+  answer: A $loop variable with information about the current iteration (index, count, first, last, etc.)
+  explanation: Blade's @foreach automatically provides a $loop variable containing properties like $loop->index (0-based), $loop->iteration (1-based), $loop->first, $loop->last, $loop->count, $loop->even,
+    $loop->odd, and $loop->depth for nested loops. This eliminates the need to manually track these values.
+- id: bt-006
+  topic: blade-templates
+  type: text
+  difficulty: easy
+  question: What Blade directive displays a fallback message when iterating over an empty collection?
+  answer: '@forelse'
+  alternatives:
+  - forelse
+  explanation: '@forelse($items as $item) ... @empty ... @endforelse combines a foreach loop with an empty state. If the collection has items, it iterates normally. If the collection is empty, it renders
+    the content inside @empty. This is cleaner than wrapping @foreach inside an @if($items->isNotEmpty()) check.'
+- id: bt-007
+  topic: blade-templates
+  type: single
+  difficulty: easy
+  question: How do you write a comment in a Blade template that will NOT appear in the rendered HTML?
+  options:
+  - /* This is a Blade-style comment */
+  - // This is a Blade template comment
+  - '{{-- This is a Blade comment --}}'
+  - <!-- This is a template comment -->
+  answer: '{{-- This is a Blade comment --}}'
+  explanation: Blade comments using {{-- --}} are completely stripped from the compiled output and never reach the browser. In contrast, HTML comments (<!-- -->) are sent to the client and visible in the
+    page source. Use Blade comments for developer notes and HTML comments only when you intentionally want them in the output.
+- id: bt-008
+  topic: blade-templates
+  type: multiple
+  difficulty: easy
+  question: Which of the following Blade directives check authentication status? (Select all that apply)
+  options:
+  - '@loggedin'
+  - '@guest'
+  - '@auth'
+  - '@login'
+  answers:
+  - '@auth'
+  - '@guest'
+  explanation: '@auth displays content only when a user is logged in, and @guest shows content only for unauthenticated users. Both support guard specification: @auth(''admin'') checks the ''admin'' guard.
+    There are no @login or @loggedin directives in Blade — those are not valid Blade syntax.'
+- id: bt-009
+  topic: blade-templates
+  type: single
+  difficulty: easy
+  question: What does the @method('PUT') Blade directive output in a form?
+  options:
+  - A meta tag that instructs the browser to use PUT
+  - It throws an error since HTML forms don't support PUT
+  - A hidden _method input field with the value PUT
+  - It changes the form's method attribute to PUT
+  answer: A hidden _method input field with the value PUT
+  explanation: Since HTML forms only natively support GET and POST, @method('PUT') generates <input type="hidden" name="_method" value="PUT">. Laravel's method spoofing middleware reads this field and interprets
+    the request as a PUT request. This works with PUT, PATCH, and DELETE methods.
+- id: bt-010
+  topic: blade-templates
+  type: text
+  difficulty: easy
+  question: What Blade directive allows you to write raw PHP code that should not be compiled by Blade?
+  answer: '@php'
+  alternatives:
+  - php
+  explanation: 'The @php directive lets you write plain PHP within a Blade template: @php $count = count($items); @endphp. While useful for complex logic, overusing @php defeats the purpose of Blade as
+    a templating engine. It''s generally better to move complex logic to the controller or a view composer.'
+- id: bt-011
+  topic: blade-templates
+  type: single
+  difficulty: medium
+  question: What is the purpose of @parent inside a @section block in a child template?
+  options:
+  - It includes the parent template's header and footer sections into the child template automatically
+  - It appends the parent layout's @yield content before the child's content
+  - It makes the section inherit all of the parent's CSS classes and inline style attributes
+  - It calls the parent controller's method to share data between the parent and child views
+  answer: It appends the parent layout's @yield content before the child's content
+  explanation: '@parent outputs whatever content was defined in the parent layout''s @section block (if any). This allows a child template to extend rather than replace a parent section. For example, if
+    the parent''s @section(''scripts'') includes a jQuery CDN, the child can add its own scripts while preserving the parent''s via @parent.'
+- id: bt-012
+  topic: blade-templates
+  type: single
+  difficulty: medium
+  question: Why would you use @verbatim instead of @php in a Blade template?
+  options:
+  - '@verbatim allows you to safely use Blade syntax inside JavaScript code blocks without causing compilation errors'
+  - '@verbatim is more secure because it automatically sanitizes and escapes all output within its block'
+  - '@verbatim compiles to faster PHP code than @php because it skips the Blade compilation engine'
+  - '@verbatim prevents Blade from processing {{ }} and @ directives within its block, useful for JavaScript frameworks'
+  answer: '@verbatim prevents Blade from processing {{ }} and @ directives within its block, useful for JavaScript frameworks'
+  explanation: When using Vue.js, Alpine.js, or similar frameworks that use {{ }} syntax, Blade would try to compile those expressions. @verbatim tells Blade to skip compilation within its block, leaving
+    {{ }} as literal text for the JavaScript framework to handle. This is cleaner than escaping each expression individually.
+- id: bt-013
+  topic: blade-templates
+  type: multiple
+  difficulty: medium
+  question: Which of the following are valid Blade directives for conditional class and style attributes? (Select all that apply)
+  options:
+  - '@style([''color: red'' => $hasError, ''font-weight: bold'' => $isImportant])'
+  - '@css([''text-red'' => $hasError])'
+  - '@attr([''class'' => ''active''])'
+  - '@class([''active'' => $isActive, ''disabled'' => $isDisabled])'
+  answers:
+  - '@class([''active'' => $isActive, ''disabled'' => $isDisabled])'
+  - '@style([''color: red'' => $hasError, ''font-weight: bold'' => $isImportant])'
+  explanation: '@class() conditionally compiles CSS class names based on boolean values, outputting a class="active disabled" string. @style() does the same for inline styles. Both accept associative arrays
+    where keys are the class/style values and values are boolean conditions. There are no @attr or @css directives.'
+- id: bt-014
+  topic: blade-templates
+  type: text
+  difficulty: medium
+  question: What Blade directive ensures a block of code is only rendered once per rendering cycle, even if the template includes it multiple times?
+  answer: '@once'
+  alternatives:
+  - once
+  explanation: '@once ... @endonce ensures the enclosed content is rendered only once per request, even if the template or component that contains it is included multiple times. This is useful for pushing
+    scripts or styles that should only appear once, preventing duplicate <script> or <style> tags when a component is rendered in a loop.'
+- id: bt-015
+  topic: blade-templates
+  type: single
+  difficulty: medium
+  question: What is the difference between @push and @stack in Blade templates?
+  options:
+  - '@push renders content immediately to the output buffer; @stack stores content in memory for later use'
+  - '@push is exclusively for JavaScript files, while @stack is used only for CSS style injection'
+  - '@push adds content to a stack; @stack renders all content that was pushed to a named stack'
+  - They are identical directives and can be used interchangeably in any Blade template context
+  answer: '@push adds content to a stack; @stack renders all content that was pushed to a named stack'
+  explanation: '@push(''scripts'') ... @endpush accumulates content into a named stack, and @stack(''scripts'') outputs all pushed content at the layout level. This is commonly used in layouts to define
+    where child templates can inject scripts or styles. @prepend works like @push but adds content to the beginning of the stack.'
+- id: bt-016
+  topic: blade-templates
+  type: single
+  difficulty: medium
+  question: What does @error('email') do in a Blade template?
+  options:
+  - Clears the email field's error message from the session after it has been displayed to the user
+  - Validates the email field on the client side using JavaScript before the form is submitted
+  - Checks if a validation error exists for the 'email' field and displays its message
+  - Throws an error exception if the email field is empty and stops further template rendering
+  answer: Checks if a validation error exists for the 'email' field and displays its message
+  explanation: '@error(''email'') checks the shared $errors MessageBag (which is always available in views) for an error on the ''email'' key. If an error exists, the content inside the directive is rendered,
+    and $message is available within the block. This is the standard way to display inline validation errors next to form fields.'
+- id: bt-017
+  topic: blade-templates
+  type: multiple
+  difficulty: medium
+  question: Which of the following Blade directives help with form state management by setting HTML attributes based on conditions? (Select all that apply)
+  options:
+  - '@selected($option == old(''country''))'
+  - '@checked($user->is_admin)'
+  - '@disabled(!$user->active)'
+  - '@required($field->is_required)'
+  answers:
+  - '@selected($option == old(''country''))'
+  - '@checked($user->is_admin)'
+  - '@disabled(!$user->active)'
+  explanation: 'These directives conditionally output their respective HTML attributes: @selected outputs ''selected'' for <option> elements, @checked outputs ''checked'' for checkboxes and radios, and
+    @disabled outputs ''disabled''. They accept boolean expressions and only output the attribute when the condition is true. There is no @required directive.'
+- id: bt-018
+  topic: blade-templates
+  type: text
+  difficulty: medium
+  question: What Blade directive compiles a PHP variable to JSON, making it safe to pass to JavaScript within a <script> tag?
+  answer: '@json'
+  alternatives:
+  - json
+  explanation: '@json($data) encodes a PHP variable as JSON with proper escaping, making it safe to embed in HTML script tags. It''s commonly used as <script>let data = @json($data);</script>. This is safer
+    than manually calling json_encode() because Blade handles the escaping context correctly, preventing XSS through script injection.'
+- id: bt-019
+  topic: blade-templates
+  type: single
+  difficulty: medium
+  question: What happens when a @section in a child template uses the short syntax @section('title', 'Page Title') instead of the block syntax?
+  options:
+  - The section is always appended to the parent's content rather than replacing the original yield value
+  - The section is rendered but the content is HTML-escaped before being sent to the browser output
+  - The section is stored in the session data for the next request to be retrieved and rendered later
+  - The section replaces the parent's @yield entirely; @parent cannot be used
+  answer: The section replaces the parent's @yield entirely; @parent cannot be used
+  explanation: The short syntax @section('name', 'content') defines a section with inline content. This replaces whatever the parent's @yield provides. Because there is no block body, you cannot use @parent.
+    The block syntax (@section('name') ... @endsection) is needed when you want to append to or modify the parent's content using @parent.
+- id: bt-020
+  topic: blade-templates
+  type: single
+  difficulty: medium
+  question: When using @switch in Blade, what directive terminates a @case block?
+  options:
+  - '@break'
+  - '@done'
+  - '@endcase'
+  - '@endswitch'
+  answer: '@break'
+  explanation: Blade's @switch works like PHP's switch statement. Each @case('value') block must be terminated with @break to prevent fall-through. The entire switch is closed with @endswitch. The @default
+    case handles all unmatched values. This provides a cleaner syntax than PHP's switch when mixing HTML and logic.
+- id: bt-021
+  topic: blade-templates
+  type: single
+  difficulty: medium
+  question: What is the purpose of the @env directive in Blade templates?
+  options:
+  - It conditionally renders content based on the application environment
+  - It sets the APP_ENV variable at runtime, allowing dynamic environment switching during the request
+  - It loads environment-specific configuration files based on the detected application environment
+  - It outputs the current application environment name as a string directly into the rendered HTML
+  answer: It conditionally renders content based on the application environment
+  explanation: '@env(''production'') ... @endenv renders content only when the application is running in the specified environment. You can pass multiple environments: @env(''staging'', ''production'').
+    This is useful for showing/hiding analytics scripts, debugging tools, or banners based on the environment without JavaScript checks.'
+- id: bt-022
+  topic: blade-templates
+  type: multiple
+  difficulty: medium
+  question: Which of the following are valid ways to register a custom Blade directive? (Select all that apply)
+  options:
+  - Using a service provider's boot() method to call Blade::directive()
+  - Adding it to the 'blade_directives' config array
+  - Blade::directive('datetime', function($expression) { return "<?php echo ($expression)->format('m/d/Y H:i'); ?>"; });
+  - '@directive(datetime) in a Blade template'
+  answers:
+  - Blade::directive('datetime', function($expression) { return "<?php echo ($expression)->format('m/d/Y H:i'); ?>"; });
+  - Using a service provider's boot() method to call Blade::directive()
+  explanation: Custom Blade directives are registered in a service provider's boot() method using Blade::directive('name', callback). The callback receives the expression string and must return a valid
+    PHP string. There is no @directive syntax for defining directives at runtime, and no blade_directives config option — it's all done through PHP.
+- id: bt-023
+  topic: blade-templates
+  type: text
+  difficulty: hard
+  question: What method creates a custom conditional Blade directive, allowing syntax like @admin ... @endadmin without passing an expression?
+  answer: Blade::if
+  alternatives:
+  - Blade::if()
+  explanation: Blade::if('admin', function() { return auth()->check() && auth()->user()->is_admin; }) creates a custom conditional directive. In templates, you can then use @admin ... @else ... @endadmin.
+    This is cleaner than Blade::directive() for boolean conditions because the returned PHP automatically handles the opening if/else/closing logic.
+- id: bt-024
+  topic: blade-templates
+  type: single
+  difficulty: hard
+  question: Why might a custom Blade directive using Blade::directive() need to be careful with its return value?
+  options:
+  - The return value is automatically HTML-escaped by Blade before being output to the browser response
+  - The return value must be valid PHP that Blade appends to the compiled template
+  - The return value must always be a boolean value that determines whether the directive renders its content
+  - Directives can only return string literals, not dynamic expressions or variables from the template context
+  answer: The return value must be valid PHP that Blade appends to the compiled template
+  explanation: Blade::directive() callbacks must return raw PHP code (including opening <?php tags if needed) that gets directly inserted into the compiled template. If you return invalid PHP, the compiled
+    template will fail. This is why Blade::if() is often preferred for simple conditions — it handles the PHP wrapping automatically.
+- id: bt-025
+  topic: blade-templates
+  type: multiple
+  difficulty: hard
+  question: Which of the following are true about Blade anonymous components in Laravel? (Select all that apply)
+  options:
+  - They automatically receive all attributes as a $attributes Bag
+  - They cannot accept slots or have subcomponents
+  - They are single-file components stored in resources/views/components/
+  - They do NOT require a corresponding PHP class
+  answers:
+  - They are single-file components stored in resources/views/components/
+  - They automatically receive all attributes as a $attributes Bag
+  - They do NOT require a corresponding PHP class
+  explanation: Anonymous Blade components are .blade.php files in resources/views/components/ that don't need a PHP class. They receive all non-slot attributes via $attributes and support @props for type
+    hinting and defaults. They fully support slots via @slot, making them powerful for reusable UI elements without the overhead of class-based components.
+- id: bt-026
+  topic: blade-templates
+  type: single
+  difficulty: hard
+  question: What is the purpose of the @aware directive in a Blade component?
+  options:
+  - "It logs component rendering times and memory usage for debugging purposes in the application log"
+  - "It enables event listening within the component so it can dispatch and listen to Laravel framework events"
+  - "It declares that the component should receive specific data from its parent component without explicitly passing props"
+  - "It makes the component aware of its parent's data and automatically shares all parent variables into scope"
+  answer: It declares that the component should receive specific data from its parent component without explicitly passing props
+  explanation: '@aware([''color'' => ''gray'']) in a child component declares that it expects to receive ''color'' from its parent component''s @props or data. When the parent component renders this child,
+    the parent''s matching data automatically flows down. This is especially useful for nested components within class-based components where you want implicit data passing.'
+- id: bt-027
+  topic: blade-templates
+  type: text
+  difficulty: hard
+  question: What is the name of the attribute merging and class management utility that Blade components use to handle HTML attributes intelligently (e.g., not duplicating 'class' attributes)?
+  answer: ComponentAttributeBag
+  alternatives:
+  - ComponentAttributeBag
+  - Illuminate\View\ComponentAttributeBag
+  - AttributeBag
+  explanation: The ComponentAttributeBag class manages component attributes, providing intelligent merging of classes, styles, and other attributes. When a component defines default attributes and the consumer
+    adds more, the bag merges them rather than overwriting. It provides methods like class(), style(), merge(), and filter() for fine-grained control in class-based components.
+- id: bt-028
+  topic: blade-templates
+  type: single
+  difficulty: hard
+  question: What is a key difference between @pushOnce and @push in Blade templates?
+  options:
+  - '@pushOnce is faster because it uses less memory and avoids duplicate DOM operations per render cycle'
+  - '@pushOnce only works in layout files, not in child templates that extend a parent layout'
+  - '@pushOnce only pushes content if the stack name hasn''t already received content in this request'
+  - '@pushOnce is deprecated in Laravel 13.x and replaced with the @unique directive for stacks'
+  answer: '@pushOnce only pushes content if the stack name hasn''t already received content in this request'
+  explanation: '@pushOnce(''scripts'', ''unique-id'') ensures that content with the given unique ID is only pushed to the stack once per request, even if the template or component containing the @pushOnce
+    is rendered multiple times. This prevents duplicate script or style inclusions in loops, similar to @once but specifically for stacks.'
+- id: bt-029
+  topic: blade-templates
+  type: multiple
+  difficulty: hard
+  question: When creating a class-based Blade component, which of the following are true about the render() method? (Select all that apply)
+  options:
+  - 'It must always accept exactly two parameters: $data and $slots'
+  - It can return a View object (from view() helper)
+  - It can return a string of HTML content directly
+  - It receives all component attributes and slots automatically via method injection
+  answers:
+  - It can return a string of HTML content directly
+  - It can return a View object (from view() helper)
+  explanation: A class-based component's render() method is highly flexible — it can return a View object (most common, pointing to a Blade template) or a raw HTML string. Public properties on the class
+    automatically become available as variables in the view. It does NOT receive attributes/slots as parameters — those are managed separately through the component's $attributes and slot mechanisms.

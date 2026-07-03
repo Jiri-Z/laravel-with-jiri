@@ -1,0 +1,385 @@
+- id: sp-001
+  topic: service-providers
+  type: single
+  difficulty: easy
+  question: What is the primary role of a service provider in Laravel?
+  options:
+  - To serve as the central place to register bindings, event listeners, and other bootstrapping logic for the application
+  - To handle incoming HTTP requests, route them to controllers, and return the appropriate response to the client browser
+  - To compile Blade template files into cached PHP and manage the view rendering pipeline for the application
+  - To manage database connection pooling, execute raw SQL queries, and handle the Eloquent ORM initialization process
+  answer: To serve as the central place to register bindings, event listeners, and other bootstrapping logic for the application
+  explanation: Service providers are the heart of Laravel's bootstrapping process. They are the central place where you register things into the service container, configure event listeners, set up routes,
+    and perform any other bootstrapping your package or application needs. Every major Laravel feature is registered through a service provider.
+- id: sp-002
+  topic: service-providers
+  type: single
+  difficulty: easy
+  question: Which two methods must a service provider define?
+  options:
+  - register() and boot()
+  - init() and configure()
+  - setup() and tearDown()
+  - bind() and resolve()
+  answer: register() and boot()
+  explanation: Every service provider must implement the register() and boot() methods. The register() method is where you bind services into the container, while the boot() method is where you perform
+    actions that depend on other registered services (like registering event listeners, routes, or views).
+- id: sp-003
+  topic: service-providers
+  type: text
+  difficulty: easy
+  question: In which service provider method should you bind services into the container—register() or boot()?
+  answer: register
+  alternatives:
+  - register()
+  - the register method
+  explanation: The register() method is specifically for binding services into the container. You should only use it for container bindings and never for accessing other resolved services. This ensures
+    all bindings are in place before any provider tries to use them in its boot() method.
+- id: sp-004
+  topic: service-providers
+  type: multiple
+  difficulty: easy
+  question: Which of the following are appropriate tasks to perform in a service provider's boot() method?
+  options:
+  - Registering event listeners
+  - Binding interfaces to implementations in the container
+  - Defining routes
+  - Publishing configuration files
+  answers:
+  - Registering event listeners
+  - Defining routes
+  - Publishing configuration files
+  explanation: The boot() method runs after all providers have registered their services, so it's safe to access any container binding. You can register event listeners, define routes, publish resources,
+    and perform any setup that depends on registered services. Container bindings should go in register() instead.
+- id: sp-005
+  topic: service-providers
+  type: single
+  difficulty: easy
+  question: Where is the default AppServiceProvider located in a Laravel application?
+  options:
+  - bootstrap/AppServiceProvider.php
+  - app/Providers/AppServiceProvider.php
+  - app/Http/Kernel/AppServiceProvider.php
+  - config/providers/app_provider.php
+  answer: app/Providers/AppServiceProvider.php
+  explanation: Laravel generates an AppServiceProvider in the app/Providers directory by default. It serves as a convenient place to add application-wide service container bindings and boot logic. In Laravel
+    13.x, providers are registered in bootstrap/app.php using the withProviders() method.
+- id: sp-006
+  topic: service-providers
+  type: text
+  difficulty: easy
+  question: What property on a service provider gives you access to the application/container instance?
+  answer: $app
+  alternatives:
+  - app
+  - $this->app
+  - this->app
+  explanation: Every service provider has a protected $app property that holds the application (container) instance. You access it via $this->app within the provider's methods. This is how you bind services,
+    resolve dependencies, and interact with the rest of the framework.
+- id: sp-007
+  topic: service-providers
+  type: single
+  difficulty: easy
+  question: What happens if you try to resolve a service from the container inside a provider's register() method that was bound by a different provider?
+  options:
+  - The container automatically delays resolution until all providers are registered
+  - It throws a BindingResolutionException because the binding is not yet available
+  - It may fail because the other provider may not have been registered yet
+  - It works normally since all providers are loaded in parallel before any resolution occurs
+  answer: It may fail because the other provider may not have been registered yet
+  explanation: The register() method should only be used for binding, not resolving. Since providers are registered in order, a provider's register() method has no guarantee that another provider has already
+    registered its bindings. If you need to use a resolved service, do it in boot() instead, where all registrations are complete.
+- id: sp-008
+  topic: service-providers
+  type: multiple
+  difficulty: easy
+  question: Which of the following are default service providers included in a new Laravel application?
+  options:
+  - BroadcastServiceProvider
+  - RouteServiceProvider
+  - AuthServiceProvider
+  - AppServiceProvider
+  answers:
+  - AppServiceProvider
+  - RouteServiceProvider
+  - BroadcastServiceProvider
+  - AuthServiceProvider
+  explanation: 'A fresh Laravel installation includes several core service providers: AppServiceProvider (general bindings), RouteServiceProvider (route loading), AuthServiceProvider (authentication gates
+    and policies), BroadcastServiceProvider (broadcasting channels), and EventServiceProvider (event listener registration). In Laravel 13.x, these are auto-discovered.'
+- id: sp-009
+  topic: service-providers
+  type: text
+  difficulty: easy
+  question: What CLI command creates a new service provider class file?
+  answer: php artisan make:provider
+  alternatives:
+  - artisan make:provider
+  - php artisan make:provider ProviderName
+  - artisan make:provider ProviderName
+  explanation: The 'php artisan make:provider ProviderName' command generates a new service provider class in the app/Providers directory. The generated class extends Illuminate\Support\ServiceProvider
+    and includes empty register() and boot() methods ready to be filled with your bindings and bootstrapping logic.
+- id: sp-010
+  topic: service-providers
+  type: single
+  difficulty: medium
+  question: Why might you choose to make a service provider 'deferred'?
+  options:
+  - To delay loading the provider's services until one of them is actually needed, improving performance
+  - To prevent the provider from being cached by artisan config:cache, ensuring it is always re-registered on each request
+  - To make the provider run after all other providers have completed their boot phase, enforcing a strict load order
+  - To allow the provider to be disabled at runtime without code changes, using a feature flag or environment variable check
+  answer: To delay loading the provider's services until one of them is actually needed, improving performance
+  explanation: Deferred providers don't load during the application boot phase. Instead, Laravel registers only the services the provider declares it provides. When one of those services is first resolved,
+    the provider is loaded and its register() method executes. This significantly reduces boot time for large applications with many providers.
+- id: sp-011
+  topic: service-providers
+  type: single
+  difficulty: medium
+  question: What must a deferred service provider define so Laravel knows which services trigger its loading?
+  options:
+  - A $triggers property with closure callbacks that determine when the provider should be loaded into the container
+  - A loadWhen() method with conditional logic that evaluates environment or configuration to decide on loading
+  - A $bindings property listing all registered abstracts that the container uses for dependency resolution matching
+  - A provides() method returning an array of service container abstracts the provider registers
+  answer: A provides() method returning an array of service container abstracts the provider registers
+  explanation: A deferred provider must implement the provides() method, returning an array of container abstract (binding keys) that this provider registers. When any of these abstracts is resolved, Laravel
+    loads the provider, runs its register() and boot() methods, then completes the resolution.
+- id: sp-012
+  topic: service-providers
+  type: text
+  difficulty: medium
+  question: In Laravel 13.x, what method is called on the Application builder in bootstrap/app.php to register service providers?
+  answer: withProviders
+  alternatives:
+  - withProviders()
+  - withProviders()
+  explanation: In Laravel 13.x, service providers are registered via the withProviders() method in the Application::configure() chain within bootstrap/app.php. This replaces the older approach of listing
+    providers in config/app.php, streamlining the configuration into a single fluent method call.
+- id: sp-013
+  topic: service-providers
+  type: multiple
+  difficulty: medium
+  question: Which of the following are valid reasons to split bindings across multiple service providers rather than putting everything in AppServiceProvider?
+  options:
+  - To allow specific providers to be deferred for performance
+  - To make the application easier to test by isolating concerns
+  - Because AppServiceProvider has a maximum binding limit
+  - To organize related bindings by domain or feature
+  answers:
+  - To organize related bindings by domain or feature
+  - To allow specific providers to be deferred for performance
+  - To make the application easier to test by isolating concerns
+  explanation: Organizing providers by domain (e.g., PaymentServiceProvider, NotificationServiceProvider) improves code maintainability, enables deferred loading for non-essential services, and makes testing
+    easier by allowing fine-grained control over which services are available. There is no maximum binding limit—this is purely a design choice.
+- id: sp-014
+  topic: service-providers
+  type: single
+  difficulty: medium
+  question: What is the difference between a 'deferred' provider and a 'lazy' provider in Laravel?
+  options:
+  - Deferred providers are loaded when a registered service is resolved; there is no separate 'lazy' provider concept in Laravel
+  - They are the same thing with different names, and Laravel supports both terms interchangeably in documentation
+  - Lazy providers load on every request but delay their boot() method; deferred providers skip both register and boot
+  - Lazy providers use a decorator pattern while deferred providers use a proxy pattern for service resolution
+  answer: Deferred providers are loaded when a registered service is resolved; there is no separate 'lazy' provider concept in Laravel
+  explanation: Laravel uses the term 'deferred' for providers that load on-demand. There is no distinct 'lazy' provider type in the framework. A deferred provider's register() and boot() methods only execute
+    when one of its declared services is actually resolved from the container. This is the only form of lazy loading for providers.
+- id: sp-015
+  topic: service-providers
+  type: single
+  difficulty: medium
+  question: How does Laravel's provider auto-discovery work for package service providers?
+  options:
+  - It scans all PHP files in vendor/ and looks for classes extending the base ServiceProvider class to auto-register them
+  - Providers are discovered through a providers.config.php file in each package that lists all available service providers
+  - The framework automatically registers any class found in a Providers namespace within the application directory structure
+  - Packages define their providers in the 'providers' key of their composer.json extra section
+  answer: Packages define their providers in the 'providers' key of their composer.json extra section
+  explanation: Laravel's package auto-discovery reads the 'extra.laravel.providers' array from each installed package's composer.json. These providers are automatically registered without needing to be
+    manually added to bootstrap/app.php or config/app.php. This simplifies package installation—just composer require and the provider is registered.
+- id: sp-016
+  topic: service-providers
+  type: text
+  difficulty: medium
+  question: What artisan command allows you to see a list of all registered service providers, including whether they are deferred?
+  answer: php artisan package:discover
+  alternatives:
+  - artisan package:discover
+  explanation: The 'php artisan package:discover' command shows all auto-discovered packages and their service providers. While it doesn't show all manually registered providers, it reveals the auto-discovery
+    mechanism. To see all loaded providers, you can inspect $app->getLoadedProviders() programmatically.
+- id: sp-017
+  topic: service-providers
+  type: single
+  difficulty: medium
+  question: What is the consequence of calling $this->app->make() inside a provider's register() method to resolve a binding from another provider?
+  options:
+  - Laravel automatically defers the resolution until the boot phase, ensuring all providers have finished registering
+  - It works but is considered bad practice because the other provider's register() method may not have run yet
+  - It silently returns null and logs a warning to the storage/logs/laravel.log file for later debugging
+  - It causes a fatal PHP error that crashes the application and terminates the current request immediately
+  answer: It works but is considered bad practice because the other provider's register() method may not have run yet
+  explanation: While resolving in register() may work if the other provider happens to be registered first, it's unreliable because provider registration order isn't guaranteed to match dependency order.
+    The register() method should only bind services. If you need to resolve and use a service, do it in the boot() method where all registrations are guaranteed complete.
+- id: sp-018
+  topic: service-providers
+  type: multiple
+  difficulty: medium
+  question: Which of the following are true about how Laravel handles the loading order of service providers?
+  options:
+  - The boot() methods are called in the same order as the register() methods
+  - All providers' register() methods are called before any provider's boot() method
+  - The RouteServiceProvider always boots before the AppServiceProvider
+  - Deferred providers' register() and boot() methods are skipped entirely during the initial boot
+  answers:
+  - All providers' register() methods are called before any provider's boot() method
+  - The boot() methods are called in the same order as the register() methods
+  - Deferred providers' register() and boot() methods are skipped entirely during the initial boot
+  explanation: Laravel first calls all non-deferred providers' register() methods in order, then calls all their boot() methods in the same order. Deferred providers are completely skipped during boot.
+    The RouteServiceProvider does not have a guaranteed boot order relative to AppServiceProvider—it depends on registration order.
+- id: sp-019
+  topic: service-providers
+  type: text
+  difficulty: medium
+  question: What method on a service provider is used to publish configuration, migration, or view files from a package to the application?
+  answer: publishes
+  alternatives:
+  - publishes()
+  - $this->publishes()
+  explanation: The publishes() method registers assets (config files, migrations, views, etc.) that can be published to the application using 'php artisan vendor:publish'. You specify the source path and
+    an optional group tag. This allows package users to customize the package's configurable resources without modifying the package's source files.
+- id: sp-020
+  topic: service-providers
+  type: single
+  difficulty: medium
+  question: When should you use a dedicated RouteServiceProvider instead of registering routes in AppServiceProvider?
+  options:
+  - When you need to control route caching behavior, register route middleware, or organize routes into separate files
+  - When using the Laravel Eloquent ORM for database model definitions and relationship management in your application
+  - Only when building packages, not applications, as packages need isolated route management for distribution
+  - When you have more than 5 routes that require different caching strategies or middleware configurations
+  answer: When you need to control route caching behavior, register route middleware, or organize routes into separate files
+  explanation: 'The RouteServiceProvider provides specialized methods for route-related bootstrapping: configuring route middleware, defining route patterns, and loading route files in a way that''s compatible
+    with route caching. While you could register routes in any provider, the RouteServiceProvider provides the proper structure for route management.'
+- id: sp-021
+  topic: service-providers
+  type: multiple
+  difficulty: medium
+  question: Which of these are valid approaches to prevent a package's service provider from being auto-discovered in Laravel?
+  options:
+  - Using 'php artisan package:discover --ignore=package/name'
+  - Adding the package to 'dont-discover' in composer.json extra section
+  - Adding the provider to the 'providers' array in bootstrap/app.php does not prevent discovery
+  - Deleting the provider class from the vendor directory
+  answers:
+  - Adding the package to 'dont-discover' in composer.json extra section
+  - Using 'php artisan package:discover --ignore=package/name'
+  explanation: You can prevent auto-discovery by adding the package to the 'extra.laravel.dont-discover' array in your application's composer.json, or by using the --ignore flag with the package:discover
+    command. Deleting vendor files would break on composer update, and manually adding providers doesn't disable discovery.
+- id: sp-022
+  topic: service-providers
+  type: single
+  difficulty: medium
+  question: What is the 'DeferredProvider' class in Laravel, and when is it used?
+  options:
+  - It is a special provider type used only for queue workers that initializes job processing pipelines
+  - It is a middleware that defers provider loading until after the user authentication guard has fully verified the session
+  - It is a base class for all deferred providers that must be extended instead of the standard ServiceProvider class
+  - It is an internal wrapper class the container uses to represent a deferred provider before it's loaded
+  answer: It is an internal wrapper class the container uses to represent a deferred provider before it's loaded
+  explanation: When a deferred provider is registered, Laravel wraps it in an internal DeferredProvider class. This wrapper stores the provider class name and the services it provides. When one of those
+    services is resolved, the wrapper instantiates the actual provider and runs its register() and boot() methods.
+- id: sp-023
+  topic: service-providers
+  type: text
+  difficulty: medium
+  question: What property can you set to true on a service provider class to indicate that its services should only be loaded when needed?
+  answer: $defer
+  alternatives:
+  - defer
+  - protected $defer = true
+  explanation: Setting the protected $defer = true property on a service provider marks it as deferred. When true, the provider's register() and boot() methods won't run during the application boot phase.
+    Instead, they'll only execute when one of the services listed in the provides() method is resolved from the container.
+- id: sp-024
+  topic: service-providers
+  type: single
+  difficulty: hard
+  question: If a deferred provider's boot() method registers event listeners, and the provider is loaded mid-request, will those event listeners catch events dispatched before the provider was loaded?
+  options:
+  - No, events dispatched before the provider's boot() method runs will not be caught by its listeners
+  - Yes, because event listeners are always registered synchronously before any events can be dispatched by the framework
+  - It depends on whether the events are dispatched using dispatch() or dispatchSync() and the provider's priority level
+  - Yes, because Laravel replays all previously dispatched events to newly registered listeners after boot completion
+  answer: No, events dispatched before the provider's boot() method runs will not be caught by its listeners
+  explanation: Event listeners are registered when the boot() method runs. If an event was dispatched before the deferred provider was loaded and booted, those listeners don't exist yet and won't catch
+    the event. This is an important consideration when deferring providers—ensure no events they listen for are dispatched before the provider can be loaded.
+- id: sp-025
+  topic: service-providers
+  type: multiple
+  difficulty: hard
+  question: In Laravel 13.x, which of the following correctly describe how provider caching interacts with the application lifecycle?
+  options:
+  - Running 'php artisan package:discover' generates a bootstrap/cache/packages.php cache file
+  - After caching, adding a new package requires running 'php artisan package:discover' again or clearing the cache
+  - The cached provider list is used instead of scanning composer.json files on every request
+  - Provider caching only affects auto-discovered packages, not manually registered providers
+  answers:
+  - Running 'php artisan package:discover' generates a bootstrap/cache/packages.php cache file
+  - The cached provider list is used instead of scanning composer.json files on every request
+  - After caching, adding a new package requires running 'php artisan package:discover' again or clearing the cache
+  - Provider caching only affects auto-discovered packages, not manually registered providers
+  explanation: Laravel caches the list of auto-discovered package providers in bootstrap/cache/packages.php. This avoids scanning all composer.json files on each request. After installing a new package,
+    you must re-run package:discover or clear the cache. Manually registered providers in bootstrap/app.php are never affected by this cache.
+- id: sp-026
+  topic: service-providers
+  type: single
+  difficulty: hard
+  question: What is a common architectural pitfall when a service provider's boot() method performs expensive operations like large database queries?
+  options:
+  - The expensive operations run on every request, even if the services they configure are never used
+  - Laravel automatically defers boot() methods that take too long, moving them to a background queue for async processing
+  - The queries are automatically cached by Laravel, so there is no performance impact on subsequent application requests
+  - The boot() method is only called once and then cached, so it has no impact on the overall request lifecycle
+  answer: The expensive operations run on every request, even if the services they configure are never used
+  explanation: Non-deferred providers' boot() methods run on every single request. If boot() performs expensive operations (heavy DB queries, API calls, file reads), that cost is paid regardless of whether
+    the request actually uses those services. The solution is either to defer the provider, move the expensive logic into the service itself (lazy loading), or ensure the operation is truly needed on every
+    request.
+- id: sp-027
+  topic: service-providers
+  type: text
+  difficulty: hard
+  question: What is the name of the event that fires after all service providers have been booted, which you can listen to via $app->booted()?
+  answer: booted
+  alternatives:
+  - App\Events\Booted
+  - Application booted event
+  explanation: The Application class fires an 'booted' event after all service providers have completed their boot() methods. You can register callbacks via $app->booted(function() { ... }) to run code
+    that depends on the entire application being fully bootstrapped. This is useful for tasks that need the complete application context.
+- id: sp-028
+  topic: service-providers
+  type: single
+  difficulty: hard
+  question: How can a service provider conditionally register its bindings based on the application environment (e.g., only in production)?
+  options:
+  - By using an if statement in the register() method checking $this->app->environment()
+  - By setting a $environments property on the provider class that lists the allowed environments for registration
+  - Service providers cannot be conditionally loaded based on environment, as all providers must always be registered
+  - By adding the provider to the 'production' array in config/app.php to restrict it to the production environment only
+  answer: By using an if statement in the register() method checking $this->app->environment()
+  explanation: You can use $this->app->environment('production') inside the register() or boot() method to conditionally execute bindings. While there's no built-in environment-based provider filtering,
+    this pattern is commonly used to register different service implementations or configurations based on the current environment.
+- id: sp-029
+  topic: service-providers
+  type: multiple
+  difficulty: hard
+  question: When building a reusable Laravel package, which of the following are best practices for its service provider?
+  options:
+  - Use the provides() method and consider making the provider deferred
+  - Register all routes, views, and migrations directly in register() for maximum performance
+  - Provide sensible defaults but allow all configuration to be overridden via published config files
+  - Use the publishes() method with meaningful group tags for organized vendor:publish output
+  answers:
+  - Provide sensible defaults but allow all configuration to be overridden via published config files
+  - Use the provides() method and consider making the provider deferred
+  - Use the publishes() method with meaningful group tags for organized vendor:publish output
+  explanation: Good package providers provide defaults, support deferring for performance, use tagged publishes for organization, and keep registrations in the appropriate method (bindings in register(),
+    everything else in boot()). Routes, views, and migrations should be registered in boot(), not register(), because they may depend on container services.
