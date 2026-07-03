@@ -1207,4 +1207,106 @@ class StepViewerTest extends TestCase
         // After submission, the highlight class should not appear
         $this->assertStringNotContainsString('border-indigo-500', $html);
     }
+
+    public function test_reading_step_renders_markdown_bold(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->reading()->create([
+            'lesson_id' => $lesson->id,
+            'content' => 'This is **bold** text.',
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(StepViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
+            ->assertSeeHtml('<strong>bold</strong>');
+    }
+
+    public function test_reading_step_renders_markdown_inline_code(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->reading()->create([
+            'lesson_id' => $lesson->id,
+            'content' => 'Use the `User::find()` method.',
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(StepViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
+            ->assertSeeHtml('<code>User::find()</code>');
+    }
+
+    public function test_reading_step_renders_markdown_code_block(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->reading()->create([
+            'lesson_id' => $lesson->id,
+            'content' => "```php\necho 'hello';\n```",
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(StepViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
+            ->assertSeeHtml('<code class="language-php">');
+    }
+
+    public function test_reading_step_renders_markdown_list(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->reading()->create([
+            'lesson_id' => $lesson->id,
+            'content' => "- Item 1\n- Item 2\n- Item 3",
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(StepViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
+            ->assertSeeHtml('<li>Item 1</li>')
+            ->assertSeeHtml('<li>Item 2</li>')
+            ->assertSeeHtml('<li>Item 3</li>');
+    }
+
+    public function test_reading_step_escapes_raw_html(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->reading()->create([
+            'lesson_id' => $lesson->id,
+            'content' => '<script>alert(1)</script>',
+        ]);
+
+        Livewire::actingAs($user)
+            ->test(StepViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
+            ->assertDontSeeHtml('<script>alert(1)</script>');
+    }
 }

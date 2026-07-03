@@ -13,7 +13,7 @@
 
                     <div class="prose dark:prose-invert max-w-none mb-8">
                         @if ($step->type === StepType::Reading)
-                            {{ nl2br(e($step->content)) }}
+                            {!! Str::markdown($step->content, ['html_input' => 'escape', 'allow_unsafe_links' => false]) !!}
                         @elseif ($step->type === StepType::Quiz)
                             <livewire:quiz-viewer :course="$course" :lesson="$lesson" :step="$step" wire:key="quiz-{{ $step->id }}" />
                         @elseif ($step->type === StepType::Coding)
