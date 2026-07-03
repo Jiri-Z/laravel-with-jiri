@@ -1,11 +1,24 @@
 # Laravel With Jiri
 
-E-learning platform for modern Laravel development.
+E-learning platform for modern Laravel development — courses, lessons, reading steps, quizzes, and coding exercises.
+
+Built with [Laravel](https://laravel.com), [Livewire](https://livewire.laravel.com), [Tailwind CSS](https://tailwindcss.com), and [Pest](https://pestphp.com).
+
+## Features
+
+- Course/lesson/step hierarchy with publishing workflow
+- Step types: reading (Markdown), quiz (single/multiple/text choice), coding
+- Step locking — complete steps in order
+- Course progress tracking
+- Trivia quiz system (standalone)
+- Admin panel for course management
+- Czech localization
+- 400+ tests, PHPStan level 6
 
 ## Requirements
 
-- PHP 8.3
-- Node.js
+- PHP 8.3+
+- Node.js 18+
 - Composer
 - SQLite (default) or PostgreSQL
 
@@ -20,7 +33,29 @@ php artisan migrate --seed
 composer run dev
 ```
 
-Opens at `http://localhost:8000`. Login with seeded credentials: `admin@example.com` / `password`.
+Opens at `http://localhost:8000`.
+
+### Seeded accounts
+
+| Email | Role | Password |
+|-------|------|----------|
+| `admin@example.com` | Admin | `password` |
+| `instructor@example.com` | Instructor | `password` |
+| `student@example.com` | Student | `password` |
+
+## Running tests
+
+```bash
+php artisan test
+```
+
+## Static analysis
+
+```bash
+vendor/bin/phpstan analyse
+vendor/bin/rector process --dry-run
+vendor/bin/pint
+```
 
 ## Production
 
