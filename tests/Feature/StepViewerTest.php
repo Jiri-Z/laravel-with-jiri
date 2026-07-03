@@ -1131,4 +1131,80 @@ class StepViewerTest extends TestCase
             $this->assertSame(403, $e->getStatusCode());
         }
     }
+
+    public function test_quiz_single_selected_option_has_highlight_class(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->quizSingle()->create(['lesson_id' => $lesson->id]);
+
+        $component = Livewire::actingAs($user)
+            ->test(QuizViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ]);
+
+        // Before selection, no highlight class
+        $html = $component->html();
+        $this->assertStringNotContainsString('border-indigo-500', $html);
+
+        // Select option index 1 ("4")
+        $component->set('answers.0', 1);
+
+        $html = $component->html();
+        $this->assertStringContainsString('border-indigo-500', $html);
+        // Exactly one option should be highlighted
+        $this->assertSame(1, substr_count($html, 'border-indigo-500'));
+    }
+
+    public function test_quiz_multiple_selected_options_have_highlight_class(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->quizMultiple()->create(['lesson_id' => $lesson->id]);
+
+        $component = Livewire::actingAs($user)
+            ->test(QuizViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ]);
+
+        // After submitting via the quick submit method, select options 0 and 2
+        $component->set('answers.0', [0, 2]);
+
+        $html = $component->html();
+        // Options 0 (Python) and 2 (CSS) should be highlighted
+        $this->assertSame(2, substr_count($html, 'border-indigo-500'));
+    }
+
+    public function test_quiz_no_highlight_after_submission(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->quizSingle()->create(['lesson_id' => $lesson->id]);
+
+        $component = Livewire::actingAs($user)
+            ->test(QuizViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
+            ->set('answers.0', 1)
+            ->call('submit');
+
+        $html = $component->html();
+        // After submission, the highlight class should not appear
+        $this->assertStringNotContainsString('border-indigo-500', $html);
+    }
 }

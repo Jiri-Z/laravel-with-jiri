@@ -8,7 +8,7 @@
                 @if (($question['type'] ?? 'single') === 'single')
                     <div class="space-y-2">
                         @foreach ($question['options'] ?? [] as $optIndex => $option)
-                            <label class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-750 {{ $submitted ? 'pointer-events-none opacity-75' : '' }}">
+                            <label class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-750 {{ $submitted ? 'pointer-events-none opacity-75' : '' }} {{ !$submitted && isset($answers[$index]) && $answers[$index] === $optIndex ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 ring-1 ring-indigo-500' : '' }}">
                                 <input type="radio" name="q{{ $index }}" value="{{ $optIndex }}" wire:model.live="answers.{{ $index }}" {{ $submitted ? 'disabled' : '' }}>
                                 <span>{{ $option }}</span>
                             </label>
@@ -17,7 +17,7 @@
                 @elseif (($question['type'] ?? 'single') === 'multiple')
                     <div class="space-y-2">
                         @foreach ($question['options'] ?? [] as $optIndex => $option)
-                            <label class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-750 {{ $submitted ? 'pointer-events-none opacity-75' : '' }}">
+                            <label class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-750 {{ $submitted ? 'pointer-events-none opacity-75' : '' }} {{ !$submitted && isset($answers[$index]) && is_array($answers[$index]) && in_array($optIndex, $answers[$index]) ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 ring-1 ring-indigo-500' : '' }}">
                                 <input type="checkbox" value="{{ $optIndex }}" wire:model.live="answers.{{ $index }}" {{ $submitted ? 'disabled' : '' }}>
                                 <span>{{ $option }}</span>
                             </label>
