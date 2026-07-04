@@ -6,8 +6,6 @@ namespace App\Services;
 
 use App\Models\Course;
 use App\Models\Lesson;
-use App\Models\Step;
-use App\Models\StepCompletion;
 use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -16,29 +14,9 @@ class ProgressService
 {
     public function courseProgress(User $user, Course $course): float
     {
-        $totalSteps = Step::whereIn('lesson_id', function ($q) use ($course) {
-            $q->select('id')->from('lessons')
-                ->where('course_id', $course->id)
-                ->where('published', true);
-        })->where('published', true)->count();
+        $results = $this->courseProgressBatch($user, new Collection([$course]));
 
-        if ($totalSteps === 0) {
-            return 0.0;
-        }
-
-        $completedSteps = StepCompletion::where('user_id', $user->id)
-            ->whereIn('step_id', function ($q) use ($course) {
-                $q->select('steps.id')->from('steps')
-                    ->where('steps.published', true)
-                    ->whereIn('steps.lesson_id', function ($q) use ($course) {
-                        $q->select('id')->from('lessons')
-                            ->where('course_id', $course->id)
-                            ->where('published', true);
-                    });
-            })
-            ->count();
-
-        return round(($completedSteps / $totalSteps) * 100, 1);
+        return $results[$course->id] ?? 0.0;
     }
 
     public function courseProgressBatch(User $user, Collection $courses): array
@@ -77,17 +55,9 @@ class ProgressService
 
     public function lessonComplete(User $user, Lesson $lesson): bool
     {
-        $totalSteps = $lesson->steps()->where('published', true)->count();
+        $results = $this->lessonCompleteBatch($user, new Collection([$lesson]));
 
-        if ($totalSteps === 0) {
-            return false;
-        }
-
-        $completedSteps = StepCompletion::where('user_id', $user->id)
-            ->whereIn('step_id', $lesson->steps()->where('published', true)->pluck('id'))
-            ->count();
-
-        return $completedSteps === $totalSteps;
+        return $results[$lesson->id] ?? false;
     }
 
     public function lessonCompleteBatch(User $user, Collection $lessons): array

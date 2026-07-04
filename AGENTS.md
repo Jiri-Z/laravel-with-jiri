@@ -47,7 +47,7 @@ A smoke test is not complete until ALL of:
 ## Architecture
 - Thin controllers; business logic in actions or service classes
 - Livewire full-page components for views, nested for interactive pieces
-- Form requests for validation, policies for authorization
+- Livewire inline validation (`$this->validate()` / `#[Validate]` / `validationRules()`) for user input; policies for authorization
 - Factories for all test data; `sequence()` for steps with unique order constraints
 - Eager-load to avoid N+1
 - Queue non-trivial side effects as jobs

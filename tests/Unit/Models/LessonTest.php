@@ -3,6 +3,8 @@
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Step;
+use App\Models\StepCompletion;
+use App\Models\User;
 use Illuminate\Database\QueryException;
 
 test('lesson belongs to a course', function () {
@@ -79,4 +81,31 @@ test('lesson scopeOrdered returns lessons in order', function () {
     $b = Lesson::factory()->create(['course_id' => $course->id, 'order' => 1]);
 
     expect(Lesson::ordered()->get()->pluck('id')->toArray())->toEqual([$b->id, $a->id]);
+});
+
+test('first step is accessible when there is no previous step', function () {
+    $user = User::factory()->create();
+    $lesson = Lesson::factory()->create(['course_id' => Course::factory()]);
+    $step = Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 1]);
+
+    expect($lesson->hasUserCompletedPreviousStep($user, $step))->toBeTrue();
+});
+
+test('step is accessible when previous step is completed', function () {
+    $user = User::factory()->create();
+    $lesson = Lesson::factory()->create(['course_id' => Course::factory()]);
+    $step1 = Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 1]);
+    $step2 = Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 2]);
+    StepCompletion::factory()->create(['user_id' => $user->id, 'step_id' => $step1->id]);
+
+    expect($lesson->hasUserCompletedPreviousStep($user, $step2))->toBeTrue();
+});
+
+test('step is locked when previous step is not completed', function () {
+    $user = User::factory()->create();
+    $lesson = Lesson::factory()->create(['course_id' => Course::factory()]);
+    Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 1]);
+    $step2 = Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 2]);
+
+    expect($lesson->hasUserCompletedPreviousStep($user, $step2))->toBeFalse();
 });

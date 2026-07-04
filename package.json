@@ -16,7 +16,6 @@
         "vite": "^8.0.0"
     },
     "dependencies": {
-        "monaco-editor": "^0.55.1",
         "php-wasm": "^0.1.0"
     }
 }

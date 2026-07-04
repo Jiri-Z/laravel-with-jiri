@@ -18,6 +18,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * @method static Builder<self> published()
  * @method static Builder<self> ordered()
+ *
+ * @mixin IdeHelperCourse
  */
 #[Fillable(['title', 'slug', 'description', 'published', 'order', 'user_id'])]
 class Course extends Model
@@ -52,11 +54,16 @@ class Course extends Model
             ->withPivot('enrolled_at');
     }
 
-    public function scopePublished(Builder $query): Builder
+    /** @param Builder<self> $query
+     * @return Builder<self> */
+    #[Scope]
+    protected function published(Builder $query): Builder
     {
         return $query->where('published', true);
     }
 
+    /** @param Builder<self> $query
+     * @return Builder<self> */
     #[Scope]
     protected function search(Builder $query, string $term): Builder
     {

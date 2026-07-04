@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire;
 
 use App\Actions\EnrollInCourse;
+use App\Exceptions\CourseNotPublishedException;
 use App\Models\Course;
 use App\Services\ProgressService;
 use Illuminate\Contracts\View\View;
@@ -28,8 +29,16 @@ class CourseList extends Component
 
     public function enroll(int $courseId, EnrollInCourse $action): void
     {
-        $course = Course::published()->findOrFail($courseId);
-        $action->handle(auth()->user(), $course);
+        try {
+            $course = Course::published()->findOrFail($courseId);
+            $action->handle(auth()->user(), $course);
+        } catch (CourseNotPublishedException) {
+            session()->flash('error', __('exceptions.course_not_published'));
+            $this->redirect(route('courses.index'), navigate: true);
+
+            return;
+        }
+
         $this->enrolled[$courseId] = true;
 
         $this->redirect(route('courses.show', $course->slug), navigate: true);

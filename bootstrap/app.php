@@ -1,7 +1,10 @@
 <?php
 
-use App\Http\Middleware\AdminMiddleware;
+use App\Exceptions\CourseNotPublishedException;
+use App\Exceptions\NotEnrolledException;
+use App\Exceptions\StepNotAccessibleException;
 use App\Http\Middleware\SetLocale;
+use App\Http\Middleware\StaffMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -15,7 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'admin' => AdminMiddleware::class,
+            'staff' => StaffMiddleware::class,
         ]);
 
         $middleware->web(prepend: [
@@ -26,4 +29,20 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*'),
         );
+
+        $exceptions->render(function (CourseNotPublishedException $e, Request $request) {
+            if ($request->expectsJson()) {
+                return response()->json(['error' => $e->getMessage()], 404);
+            }
+
+            abort(404, $e->getMessage());
+        });
+
+        $exceptions->render(function (NotEnrolledException $e) {
+            abort(403, $e->getMessage());
+        });
+
+        $exceptions->render(function (StepNotAccessibleException $e) {
+            abort(403, $e->getMessage());
+        });
     })->create();

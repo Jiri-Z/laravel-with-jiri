@@ -19,11 +19,23 @@ use Tests\TestCase;
 
 class SmokeTest extends TestCase
 {
+    private function createStudentUser(): User
+    {
+        return User::factory()->create(['role' => 'student']);
+    }
+
+    private function createEnrolledCourse(User $user, array $overrides = []): Course
+    {
+        $course = Course::factory()->published()->create($overrides);
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
+        return $course;
+    }
+
     public function test_student_can_view_courses_and_coding_step(): void
     {
-        $user = User::factory()->create(['role' => 'student']);
-        $course = Course::factory()->published()->create();
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+        $user = $this->createStudentUser();
+        $course = $this->createEnrolledCourse($user);
 
         $lesson = $course->lessons()->create([
             'title' => 'Test Lesson',
@@ -86,9 +98,8 @@ class SmokeTest extends TestCase
 
     public function test_student_can_view_lesson_detail_page(): void
     {
-        $user = User::factory()->create(['role' => 'student']);
-        $course = Course::factory()->published()->create(['title' => 'Smoke Course']);
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+        $user = $this->createStudentUser();
+        $course = $this->createEnrolledCourse($user, ['title' => 'Smoke Course']);
         $lesson = $course->lessons()->create([
             'title' => 'Smoke Lesson',
             'slug' => 'smoke-lesson',
@@ -105,9 +116,8 @@ class SmokeTest extends TestCase
 
     public function test_quiz_step_page_renders_question_and_options(): void
     {
-        $user = User::factory()->create(['role' => 'student']);
-        $course = Course::factory()->published()->create();
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+        $user = $this->createStudentUser();
+        $course = $this->createEnrolledCourse($user);
 
         $lesson = $course->lessons()->create([
             'title' => 'Quiz Lesson',
@@ -186,9 +196,8 @@ class SmokeTest extends TestCase
 
     public function test_reading_step_page_loads(): void
     {
-        $user = User::factory()->create(['role' => 'student']);
-        $course = Course::factory()->published()->create();
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+        $user = $this->createStudentUser();
+        $course = $this->createEnrolledCourse($user);
 
         $lesson = $course->lessons()->create([
             'title' => 'Reading Lesson',
@@ -212,9 +221,8 @@ class SmokeTest extends TestCase
 
     public function test_mark_reading_step_complete(): void
     {
-        $user = User::factory()->create(['role' => 'student']);
-        $course = Course::factory()->published()->create();
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+        $user = $this->createStudentUser();
+        $course = $this->createEnrolledCourse($user);
 
         $lesson = $course->lessons()->create([
             'title' => 'Complete Lesson',
@@ -242,9 +250,8 @@ class SmokeTest extends TestCase
 
     public function test_quiz_single_submit_via_livewire(): void
     {
-        $user = User::factory()->create(['role' => 'student']);
-        $course = Course::factory()->published()->create();
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+        $user = $this->createStudentUser();
+        $course = $this->createEnrolledCourse($user);
 
         $lesson = $course->lessons()->create([
             'title' => 'Quiz Submit Lesson',
@@ -294,9 +301,8 @@ class SmokeTest extends TestCase
 
     public function test_lesson_detail_shows_steps(): void
     {
-        $user = User::factory()->create(['role' => 'student']);
-        $course = Course::factory()->published()->create();
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+        $user = $this->createStudentUser();
+        $course = $this->createEnrolledCourse($user);
 
         $lesson = $course->lessons()->create([
             'title' => 'Steps Lesson',
@@ -320,9 +326,8 @@ class SmokeTest extends TestCase
 
     public function test_quiz_multi_question_step_page_loads(): void
     {
-        $user = User::factory()->create(['role' => 'student']);
-        $course = Course::factory()->published()->create();
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+        $user = $this->createStudentUser();
+        $course = $this->createEnrolledCourse($user);
 
         $lesson = $course->lessons()->create([
             'title' => 'Multi Quiz Lesson',
@@ -349,9 +354,8 @@ class SmokeTest extends TestCase
 
     public function test_quiz_multi_question_submit_via_livewire(): void
     {
-        $user = User::factory()->create(['role' => 'student']);
-        $course = Course::factory()->published()->create();
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+        $user = $this->createStudentUser();
+        $course = $this->createEnrolledCourse($user);
 
         $lesson = $course->lessons()->create([
             'title' => 'Multi Submit Lesson',
@@ -383,8 +387,7 @@ class SmokeTest extends TestCase
     public function test_dashboard_page_loads_for_authenticated_user(): void
     {
         $user = User::factory()->create();
-        $course = Course::factory()->published()->create(['title' => 'Dash Course']);
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+        $course = $this->createEnrolledCourse($user, ['title' => 'Dash Course']);
         $lesson = $course->lessons()->create([
             'title' => 'Dash Lesson',
             'slug' => 'dash-lesson',
@@ -442,8 +445,7 @@ class SmokeTest extends TestCase
     {
         App::setLocale('cs');
         $user = User::factory()->create(['role' => 'student', 'locale' => 'cs']);
-        $course = Course::factory()->published()->create();
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+        $course = $this->createEnrolledCourse($user);
         App::setLocale('en');
 
         $response = $this->actingAs($user)->get('/dashboard');

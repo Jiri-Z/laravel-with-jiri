@@ -11,12 +11,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @mixin IdeHelperStepAnswer
+ */
 #[Fillable([
     'user_id',
     'step_id',
     'answer',
     'question_index',
-    'created_at',
 ])]
 #[WithoutTimestamps]
 class StepAnswer extends Model

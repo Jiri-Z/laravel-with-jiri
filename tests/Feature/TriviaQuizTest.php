@@ -161,6 +161,8 @@ test('results screen saves attempt and shows score', function () {
     $component->assertSet('screen', 'results');
     $component->assertSet('attemptId', fn ($id) => $id !== null);
 
+    $component->assertSeeHtml('bg-red-500');
+
     $attempt = TriviaAttempt::find($component->get('attemptId'));
     expect($attempt)->not->toBeNull();
     expect($attempt->user_id)->toBe($this->user->id);

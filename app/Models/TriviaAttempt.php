@@ -4,10 +4,15 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Database\Factories\TriviaAttemptFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @mixin IdeHelperTriviaAttempt
+ */
 #[Fillable([
     'user_id',
     'score',
@@ -17,6 +22,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 ])]
 class TriviaAttempt extends Model
 {
+    /** @use HasFactory<TriviaAttemptFactory> */
+    use HasFactory;
+
     /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {

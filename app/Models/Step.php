@@ -15,7 +15,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-/** @method static Builder<self> ordered() */
+/**
+ * @method static Builder<self> ordered()
+ * @method static Builder<self> published()
+ *
+ * @mixin IdeHelperStep
+ */
 #[Fillable(['lesson_id', 'title', 'type', 'content', 'order', 'published'])]
 class Step extends Model
 {
@@ -42,6 +47,16 @@ class Step extends Model
         return $this->hasMany(StepAnswer::class);
     }
 
+    /** @param Builder<self> $query
+     * @return Builder<self> */
+    #[Scope]
+    protected function published(Builder $query): Builder
+    {
+        return $query->where('published', true);
+    }
+
+    /** @param Builder<self> $query
+     * @return Builder<self> */
     #[Scope]
     protected function search(Builder $query, string $term): Builder
     {
@@ -54,18 +69,7 @@ class Step extends Model
 
     public function isAccessibleBy(User $user): bool
     {
-        $previousStep = self::where('lesson_id', $this->lesson_id)
-            ->where('order', '<', $this->order)
-            ->orderBy('order', 'desc')
-            ->first();
-
-        if ($previousStep === null) {
-            return true;
-        }
-
-        return StepCompletion::where('user_id', $user->id)
-            ->where('step_id', $previousStep->id)
-            ->exists();
+        return $this->lesson->hasUserCompletedPreviousStep($user, $this);
     }
 
     #[\Override]
@@ -78,6 +82,7 @@ class Step extends Model
         ];
     }
 
+    /** @return ?array<int|string, mixed> */
     public function getContentAsArray(): ?array
     {
         if (empty($this->content) || ! json_validate($this->content)) {
@@ -87,9 +92,14 @@ class Step extends Model
         return json_decode($this->content, true);
     }
 
+    /** @return array{prompt: string, initial_code: string, test_code: string, expected_output: string} */
     public function getCodingData(): array
     {
         $data = $this->getContentAsArray();
+
+        if (! is_array($data)) {
+            return ['prompt' => '', 'initial_code' => '', 'test_code' => '', 'expected_output' => ''];
+        }
 
         return [
             'prompt' => $data['prompt'] ?? '',

@@ -3,12 +3,14 @@
 namespace Tests\Unit\Actions;
 
 use App\Actions\MarkStepComplete;
+use App\Exceptions\CourseNotPublishedException;
+use App\Exceptions\NotEnrolledException;
+use App\Exceptions\StepNotAccessibleException;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Step;
 use App\Models\StepCompletion;
 use App\Models\User;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Tests\TestCase;
 
 class MarkStepCompleteTest extends TestCase
@@ -99,13 +101,9 @@ class MarkStepCompleteTest extends TestCase
         Step::factory()->reading()->create(['lesson_id' => $lesson->id, 'order' => 1]);
         $secondStep = Step::factory()->reading()->create(['lesson_id' => $lesson->id, 'order' => 2]);
 
-        try {
-            (new MarkStepComplete)->handle($user, $secondStep);
+        $this->expectException(StepNotAccessibleException::class);
 
-            $this->fail('Expected HttpException for inaccessible step.');
-        } catch (HttpException $e) {
-            $this->assertSame(403, $e->getStatusCode());
-        }
+        (new MarkStepComplete)->handle($user, $secondStep);
     }
 
     public function test_blocks_unenrolled_user(): void
@@ -115,13 +113,9 @@ class MarkStepCompleteTest extends TestCase
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->reading()->create(['lesson_id' => $lesson->id]);
 
-        try {
-            (new MarkStepComplete)->handle($user, $step);
+        $this->expectException(NotEnrolledException::class);
 
-            $this->fail('Expected HttpException for unenrolled user.');
-        } catch (HttpException $e) {
-            $this->assertSame(403, $e->getStatusCode());
-        }
+        (new MarkStepComplete)->handle($user, $step);
     }
 
     public function test_blocks_unpublished_course(): void
@@ -131,12 +125,8 @@ class MarkStepCompleteTest extends TestCase
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->reading()->create(['lesson_id' => $lesson->id]);
 
-        try {
-            (new MarkStepComplete)->handle($user, $step);
+        $this->expectException(CourseNotPublishedException::class);
 
-            $this->fail('Expected HttpException for unpublished course.');
-        } catch (HttpException $e) {
-            $this->assertSame(403, $e->getStatusCode());
-        }
+        (new MarkStepComplete)->handle($user, $step);
     }
 }

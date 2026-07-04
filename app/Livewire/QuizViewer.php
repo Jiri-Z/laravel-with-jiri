@@ -77,8 +77,6 @@ class QuizViewer extends Component
 
     public function submit(): void
     {
-        $this->ensureCurrentContextIsValid();
-
         if ($this->submitted) {
             return;
         }

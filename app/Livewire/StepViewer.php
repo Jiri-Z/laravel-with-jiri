@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Livewire;
 
 use App\Actions\MarkStepComplete;
+use App\Exceptions\NotEnrolledException;
+use App\Exceptions\StepNotAccessibleException;
 use App\Livewire\Concerns\EnsuresEnrollment;
 use App\Livewire\Concerns\ValidatesStepContext;
 use App\Models\Course;
@@ -51,11 +53,18 @@ class StepViewer extends Component
 
     public function complete(): void
     {
-        $this->ensureCurrentContextIsValid();
-        $this->ensureEnrolled($this->course);
-        abort_unless($this->step->isAccessibleBy(auth()->user()), 403);
+        try {
+            (new MarkStepComplete)->handle(auth()->user(), $this->step);
+        } catch (NotEnrolledException) {
+            $this->redirect(route('courses.index'), navigate: true);
 
-        (new MarkStepComplete)->handle(auth()->user(), $this->step);
+            return;
+        } catch (StepNotAccessibleException) {
+            session()->flash('error', __('steps.complete_previous'));
+            $this->redirect(route('lessons.show', [$this->course->slug, $this->lesson->slug]), navigate: true);
+
+            return;
+        }
 
         $this->completed = true;
     }

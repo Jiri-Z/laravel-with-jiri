@@ -44,19 +44,25 @@ class Dashboard extends Component
 
     private function findResumeStep(Collection $courses): ?Step
     {
-        $completedIds = StepCompletion::where('user_id', auth()->id())
-            ->pluck('step_id');
+        $courseIds = $courses->pluck('id');
 
-        foreach ($courses as $course) {
-            foreach ($course->lessons as $lesson) {
-                foreach ($lesson->steps as $step) {
-                    if (! $completedIds->contains($step->id)) {
-                        return $step;
-                    }
-                }
-            }
+        if ($courseIds->isEmpty()) {
+            return null;
         }
 
-        return null;
+        return Step::query()
+            ->where('steps.published', true)
+            ->whereHas('lesson', fn ($q) => $q
+                ->where('published', true)
+                ->whereIn('course_id', $courseIds)
+            )
+            ->whereDoesntHave('completions', fn ($q) => $q->where('user_id', auth()->id()))
+            ->join('lessons', 'steps.lesson_id', '=', 'lessons.id')
+            ->join('courses', 'lessons.course_id', '=', 'courses.id')
+            ->orderBy('courses.order')
+            ->orderBy('lessons.order')
+            ->orderBy('steps.order')
+            ->select('steps.*')
+            ->first();
     }
 }

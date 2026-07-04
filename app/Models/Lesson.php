@@ -17,6 +17,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * @method static Builder<self> published()
  * @method static Builder<self> ordered()
+ *
+ * @mixin IdeHelperLesson
  */
 #[Fillable(['course_id', 'title', 'slug', 'description', 'published', 'order'])]
 class Lesson extends Model
@@ -38,11 +40,16 @@ class Lesson extends Model
         return $this->hasMany(Step::class);
     }
 
-    public function scopePublished(Builder $query): Builder
+    /** @param Builder<self> $query
+     * @return Builder<self> */
+    #[Scope]
+    protected function published(Builder $query): Builder
     {
         return $query->where('published', true);
     }
 
+    /** @param Builder<self> $query
+     * @return Builder<self> */
     #[Scope]
     protected function search(Builder $query, string $term): Builder
     {
@@ -52,6 +59,22 @@ class Lesson extends Model
 
         return $query->where(fn (Builder $q): Builder => $q->where('title', 'like', "%{$term}%")
             ->orWhere('slug', 'like', "%{$term}%"));
+    }
+
+    public function hasUserCompletedPreviousStep(User $user, Step $step): bool
+    {
+        $previousStep = $this->steps()
+            ->where('order', '<', $step->order)
+            ->orderBy('order', 'desc')
+            ->first();
+
+        if ($previousStep === null) {
+            return true;
+        }
+
+        return StepCompletion::where('user_id', $user->id)
+            ->where('step_id', $previousStep->id)
+            ->exists();
     }
 
     #[\Override]

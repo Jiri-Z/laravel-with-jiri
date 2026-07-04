@@ -36,7 +36,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('courses.enroll');
 });
 
-Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->group(function () {
+Route::middleware(['auth', 'verified', 'staff'])->prefix('admin')->group(function () {
     Route::get('/courses', AdminCourseList::class)->name('admin.courses.index');
     Route::get('/courses/create', AdminCourseForm::class)->name('admin.courses.create');
     Route::get('/courses/{course}/edit', AdminCourseForm::class)->name('admin.courses.edit');

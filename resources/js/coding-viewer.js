@@ -1,4 +1,4 @@
-const MONACO_CDN = 'https://cdn.jsdelivr.net/npm/monaco-editor@0.52.2/min/vs';
+const MONACO_CDN = 'https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1/min/vs';
 
 function loadMonaco() {
     if (window.monaco) return Promise.resolve(window.monaco);

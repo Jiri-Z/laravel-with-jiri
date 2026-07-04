@@ -192,12 +192,12 @@ class AdminStepTest extends TestCase
                     ->set('initialCode', "<?php\n")
                     ->set('testCode', "<?php\n")
                     ->set('expectedOutput', 'ok');
+            } elseif ($type === StepType::Quiz) {
+                $test->set('questions', [
+                    ['type' => 'single', 'question' => 'Q?', 'options' => ['A', 'B'], 'answer' => 0, 'explanation' => '', 'difficulty' => 'easy', 'topic' => 'general'],
+                ]);
             } else {
-                $content = match ($type) {
-                    StepType::Reading => 'Reading text',
-                    StepType::Quiz => '[{"type":"single","question":"Q?","options":["A","B"],"answer":0,"explanation":"","difficulty":"easy","topic":"general"}]',
-                };
-                $test->set('content', $content);
+                $test->set('content', 'Reading text');
             }
 
             $test->call('save')
@@ -209,6 +209,90 @@ class AdminStepTest extends TestCase
                 'type' => $type->value,
             ]);
         }
+    }
+
+    public function test_instructor_can_create_quiz_step_with_questions(): void
+    {
+        $user = User::factory()->create(['role' => 'instructor']);
+        $course = Course::factory()->create(['user_id' => $user->id]);
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+
+        $questions = [
+            [
+                'type' => 'single',
+                'question' => 'What is 2+2?',
+                'options' => ['3', '4', '5'],
+                'answer' => 1,
+                'explanation' => 'Basic math',
+                'difficulty' => 'easy',
+                'topic' => 'math',
+            ],
+        ];
+
+        Livewire::actingAs($user)
+            ->test(AdminStepForm::class, ['course' => $course, 'lesson' => $lesson])
+            ->set('title', 'Quiz Step')
+            ->set('type', StepType::Quiz->value)
+            ->set('questions', $questions)
+            ->call('save')
+            ->assertRedirect("/admin/courses/{$course->id}/lessons/{$lesson->id}/steps");
+
+        $this->assertDatabaseHas('steps', [
+            'lesson_id' => $lesson->id,
+            'title' => 'Quiz Step',
+            'type' => StepType::Quiz->value,
+        ]);
+
+        $step = Step::where('lesson_id', $lesson->id)->where('title', 'Quiz Step')->first();
+        $this->assertNotNull($step);
+
+        $savedQuestions = json_decode($step->content, true);
+        $this->assertIsArray($savedQuestions);
+        $this->assertCount(1, $savedQuestions);
+        $this->assertEquals('What is 2+2?', $savedQuestions[0]['question']);
+        $this->assertEquals(['3', '4', '5'], $savedQuestions[0]['options']);
+        $this->assertEquals(1, $savedQuestions[0]['answer']);
+    }
+
+    public function test_instructor_can_edit_quiz_step_questions(): void
+    {
+        $user = User::factory()->create(['role' => 'instructor']);
+        $course = Course::factory()->create(['user_id' => $user->id]);
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+        $step = Step::factory()->create([
+            'lesson_id' => $lesson->id,
+            'type' => StepType::Quiz,
+            'content' => json_encode([
+                ['type' => 'single', 'question' => 'Original?', 'options' => ['A', 'B'], 'answer' => 0, 'explanation' => '', 'difficulty' => 'easy', 'topic' => 'general'],
+            ]),
+        ]);
+
+        $questions = [
+            [
+                'type' => 'single',
+                'question' => 'Edited question?',
+                'options' => ['X', 'Y', 'Z'],
+                'answer' => 2,
+                'explanation' => 'Updated',
+                'difficulty' => 'medium',
+                'topic' => 'updated',
+            ],
+        ];
+
+        Livewire::actingAs($user)
+            ->test(AdminStepForm::class, ['course' => $course, 'lesson' => $lesson, 'step' => $step])
+            ->set('title', 'Edited Quiz')
+            ->set('type', StepType::Quiz->value)
+            ->set('questions', $questions)
+            ->call('save')
+            ->assertRedirect("/admin/courses/{$course->id}/lessons/{$lesson->id}/steps");
+
+        $step->refresh();
+        $savedQuestions = json_decode($step->content, true);
+        $this->assertCount(1, $savedQuestions);
+        $this->assertEquals('Edited question?', $savedQuestions[0]['question']);
+        $this->assertEquals(['X', 'Y', 'Z'], $savedQuestions[0]['options']);
+        $this->assertEquals(2, $savedQuestions[0]['answer']);
     }
 
     public function test_move_up_on_first_step_does_nothing(): void

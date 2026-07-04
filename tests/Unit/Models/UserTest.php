@@ -62,6 +62,34 @@ test('unknown role returns false for all role checks', function () {
         ->and($user->isStudent())->toBeFalse();
 });
 
+test('instructor owns their own course', function () {
+    $instructor = User::factory()->instructor()->create();
+    $course = Course::factory()->create(['user_id' => $instructor->id]);
+
+    expect($instructor->ownsCourse($course))->toBeTrue();
+});
+
+test('instructor does not own another instructors course', function () {
+    $instructor = User::factory()->instructor()->create();
+    $course = Course::factory()->create();
+
+    expect($instructor->ownsCourse($course))->toBeFalse();
+});
+
+test('student does not own any course', function () {
+    $student = User::factory()->create();
+    $course = Course::factory()->create();
+
+    expect($student->ownsCourse($course))->toBeFalse();
+});
+
+test('admin does not own a course by default', function () {
+    $admin = User::factory()->admin()->create();
+    $course = Course::factory()->create();
+
+    expect($admin->ownsCourse($course))->toBeFalse();
+});
+
 test('deleting an instructor does not delete owned courses and lessons', function () {
     $instructor = User::factory()->create(['role' => 'instructor']);
     $course = Course::factory()->create(['user_id' => $instructor->id]);

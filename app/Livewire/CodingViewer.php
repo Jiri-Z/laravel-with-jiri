@@ -6,6 +6,8 @@ namespace App\Livewire;
 
 use App\Actions\MarkStepComplete;
 use App\Enums\StepType;
+use App\Exceptions\NotEnrolledException;
+use App\Exceptions\StepNotAccessibleException;
 use App\Livewire\Concerns\EnsuresEnrollment;
 use App\Livewire\Concerns\ValidatesStepContext;
 use App\Models\Course;
@@ -47,9 +49,18 @@ class CodingViewer extends Component
 
     public function markCodingComplete(): void
     {
-        $this->ensureCurrentContextIsValid();
+        try {
+            (new MarkStepComplete)->handle(auth()->user(), $this->step);
+        } catch (NotEnrolledException) {
+            $this->redirect(route('courses.index'), navigate: true);
 
-        (new MarkStepComplete)->handle(auth()->user(), $this->step);
+            return;
+        } catch (StepNotAccessibleException) {
+            session()->flash('error', __('steps.complete_previous'));
+            $this->redirect(route('lessons.show', [$this->course->slug, $this->lesson->slug]), navigate: true);
+
+            return;
+        }
 
         $this->completed = true;
     }

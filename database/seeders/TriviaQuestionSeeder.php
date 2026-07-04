@@ -28,7 +28,9 @@ class TriviaQuestionSeeder extends Seeder
             return;
         }
 
-        TriviaQuestion::where('locale', $locale)->delete();
+        if (TriviaQuestion::where('locale', $locale)->exists()) {
+            return;
+        }
 
         $records = [];
 

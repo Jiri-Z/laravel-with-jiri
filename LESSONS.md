@@ -227,7 +227,7 @@ When loading Monaco editor from CDN for multiple editors on the same page, a sin
 
 ```blade
 <div x-data="{}" x-init="
-    import('https://cdn.jsdelivr.net/npm/monaco-editor@0.52.2/min/vs/loader.js').then(() => {
+    import('https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1/min/vs/loader.js').then(() => {
         require.config({ paths: { vs: '...' } });
         require(['vs/editor/editor.main'], (monaco) => {
             monaco.editor.create($refs.editorOne, { ... });
@@ -351,3 +351,113 @@ Instead:
    php.addEventListener('error',  (event) => { this.lastOutput += `[PHP Error]: ${event.detail}`; });
    ```
 4. The import URL `https://cdn.jsdelivr.net/npm/php-wasm/PhpWeb.mjs` (without `@0.1.0` version pin) resolves to the latest published version.
+
+---
+
+## Delegate single-entity methods to batch methods
+
+When a service has both single-entity and batch methods with duplicated SQL logic, make the single-entity method wrap its input in a `Collection` and delegate to the batch method:
+
+```php
+public function courseProgress(User $user, Course $course): float
+{
+    $results = $this->courseProgressBatch($user, new Collection([$course]));
+    return $results[$course->id] ?? 0.0;
+}
+```
+
+This eliminates duplicated SQL while keeping the single-entity convenience API. Applied to `ProgressService::courseProgress()` and `lessonComplete()`.
+
+---
+
+## Shared ownership check via User model method
+
+When multiple policies repeat the same `$x->user_id === $user->id` pattern, add an `ownsCourse()` method to the `User` model:
+
+```php
+public function ownsCourse(Course $course): bool
+{
+    return $this->id === $course->user_id;
+}
+```
+
+Then policies read naturally: `$user->isAdmin() || ($user->isInstructor() && $user->ownsCourse($step->lesson->course))`. Eliminates the 3-level `$step->lesson->course->user_id` chain and makes ownership semantics explicit.
+
+---
+
+## FirstOrCreate over try-catch for idempotent creation
+
+Instead of catching `QueryException` and checking SQLSTATE to detect duplicate entries, use Eloquent's `firstOrCreate()` which checks for an existing record first:
+
+```php
+CourseEnrollment::firstOrCreate(
+    ['user_id' => $user->id, 'course_id' => $course->id],
+    ['enrolled_at' => now()],
+);
+```
+
+No driver-specific logic, no fragile string matching on error messages, no try-catch. Also works for truly idempotent operations where a duplicate should be silently ignored.
+
+---
+
+## Single SQL query beats nested PHP loops
+
+When searching for "the first incomplete step across all enrolled courses", a triple-nested PHP loop doing `$completedIds->contains($step->id)` can be replaced with a single query using JOINs and `whereDoesntHave`:
+
+```php
+return Step::query()
+    ->where('steps.published', true)
+    ->whereHas('lesson', fn ($q) => $q->where('published', true)->whereIn('course_id', $courseIds))
+    ->whereDoesntHave('completions', fn ($q) => $q->where('user_id', auth()->id()))
+    ->join('lessons', 'steps.lesson_id', '=', 'lessons.id')
+    ->join('courses', 'lessons.course_id', '=', 'courses.id')
+    ->orderBy('courses.order')->orderBy('lessons.order')->orderBy('steps.order')
+    ->select('steps.*')
+    ->first();
+```
+
+This eliminates N+1 plucks and scales to thousands of steps regardless of how many courses the user is enrolled in.
+
+---
+
+## Middleware naming must match its semantics
+
+`AdminMiddleware` that admits instructors too is misleading. Rename to reflect who it actually allows. The route URL prefix (`/admin`) and the middleware class name are independent — the URL stays as `/admin` for admin panel conventions, the middleware is called `StaffMiddleware`.
+
+```php
+// bootstrap/app.php
+'staff' => StaffMiddleware::class,
+
+// routes/web.php
+Route::middleware(['auth', 'verified', 'staff'])->prefix('admin')->group(function () { ... });
+```
+
+---
+
+## Extract locking logic to the owning model
+
+When step-accessibility logic is duplicated between `Step::isAccessibleBy()` and `LessonDetail`, extract it as a method on the `Lesson` model:
+
+```php
+public function hasUserCompletedPreviousStep(User $user, Step $step): bool
+{
+    // single query for previous step completion
+}
+```
+
+`Step::isAccessibleBy()` then becomes a one-line delegate: `return $this->lesson->hasUserCompletedPreviousStep($user, $this);`. Single source of truth, no duplication.
+
+---
+
+## CDN-served assets don't belong in package.json
+
+If Monaco editor is loaded entirely from CDN (`import()` + `require.config()` pointing to jsdelivr), the `monaco-editor` npm package is dead weight in `node_modules`. Remove it from `dependencies` to keep the lockfile lean. Only keep npm packages that are actually imported by your JS build (Vite-processed imports). CDN assets are managed independently — just keep their version strings in sync manually.
+
+---
+
+## Split large test files by component concern
+
+A 1312-line test file with tests for three different Livewire components (`StepViewer`, `QuizViewer`, `CodingViewer`) is harder to navigate and parallelize. Split into `StepViewerAccessTest.php`, `StepViewerReadingTest.php`, `StepViewerQuizTest.php`, `StepViewerCodingTest.php`. Each file:
+- Has focused imports (only what its tests need)
+- Maps to a single component or concern
+- Is independently filterable via `--filter=StepViewerQuizTest`

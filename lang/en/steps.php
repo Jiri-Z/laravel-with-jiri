@@ -16,6 +16,7 @@ return [
     'coding_incorrect' => 'Incorrect, try again.',
     'coding_step_completed' => 'Step completed successfully',
     'quiz_submit' => 'Submit All Answers',
+    'quiz_submitting' => 'Submitting...',
     'quiz_all_correct' => 'All Correct!',
     'quiz_some_incorrect' => 'Some answers incorrect',
     'complete_previous' => 'Complete the previous step first.',
