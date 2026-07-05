@@ -8,29 +8,27 @@ use App\Models\Course;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
+use Tests\Feature\Concerns\AdminTestHelpers;
 use Tests\TestCase;
 
 class AdminCourseTest extends TestCase
 {
+    use AdminTestHelpers;
+
     public function test_student_cannot_access_admin(): void
     {
-        $user = User::factory()->create(['role' => 'student']);
-
-        $this->actingAs($user)->get('/admin/courses')->assertForbidden();
+        $this->asStudent();
+        $this->get('/admin/courses')->assertForbidden();
     }
 
     public function test_instructor_can_view_course_list(): void
     {
-        $user = User::factory()->create(['role' => 'instructor']);
-
-        $this->actingAs($user)->get('/admin/courses')->assertOk();
+        $this->asInstructor()->get('/admin/courses')->assertOk();
     }
 
     public function test_admin_can_view_course_list(): void
     {
-        $user = User::factory()->create(['role' => 'admin']);
-
-        $this->actingAs($user)->get('/admin/courses')->assertOk();
+        $this->asAdmin()->get('/admin/courses')->assertOk();
     }
 
     public function test_instructor_can_create_course(): void
@@ -98,11 +96,11 @@ class AdminCourseTest extends TestCase
 
     public function test_course_list_shows_published_and_draft(): void
     {
-        $user = User::factory()->create(['role' => 'admin']);
+        $this->asAdmin();
         Course::factory()->published()->create(['title' => 'Pub Course']);
         Course::factory()->create(['title' => 'Draft Course']);
 
-        $this->actingAs($user)->get('/admin/courses')
+        $this->get('/admin/courses')
             ->assertOk()
             ->assertSee('Pub Course')
             ->assertSee('Draft Course');
@@ -214,10 +212,10 @@ class AdminCourseTest extends TestCase
 
     public function test_duplicate_course_slug_fails_validation(): void
     {
-        $user = User::factory()->create(['role' => 'admin']);
+        $this->asAdmin();
         Course::factory()->create(['slug' => 'existing-slug']);
 
-        Livewire::actingAs($user)
+        Livewire::actingAs($this->admin())
             ->test(AdminCourseForm::class)
             ->set('title', 'Duplicate')
             ->set('slug', 'existing-slug')
@@ -228,30 +226,28 @@ class AdminCourseTest extends TestCase
 
     public function test_admin_course_list_empty_state(): void
     {
-        $user = User::factory()->admin()->create();
-
-        $this->actingAs($user)->get('/admin/courses')
+        $this->asAdmin()->get('/admin/courses')
             ->assertOk()
             ->assertSee('No courses yet.');
     }
 
     public function test_admin_course_list_renders_table_headers(): void
     {
-        $user = User::factory()->admin()->create();
+        $this->asAdmin();
         Course::factory()->create();
 
-        $this->actingAs($user)->get('/admin/courses')
+        $this->get('/admin/courses')
             ->assertOk()
             ->assertSeeInOrder(['Order', 'Title', 'Status', 'Actions']);
     }
 
     public function test_search_filters_course_list(): void
     {
-        $user = User::factory()->admin()->create();
+        $this->asAdmin();
         Course::factory()->create(['title' => 'Alpha Course']);
         Course::factory()->create(['title' => 'Beta Course']);
 
-        $this->actingAs($user)->get('/admin/courses?q=Alpha')
+        $this->get('/admin/courses?q=Alpha')
             ->assertOk()
             ->assertSee('Alpha Course')
             ->assertDontSee('Beta Course');
@@ -259,11 +255,11 @@ class AdminCourseTest extends TestCase
 
     public function test_search_with_single_multi_byte_character_returns_all_results(): void
     {
-        $user = User::factory()->admin()->create();
+        $this->asAdmin();
         Course::factory()->create(['title' => 'Alpha Course']);
         Course::factory()->create(['title' => 'Beta Course']);
 
-        $this->actingAs($user)->get('/admin/courses?q=ñ')
+        $this->get('/admin/courses?q=ñ')
             ->assertOk()
             ->assertSee('Alpha Course')
             ->assertSee('Beta Course');
@@ -271,10 +267,10 @@ class AdminCourseTest extends TestCase
 
     public function test_search_no_results_shows_no_courses_found(): void
     {
-        $user = User::factory()->admin()->create();
+        $this->asAdmin();
         Course::factory()->create(['title' => 'Alpha']);
 
-        $this->actingAs($user)->get('/admin/courses?q=zzz_nonexistent')
+        $this->get('/admin/courses?q=zzz_nonexistent')
             ->assertOk()
             ->assertSee('No courses found.')
             ->assertDontSee('Alpha');
@@ -282,7 +278,7 @@ class AdminCourseTest extends TestCase
 
     public function test_pagination_shows_second_page(): void
     {
-        $user = User::factory()->admin()->create();
+        $user = User::factory()->create(['role' => 'admin']);
 
         for ($i = 1; $i <= 12; $i++) {
             Course::factory()->create(['order' => $i, 'title' => sprintf('Course %02d', $i)]);
@@ -297,21 +293,21 @@ class AdminCourseTest extends TestCase
 
     public function test_wire_loading_present_in_course_list(): void
     {
-        $user = User::factory()->admin()->create();
+        $this->asAdmin();
         Course::factory()->create();
 
-        $this->actingAs($user)->get('/admin/courses')
+        $this->get('/admin/courses')
             ->assertOk()
             ->assertSee('wire:loading');
     }
 
     public function test_search_attribute_is_url_tracked(): void
     {
-        $user = User::factory()->admin()->create();
+        $this->asAdmin();
         Course::factory()->create(['title' => 'Alpha', 'slug' => 'alpha']);
         Course::factory()->create(['title' => 'Beta', 'slug' => 'beta']);
 
-        $this->actingAs($user)->get('/admin/courses?q=Alpha')
+        $this->get('/admin/courses?q=Alpha')
             ->assertOk()
             ->assertSee('Alpha')
             ->assertDontSee('Beta');
@@ -331,7 +327,7 @@ class AdminCourseTest extends TestCase
 
     public function test_search_resets_to_page_one(): void
     {
-        $user = User::factory()->admin()->create();
+        $user = User::factory()->create(['role' => 'admin']);
 
         for ($i = 1; $i <= 12; $i++) {
             Course::factory()->create(['order' => $i, 'title' => sprintf('Course %02d', $i)]);

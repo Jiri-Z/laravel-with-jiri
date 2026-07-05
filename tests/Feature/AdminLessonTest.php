@@ -9,10 +9,13 @@ use App\Models\Lesson;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
+use Tests\Feature\Concerns\AdminTestHelpers;
 use Tests\TestCase;
 
 class AdminLessonTest extends TestCase
 {
+    use AdminTestHelpers;
+
     public function test_instructor_can_view_lesson_list(): void
     {
         $user = User::factory()->create(['role' => 'instructor']);
@@ -76,11 +79,11 @@ class AdminLessonTest extends TestCase
 
     public function test_admin_can_delete_lesson(): void
     {
-        $user = User::factory()->create(['role' => 'admin']);
+        $this->asAdmin();
         $course = Course::factory()->create();
         $lesson = Lesson::factory()->create(['course_id' => $course->id]);
 
-        Livewire::actingAs($user)
+        Livewire::actingAs($this->admin())
             ->test(AdminLessonList::class, ['course' => $course])
             ->call('delete', $lesson->id);
 
@@ -89,12 +92,12 @@ class AdminLessonTest extends TestCase
 
     public function test_lesson_list_shows_all_lessons(): void
     {
-        $user = User::factory()->create(['role' => 'admin']);
+        $this->asAdmin();
         $course = Course::factory()->create();
         Lesson::factory()->published()->create(['course_id' => $course->id, 'title' => 'Pub Lesson']);
         Lesson::factory()->create(['course_id' => $course->id, 'title' => 'Draft Lesson']);
 
-        $this->actingAs($user)->get("/admin/courses/{$course->id}/lessons")
+        $this->get("/admin/courses/{$course->id}/lessons")
             ->assertOk()
             ->assertSee('Pub Lesson')
             ->assertSee('Draft Lesson');
@@ -102,12 +105,12 @@ class AdminLessonTest extends TestCase
 
     public function test_move_up_swaps_order_with_previous_lesson(): void
     {
-        $user = User::factory()->create(['role' => 'admin']);
+        $this->asAdmin();
         $course = Course::factory()->create();
         $a = Lesson::factory()->create(['course_id' => $course->id, 'order' => 1]);
         $b = Lesson::factory()->create(['course_id' => $course->id, 'order' => 2]);
 
-        Livewire::actingAs($user)
+        Livewire::actingAs($this->admin())
             ->test(AdminLessonList::class, ['course' => $course])
             ->call('moveUp', $b->id);
 
@@ -117,12 +120,12 @@ class AdminLessonTest extends TestCase
 
     public function test_move_down_swaps_order_with_next_lesson(): void
     {
-        $user = User::factory()->create(['role' => 'admin']);
+        $this->asAdmin();
         $course = Course::factory()->create();
         $a = Lesson::factory()->create(['course_id' => $course->id, 'order' => 1]);
         $b = Lesson::factory()->create(['course_id' => $course->id, 'order' => 2]);
 
-        Livewire::actingAs($user)
+        Livewire::actingAs($this->admin())
             ->test(AdminLessonList::class, ['course' => $course])
             ->call('moveDown', $a->id);
 
@@ -132,10 +135,10 @@ class AdminLessonTest extends TestCase
 
     public function test_student_cannot_access_admin_lessons(): void
     {
-        $user = User::factory()->create(['role' => 'student']);
+        $this->asStudent();
         $course = Course::factory()->create();
 
-        $this->actingAs($user)->get("/admin/courses/{$course->id}/lessons")->assertForbidden();
+        $this->get("/admin/courses/{$course->id}/lessons")->assertForbidden();
     }
 
     public function test_guest_is_redirected_from_admin_lessons(): void
@@ -150,23 +153,22 @@ class AdminLessonTest extends TestCase
 
     public function test_lesson_form_with_wrong_course_returns_404(): void
     {
-        $user = User::factory()->create(['role' => 'admin']);
+        $this->asAdmin();
         $courseA = Course::factory()->create();
         $courseB = Course::factory()->create();
         $lesson = Lesson::factory()->create(['course_id' => $courseA->id]);
 
-        $this->actingAs($user)
-            ->get("/admin/courses/{$courseB->id}/lessons/{$lesson->id}/edit")
+        $this->get("/admin/courses/{$courseB->id}/lessons/{$lesson->id}/edit")
             ->assertNotFound();
     }
 
     public function test_duplicate_lesson_slug_within_course_fails_validation(): void
     {
-        $user = User::factory()->create(['role' => 'admin']);
+        $this->asAdmin();
         $course = Course::factory()->create();
         Lesson::factory()->create(['course_id' => $course->id, 'slug' => 'existing-slug']);
 
-        Livewire::actingAs($user)
+        Livewire::actingAs($this->admin())
             ->test(AdminLessonForm::class, ['course' => $course])
             ->set('title', 'Duplicate')
             ->set('slug', 'existing-slug')
@@ -177,12 +179,12 @@ class AdminLessonTest extends TestCase
 
     public function test_move_up_on_first_lesson_does_nothing(): void
     {
-        $user = User::factory()->create(['role' => 'admin']);
+        $this->asAdmin();
         $course = Course::factory()->create();
         $a = Lesson::factory()->create(['course_id' => $course->id, 'order' => 1]);
         Lesson::factory()->create(['course_id' => $course->id, 'order' => 2]);
 
-        Livewire::actingAs($user)
+        Livewire::actingAs($this->admin())
             ->test(AdminLessonList::class, ['course' => $course])
             ->call('moveUp', $a->id);
 
@@ -191,12 +193,12 @@ class AdminLessonTest extends TestCase
 
     public function test_move_down_on_last_lesson_does_nothing(): void
     {
-        $user = User::factory()->create(['role' => 'admin']);
+        $this->asAdmin();
         $course = Course::factory()->create();
         Lesson::factory()->create(['course_id' => $course->id, 'order' => 1]);
         $b = Lesson::factory()->create(['course_id' => $course->id, 'order' => 2]);
 
-        Livewire::actingAs($user)
+        Livewire::actingAs($this->admin())
             ->test(AdminLessonList::class, ['course' => $course])
             ->call('moveDown', $b->id);
 
@@ -239,33 +241,33 @@ class AdminLessonTest extends TestCase
 
     public function test_admin_lesson_list_empty_state(): void
     {
-        $user = User::factory()->admin()->create();
+        $this->asAdmin();
         $course = Course::factory()->create();
 
-        $this->actingAs($user)->get("/admin/courses/{$course->id}/lessons")
+        $this->get("/admin/courses/{$course->id}/lessons")
             ->assertOk()
             ->assertSee('No lessons yet.');
     }
 
     public function test_admin_lesson_list_renders_table_headers(): void
     {
-        $user = User::factory()->admin()->create();
+        $this->asAdmin();
         $course = Course::factory()->create();
         Lesson::factory()->create(['course_id' => $course->id]);
 
-        $this->actingAs($user)->get("/admin/courses/{$course->id}/lessons")
+        $this->get("/admin/courses/{$course->id}/lessons")
             ->assertOk()
             ->assertSeeInOrder(['Order', 'Title', 'Status', 'Actions']);
     }
 
     public function test_search_filters_lesson_list(): void
     {
-        $user = User::factory()->admin()->create();
+        $this->asAdmin();
         $course = Course::factory()->create();
         Lesson::factory()->create(['course_id' => $course->id, 'title' => 'Alpha Lesson']);
         Lesson::factory()->create(['course_id' => $course->id, 'title' => 'Beta Lesson']);
 
-        $this->actingAs($user)->get("/admin/courses/{$course->id}/lessons?q=Alpha")
+        $this->get("/admin/courses/{$course->id}/lessons?q=Alpha")
             ->assertOk()
             ->assertSee('Alpha Lesson')
             ->assertDontSee('Beta Lesson');
@@ -273,11 +275,11 @@ class AdminLessonTest extends TestCase
 
     public function test_search_no_results_lesson_empty(): void
     {
-        $user = User::factory()->admin()->create();
+        $this->asAdmin();
         $course = Course::factory()->create();
         Lesson::factory()->create(['course_id' => $course->id, 'title' => 'Alpha']);
 
-        $this->actingAs($user)->get("/admin/courses/{$course->id}/lessons?q=zzz_nonexistent")
+        $this->get("/admin/courses/{$course->id}/lessons?q=zzz_nonexistent")
             ->assertOk()
             ->assertSee('No lessons found.')
             ->assertDontSee('Alpha');
@@ -285,7 +287,7 @@ class AdminLessonTest extends TestCase
 
     public function test_lesson_pagination(): void
     {
-        $user = User::factory()->admin()->create();
+        $user = User::factory()->create(['role' => 'admin']);
         $course = Course::factory()->create();
 
         for ($i = 1; $i <= 12; $i++) {
@@ -301,11 +303,11 @@ class AdminLessonTest extends TestCase
 
     public function test_wire_loading_present_in_lesson_list(): void
     {
-        $user = User::factory()->admin()->create();
+        $this->asAdmin();
         $course = Course::factory()->create();
         Lesson::factory()->create(['course_id' => $course->id]);
 
-        $this->actingAs($user)->get("/admin/courses/{$course->id}/lessons")
+        $this->get("/admin/courses/{$course->id}/lessons")
             ->assertOk()
             ->assertSee('wire:loading');
     }
@@ -325,12 +327,12 @@ class AdminLessonTest extends TestCase
 
     public function test_same_slug_allowed_in_different_course(): void
     {
-        $user = User::factory()->create(['role' => 'admin']);
+        $this->asAdmin();
         $courseA = Course::factory()->create();
         $courseB = Course::factory()->create();
         Lesson::factory()->create(['course_id' => $courseA->id, 'slug' => 'shared-slug']);
 
-        Livewire::actingAs($user)
+        Livewire::actingAs($this->admin())
             ->test(AdminLessonForm::class, ['course' => $courseB])
             ->set('title', 'Shared Slug Lesson')
             ->set('slug', 'shared-slug')
@@ -346,10 +348,10 @@ class AdminLessonTest extends TestCase
 
     public function test_lesson_validates_required_fields(): void
     {
-        $user = User::factory()->create(['role' => 'admin']);
+        $this->asAdmin();
         $course = Course::factory()->create();
 
-        Livewire::actingAs($user)
+        Livewire::actingAs($this->admin())
             ->test(AdminLessonForm::class, ['course' => $course])
             ->set('title', '')
             ->set('slug', '')

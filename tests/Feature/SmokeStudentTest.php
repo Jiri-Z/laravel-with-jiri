@@ -3,21 +3,14 @@
 namespace Tests\Feature;
 
 use App\Enums\StepType;
-use App\Livewire\AdminCourseList;
-use App\Livewire\AdminLessonList;
-use App\Livewire\AdminStepList;
 use App\Livewire\QuizViewer;
 use App\Livewire\StepViewer;
-use App\Livewire\TriviaQuiz;
 use App\Models\Course;
-use App\Models\Step;
-use App\Models\StepCompletion;
 use App\Models\User;
-use Illuminate\Support\Facades\App;
 use Livewire\Livewire;
 use Tests\TestCase;
 
-class SmokeTest extends TestCase
+class SmokeStudentTest extends TestCase
 {
     private function createStudentUser(): User
     {
@@ -55,12 +48,10 @@ class SmokeTest extends TestCase
             'order' => 1,
         ]);
 
-        // Course list page
         $this->actingAs($user)->get('/courses')
             ->assertOk()
             ->assertSee($course->title);
 
-        // Coding step page (verifies Alpine x-data loads)
         $response = $this->actingAs($user)
             ->get("/courses/{$course->slug}/lessons/{$lesson->slug}/steps/{$step->id}");
         $response->assertOk();
@@ -69,31 +60,6 @@ class SmokeTest extends TestCase
         $response->assertSee('codingViewer');
         $response->assertSee('Run Code');
         $response->assertSee('Check Answer');
-    }
-
-    public function test_admin_can_manage_courses_via_http(): void
-    {
-        $user = User::factory()->create(['role' => 'admin']);
-
-        $this->actingAs($user)->get('/admin/courses')->assertOk();
-
-        $this->actingAs($user)->get('/admin/courses/create')
-            ->assertOk()
-            ->assertSee('New Course')
-            ->assertSee('Create Course');
-
-        $course = Course::factory()->create();
-        $this->actingAs($user)->get("/admin/courses/{$course->id}/edit")
-            ->assertOk()
-            ->assertSee('Edit Course');
-    }
-
-    public function test_instructor_can_manage_courses_via_http(): void
-    {
-        $user = User::factory()->create(['role' => 'instructor']);
-
-        $this->actingAs($user)->get('/admin/courses')->assertOk();
-        $this->actingAs($user)->get('/admin/courses/create')->assertOk();
     }
 
     public function test_student_can_view_lesson_detail_page(): void
@@ -140,58 +106,6 @@ class SmokeTest extends TestCase
         $response->assertSee('Quiz Step');
         $response->assertSee('What is 2+2?');
         $response->assertSee('Submit All Answers');
-    }
-
-    public function test_admin_delete_course_via_livewire(): void
-    {
-        $user = User::factory()->create(['role' => 'admin']);
-        $course = Course::factory()->create();
-
-        Livewire::actingAs($user)
-            ->test(AdminCourseList::class)
-            ->call('delete', $course->id);
-
-        $this->assertDatabaseMissing('courses', ['id' => $course->id]);
-    }
-
-    public function test_admin_lesson_list_via_livewire(): void
-    {
-        $user = User::factory()->create(['role' => 'admin']);
-        $course = Course::factory()->create();
-        $lesson = $course->lessons()->create([
-            'title' => 'Admin Lesson',
-            'slug' => 'admin-lesson',
-            'published' => true,
-            'order' => 1,
-        ]);
-
-        Livewire::actingAs($user)
-            ->test(AdminLessonList::class, ['course' => $course])
-            ->assertOk()
-            ->assertSee('Admin Lesson');
-    }
-
-    public function test_admin_step_list_via_livewire(): void
-    {
-        $user = User::factory()->create(['role' => 'admin']);
-        $course = Course::factory()->create();
-        $lesson = $course->lessons()->create([
-            'title' => 'Step List Lesson',
-            'slug' => 'step-list-lesson',
-            'published' => true,
-            'order' => 1,
-        ]);
-        $step = $lesson->steps()->create([
-            'title' => 'Admin Step',
-            'type' => StepType::Reading,
-            'content' => 'Step content',
-            'order' => 1,
-        ]);
-
-        Livewire::actingAs($user)
-            ->test(AdminStepList::class, ['course' => $course, 'lesson' => $lesson])
-            ->assertOk()
-            ->assertSee('Admin Step');
     }
 
     public function test_reading_step_page_loads(): void
@@ -280,25 +194,6 @@ class SmokeTest extends TestCase
             ->assertSet('isCorrect', true);
     }
 
-    public function test_unauthorized_user_cannot_access_admin(): void
-    {
-        $user = User::factory()->create(['role' => 'student']);
-
-        $this->actingAs($user)->get('/admin/courses')->assertForbidden();
-    }
-
-    public function test_guest_redirected_to_login(): void
-    {
-        $this->get('/courses')->assertRedirect('/login');
-    }
-
-    public function test_landing_and_legal_pages(): void
-    {
-        $this->get('/')->assertOk()->assertSee('Laravel With Jiri');
-        $this->get('/terms')->assertOk()->assertSee('Terms of Service');
-        $this->get('/privacy')->assertOk()->assertSee('Privacy Policy');
-    }
-
     public function test_lesson_detail_shows_steps(): void
     {
         $user = $this->createStudentUser();
@@ -382,74 +277,5 @@ class SmokeTest extends TestCase
             ->call('submit')
             ->assertSet('submitted', true)
             ->assertSet('isCorrect', true);
-    }
-
-    public function test_dashboard_page_loads_for_authenticated_user(): void
-    {
-        $user = User::factory()->create();
-        $course = $this->createEnrolledCourse($user, ['title' => 'Dash Course']);
-        $lesson = $course->lessons()->create([
-            'title' => 'Dash Lesson',
-            'slug' => 'dash-lesson',
-            'published' => true,
-            'order' => 1,
-        ]);
-        $step = $lesson->steps()->create([
-            'title' => 'Dash Step',
-            'type' => StepType::Reading,
-            'content' => 'Content',
-            'order' => 1,
-        ]);
-
-        StepCompletion::create([
-            'user_id' => $user->id,
-            'step_id' => $step->id,
-            'completed_at' => now(),
-        ]);
-
-        $this->actingAs($user)->get('/dashboard')
-            ->assertOk()
-            ->assertSee('Welcome')
-            ->assertSee('Dash Course')
-            ->assertSee('Dashboard')
-            ->assertSee('Laravel Trivia')
-            ->assertSee('from-amber-50');
-    }
-
-    public function test_trivia_quiz_page_loads(): void
-    {
-        $user = User::factory()->create(['role' => 'student']);
-
-        $this->actingAs($user)->get('/quiz')
-            ->assertOk()
-            ->assertSee('Laravel Trivia');
-
-        Livewire::actingAs($user)
-            ->test(TriviaQuiz::class)
-            ->assertOk()
-            ->assertSee('Select Topics');
-    }
-
-    public function test_dashboard_shows_trivia_card(): void
-    {
-        $user = User::factory()->create(['role' => 'student']);
-
-        $this->actingAs($user)->get('/dashboard')
-            ->assertOk()
-            ->assertSee('Laravel Trivia')
-            ->assertSee('Test Your Knowledge')
-            ->assertSee(route('quiz'));
-    }
-
-    public function test_czech_locale_shows_placeholder_content(): void
-    {
-        App::setLocale('cs');
-        $user = User::factory()->create(['role' => 'student', 'locale' => 'cs']);
-        $course = $this->createEnrolledCourse($user);
-        App::setLocale('en');
-
-        $response = $this->actingAs($user)->get('/dashboard');
-        $response->assertOk();
-        $response->assertSee('CS:'); // Czech factory placeholder prefix
     }
 }

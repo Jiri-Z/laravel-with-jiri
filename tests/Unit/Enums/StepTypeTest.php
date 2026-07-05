@@ -19,5 +19,5 @@ test('step type from value returns correct case', function () {
 });
 
 test('step type invalid value throws', function () {
-    expect(fn () => StepType::from('invalid'))->toThrow(\ValueError::class);
+    expect(fn () => StepType::from('invalid'))->toThrow(ValueError::class);
 });

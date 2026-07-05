@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\Course;
 use App\Models\Concerns\HasOrder;
+use App\Models\Course;
 use App\Models\Lesson;
 
 test('ordered scope sorts by order column ascending', function () {

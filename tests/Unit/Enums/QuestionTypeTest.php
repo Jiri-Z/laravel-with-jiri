@@ -19,5 +19,5 @@ test('question type from value returns correct case', function () {
 });
 
 test('question type invalid value throws', function () {
-    expect(fn () => QuestionType::from('invalid'))->toThrow(\ValueError::class);
+    expect(fn () => QuestionType::from('invalid'))->toThrow(ValueError::class);
 });
