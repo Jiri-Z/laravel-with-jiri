@@ -34,7 +34,11 @@ class SubmitQuizAnswer
             $answer->is_correct = $isCorrect;
             $answer->created_at = now();
             $answer->save();
-        } catch (QueryException) {
+        } catch (QueryException $e) {
+            if (! in_array((string) $e->getCode(), ['23000', '23505'], true)) {
+                throw $e;
+            }
+
             $existing = StepAnswer::where('user_id', $user->id)
                 ->where('step_id', $step->id)
                 ->where('question_index', $questionIndex)
