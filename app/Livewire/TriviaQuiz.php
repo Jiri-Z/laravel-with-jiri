@@ -13,6 +13,7 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
+/** @property-read Collection<int, string> $allTopics */
 #[Layout('layouts.app')]
 class TriviaQuiz extends Component
 {
@@ -30,7 +31,7 @@ class TriviaQuiz extends Component
 
     public ?int $attemptId = null;
 
-    /** @var array<string, string|array<int, string>|null> */
+    /** @var array<int, string|array<int, string>|null> */
     public array $userAnswers = [];
 
     public function mount(): void
@@ -50,7 +51,7 @@ class TriviaQuiz extends Component
             ->pluck('topic');
     }
 
-    /** @return Collection<int, array<string, mixed>> */
+    /** @return \Illuminate\Database\Eloquent\Collection<int, TriviaQuestion> */
     #[Computed]
     public function topicQuestionCounts(): Collection
     {
@@ -155,7 +156,8 @@ class TriviaQuiz extends Component
         $this->selectedTopics = $this->allTopics->toArray();
     }
 
-    /** @return array<int, array<string, mixed>> */
+    /** @param Collection<int, TriviaQuestion> $pool
+     * @return array<int, array<string, mixed>> */
     private function selectQuestions(Collection $pool, int $count): array
     {
         $byTopic = $pool->groupBy('topic');
@@ -182,6 +184,8 @@ class TriviaQuiz extends Component
         return $shuffledSelected->take($count)->values()->toArray();
     }
 
+    /** @param array<string, mixed> $question
+     * @param string|array<int, string>|null $userAnswer */
     private function checkAnswer(array $question, string|array|null $userAnswer): bool
     {
         if ($userAnswer === null || $userAnswer === '') {
@@ -198,6 +202,7 @@ class TriviaQuiz extends Component
         };
     }
 
+    /** @param array<string, mixed> $question */
     private function getCorrectAnswerDisplay(array $question): string
     {
         return match ($question['type']) {
