@@ -2,11 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Livewire\CodingViewer;
 use App\Livewire\StepViewer;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Step;
 use App\Models\User;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class StepViewerAccessTest extends TestCase
@@ -121,5 +123,39 @@ class StepViewerAccessTest extends TestCase
         $component->complete();
 
         expect($component->completed)->toBeFalse();
+    }
+
+    public function test_step_viewer_complete_redirects_when_not_enrolled(): void
+    {
+        [$user, $course, $lesson, $step] = $this->enrolledUserWithStep();
+
+        $component = Livewire::actingAs($user)
+            ->test(StepViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ]);
+
+        $course->enrollments()->delete();
+
+        $component->call('complete')
+            ->assertRedirect(route('courses.index'));
+    }
+
+    public function test_coding_viewer_complete_redirects_when_not_enrolled(): void
+    {
+        [$user, $course, $lesson, $step] = $this->enrolledUserWithStep('coding');
+
+        $component = Livewire::actingAs($user)
+            ->test(CodingViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ]);
+
+        $course->enrollments()->delete();
+
+        $component->call('markCodingComplete')
+            ->assertRedirect(route('courses.index'));
     }
 }
