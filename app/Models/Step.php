@@ -27,6 +27,7 @@ class Step extends Model
     /** @use HasFactory<StepFactory> */
     use HasFactory;
 
+    /** @use HasOrder<self> */
     use HasOrder;
 
     /** @return BelongsTo<Lesson, $this> */

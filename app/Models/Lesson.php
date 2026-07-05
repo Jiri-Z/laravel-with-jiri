@@ -26,6 +26,7 @@ class Lesson extends Model
     /** @use HasFactory<LessonFactory> */
     use HasFactory;
 
+    /** @use HasOrder<self> */
     use HasOrder;
 
     /** @return BelongsTo<Course, $this> */

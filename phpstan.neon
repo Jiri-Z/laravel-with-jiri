@@ -9,8 +9,6 @@ parameters:
 
     tmpDir: storage/framework/cache/phpstan
 
-    excludePaths:
-        - .*/**/cache/**
-        - storage/
+    scanFiles:
         - _ide_helper.php
         - _ide_helper_models.php
