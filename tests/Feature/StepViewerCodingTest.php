@@ -123,7 +123,7 @@ class StepViewerCodingTest extends TestCase
 
             $this->fail('Expected CodingViewer to abort for unenrolled user.');
         } catch (HttpException $e) {
-            $this->assertSame(404, $e->getStatusCode());
+            $this->assertSame(403, $e->getStatusCode());
         }
     }
 }

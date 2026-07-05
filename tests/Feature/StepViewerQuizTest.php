@@ -506,7 +506,7 @@ class StepViewerQuizTest extends TestCase
 
             $this->fail('Expected QuizViewer to abort for unenrolled user.');
         } catch (HttpException $e) {
-            $this->assertSame(404, $e->getStatusCode());
+            $this->assertSame(403, $e->getStatusCode());
         }
     }
 
@@ -569,7 +569,7 @@ class StepViewerQuizTest extends TestCase
         $html = $component->html();
         $this->assertStringContainsString('border-indigo-500', $html);
         // Exactly one option should be highlighted
-        $this->assertSame(1, substr_count($html, 'border-indigo-500'));
+        $this->assertSame(1, substr_count((string) $html, 'border-indigo-500'));
     }
 
     public function test_quiz_multiple_selected_options_have_highlight_class(): void
@@ -593,7 +593,7 @@ class StepViewerQuizTest extends TestCase
 
         $html = $component->html();
         // Options 0 (Python) and 2 (CSS) should be highlighted
-        $this->assertSame(2, substr_count($html, 'border-indigo-500'));
+        $this->assertSame(2, substr_count((string) $html, 'border-indigo-500'));
     }
 
     public function test_quiz_no_highlight_after_submission(): void
