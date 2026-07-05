@@ -4,8 +4,6 @@ namespace Tests\Feature;
 
 use App\Livewire\CourseList;
 use App\Models\Course;
-use App\Models\Lesson;
-use App\Models\Step;
 use App\Models\StepCompletion;
 use App\Models\User;
 use Livewire\Livewire;
@@ -54,11 +52,7 @@ class CourseBrowseTest extends TestCase
 
     public function test_authenticated_user_sees_progress_indicator(): void
     {
-        $user = User::factory()->create();
-        $course = Course::factory()->published()->create();
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
-        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
-        $step = Step::factory()->create(['lesson_id' => $lesson->id]);
+        [$user, $course, $lesson, $step] = $this->enrolledUserWithStep();
 
         $this->actingAs($user)->get('/courses')->assertSee('0%');
 
@@ -72,11 +66,7 @@ class CourseBrowseTest extends TestCase
 
     public function test_zero_percent_when_course_has_steps_but_no_completions(): void
     {
-        $user = User::factory()->create();
-        $course = Course::factory()->published()->create();
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
-        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
-        Step::factory()->create(['lesson_id' => $lesson->id]);
+        [$user, $course, $lesson, $step] = $this->enrolledUserWithStep();
 
         $this->actingAs($user)->get('/courses')->assertSee('0%');
     }

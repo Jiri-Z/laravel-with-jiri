@@ -347,6 +347,54 @@ class AdminCourseTest extends TestCase
         $component->assertDontSee('Course 11');
     }
 
+    public function test_edit_keeps_slug_unchanged(): void
+    {
+        $user = User::factory()->create(['role' => 'instructor']);
+        $course = Course::factory()->create(['user_id' => $user->id, 'slug' => 'original-slug']);
+
+        Livewire::actingAs($user)
+            ->test(AdminCourseForm::class, ['course' => $course])
+            ->set('title', 'Updated Title')
+            ->call('save')
+            ->assertRedirect('/admin/courses');
+
+        $this->assertDatabaseHas('courses', [
+            'id' => $course->id,
+            'slug' => 'original-slug',
+            'title' => 'Updated Title',
+        ]);
+    }
+
+    public function test_validates_required_fields(): void
+    {
+        $user = User::factory()->create(['role' => 'instructor']);
+
+        Livewire::actingAs($user)
+            ->test(AdminCourseForm::class)
+            ->set('title', '')
+            ->set('slug', '')
+            ->call('save')
+            ->assertHasErrors(['title', 'slug']);
+    }
+
+    public function test_null_description_stored_when_empty(): void
+    {
+        $user = User::factory()->create(['role' => 'instructor']);
+
+        Livewire::actingAs($user)
+            ->test(AdminCourseForm::class)
+            ->set('title', 'Minimal Course')
+            ->set('slug', 'minimal-course')
+            ->set('description', '')
+            ->set('order', 1)
+            ->call('save');
+
+        $this->assertDatabaseHas('courses', [
+            'title' => 'Minimal Course',
+            'description' => null,
+        ]);
+    }
+
     public function test_instructor_cannot_edit_other_instructors_course(): void
     {
         $instructorA = User::factory()->create(['role' => 'instructor']);

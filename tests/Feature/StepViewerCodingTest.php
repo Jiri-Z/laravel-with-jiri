@@ -16,12 +16,7 @@ class StepViewerCodingTest extends TestCase
 {
     public function test_coding_step_shows_prompt(): void
     {
-        $user = User::factory()->create();
-        $course = Course::factory()->published()->create();
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
-
-        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
-        $step = Step::factory()->coding()->create(['lesson_id' => $lesson->id]);
+        [$user, $course, $lesson, $step] = $this->enrolledUserWithStep('coding');
 
         $response = $this->actingAs($user)
             ->get("/courses/{$course->slug}/lessons/{$lesson->slug}/steps/{$step->id}");
@@ -33,12 +28,7 @@ class StepViewerCodingTest extends TestCase
 
     public function test_coding_viewer_can_mark_complete(): void
     {
-        $user = User::factory()->create();
-        $course = Course::factory()->published()->create();
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
-
-        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
-        $step = Step::factory()->coding()->create(['lesson_id' => $lesson->id]);
+        [$user, $course, $lesson, $step] = $this->enrolledUserWithStep('coding');
 
         Livewire::actingAs($user)
             ->test(CodingViewer::class, [
@@ -58,12 +48,7 @@ class StepViewerCodingTest extends TestCase
 
     public function test_coding_viewer_wont_mark_complete_twice(): void
     {
-        $user = User::factory()->create();
-        $course = Course::factory()->published()->create();
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
-
-        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
-        $step = Step::factory()->coding()->create(['lesson_id' => $lesson->id]);
+        [$user, $course, $lesson, $step] = $this->enrolledUserWithStep('coding');
 
         StepCompletion::factory()->create([
             'user_id' => $user->id,
@@ -84,12 +69,7 @@ class StepViewerCodingTest extends TestCase
 
     public function test_previously_completed_coding_step_shows_badge(): void
     {
-        $user = User::factory()->create();
-        $course = Course::factory()->published()->create();
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
-
-        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
-        $step = Step::factory()->coding()->create(['lesson_id' => $lesson->id]);
+        [$user, $course, $lesson, $step] = $this->enrolledUserWithStep('coding');
 
         StepCompletion::factory()->create([
             'user_id' => $user->id,
@@ -107,11 +87,7 @@ class StepViewerCodingTest extends TestCase
 
     public function test_coding_viewer_blocks_inaccessible_step(): void
     {
-        $user = User::factory()->create();
-        $course = Course::factory()->published()->create();
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
-
-        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        [$user, $course, $lesson] = $this->enrolledUser();
         Step::factory()->reading()->create(['lesson_id' => $lesson->id, 'order' => 1]);
         $secondStep = Step::factory()->coding()->create(['lesson_id' => $lesson->id, 'order' => 2]);
 

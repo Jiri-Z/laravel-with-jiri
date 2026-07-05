@@ -17,12 +17,7 @@ class MarkStepCompleteTest extends TestCase
 {
     private function createEnrolledUserStep(): array
     {
-        $course = Course::factory()->published()->create();
-        $user = User::factory()->create();
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
-
-        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
-        $step = Step::factory()->create(['lesson_id' => $lesson->id]);
+        [$user, $course, $lesson, $step] = $this->enrolledUserWithStep();
 
         return [$user, $step];
     }

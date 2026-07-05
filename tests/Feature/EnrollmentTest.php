@@ -88,9 +88,7 @@ class EnrollmentTest extends TestCase
 
     public function test_enrolled_user_can_view_course(): void
     {
-        $user = User::factory()->create();
-        $course = Course::factory()->published()->create();
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+        [$user, $course] = $this->enrolledUser();
 
         $this->actingAs($user)
             ->get(route('courses.show', $course))

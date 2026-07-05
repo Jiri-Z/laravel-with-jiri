@@ -15,12 +15,7 @@ class StepViewerReadingTest extends TestCase
 {
     public function test_user_can_complete_a_reading_step(): void
     {
-        $user = User::factory()->create();
-        $course = Course::factory()->published()->create();
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
-
-        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
-        $step = Step::factory()->reading()->create(['lesson_id' => $lesson->id]);
+        [$user, $course, $lesson, $step] = $this->enrolledUserWithStep();
 
         Livewire::actingAs($user)
             ->test(StepViewer::class, [
@@ -39,12 +34,7 @@ class StepViewerReadingTest extends TestCase
 
     public function test_user_cannot_complete_same_step_twice(): void
     {
-        $user = User::factory()->create();
-        $course = Course::factory()->published()->create();
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
-
-        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
-        $step = Step::factory()->reading()->create(['lesson_id' => $lesson->id]);
+        [$user, $course, $lesson, $step] = $this->enrolledUserWithStep();
 
         StepCompletion::factory()->create([
             'user_id' => $user->id,
@@ -65,12 +55,7 @@ class StepViewerReadingTest extends TestCase
 
     public function test_completed_step_shows_badge_not_button(): void
     {
-        $user = User::factory()->create();
-        $course = Course::factory()->published()->create();
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
-
-        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
-        $step = Step::factory()->reading()->create(['lesson_id' => $lesson->id]);
+        [$user, $course, $lesson, $step] = $this->enrolledUserWithStep();
 
         StepCompletion::factory()->create([
             'user_id' => $user->id,
@@ -87,12 +72,7 @@ class StepViewerReadingTest extends TestCase
 
     public function test_rapid_completion_does_not_duplicate(): void
     {
-        $user = User::factory()->create();
-        $course = Course::factory()->published()->create();
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
-
-        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
-        $step = Step::factory()->reading()->create(['lesson_id' => $lesson->id]);
+        [$user, $course, $lesson, $step] = $this->enrolledUserWithStep();
 
         Livewire::actingAs($user)
             ->test(StepViewer::class, [
@@ -246,10 +226,7 @@ class StepViewerReadingTest extends TestCase
 
     public function test_reading_step_renders_markdown_bold(): void
     {
-        $user = User::factory()->create();
-        $course = Course::factory()->published()->create();
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
-        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        [$user, $course, $lesson] = $this->enrolledUser();
         $step = Step::factory()->reading()->create([
             'lesson_id' => $lesson->id,
             'content' => 'This is **bold** text.',
@@ -266,10 +243,7 @@ class StepViewerReadingTest extends TestCase
 
     public function test_reading_step_renders_markdown_inline_code(): void
     {
-        $user = User::factory()->create();
-        $course = Course::factory()->published()->create();
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
-        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        [$user, $course, $lesson] = $this->enrolledUser();
         $step = Step::factory()->reading()->create([
             'lesson_id' => $lesson->id,
             'content' => 'Use the `User::find()` method.',
@@ -286,10 +260,7 @@ class StepViewerReadingTest extends TestCase
 
     public function test_reading_step_renders_markdown_code_block(): void
     {
-        $user = User::factory()->create();
-        $course = Course::factory()->published()->create();
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
-        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        [$user, $course, $lesson] = $this->enrolledUser();
         $step = Step::factory()->reading()->create([
             'lesson_id' => $lesson->id,
             'content' => "```php\necho 'hello';\n```",
@@ -306,10 +277,7 @@ class StepViewerReadingTest extends TestCase
 
     public function test_reading_step_renders_markdown_list(): void
     {
-        $user = User::factory()->create();
-        $course = Course::factory()->published()->create();
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
-        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        [$user, $course, $lesson] = $this->enrolledUser();
         $step = Step::factory()->reading()->create([
             'lesson_id' => $lesson->id,
             'content' => "- Item 1\n- Item 2\n- Item 3",
@@ -328,10 +296,7 @@ class StepViewerReadingTest extends TestCase
 
     public function test_reading_step_escapes_raw_html(): void
     {
-        $user = User::factory()->create();
-        $course = Course::factory()->published()->create();
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
-        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        [$user, $course, $lesson] = $this->enrolledUser();
         $step = Step::factory()->reading()->create([
             'lesson_id' => $lesson->id,
             'content' => '<script>alert(1)</script>',

@@ -90,11 +90,9 @@ class CourseDetailTest extends TestCase
 
     public function test_course_detail_shows_lesson_completion_badge(): void
     {
-        $user = User::factory()->create();
-        $course = Course::factory()->published()->create();
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
-        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id, 'title' => 'Finished Lesson']);
-        $step = Step::factory()->create(['lesson_id' => $lesson->id]);
+        [$user, $course, $lesson, $step] = $this->enrolledUserWithStep();
+        $lesson->title = 'Finished Lesson';
+        $lesson->save();
 
         StepCompletion::factory()->create([
             'user_id' => $user->id,
@@ -141,10 +139,9 @@ class CourseDetailTest extends TestCase
 
     public function test_incomplete_lesson_does_not_show_completion_badge(): void
     {
-        $user = User::factory()->create();
-        $course = Course::factory()->published()->create();
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
-        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id, 'title' => 'Unfinished']);
+        [$user, $course, $lesson] = $this->enrolledUser();
+        $lesson->title = 'Unfinished';
+        $lesson->save();
         Step::factory()->create(['lesson_id' => $lesson->id]);
 
         $response = $this->actingAs($user)->get("/courses/{$course->slug}");

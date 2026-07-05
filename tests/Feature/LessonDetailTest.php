@@ -68,10 +68,7 @@ class LessonDetailTest extends TestCase
 
     public function test_empty_state_when_lesson_has_no_steps(): void
     {
-        $user = User::factory()->create();
-        $course = Course::factory()->published()->create();
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
-        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        [$user, $course, $lesson] = $this->enrolledUser();
 
         $response = $this->actingAs($user)->get("/courses/{$course->slug}/lessons/{$lesson->slug}");
 
@@ -81,11 +78,12 @@ class LessonDetailTest extends TestCase
 
     public function test_lesson_detail_shows_step_completion_badge(): void
     {
-        $user = User::factory()->create();
-        $course = Course::factory()->published()->create();
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
-        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id, 'title' => 'My Lesson']);
-        $step = Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 1, 'title' => 'The Step']);
+        [$user, $course, $lesson, $step] = $this->enrolledUserWithStep();
+        $lesson->title = 'My Lesson';
+        $lesson->save();
+        $step->title = 'The Step';
+        $step->order = 1;
+        $step->save();
 
         StepCompletion::factory()->create([
             'user_id' => $user->id,
@@ -123,10 +121,7 @@ class LessonDetailTest extends TestCase
 
     public function test_incomplete_step_does_not_show_completed_badge(): void
     {
-        $user = User::factory()->create();
-        $course = Course::factory()->published()->create();
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
-        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        [$user, $course, $lesson] = $this->enrolledUser();
         Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 1, 'title' => 'Pending Step']);
 
         $response = $this->actingAs($user)

@@ -26,6 +26,8 @@ _ide_helper_models.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+run.py
+tasks.txt
 plan.txt
 localization_plan.txt
 review.md

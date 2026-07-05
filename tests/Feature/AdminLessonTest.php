@@ -323,6 +323,40 @@ class AdminLessonTest extends TestCase
             ->assertDontSee('Beta Lesson');
     }
 
+    public function test_same_slug_allowed_in_different_course(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $courseA = Course::factory()->create();
+        $courseB = Course::factory()->create();
+        Lesson::factory()->create(['course_id' => $courseA->id, 'slug' => 'shared-slug']);
+
+        Livewire::actingAs($user)
+            ->test(AdminLessonForm::class, ['course' => $courseB])
+            ->set('title', 'Shared Slug Lesson')
+            ->set('slug', 'shared-slug')
+            ->set('order', 1)
+            ->call('save')
+            ->assertRedirect("/admin/courses/{$courseB->id}/lessons");
+
+        $this->assertDatabaseHas('lessons', [
+            'course_id' => $courseB->id,
+            'slug' => 'shared-slug',
+        ]);
+    }
+
+    public function test_lesson_validates_required_fields(): void
+    {
+        $user = User::factory()->create(['role' => 'admin']);
+        $course = Course::factory()->create();
+
+        Livewire::actingAs($user)
+            ->test(AdminLessonForm::class, ['course' => $course])
+            ->set('title', '')
+            ->set('slug', '')
+            ->call('save')
+            ->assertHasErrors(['title', 'slug']);
+    }
+
     public function test_instructor_cannot_edit_other_instructors_lesson(): void
     {
         $instructorA = User::factory()->create(['role' => 'instructor']);

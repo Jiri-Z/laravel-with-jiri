@@ -246,7 +246,7 @@ class AdminStepTest extends TestCase
         $step = Step::where('lesson_id', $lesson->id)->where('title', 'Quiz Step')->first();
         $this->assertNotNull($step);
 
-        $savedQuestions = json_decode($step->content, true);
+        $savedQuestions = json_decode((string) $step->content, true);
         $this->assertIsArray($savedQuestions);
         $this->assertCount(1, $savedQuestions);
         $this->assertEquals('What is 2+2?', $savedQuestions[0]['question']);
@@ -288,7 +288,7 @@ class AdminStepTest extends TestCase
             ->assertRedirect("/admin/courses/{$course->id}/lessons/{$lesson->id}/steps");
 
         $step->refresh();
-        $savedQuestions = json_decode($step->content, true);
+        $savedQuestions = json_decode((string) $step->content, true);
         $this->assertCount(1, $savedQuestions);
         $this->assertEquals('Edited question?', $savedQuestions[0]['question']);
         $this->assertEquals(['X', 'Y', 'Z'], $savedQuestions[0]['options']);
@@ -596,6 +596,71 @@ class AdminStepTest extends TestCase
             ->assertOk()
             ->assertSee('Alpha Step')
             ->assertDontSee('Beta Step');
+    }
+
+    public function test_add_question_action(): void
+    {
+        $user = User::factory()->create(['role' => 'instructor']);
+        $course = Course::factory()->create(['user_id' => $user->id]);
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+
+        $component = Livewire::actingAs($user)
+            ->test(AdminStepForm::class, ['course' => $course, 'lesson' => $lesson])
+            ->set('type', StepType::Quiz->value);
+
+        $component->call('addQuestion');
+        $this->assertCount(1, $component->get('questions'));
+
+        $component->call('addQuestion');
+        $this->assertCount(2, $component->get('questions'));
+
+        $component->call('removeQuestion', 0);
+        $this->assertCount(1, $component->get('questions'));
+
+        $component->call('removeQuestion', 0);
+        $this->assertCount(0, $component->get('questions'));
+    }
+
+    public function test_add_option_action(): void
+    {
+        $user = User::factory()->create(['role' => 'instructor']);
+        $course = Course::factory()->create(['user_id' => $user->id]);
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+
+        $component = Livewire::actingAs($user)
+            ->test(AdminStepForm::class, ['course' => $course, 'lesson' => $lesson])
+            ->set('type', StepType::Quiz->value);
+
+        $component->call('addQuestion');
+        $component->assertSet('questions.0.options', ['', '']);
+
+        $component->call('addOption', 0);
+        $component->assertSet('questions.0.options', ['', '', '']);
+
+        $component->call('addOption', 0);
+        $component->assertSet('questions.0.options', ['', '', '', '']);
+
+        $component->call('removeOption', 0, 3);
+        $component->assertSet('questions.0.options', ['', '', '']);
+
+        $component->call('removeOption', 0, 2);
+        $component->assertSet('questions.0.options', ['', '']);
+    }
+
+    public function test_quiz_question_requires_question_text(): void
+    {
+        $user = User::factory()->create(['role' => 'instructor']);
+        $course = Course::factory()->create(['user_id' => $user->id]);
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+
+        $component = Livewire::actingAs($user)
+            ->test(AdminStepForm::class, ['course' => $course, 'lesson' => $lesson])
+            ->set('type', StepType::Quiz->value);
+
+        $component->call('addQuestion');
+        $component->set('questions.0.question', '');
+        $component->call('save')
+            ->assertHasErrors('questions.0.question');
     }
 
     public function test_instructor_cannot_edit_other_instructors_step(): void
