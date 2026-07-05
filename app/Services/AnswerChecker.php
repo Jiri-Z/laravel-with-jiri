@@ -1,0 +1,80 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Services;
+
+class AnswerChecker
+{
+    public function check(string $type, mixed $userAnswer, array $content): bool
+    {
+        return match ($type) {
+            'single' => $this->checkSingle($userAnswer, $content['answer'] ?? null),
+            'multiple' => $this->checkMultiple($userAnswer, $content['answer'] ?? []),
+            'text' => $this->checkText($userAnswer, $content['answer'] ?? '', $content['alternatives'] ?? []),
+            default => false,
+        };
+    }
+
+    public function checkSingle(mixed $userAnswer, mixed $correctAnswer): bool
+    {
+        if ($userAnswer === null || $correctAnswer === null) {
+            return false;
+        }
+
+        return (string) $userAnswer === (string) $correctAnswer;
+    }
+
+    public function checkMultiple(mixed $userAnswer, mixed $correctAnswer): bool
+    {
+        if (! is_array($userAnswer)) {
+            return false;
+        }
+
+        $correct = $this->resolveArray($correctAnswer);
+        $userSet = array_unique($userAnswer);
+        $correctSet = array_unique($correct);
+
+        sort($userSet);
+        sort($correctSet);
+
+        return $userSet === $correctSet;
+    }
+
+    public function checkText(mixed $userAnswer, string $correctAnswer, array $alternatives = []): bool
+    {
+        if (! is_string($userAnswer) || trim($userAnswer) === '') {
+            return false;
+        }
+
+        $normalize = fn (string $s): string => mb_strtolower(trim($s));
+        $normalized = $normalize($userAnswer);
+
+        if ($normalized === $normalize($correctAnswer)) {
+            return true;
+        }
+
+        foreach ($alternatives as $alt) {
+            if (is_string($alt) && $normalized === $normalize($alt)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function resolveArray(mixed $value): array
+    {
+        if (is_array($value)) {
+            return $value;
+        }
+
+        if (is_string($value)) {
+            $decoded = json_decode($value, true);
+
+            return is_array($decoded) ? $decoded : [];
+        }
+
+        return [];
+    }
+}

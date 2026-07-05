@@ -6,6 +6,7 @@ namespace App\Livewire;
 
 use App\Models\TriviaAttempt;
 use App\Models\TriviaQuestion;
+use App\Services\AnswerChecker;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
@@ -187,57 +188,14 @@ class TriviaQuiz extends Component
             return false;
         }
 
+        $checker = new AnswerChecker;
+
         return match ($question['type']) {
-            'single' => $userAnswer === $question['answer'],
-            'multiple' => $this->checkMultipleAnswer($userAnswer, $question['answer']),
-            'text' => $this->checkTextAnswer($userAnswer, $question['answer'], $question['alternatives'] ?? []),
+            'single' => $checker->checkSingle($userAnswer, $question['answer']),
+            'multiple' => $checker->checkMultiple($userAnswer, $question['answer']),
+            'text' => $checker->checkText($userAnswer, $question['answer'], $question['alternatives'] ?? []),
             default => false,
         };
-    }
-
-    private function checkMultipleAnswer(string|array|null $userAnswer, mixed $correctAnswer): bool
-    {
-        if (! is_array($userAnswer)) {
-            return false;
-        }
-
-        $correct = $this->parseCorrectAnswers($correctAnswer);
-        $userSet = array_unique($userAnswer);
-        $correctSet = array_unique($correct);
-
-        sort($userSet);
-        sort($correctSet);
-
-        return $userSet === $correctSet;
-    }
-
-    /** @return array<int, string> */
-    private function parseCorrectAnswers(mixed $answer): array
-    {
-        if (is_array($answer)) {
-            return $answer;
-        }
-
-        $decoded = json_decode((string) $answer, true);
-
-        return is_array($decoded) ? $decoded : [];
-    }
-
-    private function checkTextAnswer(string $userAnswer, string $correctAnswer, array $alternatives): bool
-    {
-        $normalize = fn (string $s): string => mb_strtolower(trim($s));
-
-        if ($normalize($userAnswer) === $normalize($correctAnswer)) {
-            return true;
-        }
-
-        foreach ($alternatives as $alt) {
-            if ($normalize($userAnswer) === $normalize($alt)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private function getCorrectAnswerDisplay(array $question): string
@@ -250,7 +208,11 @@ class TriviaQuiz extends Component
 
     private function formatMultipleAnswer(mixed $answer): string
     {
-        $parsed = $this->parseCorrectAnswers($answer);
+        $parsed = match (true) {
+            is_array($answer) => $answer,
+            is_string($answer) => json_decode($answer, true) ?? [],
+            default => [],
+        };
 
         return implode(', ', $parsed);
     }
