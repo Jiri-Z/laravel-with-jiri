@@ -51,6 +51,7 @@ A smoke test is not complete until ALL of:
 - Factories for all test data; `sequence()` for steps with unique order constraints
 - Eager-load to avoid N+1
 - Queue non-trivial side effects as jobs
+- Coding steps run PHP code in a WASM sandbox (php-wasm) — no network, no filesystem, no system calls. Safe for student-submitted code execution within the browser.
 
 ## Lessons learned
 
@@ -256,6 +257,7 @@ At the start of every session, run `application-info` to get precise package ver
 
 - If you have modified any PHP files, you must run `vendor/bin/pint --dirty --format agent` before finalizing changes to ensure your code matches the project's expected style.
 - Do not run `vendor/bin/pint --test --format agent`, simply run `vendor/bin/pint --format agent` to fix any formatting issues.
+- Shortcut: `composer run pint`
 
 === pest/core rules ===
 

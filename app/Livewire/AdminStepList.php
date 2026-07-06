@@ -36,6 +36,11 @@ class AdminStepList extends Component
         $this->lesson = $lesson;
     }
 
+    public function updatedSearch(): void
+    {
+        $this->resetPageOnSearch();
+    }
+
     public function delete(int $stepId): void
     {
         $this->deleteItem(Step::findOrFail($stepId));

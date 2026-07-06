@@ -22,7 +22,7 @@ test('default locale is english', function () {
 
     $this->actingAs($user)
         ->get('/dashboard')
-        ->assertSee('Dashboard');
+        ->assertSee(__('Dashboard'));
 });
 
 test('authenticated user can switch locale via post', function () {
@@ -52,7 +52,7 @@ test('locale persists in session after switching', function () {
 
     $this->actingAs($user)
         ->get('/courses')
-        ->assertSee('Courses');
+        ->assertSee(__('Courses'));
 });
 
 test('page shows czech factory placeholder text when locale is cs', function () {

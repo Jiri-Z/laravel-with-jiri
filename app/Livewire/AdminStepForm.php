@@ -169,8 +169,7 @@ class AdminStepForm extends Component
 
     public function removeQuestion(int $index): void
     {
-        unset($this->questions[$index]);
-        $this->questions = array_values($this->questions);
+        array_splice($this->questions, $index, 1);
     }
 
     public function addOption(int $questionIndex): void
@@ -180,8 +179,9 @@ class AdminStepForm extends Component
 
     public function removeOption(int $questionIndex, int $optionIndex): void
     {
-        unset($this->questions[$questionIndex]['options'][$optionIndex]);
-        $this->questions[$questionIndex]['options'] = array_values($this->questions[$questionIndex]['options']);
+        $options = $this->questions[$questionIndex]['options'];
+        unset($options[$optionIndex]);
+        $this->questions[$questionIndex]['options'] = array_values($options);
     }
 
     public function render(): View

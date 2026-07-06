@@ -38,10 +38,10 @@ class SmokeDashboardTest extends TestCase
 
         $this->actingAs($user)->get('/dashboard')
             ->assertOk()
-            ->assertSee('Welcome')
+            ->assertSee(__('dashboard.welcome', ['name' => $user->name]))
             ->assertSee('Dash Course')
-            ->assertSee('Dashboard')
-            ->assertSee('Laravel Trivia')
+            ->assertSee(__('Dashboard'))
+            ->assertSee(__('dashboard.trivia_card_title'))
             ->assertSee('from-amber-50');
     }
 
@@ -51,8 +51,8 @@ class SmokeDashboardTest extends TestCase
 
         $this->actingAs($user)->get('/dashboard')
             ->assertOk()
-            ->assertSee('Laravel Trivia')
-            ->assertSee('Test Your Knowledge')
+            ->assertSee(__('dashboard.trivia_card_title'))
+            ->assertSee(__('dashboard.trivia_cta'))
             ->assertSee(route('quiz'));
     }
 
@@ -62,12 +62,12 @@ class SmokeDashboardTest extends TestCase
 
         $this->actingAs($user)->get('/quiz')
             ->assertOk()
-            ->assertSee('Laravel Trivia');
+            ->assertSee(__('trivia.title'));
 
         Livewire::actingAs($user)
             ->test(TriviaQuiz::class)
             ->assertOk()
-            ->assertSee('Select Topics');
+            ->assertSee(__('trivia.select_topics'));
     }
 
     public function test_czech_locale_shows_placeholder_content(): void

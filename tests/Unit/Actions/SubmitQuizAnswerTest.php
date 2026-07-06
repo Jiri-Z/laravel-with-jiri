@@ -11,6 +11,8 @@ use App\Models\Lesson;
 use App\Models\Step;
 use App\Models\StepAnswer;
 use App\Models\User;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Schema;
 
 test('creates answer and returns result', function () {
     $user = User::factory()->create();
@@ -216,6 +218,44 @@ test('question indices are independent', function () {
     (new SubmitQuizAnswer)->handle($user, $step, 0, questionIndex: 0);
 
     $this->assertDatabaseCount('step_answers', 2);
+});
+
+test('duplicate submission returns existing result even with different answer', function () {
+    $user = User::factory()->create();
+    $step = Step::factory()->quizSingle()->create([
+        'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+    ]);
+
+    $result1 = (new SubmitQuizAnswer)->handle($user, $step, 1);
+
+    $result2 = (new SubmitQuizAnswer)->handle($user, $step, 0);
+
+    expect($result2->isCorrect)->toBeTrue();
+    expect($result2->answer)->toBe('1');
+    $this->assertDatabaseCount('step_answers', 1);
+});
+
+test('non-duplicate db error propagates', function () {
+    $user = User::factory()->create();
+    $step = Step::factory()->quizSingle()->create([
+        'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+    ]);
+
+    // Create the first answer so the duplicate handler is triggered
+    (new SubmitQuizAnswer)->handle($user, $step, 1);
+
+    // Drop the table to cause a different error (table not found) instead of
+    // the duplicate-key error. Non-duplicate errors must propagate.
+    $connection = Schema::getConnection();
+    $rawCreate = $connection->selectOne("SELECT sql FROM sqlite_master WHERE type='table' AND name='step_answers'");
+    $createSql = $rawCreate->sql;
+    Schema::drop('step_answers');
+
+    expect(fn () => (new SubmitQuizAnswer)->handle($user, $step, 0))
+        ->toThrow(QueryException::class);
+
+    // Restore the table so subsequent tests in this file don't break
+    $connection->statement($createSql);
 });
 
 test('is correct not mass assignable', function () {

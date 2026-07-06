@@ -80,13 +80,13 @@ class AnswerChecker
     private function resolveArray(mixed $value): array
     {
         if (is_array($value)) {
-            return $value;
+            return array_values($value);
         }
 
         if (is_string($value)) {
             $decoded = json_decode($value, true);
 
-            return is_array($decoded) ? $decoded : [];
+            return is_array($decoded) ? array_values($decoded) : [];
         }
 
         return [];

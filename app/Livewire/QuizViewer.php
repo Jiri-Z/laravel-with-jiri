@@ -96,7 +96,7 @@ class QuizViewer extends Component
                 auth()->user(),
                 $this->step,
                 $answer,
-                questionIndex: $index,
+                questionIndex: (int) $index,
             );
 
             if (! $result->isCorrect) {

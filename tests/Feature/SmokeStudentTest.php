@@ -58,8 +58,8 @@ class SmokeStudentTest extends TestCase
         $response->assertSee('Write PHP code');
         $response->assertSee('x-data');
         $response->assertSee('codingViewer');
-        $response->assertSee('Run Code');
-        $response->assertSee('Check Answer');
+        $response->assertSee(__('steps.coding_run'));
+        $response->assertSee(__('steps.coding_check'));
     }
 
     public function test_student_can_view_lesson_detail_page(): void
@@ -77,7 +77,7 @@ class SmokeStudentTest extends TestCase
             ->get("/courses/{$course->slug}/lessons/{$lesson->slug}");
         $response->assertOk();
         $response->assertSee('Smoke Lesson');
-        $response->assertSee('No steps available yet');
+        $response->assertSee(__('lessons.no_steps'));
     }
 
     public function test_quiz_step_page_renders_question_and_options(): void
@@ -105,7 +105,7 @@ class SmokeStudentTest extends TestCase
         $response->assertOk();
         $response->assertSee('Quiz Step');
         $response->assertSee('What is 2+2?');
-        $response->assertSee('Submit All Answers');
+        $response->assertSee(__('steps.quiz_submit'));
     }
 
     public function test_reading_step_page_loads(): void
@@ -130,7 +130,7 @@ class SmokeStudentTest extends TestCase
             ->get("/courses/{$course->slug}/lessons/{$lesson->slug}/steps/{$step->id}");
         $response->assertOk();
         $response->assertSee('Some reading content here');
-        $response->assertSee('Mark as Complete');
+        $response->assertSee(__('steps.mark_complete'));
     }
 
     public function test_mark_reading_step_complete(): void
@@ -216,7 +216,7 @@ class SmokeStudentTest extends TestCase
             ->get("/courses/{$course->slug}/lessons/{$lesson->slug}");
         $response->assertOk();
         $response->assertSee('Step One');
-        $response->assertDontSee('No steps available yet');
+        $response->assertDontSee(__('lessons.no_steps'));
     }
 
     public function test_quiz_multi_question_step_page_loads(): void
@@ -244,7 +244,7 @@ class SmokeStudentTest extends TestCase
             "/courses/{$course->slug}/lessons/{$lesson->slug}/steps/{$lesson->steps->first()->id}"
         );
         $response->assertOk();
-        $response->assertSee('Submit All Answers');
+        $response->assertSee(__('steps.quiz_submit'));
     }
 
     public function test_quiz_multi_question_submit_via_livewire(): void

@@ -66,7 +66,7 @@ class StepViewerReadingTest extends TestCase
             ->get("/courses/{$course->slug}/lessons/{$lesson->slug}/steps/{$step->id}");
 
         $response->assertOk();
-        $response->assertSee('Completed');
+        $response->assertSee(__('steps.completed'));
         $response->assertDontSee('Mark as Complete');
     }
 

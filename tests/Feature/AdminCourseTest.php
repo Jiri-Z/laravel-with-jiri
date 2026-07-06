@@ -228,7 +228,7 @@ class AdminCourseTest extends TestCase
     {
         $this->asAdmin()->get('/admin/courses')
             ->assertOk()
-            ->assertSee('No courses yet.');
+            ->assertSee(__('admin.no_courses_yet'));
     }
 
     public function test_admin_course_list_renders_table_headers(): void
@@ -272,7 +272,7 @@ class AdminCourseTest extends TestCase
 
         $this->get('/admin/courses?q=zzz_nonexistent')
             ->assertOk()
-            ->assertSee('No courses found.')
+            ->assertSee(__('admin.no_courses_found'))
             ->assertDontSee('Alpha');
     }
 

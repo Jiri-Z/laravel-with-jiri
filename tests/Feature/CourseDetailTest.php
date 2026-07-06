@@ -66,7 +66,7 @@ class CourseDetailTest extends TestCase
         $response = $this->actingAs($user)->get("/courses/{$course->slug}");
 
         $response->assertOk();
-        $response->assertSee('No lessons available yet');
+        $response->assertSee(__('courses.no_lessons'));
     }
 
     public function test_course_detail_shows_progress_bar(): void
@@ -102,7 +102,7 @@ class CourseDetailTest extends TestCase
         $response = $this->actingAs($user)->get("/courses/{$course->slug}");
         $response->assertOk();
         $response->assertSee('Finished Lesson');
-        $response->assertSee('Lesson complete');
+        $response->assertSee(__('courses.lesson_complete'));
     }
 
     public function test_unpublished_lessons_are_hidden(): void
@@ -134,7 +134,7 @@ class CourseDetailTest extends TestCase
 
         $response = $this->actingAs($user)->get("/courses/{$course->slug}");
         $response->assertOk();
-        $response->assertSee('No lessons available yet');
+        $response->assertSee(__('courses.no_lessons'));
     }
 
     public function test_incomplete_lesson_does_not_show_completion_badge(): void
@@ -147,6 +147,6 @@ class CourseDetailTest extends TestCase
         $response = $this->actingAs($user)->get("/courses/{$course->slug}");
         $response->assertOk();
         $response->assertSee('Unfinished');
-        $response->assertDontSee('Lesson complete');
+        $response->assertDontSee(__('courses.lesson_complete'));
     }
 }

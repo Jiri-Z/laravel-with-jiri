@@ -30,9 +30,9 @@ class SubmitQuizAnswer
 
         try {
             $answer = new StepAnswer;
-            $answer->user_id = $user->id;
-            $answer->step_id = $step->id;
-            $answer->question_index = $questionIndex;
+            $answer->user_id = max(0, (int) $user->id);
+            $answer->step_id = max(0, (int) $step->id);
+            $answer->question_index = max(0, $questionIndex);
             $answer->answer = $answerString;
             $answer->is_correct = $isCorrect;
             $answer->created_at = now();
@@ -90,9 +90,9 @@ class SubmitQuizAnswer
     private function serializeAnswer(string $questionType, int|string|array|null $answer): string
     {
         return match ($questionType) {
-            'single' => (string) $answer,
-            'multiple' => json_encode($answer),
-            'text' => (string) $answer,
+            'single' => is_string($answer) || is_int($answer) ? (string) $answer : '',
+            'multiple' => is_array($answer) ? (json_encode($answer) ?: '') : '',
+            'text' => is_string($answer) || is_int($answer) ? (string) $answer : '',
             default => '',
         };
     }

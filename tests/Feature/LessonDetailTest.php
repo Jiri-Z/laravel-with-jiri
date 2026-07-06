@@ -73,7 +73,7 @@ class LessonDetailTest extends TestCase
         $response = $this->actingAs($user)->get("/courses/{$course->slug}/lessons/{$lesson->slug}");
 
         $response->assertOk();
-        $response->assertSee('No steps available yet');
+        $response->assertSee(__('lessons.no_steps'));
     }
 
     public function test_lesson_detail_shows_step_completion_badge(): void
@@ -93,7 +93,7 @@ class LessonDetailTest extends TestCase
         $response = $this->actingAs($user)->get("/courses/{$course->slug}/lessons/{$lesson->slug}");
         $response->assertOk();
         $response->assertSee('The Step');
-        $response->assertSee('Completed');
+        $response->assertSee(__('lessons.completed'));
     }
 
     public function test_lesson_from_wrong_course_returns_404(): void
@@ -128,7 +128,7 @@ class LessonDetailTest extends TestCase
             ->get("/courses/{$course->slug}/lessons/{$lesson->slug}");
         $response->assertOk();
         $response->assertSee('Pending Step');
-        $response->assertDontSee('Completed');
+        $response->assertDontSee(__('lessons.completed'));
     }
 
     public function test_locked_step_shows_lock_icon(): void
@@ -144,7 +144,7 @@ class LessonDetailTest extends TestCase
             ->get("/courses/{$course->slug}/lessons/{$lesson->slug}");
         $response->assertOk();
         $response->assertSee('Locked Step');
-        $response->assertSee('Locked');
+        $response->assertSee(__('lessons.locked'));
     }
 
     public function test_completed_step_with_incomplete_previous_still_shows_locked(): void
@@ -164,6 +164,6 @@ class LessonDetailTest extends TestCase
             ->get("/courses/{$course->slug}/lessons/{$lesson->slug}");
         $response->assertOk();
         $response->assertSee('Skipped Step');
-        $response->assertSee('Locked');
+        $response->assertSee(__('lessons.locked'));
     }
 }

@@ -87,7 +87,7 @@ test('welcome screen shows topics', function () {
     Livewire::actingAs($this->user)
         ->test(TriviaQuiz::class)
         ->assertOk()
-        ->assertSee('Laravel Trivia')
+        ->assertSee(__('trivia.title'))
         ->assertSee('Routing')
         ->assertSee('Blade Templates');
 });
@@ -217,6 +217,6 @@ test('dashboard shows trivia card', function () {
     $this->actingAs($this->user)
         ->get('/dashboard')
         ->assertOk()
-        ->assertSee('Laravel Trivia')
-        ->assertSee('Test Your Knowledge');
+        ->assertSee(__('trivia.title'))
+        ->assertSee(__('dashboard.trivia_cta'));
 });

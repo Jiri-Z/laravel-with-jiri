@@ -47,7 +47,7 @@ class CourseBrowseTest extends TestCase
         $response = $this->actingAs($user)->get('/courses');
 
         $response->assertOk();
-        $response->assertSee('No courses available yet');
+        $response->assertSee(__('courses.no_courses'));
     }
 
     public function test_authenticated_user_sees_progress_indicator(): void
@@ -89,11 +89,11 @@ class CourseBrowseTest extends TestCase
         $course = Course::factory()->published()->create(['title' => 'Sample Course']);
 
         $this->actingAs($user)->get('/courses')
-            ->assertSee('Enroll');
+            ->assertSee(__('courses.enroll'));
 
         Livewire::actingAs($user)
             ->test(CourseList::class)
-            ->assertSee('Enroll');
+            ->assertSee(__('courses.enroll'));
     }
 
     public function test_enrolled_user_does_not_see_enroll_button(): void
@@ -103,10 +103,10 @@ class CourseBrowseTest extends TestCase
         $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
 
         $this->actingAs($user)->get('/courses')
-            ->assertDontSee('Enroll');
+            ->assertDontSee(__('courses.enroll'));
 
         Livewire::actingAs($user)
             ->test(CourseList::class)
-            ->assertDontSee('Enroll');
+            ->assertDontSee(__('courses.enroll'));
     }
 }

@@ -26,7 +26,7 @@ class DashboardTest extends TestCase
         $response = $this->actingAs($user)->get('/dashboard');
 
         $response->assertOk();
-        $response->assertSee('Welcome, Alice');
+        $response->assertSee(__('dashboard.welcome', ['name' => 'Alice']));
     }
 
     public function test_shows_course_progress(): void
@@ -64,7 +64,7 @@ class DashboardTest extends TestCase
 
         $response = $this->actingAs($user)->get('/dashboard');
         $response->assertOk();
-        $response->assertSee('Recent Activity');
+        $response->assertSee(__('dashboard.recent_activity'));
         $response->assertSee('RC Step');
     }
 
@@ -84,7 +84,7 @@ class DashboardTest extends TestCase
 
         $response = $this->actingAs($user)->get('/dashboard');
         $response->assertOk();
-        $response->assertSee('Continue Learning');
+        $response->assertSee(__('dashboard.continue_learning'));
         $response->assertSee('Next Step');
     }
 

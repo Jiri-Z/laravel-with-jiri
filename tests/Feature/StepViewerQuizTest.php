@@ -30,7 +30,7 @@ class StepViewerQuizTest extends TestCase
         $response->assertOk();
         $response->assertSee('What is 2+2?');
         $response->assertSee('4');
-        $response->assertSee('Submit All Answers');
+        $response->assertSee(__('steps.quiz_submit'));
     }
 
     public function test_user_can_submit_correct_quiz_single_answer(): void
@@ -316,7 +316,7 @@ class StepViewerQuizTest extends TestCase
         $response->assertSee('What is 2+2?');
         $response->assertSee('What is the capital of France?');
         $response->assertSee('Which are programming languages?');
-        $response->assertSee('Submit All Answers');
+        $response->assertSee(__('steps.quiz_submit'));
     }
 
     public function test_quiz_type_submit_all_correct_answers(): void

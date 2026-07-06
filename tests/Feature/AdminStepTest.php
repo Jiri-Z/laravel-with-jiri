@@ -361,7 +361,7 @@ class AdminStepTest extends TestCase
 
         $this->asAdmin()->get("/admin/courses/{$course->id}/lessons/{$lesson->id}/steps")
             ->assertOk()
-            ->assertSee('No steps yet.');
+            ->assertSee(__('admin.no_steps_yet'));
     }
 
     public function test_admin_step_list_renders_table_headers(): void
@@ -396,7 +396,7 @@ class AdminStepTest extends TestCase
 
         $this->asAdmin()->get("/admin/courses/{$course->id}/lessons/{$lesson->id}/steps?q=zzz_nonexistent")
             ->assertOk()
-            ->assertSee('No steps found.')
+            ->assertSee(__('admin.no_steps_found'))
             ->assertDontSee('Alpha');
     }
 

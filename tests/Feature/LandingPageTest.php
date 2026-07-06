@@ -33,7 +33,7 @@ class LandingPageTest extends TestCase
 
     public function test_landing_page_shows_registration_link(): void
     {
-        $this->get('/')->assertSee('Start Learning Free');
+        $this->get('/')->assertSee(__('landing.hero_cta_start'));
     }
 
     public function test_authenticated_user_sees_courses_link(): void
@@ -43,13 +43,13 @@ class LandingPageTest extends TestCase
         $this->actingAs($user)
             ->get('/')
             ->assertOk()
-            ->assertSee('Dashboard');
+            ->assertSee(__('Dashboard'));
     }
 
     public function test_landing_page_shows_empty_state_when_no_courses(): void
     {
         $this->get('/')
             ->assertOk()
-            ->assertSee('No courses published yet');
+            ->assertSee(__('landing.courses_empty'));
     }
 }

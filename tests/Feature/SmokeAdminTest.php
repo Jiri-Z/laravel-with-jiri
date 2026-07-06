@@ -21,13 +21,13 @@ class SmokeAdminTest extends TestCase
 
         $this->actingAs($user)->get('/admin/courses/create')
             ->assertOk()
-            ->assertSee('New Course')
-            ->assertSee('Create Course');
+            ->assertSee(__('admin.new_course'))
+            ->assertSee(__('admin.submit_create', ['resource' => __('admin.resource_course')]));
 
         $course = Course::factory()->create();
         $this->actingAs($user)->get("/admin/courses/{$course->id}/edit")
             ->assertOk()
-            ->assertSee('Edit Course');
+            ->assertSee(__('admin.edit_course'));
     }
 
     public function test_instructor_can_manage_courses_via_http(): void

@@ -26,6 +26,11 @@ class AdminCourseList extends Component
         $this->authorize('viewAny', Course::class);
     }
 
+    public function updatedSearch(): void
+    {
+        $this->resetPageOnSearch();
+    }
+
     public function delete(int $courseId): void
     {
         $this->deleteItem(Course::findOrFail($courseId));

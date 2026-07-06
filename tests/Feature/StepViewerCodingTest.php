@@ -23,7 +23,7 @@ class StepViewerCodingTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('Write a PHP function that returns the sum of two numbers.');
-        $response->assertSee('Run Code');
+        $response->assertSee(__('steps.coding_run'));
     }
 
     public function test_coding_viewer_can_mark_complete(): void

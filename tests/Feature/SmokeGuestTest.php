@@ -13,8 +13,8 @@ class SmokeGuestTest extends TestCase
 
     public function test_landing_and_legal_pages(): void
     {
-        $this->get('/')->assertOk()->assertSee('Laravel With Jiri');
-        $this->get('/terms')->assertOk()->assertSee('Terms of Service');
-        $this->get('/privacy')->assertOk()->assertSee('Privacy Policy');
+        $this->get('/')->assertOk()->assertSee(__('navigation.logo_text'));
+        $this->get('/terms')->assertOk()->assertSee(__('legal.terms_title'));
+        $this->get('/privacy')->assertOk()->assertSee(__('legal.privacy_title'));
     }
 }
