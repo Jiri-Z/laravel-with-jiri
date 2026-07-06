@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Actions;
 
-use App\Livewire\Actions\SwitchLocale;
+use App\Actions\SwitchLocale;
 use App\Models\User;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Session;
@@ -26,7 +26,7 @@ class SwitchLocaleTest extends TestCase
         $user = User::factory()->create(['locale' => 'en']);
 
         $this->actingAs($user);
-        ($this->switcher)('cs');
+        $this->switcher->handle('cs');
 
         $this->assertEquals('cs', $user->fresh()->locale);
         $this->assertEquals('cs', Session::get('locale'));
@@ -38,7 +38,7 @@ class SwitchLocaleTest extends TestCase
         $user = User::factory()->create(['locale' => 'cs']);
 
         $this->actingAs($user);
-        ($this->switcher)('en');
+        $this->switcher->handle('en');
 
         $this->assertEquals('en', $user->fresh()->locale);
         $this->assertEquals('en', Session::get('locale'));
@@ -47,7 +47,7 @@ class SwitchLocaleTest extends TestCase
 
     public function test_switches_locale_for_guest_via_session(): void
     {
-        ($this->switcher)('cs');
+        $this->switcher->handle('cs');
 
         $this->assertNull(auth()->user());
         $this->assertEquals('cs', Session::get('locale'));
@@ -59,7 +59,7 @@ class SwitchLocaleTest extends TestCase
         App::setLocale('en');
         Session::put('locale', 'en');
 
-        ($this->switcher)('de');
+        $this->switcher->handle('de');
 
         $this->assertEquals('en', Session::get('locale'));
         $this->assertEquals('en', App::getLocale());
@@ -70,7 +70,7 @@ class SwitchLocaleTest extends TestCase
         App::setLocale('en');
         Session::put('locale', 'en');
 
-        ($this->switcher)('cs');
+        $this->switcher->handle('cs');
 
         $this->assertEquals('cs', Session::get('locale'));
     }

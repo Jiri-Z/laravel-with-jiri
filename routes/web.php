@@ -1,8 +1,8 @@
 <?php
 
 use App\Actions\EnrollInCourse;
+use App\Actions\SwitchLocale;
 use App\Http\Controllers\LandingController;
-use App\Livewire\Actions\SwitchLocale;
 use App\Livewire\AdminCourseForm;
 use App\Livewire\AdminCourseList;
 use App\Livewire\AdminLessonForm;
@@ -60,7 +60,7 @@ Route::view('profile', 'profile')
 
 Route::post('/locale', function (SwitchLocale $switcher) {
     $locale = request()->input('locale', 'en');
-    $switcher($locale);
+    $switcher->handle($locale);
 
     return redirect()->back();
 })->name('locale.switch');
