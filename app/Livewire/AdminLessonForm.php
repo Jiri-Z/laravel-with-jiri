@@ -49,6 +49,9 @@ class AdminLessonForm extends Component
         }
     }
 
+    /**
+     * @return array<string, list<string>|string>
+     */
     public function validationRules(): array
     {
         $lessonId = $this->lesson?->id;

@@ -71,9 +71,9 @@ class AdminStepForm extends Component
                 $this->testCode = $data['test_code'];
                 $this->expectedOutput = $data['expected_output'];
             } elseif ($stepType === StepType::Quiz) {
-                $this->questions = json_decode($step->content, true) ?? [];
+                $this->questions = json_decode($step->quiz_content ?? $step->content, true) ?? [];
             } else {
-                $this->content = $step->content;
+                $this->content = $step->reading_content ?? $step->content ?? '';
             }
         } else {
             $this->authorize('create', Step::class);
@@ -123,7 +123,18 @@ class AdminStepForm extends Component
 
         $this->validate($this->validationRules());
 
-        $content = match ($this->type) {
+        $data = [
+            'lesson_id' => $this->lesson->id,
+            'title' => $this->title,
+            'type' => $this->type,
+            'order' => $this->order,
+        ];
+
+        $data[match ($this->type) {
+            StepType::Coding->value => 'coding_content',
+            StepType::Quiz->value => 'quiz_content',
+            default => 'reading_content',
+        }] = match ($this->type) {
             StepType::Coding->value => json_encode([
                 'prompt' => $this->prompt,
                 'initial_code' => $this->initialCode,
@@ -133,14 +144,6 @@ class AdminStepForm extends Component
             StepType::Quiz->value => json_encode($this->questions),
             default => $this->content,
         };
-
-        $data = [
-            'lesson_id' => $this->lesson->id,
-            'title' => $this->title,
-            'type' => $this->type,
-            'content' => $content,
-            'order' => $this->order,
-        ];
 
         if ($this->step) {
             $this->step->update($data);

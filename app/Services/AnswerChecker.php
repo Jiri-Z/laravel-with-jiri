@@ -6,6 +6,9 @@ namespace App\Services;
 
 class AnswerChecker
 {
+    /**
+     * @param  array<string, mixed>  $content
+     */
     public function check(string $type, mixed $userAnswer, array $content): bool
     {
         $correctAnswer = $content['answer']
@@ -46,6 +49,9 @@ class AnswerChecker
         return $userSet === $correctSet;
     }
 
+    /**
+     * @param  list<string>  $alternatives
+     */
     public function checkText(mixed $userAnswer, string $correctAnswer, array $alternatives = []): bool
     {
         if (! is_string($userAnswer) || trim($userAnswer) === '') {
@@ -68,6 +74,9 @@ class AnswerChecker
         return false;
     }
 
+    /**
+     * @return list<mixed>
+     */
     private function resolveArray(mixed $value): array
     {
         if (is_array($value)) {

@@ -80,7 +80,7 @@ class SmokeAdminTest extends TestCase
         $step = $lesson->steps()->create([
             'title' => 'Admin Step',
             'type' => StepType::Reading,
-            'content' => 'Step content',
+            'reading_content' => 'Step content',
             'order' => 1,
         ]);
 

@@ -60,7 +60,7 @@ class AdminStepTest extends TestCase
         $component
             ->set('title', 'Updated Step')
             ->set('type', $step->type->value)
-            ->set('content', $step->content)
+            ->set('content', $step->reading_content)
             ->call('save')
             ->assertRedirect("/admin/courses/{$course->id}/lessons/{$lesson->id}/steps");
 
@@ -243,7 +243,7 @@ class AdminStepTest extends TestCase
         $step = Step::where('lesson_id', $lesson->id)->where('title', 'Quiz Step')->first();
         $this->assertNotNull($step);
 
-        $savedQuestions = json_decode((string) $step->content, true);
+        $savedQuestions = json_decode((string) $step->quiz_content, true);
         $this->assertIsArray($savedQuestions);
         $this->assertCount(1, $savedQuestions);
         $this->assertEquals('What is 2+2?', $savedQuestions[0]['question']);
@@ -259,7 +259,7 @@ class AdminStepTest extends TestCase
         $step = Step::factory()->create([
             'lesson_id' => $lesson->id,
             'type' => StepType::Quiz,
-            'content' => json_encode([
+            'quiz_content' => json_encode([
                 ['type' => 'single', 'question' => 'Original?', 'options' => ['A', 'B'], 'answer' => 0, 'explanation' => '', 'difficulty' => 'easy', 'topic' => 'general'],
             ]),
         ]);
@@ -285,7 +285,7 @@ class AdminStepTest extends TestCase
             ->assertRedirect("/admin/courses/{$course->id}/lessons/{$lesson->id}/steps");
 
         $step->refresh();
-        $savedQuestions = json_decode((string) $step->content, true);
+        $savedQuestions = json_decode((string) $step->quiz_content, true);
         $this->assertCount(1, $savedQuestions);
         $this->assertEquals('Edited question?', $savedQuestions[0]['question']);
         $this->assertEquals(['X', 'Y', 'Z'], $savedQuestions[0]['options']);
@@ -491,7 +491,7 @@ class AdminStepTest extends TestCase
         ]);
 
         $step = Step::where('lesson_id', $lesson->id)->where('title', 'Coding Step')->first();
-        $content = json_decode((string) $step->content, true);
+        $content = json_decode((string) $step->coding_content, true);
         $this->assertSame('Write PHP', $content['prompt']);
         $this->assertSame("<?php\necho 'hi';", $content['initial_code']);
         $this->assertSame("<?php\nassert(true);", $content['test_code']);
@@ -555,7 +555,7 @@ class AdminStepTest extends TestCase
             'lesson_id' => $lesson->id,
             'title' => 'Reading Step',
             'type' => StepType::Reading->value,
-            'content' => 'Simple text',
+            'reading_content' => 'Simple text',
         ]);
     }
 

@@ -229,7 +229,7 @@ class StepViewerReadingTest extends TestCase
         [$user, $course, $lesson] = $this->enrolledUser();
         $step = Step::factory()->reading()->create([
             'lesson_id' => $lesson->id,
-            'content' => 'This is **bold** text.',
+            'reading_content' => 'This is **bold** text.',
         ]);
 
         Livewire::actingAs($user)
@@ -246,7 +246,7 @@ class StepViewerReadingTest extends TestCase
         [$user, $course, $lesson] = $this->enrolledUser();
         $step = Step::factory()->reading()->create([
             'lesson_id' => $lesson->id,
-            'content' => 'Use the `User::find()` method.',
+            'reading_content' => 'Use the `User::find()` method.',
         ]);
 
         Livewire::actingAs($user)
@@ -263,7 +263,7 @@ class StepViewerReadingTest extends TestCase
         [$user, $course, $lesson] = $this->enrolledUser();
         $step = Step::factory()->reading()->create([
             'lesson_id' => $lesson->id,
-            'content' => "```php\necho 'hello';\n```",
+            'reading_content' => "```php\necho 'hello';\n```",
         ]);
 
         Livewire::actingAs($user)
@@ -280,7 +280,7 @@ class StepViewerReadingTest extends TestCase
         [$user, $course, $lesson] = $this->enrolledUser();
         $step = Step::factory()->reading()->create([
             'lesson_id' => $lesson->id,
-            'content' => "- Item 1\n- Item 2\n- Item 3",
+            'reading_content' => "- Item 1\n- Item 2\n- Item 3",
         ]);
 
         Livewire::actingAs($user)
@@ -299,7 +299,7 @@ class StepViewerReadingTest extends TestCase
         [$user, $course, $lesson] = $this->enrolledUser();
         $step = Step::factory()->reading()->create([
             'lesson_id' => $lesson->id,
-            'content' => '<script>alert(1)</script>',
+            'reading_content' => '<script>alert(1)</script>',
         ]);
 
         Livewire::actingAs($user)

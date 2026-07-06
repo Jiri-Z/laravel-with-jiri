@@ -17,8 +17,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * @method static Builder<self> published()
  * @method static Builder<self> ordered()
- *
- * @mixin IdeHelperCourse
  */
 #[Fillable(['title', 'slug', 'description', 'published', 'order', 'user_id'])]
 class Course extends Model

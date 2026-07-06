@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Models\Course;
 use App\Models\Lesson;
+use App\Models\Step;
 use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -19,6 +20,10 @@ class ProgressService
         return $results[$course->id] ?? 0.0;
     }
 
+    /**
+     * @param  Collection<int, Course>  $courses
+     * @return array<int, float>
+     */
     public function courseProgressBatch(User $user, Collection $courses): array
     {
         $courseIds = $courses->pluck('id')->all();
@@ -60,6 +65,10 @@ class ProgressService
         return $results[$lesson->id] ?? false;
     }
 
+    /**
+     * @param  Collection<int, Lesson>  $lessons
+     * @return array<int, bool>
+     */
     public function lessonCompleteBatch(User $user, Collection $lessons): array
     {
         $lessonIds = $lessons->pluck('id')->all();
@@ -91,6 +100,10 @@ class ProgressService
         return $result;
     }
 
+    /**
+     * @param  Collection<int, Step>  $steps
+     * @return array<int, bool>
+     */
     public function stepCompleteBatch(User $user, Collection $steps): array
     {
         $stepIds = $steps->pluck('id')->all();

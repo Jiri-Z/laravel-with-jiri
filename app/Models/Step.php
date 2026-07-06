@@ -18,10 +18,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * @method static Builder<self> ordered()
  * @method static Builder<self> published()
- *
- * @mixin IdeHelperStep
  */
-#[Fillable(['lesson_id', 'title', 'type', 'content', 'order', 'published'])]
+#[Fillable(['lesson_id', 'title', 'type', 'content', 'reading_content', 'quiz_content', 'coding_content', 'order', 'published'])]
 class Step extends Model
 {
     /** @use HasFactory<StepFactory> */
@@ -86,17 +84,30 @@ class Step extends Model
     /** @return ?array<int|string, mixed> */
     public function getContentAsArray(): ?array
     {
-        if (empty($this->content) || ! json_validate($this->content)) {
+        $source = match ($this->type) {
+            StepType::Quiz => $this->quiz_content ?? $this->content,
+            default => $this->content,
+        };
+
+        if (empty($source) || ! json_validate($source)) {
             return null;
         }
 
-        return json_decode($this->content, true);
+        return json_decode($source, true);
     }
 
     /** @return array{prompt: string, initial_code: string, test_code: string, expected_output: string} */
     public function getCodingData(): array
     {
-        $data = $this->getContentAsArray();
+        $source = match ($this->type) {
+            StepType::Coding => $this->coding_content ?? $this->content,
+            default => $this->content,
+        };
+
+        $data = null;
+        if (! empty($source) && json_validate($source)) {
+            $data = json_decode($source, true);
+        }
 
         if (! is_array($data)) {
             return ['prompt' => '', 'initial_code' => '', 'test_code' => '', 'expected_output' => ''];

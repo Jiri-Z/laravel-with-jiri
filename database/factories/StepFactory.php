@@ -20,7 +20,7 @@ class StepFactory extends Factory
             'lesson_id' => Lesson::factory(),
             'title' => fake()->sentence(3),
             'type' => StepType::Reading,
-            'content' => __('factories.step_reading_default'),
+            'reading_content' => __('factories.step_reading_default'),
             'order' => fake()->numberBetween(1, 1000),
             'published' => true,
         ];
@@ -30,7 +30,7 @@ class StepFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'type' => StepType::Reading,
-            'content' => __('factories.step_reading_content'),
+            'reading_content' => __('factories.step_reading_content'),
         ]);
     }
 
@@ -38,7 +38,7 @@ class StepFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'type' => StepType::Quiz,
-            'content' => json_encode([
+            'quiz_content' => json_encode([
                 [
                     'type' => 'single',
                     'question' => __('factories.quiz_single_question'),
@@ -56,7 +56,7 @@ class StepFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'type' => StepType::Quiz,
-            'content' => json_encode([
+            'quiz_content' => json_encode([
                 [
                     'type' => 'multiple',
                     'question' => __('factories.quiz_multiple_question'),
@@ -74,7 +74,7 @@ class StepFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'type' => StepType::Quiz,
-            'content' => json_encode([
+            'quiz_content' => json_encode([
                 [
                     'type' => 'text',
                     'question' => __('factories.quiz_text_question'),
@@ -92,7 +92,7 @@ class StepFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'type' => StepType::Quiz,
-            'content' => json_encode([
+            'quiz_content' => json_encode([
                 [
                     'type' => 'single',
                     'question' => __('factories.quiz_single_question'),
@@ -128,7 +128,7 @@ class StepFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'type' => StepType::Coding,
-            'content' => json_encode([
+            'coding_content' => json_encode([
                 'prompt' => __('factories.coding_prompt'),
                 'initial_code' => __('factories.coding_initial_code'),
                 'test_code' => __('factories.coding_test_code'),

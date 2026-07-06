@@ -38,7 +38,7 @@ test('step factory reading default uses czech content when locale is cs', functi
     $step = Step::factory()->create();
     App::setLocale('en');
 
-    expect($step->content)->toStartWith('CS:');
+    expect($step->reading_content)->toStartWith('CS:');
 });
 
 test('step factory reading state uses czech content when locale is cs', function () {
@@ -46,7 +46,7 @@ test('step factory reading state uses czech content when locale is cs', function
     $step = Step::factory()->reading()->create();
     App::setLocale('en');
 
-    expect($step->content)->toStartWith('CS:');
+    expect($step->reading_content)->toStartWith('CS:');
 });
 
 test('step factory quiz single state uses czech question when locale is cs', function () {
@@ -54,7 +54,7 @@ test('step factory quiz single state uses czech question when locale is cs', fun
     $step = Step::factory()->quizSingle()->create();
     App::setLocale('en');
 
-    $content = json_decode($step->content, true);
+    $content = json_decode((string) $step->quiz_content, true);
     expect($content[0]['question'])->toStartWith('CS:');
 });
 
@@ -63,7 +63,7 @@ test('step factory quiz multiple state uses czech question when locale is cs', f
     $step = Step::factory()->quizMultiple()->create();
     App::setLocale('en');
 
-    $content = json_decode($step->content, true);
+    $content = json_decode((string) $step->quiz_content, true);
     expect($content[0]['question'])->toStartWith('CS:');
 });
 
@@ -72,7 +72,7 @@ test('step factory quiz text state uses czech question when locale is cs', funct
     $step = Step::factory()->quizText()->create();
     App::setLocale('en');
 
-    $content = json_decode($step->content, true);
+    $content = json_decode((string) $step->quiz_content, true);
     expect($content[0]['question'])->toStartWith('CS:');
 });
 
@@ -81,6 +81,6 @@ test('step factory coding state uses czech prompt when locale is cs', function (
     $step = Step::factory()->coding()->create();
     App::setLocale('en');
 
-    $content = json_decode($step->content, true);
+    $content = json_decode((string) $step->coding_content, true);
     expect($content['prompt'])->toStartWith('CS:');
 });

@@ -66,7 +66,7 @@ class CourseSeeder extends Seeder
             [
                 'title' => __('factories.seeder_step1_title'),
                 'type' => StepType::Reading,
-                'content' => __('factories.seeder_step1_content'),
+                'reading_content' => __('factories.seeder_step1_content'),
             ]
         );
 
@@ -75,7 +75,7 @@ class CourseSeeder extends Seeder
             [
                 'title' => __('factories.seeder_step2_title'),
                 'type' => StepType::Quiz,
-                'content' => json_encode([
+                'quiz_content' => json_encode([
                     ['type' => 'single', 'question' => __('factories.seeder_quiz1_question'), 'options' => __('factories.seeder_quiz1_options'), 'answer' => 1, 'explanation' => 'MVC is the correct answer.', 'difficulty' => 'easy', 'topic' => 'laravel'],
                 ]),
             ]
@@ -86,7 +86,7 @@ class CourseSeeder extends Seeder
             [
                 'title' => __('factories.seeder_step4_title'),
                 'type' => StepType::Quiz,
-                'content' => json_encode([
+                'quiz_content' => json_encode([
                     ['type' => 'text', 'question' => __('factories.seeder_quiz4_question'), 'answer' => __('factories.seeder_quiz4_answer'), 'alternatives' => null, 'explanation' => 'Web routes are defined in routes/web.php.', 'difficulty' => 'easy', 'topic' => 'laravel'],
                 ]),
             ]
@@ -97,7 +97,7 @@ class CourseSeeder extends Seeder
             [
                 'title' => __('factories.seeder_step3_title'),
                 'type' => StepType::Quiz,
-                'content' => json_encode([
+                'quiz_content' => json_encode([
                     ['type' => 'single', 'question' => __('factories.seeder_quiz2_question'), 'options' => __('factories.seeder_quiz2_options'), 'answer' => 1, 'explanation' => 'Web routes are defined in routes/web.php.', 'difficulty' => 'easy', 'topic' => 'laravel'],
                     ['type' => 'text', 'question' => __('factories.seeder_quiz3_question'), 'answer' => __('factories.seeder_quiz3_answer'), 'alternatives' => ['blade', 'Blade templating engine'], 'explanation' => 'Blade is Laravels templating engine.', 'difficulty' => 'easy', 'topic' => 'laravel'],
                 ]),
@@ -119,7 +119,7 @@ class CourseSeeder extends Seeder
             [
                 'title' => __('factories.seeder_step5_title'),
                 'type' => StepType::Reading,
-                'content' => __('factories.seeder_step5_content'),
+                'reading_content' => __('factories.seeder_step5_content'),
             ]
         );
 
@@ -128,7 +128,7 @@ class CourseSeeder extends Seeder
             [
                 'title' => __('factories.seeder_step6_title'),
                 'type' => StepType::Quiz,
-                'content' => json_encode([
+                'quiz_content' => json_encode([
                     ['type' => 'multiple', 'question' => __('factories.seeder_quiz5_question'), 'options' => __('factories.seeder_quiz5_options'), 'answer' => [0, 1, 2, 3], 'explanation' => 'GET, POST, PUT, and DELETE are standard HTTP methods.', 'difficulty' => 'easy', 'topic' => 'laravel'],
                 ]),
             ]
@@ -160,7 +160,7 @@ class CourseSeeder extends Seeder
             [
                 'title' => __('factories.seeder_step7_title'),
                 'type' => StepType::Reading,
-                'content' => __('factories.seeder_step7_content'),
+                'reading_content' => __('factories.seeder_step7_content'),
             ]
         );
 
@@ -169,7 +169,7 @@ class CourseSeeder extends Seeder
             [
                 'title' => __('factories.seeder_step8_title'),
                 'type' => StepType::Coding,
-                'content' => json_encode([
+                'coding_content' => json_encode([
                     'prompt' => __('factories.seeder_coding1_prompt'),
                     'initial_code' => __('factories.seeder_coding1_initial_code'),
                     'test_code' => __('factories.seeder_coding1_test_code'),

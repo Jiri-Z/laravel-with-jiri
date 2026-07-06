@@ -42,6 +42,9 @@ class Dashboard extends Component
         return view('livewire.dashboard', compact('courses', 'progressData', 'totalCompleted', 'recentCompletions', 'resumeStep'));
     }
 
+    /**
+     * @param  Collection<int, Course>  $courses
+     */
     private function findResumeStep(Collection $courses): ?Step
     {
         $courseIds = $courses->pluck('id');

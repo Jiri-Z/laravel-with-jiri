@@ -11,9 +11,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/**
- * @mixin IdeHelperCourseEnrollment
- */
 #[Fillable(['user_id', 'course_id', 'enrolled_at'])]
 #[WithoutTimestamps]
 class CourseEnrollment extends Model
