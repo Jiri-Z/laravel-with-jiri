@@ -127,4 +127,44 @@ class AnswerCheckerTest extends TestCase
     {
         expect($this->checker->checkMultiple([], []))->toBeTrue();
     }
+
+    // --- check() with caller-style content arrays ---
+
+    public function test_check_single_with_correct_answer_fallback(): void
+    {
+        expect($this->checker->check('single', 2, ['correct_answer' => 2]))->toBeTrue();
+    }
+
+    public function test_check_multiple_with_correct_answer_fallback(): void
+    {
+        expect($this->checker->check('multiple', [1, 3], ['correct_answer' => [3, 1]]))->toBeTrue();
+    }
+
+    public function test_check_multiple_with_correct_answers_fallback(): void
+    {
+        expect($this->checker->check('multiple', [1, 3], ['correct_answers' => [3, 1]]))->toBeTrue();
+    }
+
+    public function test_check_text_with_alternatives(): void
+    {
+        expect($this->checker->check('text', 'Shakespeare', [
+            'answer' => 'William Shakespeare',
+            'alternatives' => ['Shakespeare'],
+        ]))->toBeTrue();
+    }
+
+    public function test_check_text_without_alternatives_falls_back_to_empty(): void
+    {
+        expect($this->checker->check('text', 'Paris', ['answer' => 'Paris']))->toBeTrue();
+    }
+
+    public function test_check_null_user_answer_returns_false(): void
+    {
+        expect($this->checker->check('single', null, ['answer' => 2]))->toBeFalse();
+    }
+
+    public function test_check_empty_string_user_answer_returns_false(): void
+    {
+        expect($this->checker->check('text', '', ['answer' => 'Paris']))->toBeFalse();
+    }
 }

@@ -68,18 +68,7 @@ class SubmitQuizAnswer
 
     private function checkAnswer(string $questionType, array $content, int|string|array|null $answer): bool
     {
-        $checker = new AnswerChecker;
-        $correctAnswer = $content['answer']
-            ?? $content['correct_answer']
-            ?? $content['correct_answers']
-            ?? null;
-
-        return match ($questionType) {
-            'single' => $checker->checkSingle($answer, $correctAnswer),
-            'multiple' => $checker->checkMultiple($answer, $correctAnswer),
-            'text' => $checker->checkText($answer, (string) ($correctAnswer ?? ''), $content['alternatives'] ?? []),
-            default => false,
-        };
+        return (new AnswerChecker)->check($questionType, $answer, $content);
     }
 
     private function serializeAnswer(string $questionType, int|string|array|null $answer): string

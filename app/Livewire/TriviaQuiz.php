@@ -188,18 +188,7 @@ class TriviaQuiz extends Component
      * @param string|array<int, string>|null $userAnswer */
     private function checkAnswer(array $question, string|array|null $userAnswer): bool
     {
-        if ($userAnswer === null || $userAnswer === '') {
-            return false;
-        }
-
-        $checker = new AnswerChecker;
-
-        return match ($question['type']) {
-            'single' => $checker->checkSingle($userAnswer, $question['answer']),
-            'multiple' => $checker->checkMultiple($userAnswer, $question['answer']),
-            'text' => $checker->checkText($userAnswer, $question['answer'], $question['alternatives'] ?? []),
-            default => false,
-        };
+        return (new AnswerChecker)->check($question['type'], $userAnswer, $question);
     }
 
     /** @param array<string, mixed> $question */

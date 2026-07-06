@@ -8,10 +8,15 @@ class AnswerChecker
 {
     public function check(string $type, mixed $userAnswer, array $content): bool
     {
+        $correctAnswer = $content['answer']
+            ?? $content['correct_answer']
+            ?? $content['correct_answers']
+            ?? null;
+
         return match ($type) {
-            'single' => $this->checkSingle($userAnswer, $content['answer'] ?? null),
-            'multiple' => $this->checkMultiple($userAnswer, $content['answer'] ?? []),
-            'text' => $this->checkText($userAnswer, $content['answer'] ?? '', $content['alternatives'] ?? []),
+            'single' => $this->checkSingle($userAnswer, $correctAnswer),
+            'multiple' => $this->checkMultiple($userAnswer, $correctAnswer),
+            'text' => $this->checkText($userAnswer, (string) ($correctAnswer ?? ''), $content['alternatives'] ?? []),
             default => false,
         };
     }
