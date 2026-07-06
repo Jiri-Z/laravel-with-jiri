@@ -39,7 +39,7 @@
 
                         <div class="flex items-center gap-3">
                             <button type="submit" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                {{ $lesson ? __('admin.submit_update', ['resource' => 'Lesson']) : __('admin.submit_create', ['resource' => 'Lesson']) }}
+                                {{ $lesson ? __('admin.submit_update', ['resource' => __('admin.resource_lesson')]) : __('admin.submit_create', ['resource' => __('admin.resource_lesson')]) }}
                             </button>
                             <a href="{{ route('admin.lessons.index', $course) }}" wire:navigate class="text-sm text-gray-600 dark:text-gray-400 hover:underline">{{ __('admin.cancel') }}</a>
                         </div>

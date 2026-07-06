@@ -1,6 +1,6 @@
 <?php
 
 return [
-    'saved' => 'Saved.',
-    'step_completed' => 'Complete the previous step first.',
+    'saved' => 'Uloženo.',
+    'step_completed' => 'Nejprve dokončete předchozí krok.',
 ];

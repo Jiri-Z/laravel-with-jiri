@@ -1,9 +1,9 @@
 <?php
 
 return [
-    'step_type_reading' => 'Reading',
-    'step_type_quiz_single' => 'Quiz',
-    'step_type_quiz_multiple' => 'Quiz',
-    'step_type_quiz_text' => 'Quiz',
-    'step_type_coding' => 'Coding',
+    'step_type_reading' => 'Čtení',
+    'step_type_quiz_single' => 'Kvíz',
+    'step_type_quiz_multiple' => 'Kvíz',
+    'step_type_quiz_text' => 'Kvíz',
+    'step_type_coding' => 'Kódování',
 ];

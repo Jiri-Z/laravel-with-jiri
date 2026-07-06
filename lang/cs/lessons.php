@@ -1,11 +1,11 @@
 <?php
 
 return [
-    'steps' => 'Steps',
-    'back' => '← Back to :course',
-    'locked' => 'Locked',
-    'completed' => 'Completed',
-    'no_steps' => 'No steps available yet.',
-    'step' => 'step',
-    'steps_count' => 'steps',
+    'steps' => 'Kroky',
+    'back' => '← Zpět na :course',
+    'locked' => 'Zamčeno',
+    'completed' => 'Dokončeno',
+    'no_steps' => 'Zatím žádné kroky.',
+    'step' => 'krok',
+    'steps_count' => 'kroků',
 ];

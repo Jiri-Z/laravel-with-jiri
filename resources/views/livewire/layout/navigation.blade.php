@@ -23,7 +23,7 @@ new class extends Component
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}" wire:navigate class="inline-flex items-center gap-2 text-lg font-bold text-gray-900 dark:text-white tracking-tight">
                         <x-application-logo class="w-6 h-6 text-indigo-600 dark:text-indigo-300" />
-                        <span class="hidden sm:inline">Laravel With <span class="text-indigo-600 dark:text-indigo-300">Jiri</span></span>
+                        <span class="hidden sm:inline">{{ __('navigation.logo_text') }}</span>
                     </a>
                 </div>
 
@@ -60,14 +60,14 @@ new class extends Component
                         @csrf
                         <input type="hidden" name="locale" value="en">
                         <button type="submit" class="px-2 py-1 text-xs font-medium rounded-md transition-colors {{ app()->getLocale() === 'en' ? 'bg-white dark:bg-gray-700 text-indigo-700 dark:text-indigo-300 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300' }}">
-                            EN
+                            {{ __('navigation.locale_en') }}
                         </button>
                     </form>
                     <form method="POST" action="{{ route('locale.switch') }}">
                         @csrf
                         <input type="hidden" name="locale" value="cs">
                         <button type="submit" class="px-2 py-1 text-xs font-medium rounded-md transition-colors {{ app()->getLocale() === 'cs' ? 'bg-white dark:bg-gray-700 text-indigo-700 dark:text-indigo-300 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300' }}">
-                            CS
+                            {{ __('navigation.locale_cs') }}
                         </button>
                     </form>
                 </div>
