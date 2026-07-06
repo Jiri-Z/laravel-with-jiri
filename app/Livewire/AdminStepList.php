@@ -38,17 +38,17 @@ class AdminStepList extends Component
 
     public function delete(int $stepId): void
     {
-        $this->deleteItem($stepId, Step::class);
+        $this->deleteItem(Step::findOrFail($stepId));
     }
 
     public function moveUp(int $stepId): void
     {
-        $this->moveItemUp($stepId, Step::class, 'lesson_id', $this->lesson->id);
+        $this->moveItemUp(Step::findOrFail($stepId), 'lesson_id');
     }
 
     public function moveDown(int $stepId): void
     {
-        $this->moveItemDown($stepId, Step::class, 'lesson_id', $this->lesson->id);
+        $this->moveItemDown(Step::findOrFail($stepId), 'lesson_id');
     }
 
     public function render(): View

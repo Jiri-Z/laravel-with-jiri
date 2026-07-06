@@ -28,17 +28,17 @@ class AdminCourseList extends Component
 
     public function delete(int $courseId): void
     {
-        $this->deleteItem($courseId, Course::class);
+        $this->deleteItem(Course::findOrFail($courseId));
     }
 
     public function moveUp(int $courseId): void
     {
-        $this->moveItemUp($courseId, Course::class);
+        $this->moveItemUp(Course::findOrFail($courseId));
     }
 
     public function moveDown(int $courseId): void
     {
-        $this->moveItemDown($courseId, Course::class);
+        $this->moveItemDown(Course::findOrFail($courseId));
     }
 
     public function render(): View

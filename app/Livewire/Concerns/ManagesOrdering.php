@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Concerns;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 trait ManagesOrdering
@@ -13,21 +14,21 @@ trait ManagesOrdering
         $this->resetPage();
     }
 
-    protected function deleteItem(int $id, string $modelClass): void
+    protected function deleteItem(Model $item): void
     {
-        $model = $modelClass::findOrFail($id);
-        $this->authorize('delete', $model);
-        $model->delete();
+        $this->authorize('delete', $item);
+        $item->delete();
     }
 
-    protected function moveItemUp(int $id, string $modelClass, ?string $parentFk = null, mixed $parentFkValue = null): void
+    protected function moveItemUp(Model $item, ?string $parentFk = null): void
     {
-        $model = $modelClass::findOrFail($id);
-        $this->authorize('update', $model);
+        $this->authorize('update', $item);
 
-        $query = $modelClass::where('order', '<', $model->getAttribute('order'));
+        $modelClass = $item::class;
+
+        $query = $modelClass::where('order', '<', $item->getAttribute('order'));
         if ($parentFk !== null) {
-            $query->where($parentFk, $parentFkValue);
+            $query->where($parentFk, $item->getAttribute($parentFk));
         }
         $previous = $query->orderBy('order', 'desc')->first();
 
@@ -35,24 +36,25 @@ trait ManagesOrdering
             return;
         }
 
-        $modelOrder = $model->getAttribute('order');
+        $itemOrder = $item->getAttribute('order');
         $previousOrder = $previous->getAttribute('order');
 
-        DB::transaction(function () use ($model, $modelOrder, $previous, $previousOrder): void {
+        DB::transaction(function () use ($item, $itemOrder, $previous, $previousOrder): void {
             $previous->update(['order' => -1]);
-            $model->update(['order' => $previousOrder]);
-            $previous->update(['order' => $modelOrder]);
+            $item->update(['order' => $previousOrder]);
+            $previous->update(['order' => $itemOrder]);
         });
     }
 
-    protected function moveItemDown(int $id, string $modelClass, ?string $parentFk = null, mixed $parentFkValue = null): void
+    protected function moveItemDown(Model $item, ?string $parentFk = null): void
     {
-        $model = $modelClass::findOrFail($id);
-        $this->authorize('update', $model);
+        $this->authorize('update', $item);
 
-        $query = $modelClass::where('order', '>', $model->getAttribute('order'));
+        $modelClass = $item::class;
+
+        $query = $modelClass::where('order', '>', $item->getAttribute('order'));
         if ($parentFk !== null) {
-            $query->where($parentFk, $parentFkValue);
+            $query->where($parentFk, $item->getAttribute($parentFk));
         }
         $next = $query->orderBy('order')->first();
 
@@ -60,13 +62,13 @@ trait ManagesOrdering
             return;
         }
 
-        $modelOrder = $model->getAttribute('order');
+        $itemOrder = $item->getAttribute('order');
         $nextOrder = $next->getAttribute('order');
 
-        DB::transaction(function () use ($model, $modelOrder, $next, $nextOrder): void {
+        DB::transaction(function () use ($item, $itemOrder, $next, $nextOrder): void {
             $next->update(['order' => -1]);
-            $model->update(['order' => $nextOrder]);
-            $next->update(['order' => $modelOrder]);
+            $item->update(['order' => $nextOrder]);
+            $next->update(['order' => $itemOrder]);
         });
     }
 }

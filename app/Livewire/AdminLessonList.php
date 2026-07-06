@@ -33,17 +33,17 @@ class AdminLessonList extends Component
 
     public function delete(int $lessonId): void
     {
-        $this->deleteItem($lessonId, Lesson::class);
+        $this->deleteItem(Lesson::findOrFail($lessonId));
     }
 
     public function moveUp(int $lessonId): void
     {
-        $this->moveItemUp($lessonId, Lesson::class, 'course_id', $this->course->id);
+        $this->moveItemUp(Lesson::findOrFail($lessonId), 'course_id');
     }
 
     public function moveDown(int $lessonId): void
     {
-        $this->moveItemDown($lessonId, Lesson::class, 'course_id', $this->course->id);
+        $this->moveItemDown(Lesson::findOrFail($lessonId), 'course_id');
     }
 
     public function render(): View
