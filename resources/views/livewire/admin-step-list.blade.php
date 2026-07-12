@@ -26,6 +26,7 @@
                             {{ $search ? __('admin.no_steps_found') : __('admin.no_steps_yet') }}
                         </p>
                     @else
+                        <div class="overflow-x-auto">
                         <table class="w-full text-left">
                             <thead>
                                 <tr class="border-b border-gray-200 dark:border-gray-700">
@@ -59,6 +60,7 @@
                                 @endforeach
                             </tbody>
                         </table>
+                        </div>
 
                         <div wire:loading class="flex justify-center py-4">
                             <svg class="animate-spin h-5 w-5 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
