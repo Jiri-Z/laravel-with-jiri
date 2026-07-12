@@ -60,6 +60,8 @@ class TriviaQuestionSeeder extends Seeder
             }
         }
 
-        TriviaQuestion::insert($records);
+        foreach (array_chunk($records, 50) as $chunk) {
+            TriviaQuestion::insert($chunk);
+        }
     }
 }

@@ -213,6 +213,30 @@ test('trivia question seeder sets correct locale', function () {
     expect($csCount)->toBeGreaterThan(0);
 });
 
+test('trivia prune removes stale questions not in YAML files', function () {
+    TriviaQuestion::truncate();
+
+    $seeder = new TriviaQuestionSeeder;
+    $seeder->run();
+
+    $enCount = TriviaQuestion::where('locale', 'en')->count();
+    $csCount = TriviaQuestion::where('locale', 'cs')->count();
+    expect($enCount)->toBe(406);
+    expect($csCount)->toBe(406);
+
+    TriviaQuestion::factory()->count(2)->create([
+        'locale' => 'en',
+        'topic' => 'routing',
+    ]);
+
+    expect(TriviaQuestion::where('locale', 'en')->count())->toBe(408);
+
+    $this->artisan('trivia:prune')->assertExitCode(0);
+
+    expect(TriviaQuestion::where('locale', 'en')->count())->toBe(406);
+    expect(TriviaQuestion::where('locale', 'cs')->count())->toBe(406);
+});
+
 test('czech difficulty badge renders correct color', function () {
     TriviaQuestion::insert(triviaQuestion([
         'topic' => 'routing',
