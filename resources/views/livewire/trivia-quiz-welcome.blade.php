@@ -38,6 +38,19 @@
     </p>
 </div>
 
+<div class="bg-white dark:bg-gray-750 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 mb-6">
+    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+        {{ __('trivia.question_count_label') }}: <span class="font-bold text-indigo-600 dark:text-indigo-400 text-lg">{{ $this->questionCount }}</span>
+    </label>
+    <input type="range" wire:model.live="questionCount"
+        min="1" max="{{ max($this->availableQuestionCount(), 1) }}"
+        class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 accent-indigo-600">
+    <div class="flex justify-between text-xs text-gray-400 mt-1">
+        <span>1</span>
+        <span>{{ $this->availableQuestionCount() }} {{ __('trivia.questions_available', ['count' => $this->availableQuestionCount(), 'topics' => count($this->selectedTopics)]) }}</span>
+    </div>
+</div>
+
 <div class="text-center">
     <button type="button" wire:click="start" @disabled(empty($selectedTopics))
         class="inline-flex items-center gap-2 px-8 py-3.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold rounded-xl shadow-lg shadow-indigo-600/25 hover:shadow-indigo-600/40 disabled:shadow-none transition-all duration-200 text-lg">

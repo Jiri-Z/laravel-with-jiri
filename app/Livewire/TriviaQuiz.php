@@ -31,12 +31,35 @@ class TriviaQuiz extends Component
 
     public ?int $attemptId = null;
 
+    public int $questionCount = 0;
+
     /** @var array<int, string|array<int, string>|null> */
     public array $userAnswers = [];
 
     public function mount(): void
     {
         $this->selectedTopics = $this->allTopics->all();
+        $this->questionCount = $this->availableQuestionCount();
+    }
+
+    public function availableQuestionCount(): int
+    {
+        if (empty($this->selectedTopics)) {
+            return 0;
+        }
+
+        return TriviaQuestion::where('locale', app()->getLocale())
+            ->whereIn('topic', $this->selectedTopics)
+            ->count();
+    }
+
+    public function updatedSelectedTopics(): void
+    {
+        $available = $this->availableQuestionCount();
+
+        if ($this->questionCount > $available) {
+            $this->questionCount = $available;
+        }
     }
 
     /** @return Collection<int, string> */
@@ -79,7 +102,7 @@ class TriviaQuiz extends Component
             return;
         }
 
-        $this->questions = $this->selectQuestions($pool, min(20, $pool->count()));
+        $this->questions = $this->selectQuestions($pool, min($this->questionCount, $pool->count()));
         $this->currentIndex = 0;
         $this->submitted = false;
         $this->userAnswers = [];
@@ -155,6 +178,7 @@ class TriviaQuiz extends Component
         $this->userAnswers = [];
         $this->attemptId = null;
         $this->selectedTopics = $this->allTopics->all();
+        $this->questionCount = $this->availableQuestionCount();
     }
 
     /** @param Collection<int, TriviaQuestion> $pool

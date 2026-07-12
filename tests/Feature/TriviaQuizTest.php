@@ -257,6 +257,52 @@ test('czech difficulty badge renders correct color', function () {
     $component->assertSeeHtml('bg-green-100');
 });
 
+test('question count slider defaults to total available questions', function () {
+    Livewire::actingAs($this->user)
+        ->test(TriviaQuiz::class)
+        ->assertSet('questionCount', 4);
+});
+
+test('can limit questions to a custom count below available', function () {
+    $component = Livewire::actingAs($this->user)
+        ->test(TriviaQuiz::class)
+        ->set('selectedTopics', ['routing', 'blade-templates'])
+        ->set('questionCount', 2)
+        ->call('start');
+
+    $component->assertCount('questions', 2);
+    $component->assertSet('screen', 'quiz');
+});
+
+test('question count clamps when topics are deselected', function () {
+    $component = Livewire::actingAs($this->user)
+        ->test(TriviaQuiz::class)
+        ->set('selectedTopics', ['routing', 'blade-templates'])
+        ->set('questionCount', 3)
+        ->set('selectedTopics', ['routing']);
+
+    $component->assertSet('questionCount', 2);
+});
+
+test('reset quiz resets question count to full available', function () {
+    $component = Livewire::actingAs($this->user)
+        ->test(TriviaQuiz::class)
+        ->set('selectedTopics', ['routing'])
+        ->set('questionCount', 1)
+        ->call('start');
+
+    $component->call('finish');
+
+    $component->call('resetQuiz');
+
+    $component->assertSet('questionCount', 4);
+
+    $topics = $component->get('selectedTopics');
+    expect($topics)->toHaveCount(2);
+    expect($topics)->toContain('routing');
+    expect($topics)->toContain('blade-templates');
+});
+
 test('dashboard shows trivia card', function () {
     $this->actingAs($this->user)
         ->get('/dashboard')

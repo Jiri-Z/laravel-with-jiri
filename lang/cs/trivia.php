@@ -3,7 +3,7 @@
 return [
     'title' => 'Laravel Trivia',
     'welcome_description' => 'Test your understanding of Laravel\'s core architecture and fundamentals.',
-    'welcome_draw_info' => 'Each session draws 20 random questions.',
+    'welcome_draw_info' => 'Choose your topics and how many questions to answer.',
     'select_topics' => 'Select Topics',
     'select_all' => 'Select All',
     'deselect_all' => 'Deselect All',
@@ -43,4 +43,5 @@ return [
     'correct_answer_label' => 'Correct answer:',
     'explanation' => 'Explanation:',
     'try_again' => 'Try Again',
+    'question_count_label' => 'Questions',
 ];
