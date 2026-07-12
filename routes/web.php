@@ -6,6 +6,7 @@ use App\Http\Controllers\LandingController;
 use App\Livewire\AdminCourseForm;
 use App\Livewire\AdminCourseList;
 use App\Livewire\AdminLessonForm;
+use App\Livewire\AdminLessonImport;
 use App\Livewire\AdminLessonList;
 use App\Livewire\AdminStepForm;
 use App\Livewire\AdminStepList;
@@ -43,6 +44,7 @@ Route::middleware(['auth', 'verified', 'staff'])->prefix('admin')->group(functio
 
     Route::get('/courses/{course}/lessons', AdminLessonList::class)->name('admin.lessons.index');
     Route::get('/courses/{course}/lessons/create', AdminLessonForm::class)->name('admin.lessons.create');
+    Route::get('/courses/{course}/lessons/import', AdminLessonImport::class)->name('admin.lessons.import');
     Route::get('/courses/{course}/lessons/{lesson}/edit', AdminLessonForm::class)->name('admin.lessons.edit');
 
     Route::get('/courses/{course}/lessons/{lesson}/steps', AdminStepList::class)->name('admin.steps.index');
