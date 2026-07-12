@@ -31,7 +31,8 @@ tasks.txt
 plan.txt
 localization_plan.txt
 review.md
-
+yamlinst.md
+ 
 /examples
 
 # Laravel Boost machine-local config
