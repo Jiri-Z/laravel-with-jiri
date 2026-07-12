@@ -77,7 +77,7 @@ class Step extends Model
 
     public function isAccessibleBy(User $user): bool
     {
-        return $this->lesson?->hasUserCompletedPreviousStep($user, $this) ?? false;
+        return $this->lesson?->hasUserUnlockedPreviousStep($user, $this) ?? false;
     }
 
     #[\Override]

@@ -88,7 +88,7 @@ test('first step is accessible when there is no previous step', function () {
     $lesson = Lesson::factory()->create(['course_id' => Course::factory()]);
     $step = Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 1]);
 
-    expect($lesson->hasUserCompletedPreviousStep($user, $step))->toBeTrue();
+    expect($lesson->hasUserUnlockedPreviousStep($user, $step))->toBeTrue();
 });
 
 test('step is accessible when previous step is completed', function () {
@@ -98,7 +98,7 @@ test('step is accessible when previous step is completed', function () {
     $step2 = Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 2]);
     StepCompletion::factory()->create(['user_id' => $user->id, 'step_id' => $step1->id]);
 
-    expect($lesson->hasUserCompletedPreviousStep($user, $step2))->toBeTrue();
+    expect($lesson->hasUserUnlockedPreviousStep($user, $step2))->toBeTrue();
 });
 
 test('step is locked when previous step is not completed', function () {
@@ -107,5 +107,5 @@ test('step is locked when previous step is not completed', function () {
     Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 1]);
     $step2 = Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 2]);
 
-    expect($lesson->hasUserCompletedPreviousStep($user, $step2))->toBeFalse();
+    expect($lesson->hasUserUnlockedPreviousStep($user, $step2))->toBeFalse();
 });

@@ -44,6 +44,7 @@ class ProgressService
             ->whereIn('lessons.course_id', $courseIds)
             ->where('lessons.published', true)
             ->where('steps.published', true)
+            ->whereNotNull('step_completions.completed_at')
             ->selectRaw('lessons.course_id, count(*) as total')
             ->groupBy('lessons.course_id')
             ->pluck('total', 'course_id');
@@ -88,6 +89,7 @@ class ProgressService
             ->where('step_completions.user_id', $user->id)
             ->whereIn('steps.lesson_id', $lessonIds)
             ->where('steps.published', true)
+            ->whereNotNull('step_completions.completed_at')
             ->selectRaw('steps.lesson_id, count(*) as total')
             ->groupBy('steps.lesson_id')
             ->pluck('total', 'lesson_id');
@@ -115,6 +117,7 @@ class ProgressService
         $completedIds = DB::table('step_completions')
             ->where('user_id', $user->id)
             ->whereIn('step_id', $stepIds)
+            ->whereNotNull('completed_at')
             ->pluck('step_id')
             ->all();
 

@@ -120,12 +120,12 @@ class StepViewerAccessTest extends TestCase
 
         $course->enrollments()->delete();
 
-        $component->complete();
+        $component->toggleComplete();
 
         expect($component->completed)->toBeFalse();
     }
 
-    public function test_step_viewer_complete_redirects_when_not_enrolled(): void
+    public function test_step_viewer_toggle_redirects_when_not_enrolled(): void
     {
         [$user, $course, $lesson, $step] = $this->enrolledUserWithStep();
 
@@ -138,7 +138,7 @@ class StepViewerAccessTest extends TestCase
 
         $course->enrollments()->delete();
 
-        $component->call('complete')
+        $component->call('toggleComplete')
             ->assertRedirect(route('courses.index'));
     }
 

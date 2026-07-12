@@ -51,13 +51,24 @@ class StepViewer extends Component
         $this->step = $step;
         $this->completed = StepCompletion::where('user_id', $user->id)
             ->where('step_id', $step->id)
+            ->whereNotNull('completed_at')
             ->exists();
     }
 
-    public function complete(): void
+    public function toggleComplete(): void
     {
         $user = auth()->user();
         if ($user === null) {
+            return;
+        }
+
+        if ($this->completed) {
+            StepCompletion::where('user_id', $user->id)
+                ->where('step_id', $this->step->id)
+                ->update(['completed_at' => null]);
+
+            $this->completed = false;
+
             return;
         }
 

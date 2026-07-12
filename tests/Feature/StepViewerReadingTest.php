@@ -23,16 +23,22 @@ class StepViewerReadingTest extends TestCase
                 'lesson' => $lesson,
                 'step' => $step,
             ])
-            ->call('complete')
+            ->call('toggleComplete')
             ->assertSet('completed', true);
 
         $this->assertDatabaseHas('step_completions', [
             'user_id' => $user->id,
             'step_id' => $step->id,
         ]);
+
+        $completion = StepCompletion::where('user_id', $user->id)
+            ->where('step_id', $step->id)
+            ->first();
+
+        expect($completion->unlocked_at)->not->toBeNull();
     }
 
-    public function test_user_cannot_complete_same_step_twice(): void
+    public function test_toggle_on_completed_step_unchecks_it(): void
     {
         [$user, $course, $lesson, $step] = $this->enrolledUserWithStep();
 
@@ -47,13 +53,12 @@ class StepViewerReadingTest extends TestCase
                 'lesson' => $lesson,
                 'step' => $step,
             ])
-            ->call('complete')
-            ->assertSet('completed', true);
-
-        $this->assertDatabaseCount('step_completions', 1);
+            ->assertSet('completed', true)
+            ->call('toggleComplete')
+            ->assertSet('completed', false);
     }
 
-    public function test_completed_step_shows_badge_not_button(): void
+    public function test_completed_step_shows_toggle_button(): void
     {
         [$user, $course, $lesson, $step] = $this->enrolledUserWithStep();
 
@@ -67,10 +72,10 @@ class StepViewerReadingTest extends TestCase
 
         $response->assertOk();
         $response->assertSee(__('steps.completed'));
-        $response->assertDontSee('Mark as Complete');
+        $response->assertDontSee(__('steps.mark_complete'));
     }
 
-    public function test_rapid_completion_does_not_duplicate(): void
+    public function test_rapid_toggle_flips_state(): void
     {
         [$user, $course, $lesson, $step] = $this->enrolledUserWithStep();
 
@@ -80,10 +85,10 @@ class StepViewerReadingTest extends TestCase
                 'lesson' => $lesson,
                 'step' => $step,
             ])
-            ->call('complete')
+            ->call('toggleComplete')
             ->assertSet('completed', true)
-            ->call('complete')
-            ->assertSet('completed', true);
+            ->call('toggleComplete')
+            ->assertSet('completed', false);
 
         $this->assertDatabaseCount('step_completions', 1);
     }
@@ -219,7 +224,7 @@ class StepViewerReadingTest extends TestCase
         $component->step = $secondStep;
         $component->completed = false;
 
-        $component->complete();
+        $component->toggleComplete();
 
         expect($component->completed)->toBeFalse();
     }

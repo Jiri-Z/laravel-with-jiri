@@ -47,6 +47,7 @@ class CodingViewer extends Component
 
         $this->completed = StepCompletion::where('user_id', $user->id)
             ->where('step_id', $this->step->id)
+            ->whereNotNull('completed_at')
             ->exists();
     }
 

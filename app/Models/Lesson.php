@@ -69,7 +69,7 @@ class Lesson extends Model
             ->orWhere('slug', 'like', "%{$term}%"));
     }
 
-    public function hasUserCompletedPreviousStep(User $user, Step $step): bool
+    public function hasUserUnlockedPreviousStep(User $user, Step $step): bool
     {
         $previousStep = $this->steps()
             ->where('order', '<', $step->order)
@@ -82,6 +82,7 @@ class Lesson extends Model
 
         return StepCompletion::where('user_id', $user->id)
             ->where('step_id', $previousStep->id)
+            ->whereNotNull('unlocked_at')
             ->exists();
     }
 

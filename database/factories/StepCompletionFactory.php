@@ -20,6 +20,7 @@ class StepCompletionFactory extends Factory
             'user_id' => User::factory(),
             'step_id' => Step::factory(),
             'completed_at' => now(),
+            'unlocked_at' => now(),
         ];
     }
 }

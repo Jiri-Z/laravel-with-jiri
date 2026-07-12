@@ -39,21 +39,25 @@ class LessonDetail extends Component
         $this->course = $course;
         $this->lesson = $lesson;
 
+        $stepIds = $lesson->steps->pluck('id');
+
         $completedStepIds = StepCompletion::where('user_id', auth()->id())
-            ->whereIn('step_id', $lesson->steps->pluck('id'))
+            ->whereIn('step_id', $stepIds)
+            ->whereNotNull('completed_at')
+            ->pluck('step_id')
+            ->all();
+
+        $unlockedStepIds = StepCompletion::where('user_id', auth()->id())
+            ->whereIn('step_id', $stepIds)
+            ->whereNotNull('unlocked_at')
             ->pluck('step_id')
             ->all();
 
         $completion = [];
         $locked = [];
-        $previousCompleted = true;
         foreach ($lesson->steps as $step) {
-            $stepDone = in_array($step->id, $completedStepIds, true);
-            $completion[$step->id] = $stepDone;
-            $locked[$step->id] = ! $previousCompleted;
-            if (! $stepDone) {
-                $previousCompleted = false;
-            }
+            $completion[$step->id] = in_array($step->id, $completedStepIds, true);
+            $locked[$step->id] = $step->order !== 1 && ! in_array($step->id, $unlockedStepIds, true);
         }
         $this->stepCompletion = $completion;
         $this->stepLocked = $locked;

@@ -158,7 +158,7 @@ class SmokeStudentTest extends TestCase
                 'step' => $step,
             ])
             ->assertSet('completed', false)
-            ->call('complete')
+            ->call('toggleComplete')
             ->assertSet('completed', true);
     }
 
