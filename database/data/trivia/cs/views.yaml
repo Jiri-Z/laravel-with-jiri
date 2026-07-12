@@ -1,0 +1,384 @@
+- id: vw-001
+  topic: views
+  type: single
+  difficulty: lehká
+  question: Co vrací helper funkce view('welcome', ['name' => 'Taylor']) v Laravelu?
+  options:
+  - Řetězec obsahující vyrenderované HTML
+  - Instanci kompilátoru Blade šablon
+  - Instanci Illuminate\View\View
+  - Objekt Response připravený k odeslání
+  answer: Instanci Illuminate\View\View
+  explanation: Helper view() vrací instanci View, nikoliv vyrenderovaný řetězec nebo Response. Instance View implementuje __toString(), takže když na ni narazí Laravelův systém odpovědí, automaticky view
+    vyrenderuje a zabalí do Response. Na instanci View můžete také řetězit metody jako ->with() před jejím vyrenderováním.
+- id: vw-002
+  topic: views
+  type: multiple
+  difficulty: lehká
+  question: Které z následujících jsou platné způsoby předání dat do view v Laravelu? (Vyberte všechny, které platí)
+  options:
+  - view('welcome')->withName('Taylor')
+  - view('welcome', compact('name'))
+  - view('welcome')->with('name', 'Taylor')
+  - view('welcome', ['name' => 'Taylor'])
+  answers:
+  - view('welcome', ['name' => 'Taylor'])
+  - view('welcome')->with('name', 'Taylor')
+  - view('welcome')->withName('Taylor')
+  - view('welcome', compact('name'))
+  explanation: 'Laravel nabízí více způsobů předání dat: asociativní pole jako druhý argument, řetězená volání with(), magické metody __call (withName) a funkci compact() z PHP. Dynamický přístup (withName)
+    odvozuje název proměnné odstraněním „with" a malým počátečním písmenem.'
+- id: vw-003
+  topic: views
+  type: text
+  difficulty: lehká
+  question: Jaká metoda kontroluje, zda view soubor existuje, než se jej pokusí vyrenderovat?
+  answer: exists
+  alternatives:
+  - exists()
+  - view()->exists()
+  - View::exists()
+  explanation: 'Metoda exists() vrací boolean indikující, zda lze šablonu view najít v některé z registrovaných cest k views. To je užitečné pro podmíněné vyrenderování view nebo fallback na alternativu:
+    if (view()->exists(''custom.dashboard'')) { return view(''custom.dashboard''); }. K dispozici je také View::first(), který zkouší více views v pořadí.'
+- id: vw-004
+  topic: views
+  type: single
+  difficulty: lehká
+  question: Kde jsou Blade view soubory typicky uloženy v Laravel aplikaci?
+  options:
+  - storage/views/
+  - app/Http/Views/
+  - resources/views/
+  - public/templates/
+  answer: resources/views/
+  explanation: Ve výchozím nastavení Laravel ukládá všechny Blade šablony v adresáři resources/views/. Tato konvence odděluje prezentační logiku od aplikačního kódu. Podadresáře v této složce se mapují
+    na tečkovou notaci v názvech views — například resources/views/dashboard/profile.blade.php je odkazováno jako 'dashboard.profile'.
+- id: vw-005
+  topic: views
+  type: single
+  difficulty: lehká
+  question: Co dělá metoda View::share('key', 'value')?
+  options:
+  - Sdílí data se všemi views vyrenderovanými pouze v rámci životního cyklu aktuálního HTTP požadavku, nikoli napříč požadavky
+  - Vytváří symbolický odkaz filesystému mezi dvěma samostatnými view adresáři pro sdílení šablon mezi nimi
+  - Sdílí konkrétní šablonu view s jinými Laravel aplikacemi běžícími na stejné serverové instanci
+  - Sdílí data se všemi views vyrenderovanými po celou dobu životního cyklu aplikace
+  answer: Sdílí data se všemi views vyrenderovanými po celou dobu životního cyklu aplikace
+  explanation: View::share() registruje data, která jsou automaticky dostupná v každém view vyrenderovaném aplikací. Typicky se volá v metodě boot() service provideru. To je užitečné pro globální data jako
+    navigační menu, nastavení webu nebo aktuálně přihlášeného uživatele. Sdílená data přetrvávají pro všechny následné požadavky, nejen pro aktuální.
+- id: vw-006
+  topic: views
+  type: text
+  difficulty: lehká
+  question: Jaká metoda se pokusí vyrenderovat první existující view ze seznamu kandidátských views?
+  answer: first
+  alternatives:
+  - first()
+  - View::first()
+  - view()->first()
+  explanation: View::first(['custom.dashboard', 'dashboard']) zkouší každý název view v pořadí a vrátí první, který existuje. To je ideální pro umožnění přepsání balíčkem nebo motivem — nejprve zkontrolujete
+    vlastní view a pak se vrátíte k výchozímu. Vrací instanci View stejně jako view().
+- id: vw-007
+  topic: views
+  type: single
+  difficulty: lehká
+  question: Jaký je účel přípony .blade.php u view souborů?
+  options:
+  - Povoluje podrobné hlášení PHP chyb a stack trace specificky pro danou šablonu
+  - Říká Laravelu, aby soubor zkompiloval pomocí Blade template enginu
+  - Označuje soubor jako veřejně přístupný view, ke kterému lze přistupovat přímo přes URL route
+  - Konfiguruje vlastní pravidla cachování a nastavení TTL specificky pro danou šablonu
+  answer: Říká Laravelu, aby soubor zkompiloval pomocí Blade template enginu
+  explanation: Přípona .blade.php identifikuje soubor jako Blade šablonu. Laravelův view engine detekuje tuto příponu a zkompiluje Blade direktivy (@if, @foreach atd.) do čistého PHP před uložením zkompilovaného
+    view do storage/framework/views/. Soubory pouze s příponou .php se renderují jako čisté PHP bez Blade kompilace.
+- id: vw-008
+  topic: views
+  type: multiple
+  difficulty: lehká
+  question: Které z následujících tvrzení o zkompilovaných Blade views jsou pravdivé? (Vyberte všechny, které platí)
+  options:
+  - Zkompilované views jsou trvale uloženy v mezipaměti, dokud nejsou ručně vymazány
+  - Laravel automaticky překompiluje views, když se změní zdrojový Blade soubor
+  - V produkci s config:cache nebudou změny views detekovány, dokud nebude mezipaměť vymazána
+  - Zkompilované views jsou uloženy v storage/framework/views/
+  answers:
+  - Zkompilované views jsou uloženy v storage/framework/views/
+  - Laravel automaticky překompiluje views, když se změní zdrojový Blade soubor
+  - V produkci s config:cache nebudou změny views detekovány, dokud nebude mezipaměť vymazána
+  explanation: Blade kompiluje šablony do PHP a ukládá je do mezipaměti v storage/framework/views/. Laravel porovnává časové známky zdrojových souborů pro detekci změn a překompiluje podle potřeby. Nicméně
+    když spustíte php artisan config:cache (běžné v produkci), cachování views je uzamčeno — změny nebudou detekovány, dokud nevymažete config cache. Proto je view:clear běžným krokem při nasazení.
+- id: vw-009
+  topic: views
+  type: single
+  difficulty: lehká
+  question: Jak vyrenderujete view zevnitř jiného view v Laravelu?
+  options:
+  - '@render(''partials.header'')'
+  - '{{ view(''partials.header'') }}'
+  - '@require(''partials.header'')'
+  - '@include(''partials.header'')'
+  answer: '@include(''partials.header'')'
+  explanation: 'Blade direktiva @include vyrenderuje sub-view uvnitř aktuálního view. Přijímá název view a volitelné pole dat: @include(''partials.header'', [''title'' => ''Home'']). Vložené view má přístup
+    ke všem proměnným z nadřazeného view, plus k případným dodatečným datům, která explicitně předáte.'
+- id: vw-010
+  topic: views
+  type: text
+  difficulty: lehká
+  question: Jaký artisan příkaz vymaže všechny zkompilované view soubory z mezipaměti?
+  answer: view:clear
+  alternatives:
+  - php artisan view:clear
+  - artisan view:clear
+  explanation: Příkaz php artisan view:clear smaže všechny zkompilované view soubory z storage/framework/views/. To je užitečné během vývoje, když se po změně view něco zasekne, nebo při nasazení pro zajištění
+    čerstvé kompilace. Doplňkový příkaz view:cache předem zkompiluje všechny views pro produkční výkon.
+- id: vw-011
+  topic: views
+  type: single
+  difficulty: střední
+  question: Jaký je hlavní rozdíl mezi View Composerem a View Creatorem v Laravelu?
+  options:
+  - Composery běží po vytvoření view, creators běží při první instanciaci view
+  - Creators běží pokaždé, když se view vyrenderuje, composers pouze jednou za požadavek
+  - Neexistuje žádný rozdíl; jsou to aliasy
+  - Composery mohou modifikovat data, creators je mohou pouze číst
+  answer: Neexistuje žádný rozdíl; jsou to aliasy
+  explanation: 'Přestože mají různé názvy, View::composer() a View::creator() fungují v moderním Laravelu identicky — obě registrují callbacky, které se spouštějí při sestavování view. Historicky existovaly
+    drobné rozdíly, ale v současných verzích Laravelu slouží stejnému účelu: navázání dat nebo logiky na views při jejich vytvoření.'
+- id: vw-012
+  topic: views
+  type: single
+  difficulty: střední
+  question: Jaká je výhoda použití view composerů oproti předávání dat přímo v každém controlleru?
+  options:
+  - View composery umožňují views přímo modifikovat a přepsat data, která byla původně předána controller metodou
+  - View composery jsou znatelně rychlejší, protože zcela obcházejí proces řešení service containeru
+  - View composery automaticky ukládají všechna připravená data do paměti pro následné požadavky ve stejném cyklu
+  - View composery centralizují datovou logiku, čímž zajišťují dostupnost dat bez ohledu na to, který controller view vyrenderuje
+  answer: View composery centralizují datovou logiku, čímž zajišťují dostupnost dat bez ohledu na to, který controller view vyrenderuje
+  explanation: View composery odděluje přípravu dat od controllerů. Pokud se boční panel nebo navigační menu objevuje na více stránkách, view composer zajistí, že jeho data budou vždy k dispozici bez opakování
+    stejného dotazu v každém controlleru. To následuje principu DRY a udržuje controllery zaměřené na jejich specifickou logiku stránky.
+- id: vw-013
+  topic: views
+  type: multiple
+  difficulty: střední
+  question: Které z následujících jsou platné způsoby registrace view composeru? (Vyberte všechny, které platí)
+  options:
+  - View::composer(['dashboard', 'profile'], DashboardComposer::class);
+  - View::composer('dashboard', function($view) { $view->with('count', 5); });
+  - $view->addComposer('dashboard', DashboardComposer::class);
+  - view()->composer('dashboard', DashboardComposer::class);
+  answers:
+  - View::composer('dashboard', function($view) { $view->with('count', 5); });
+  - View::composer(['dashboard', 'profile'], DashboardComposer::class);
+  - view()->composer('dashboard', DashboardComposer::class);
+  explanation: View composery lze registrovat pomocí View facadu, helperu view() nebo v service provideru. Přijímají jeden název view, pole názvů views nebo wildcard vzor (*). Callback přijímá instanci
+    View a u třídového composeru je volána jeho metoda compose() s instancí View. Neexistuje žádná metoda addComposer().
+- id: vw-014
+  topic: views
+  type: text
+  difficulty: střední
+  question: Jaký zástupný znak (wildcard) lze použít v registraci view composeru pro přiřazení dat ke všem views?
+  answer: '*'
+  alternatives:
+  - asterisk
+  - star
+  explanation: Pomocí View::composer('*', Callback) zaregistrujete composer, který běží pro každé view v aplikaci. To je podobné View::share(), ale s režií provedení callbacku pro každé vyrenderování view.
+    Je užitečné, když potřebujete provést logiku (např. kontrolu autentizace) místo sdílení statických dat.
+- id: vw-015
+  topic: views
+  type: single
+  difficulty: střední
+  question: Co se stane, když zavoláte view()->name('dashboard', 'admin-dashboard')?
+  options:
+  - Vytvoří pojmenované view, které lze odkazovat pomocí 'admin-dashboard' místo 'dashboard'
+  - Nastaví HTML nadpis stránky na zadanou hodnotu, která se poté použije v tagu title v layout šabloně
+  - Přejmenuje zdrojový view soubor na disku tak, aby odpovídal novému názvu, a aktualizuje všechny odkazy v projektu
+  - Zaregistruje view jako znovupoužitelnou Blade komponentu, kterou lze vyvolat pomocí syntaxe <x-*> v šablonách
+  answer: Vytvoří pojmenované view, které lze odkazovat pomocí 'admin-dashboard' místo 'dashboard'
+  explanation: Metoda name() přiřadí alias k cestě view. Po zavolání view()->name('dashboard', 'admin-dashboard') můžete view vyrenderovat pomocí view('admin-dashboard'). To je užitečné pro vytváření sémantických
+    názvů pro views, které mohou být přepsány balíčky nebo motivy. Pojmenované views jsou vyřizovány přes stejnou view factory.
+- id: vw-016
+  topic: views
+  type: single
+  difficulty: střední
+  question: Proč byste mohli přidat vlastní view namespace v Laravelu?
+  options:
+  - Pro povolení systému cachování kompilovaných Blade views specificky pro views v určitém adresáři nebo balíčku
+  - Pro vytvoření plně izolovaných view adresářů, které mají vlastní samostatný datový rozsah a nesdílejí proměnné
+  - Pro uspořádání views z různých zdrojů (např. balíčků) pod společnou předponou
+  - Pro změnu výchozího adresáře resources/views na zcela jinou cestu v filesystému
+  answer: Pro uspořádání views z různých zdrojů (např. balíčků) pod společnou předponou
+  explanation: View namespaces umožňují registrovat view adresáře pod předponou pomocí View::addNamespace('package', '/path/to/views'). To vám umožňuje odkazovat na views jako 'package::view.name', což
+    zabraňuje kolizím názvů mezi vašimi app views a views balíčků. Laravel balíčky běžně používají tento vzor pro poskytování vlastních views se zároveň umožněním uživatelům je přepsat.
+- id: vw-017
+  topic: views
+  type: multiple
+  difficulty: střední
+  question: Které z následujících správně popisují, jak fungují @includeIf a @includeWhen? (Vyberte všechny, které platí)
+  options:
+  - '@includeIf vyrenderuje sub-view pouze pokud view soubor existuje'
+  - '@includeIf kontroluje, zda view data nejsou null, před vyrenderováním'
+  - '@includeWhen také kontroluje, zda view soubor existuje, před vyrenderováním'
+  - '@includeWhen vyrenderuje sub-view pouze pokud je daná podmínka splněna'
+  answers:
+  - '@includeIf vyrenderuje sub-view pouze pokud view soubor existuje'
+  - '@includeWhen vyrenderuje sub-view pouze pokud je daná podmínka splněna'
+  - '@includeWhen také kontroluje, zda view soubor existuje, před vyrenderováním'
+  explanation: '@includeIf(''view.name'') tiché přeskočí vyrenderování, pokud view soubor neexistuje, čímž zabrání chybám. @includeIf($boolean, ''view.name'') vyrenderuje podmíněně na základě boolean hodnoty.
+    @includeWhen také elegantně zpracovává chybějící views. Tyto jsou bezpečnější alternativy k @include, když mohou být views volitelné (např. v motivech nebo přepisovatelných balíčcích).'
+- id: vw-018
+  topic: views
+  type: text
+  difficulty: střední
+  question: Jaká Blade direktiva vloží sub-view a umožňuje předat dodatečné proměnné, přičemž poskytuje výchozí hodnotu, pokud view neexistuje?
+  answer: includeFirst
+  alternatives:
+  - '@includeFirst'
+  explanation: '@includeFirst([''custom.view'', ''default.view''], [''data'' => $value]) se pokusí vložit první view, které existuje. To kombinuje chování fallbacku View::first() s pohodlím @include. Je
+    obzvláště užitečné pro přepsání motivů, kde chcete zkontrolovat vlastní šablonu před návratem k výchozí.'
+- id: vw-019
+  topic: views
+  type: single
+  difficulty: střední
+  question: Jaký je účel metody view()->render() při explicitním volání?
+  options:
+  - Vyrenderuje view a vrátí HTML jako řetězec bez odeslání jako HTTP odpověď
+  - Převede Blade direktivy šablony do čistého PHP kódu a uloží výsledek v adresáři zkompilovaných views
+  - Pošle vyrenderovaný výstup view přímo do prohlížeče bez zabalení do odpovídajícího HTTP response objektu
+  - Uloží zkompilované view trvale do storage, aby následná vyrenderování zcela přeskočila krok kompilace
+  answer: Vyrenderuje view a vrátí HTML jako řetězec bez odeslání jako HTTP odpověď
+  explanation: Metoda render() zkompiluje a provede Blade šablonu a vrátí výsledné HTML jako řetězec. To je užitečné, když potřebujete obsah view jako řetězec — například pro vložení do těla e-mailu, generování
+    PDF nebo pro vrácení jako součást JSON API odpovědi. Normálně render() explicitně nevoláte, protože to Laravel řeší automaticky.
+- id: vw-020
+  topic: views
+  type: single
+  difficulty: střední
+  question: Jak přidáte vlastní cestu k views v Laravelu bez nahrazení výchozí cesty resources/views?
+  options:
+  - Oba přístupy fungují a přidají další vyhledávací cestu
+  - view()->addLocation('/custom/path')
+  - Config::set('view.paths', array_merge(config('view.paths'), ['/custom/path']))
+  - Ani jeden přístup nefunguje; můžete mít pouze jednu cestu k views
+  answer: Oba přístupy fungují a přidají další vyhledávací cestu
+  explanation: Obě metody přidávají další cesty k views. View finder prohledává cesty v pořadí, takže první cesta má prioritu. To je užitečné pro multi-tenant aplikace nebo když balíček potřebuje poskytnout
+    views, které koexistují s výchozími views. Tyto můžete registrovat v metodě boot() service provideru.
+- id: vw-021
+  topic: views
+  type: single
+  difficulty: těžká
+  question: Při použití view composerů registrovaných v service provideru, proč byste mohli použít událost 'view' místo View::composer()?
+  options:
+  - View::composer() byl plně zastaral a odstraněn v Laravel 13.x ve prospěch přístupu založeného na událostech
+  - Událost 'view' je jediný podporovaný způsob předání dynamických dat Blade komponentám v novějších verzích Laravelu
+  - Událost 'view' je výkonnější, protože se vyhýbá service containeru a řeší závislosti líně
+  - Událost 'view' se spouští pro každé vyrenderování view, což umožňuje dynamicky prohlížet a modifikovat view objekt
+  answer: Událost 'view' se spouští pro každé vyrenderování view, což umožňuje dynamicky prohlížet a modifikovat view objekt
+  explanation: 'Událost ''composing: viewName'' (nebo wildcard ''composing:*'') se spouští, když se jakékoliv view sestavuje. Naslouchání těmto událostem poskytuje větší flexibilitu než composery — můžete
+    zjistit, které view se vyrenderovává, a podmíněně přiřadit data, upravit cestu view nebo logovat vykreslování. Toto je nižší úroveň a výkonnější, ale méně čitelné než explicitní composery.'
+- id: vw-022
+  topic: views
+  type: multiple
+  difficulty: těžká
+  question: Které z následujících jsou pravdivé o tom, jak Laravel převádí názvy views na cesty k souborům? (Vyberte všechny, které platí)
+  options:
+  - Názvy views jsou citlivé na velikost písmen na Linuxu, ale necitlivé na Windows
+  - Laravel ukládá do mezipaměti mapování mezi názvy views a cestami k souborům pro vyhnutí se dotazům na filesystém
+  - Tečková notace v názvech views se mapuje na oddělovače adresářů (např. 'pages.home' → pages/home)
+  - Laravel prohledává všechny registrované cesty k views v pořadí, dokud nenajde shodu
+  answers:
+  - Tečková notace v názvech views se mapuje na oddělovače adresářů (např. 'pages.home' → pages/home)
+  - Laravel prohledává všechny registrované cesty k views v pořadí, dokud nenajde shodu
+  - Názvy views jsou citlivé na velikost písmen na Linuxu, ale necitlivé na Windows
+  explanation: Rozlišení názvů views převádí tečky na lomítka a připojuje .blade.php nebo .php. Finder prohledává registrované cesty v pořadí a vrací první shodu. Citlivost na velikost písmen v filesystému
+    závisí na OS, což může způsobit problémy při vývoji na macOS/Windows (necitlivé) a nasazení na Linux (citlivé). Laravel neukládá mapování názvů views na cesty do mezipaměti — pokaždé kontroluje filesystém.
+- id: vw-023
+  topic: views
+  type: text
+  difficulty: těžká
+  question: Jaký artisan příkaz předem zkompiluje všechny Blade views pro zlepšení výkonu v produkci?
+  answer: view:cache
+  alternatives:
+  - php artisan view:cache
+  - artisan view:cache
+  explanation: Příkaz php artisan view:cache zkompiluje všechny Blade šablony do čistých PHP souborů předem. Tím se eliminuje režie kompilace na vyžádání pro první požadavek každého view. V produkci by
+    měl být spuštěn jako součást procesu nasazení. Zkompilované soubory jsou uloženy v storage/framework/views/.
+- id: vw-024
+  topic: views
+  type: single
+  difficulty: těžká
+  question: Jaký je praktický rozdíl mezi použitím třídového view composeru oproti closure-based?
+  options:
+  - Třídové composery jsou řešeny přes service container, což podporuje dependency injection
+  - Třídové composery mohou být registrovány pouze uvnitř boot metod service provideru, nikoli v souborech definic routes
+  - Closure-based composery jsou z podstaty rychlejší, protože zcela přeskočí proces řešení service containeru
+  - Neexistuje žádný praktický rozdíl v chování; oba přístupy používají úplně stejný interní mechanismus řešení
+  answer: Třídové composery jsou řešeny přes service container, což podporuje dependency injection
+  explanation: Když zaregistrujete třídový composer (View::composer('view', MyComposer::class)), Laravel řeší třídu přes service container. To znamená, že composer může injektovat závislosti (repositories,
+    services) ve svém konstruktoru. Closure-based composery jsou jednodušší, ale nepodporují automatický dependency injection — závislosti byste museli řešit manuálně uvnitř closure.
+- id: vw-025
+  topic: views
+  type: multiple
+  difficulty: těžká
+  question: Při implementaci třídového view composeru, které z následujících jsou platné signatury metod? (Vyberte všechny, které platí)
+  options:
+  - public function handle(View $view)
+  - public function __invoke(View $view)
+  - public function compose($view)
+  - 'public function compose(View $view): void'
+  answers:
+  - 'public function compose(View $view): void'
+  - public function compose($view)
+  explanation: Laravel volá metodu compose() na třídových view composerech, předávající instanci View. Metoda může být typovaná nebo netypovaná. Metoda __invoke() se pro composery nevolá (to je pro invokable
+    controllery). Metoda handle() není rozpoznanou metodou pro view composery. Metoda compose je jediný vstupní bod, který Laravel hledá.
+- id: vw-026
+  topic: views
+  type: single
+  difficulty: těžká
+  question: Co se stane, když zavoláte $view->getEngine() na instanci View?
+  options:
+  - Vrátí plnou absolutní cestu filesystému k zkompilovanému PHP souboru uloženému v adresáři framework cache
+  - Vrátí resolver template enginu (CompilerEngine pro .blade.php soubory)
+  - Vrátí podkladovou instanci Blade compileru, která je zodpovědná za parsování a kompilaci direktiv šablony
+  - Vyhodí výjimku metoda nenalezena, protože getEngine() není veřejná metoda na instanci View
+  answer: Vrátí resolver template enginu (CompilerEngine pro .blade.php soubory)
+  explanation: Metoda getEngine() vrací engine zodpovědný za kompilaci view. Pro .blade.php soubory je to CompilerEngine, který obaluje Blade compiler. Pro čisté .php soubory vrací PhpEngine. Toto je součástí
+    připojitelné architektury view engine v Laravelu — teoreticky byste mohli registrovat vlastní enginy pro další šablonovací jazyky.
+- id: vw-027
+  topic: views
+  type: text
+  difficulty: těžká
+  question: Jaká metoda na View factory vrací plně vyřešenou cestu ke zkompilovanému view souboru (cachovaný PHP soubor)?
+  answer: getCompiledPath
+  alternatives:
+  - getCompiledPath()
+  explanation: Metoda getCompiledPath() vrací absolutní cestu, kde je uložena zkompilovaná PHP verze Blade view (v storage/framework/views/). Název souboru je MD5 hash cesty view. Tato metoda se používá
+    interně pro kontrolu, zda je nutné znovu vygenerovat zkompilovaný soubor na základě času úpravy zdrojového souboru.
+- id: vw-028
+  topic: views
+  type: single
+  difficulty: těžká
+  question: V multi-tenant Laravel aplikaci, jaký je doporučený přístup k načítání tenant-specifických views při zachování fallbacků na výchozí views?
+  options:
+  - Použít View::addNamespace() pro registraci tenant namespace a kontrolovat views pomocí @includeFirst
+  - Duplikovat všechny výchozí aplikační views do samostatného view adresáře každého tenanta na disku
+  - Dynamicky modifikovat cestu k views za běhu pomocí config(['view.paths' => [...]]) v middleware nebo service provideru
+  - Použít middleware pro dynamické přejmenování a kopírování view souborů na začátku každého příchozího HTTP požadavku
+  answer: Použít View::addNamespace() pro registraci tenant namespace a kontrolovat views pomocí @includeFirst
+  explanation: 'Nejčistší přístup k multi-tenant views používá namespaces: zaregistrujte views každého tenanta pod namespace (např. ''tenant::dashboard''), pak použijte @includeFirst([''tenant::dashboard'',
+    ''dashboard'']) pro pokus o tenant-specifické view jako první a fallback na výchozí. Tím se vyhnete duplikaci views, udržuje čisté oddělení a umožňuje novým tenantům automaticky zdědit všechny výchozí
+    views.'
+- id: vw-029
+  topic: views
+  type: multiple
+  difficulty: těžká
+  question: Které z následujících jsou důsledky spuštění php artisan view:cache v produkci? (Vyberte všechny, které platí)
+  options:
+  - Všechny Blade views jsou předem zkompilovány do PHP, což snižuje latenci prvního požadavku
+  - Route cache aplikace je také automaticky znovu sestavena
+  - Změny v Blade šablonách se neprojeví, dokud nebude spuštěn view:clear
+  - Chybějící view soubory odkazované za běhu vyhodí chybu 500 místo toho, aby byly tiché přeskočeny
+  answers:
+  - Všechny Blade views jsou předem zkompilovány do PHP, což snižuje latenci prvního požadavku
+  - Změny v Blade šablonách se neprojeví, dokud nebude spuštěn view:clear
+  explanation: view:cache předem zkompiluje všechny views pro výkon, ale uzamkne view cache, takže se změny šablon neprojeví, dokud mezipaměť nevymažete. Toto je očekávané a žádoucí v produkci. NEovlivňuje
+    route cache a chybějící views vyhodí chybu bez ohledu na cachování. Proto deplojovací skripty typicky spouštějí view:clear následované view:cache.

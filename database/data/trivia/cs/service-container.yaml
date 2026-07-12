@@ -1,0 +1,378 @@
+- id: sc-001
+  topic: service-container
+  type: single
+  difficulty: lehká
+  question: Co je Laravel service container?
+  options:
+  - Centralizovaný systém pro sdružování databázových připojení, který efektivně spravuje a recykluje perzistentní databázová spojení
+  - Systém pro správu balíčků podobný Composeru, který řeší automatické závislosti a instalaci
+  - Šablonovací engine pro Blade pohledy, který se stará o kompilaci a caching souborů šablon pohledů
+  - Výkonný nástroj pro správu závislostí tříd a provádění dependency injection
+  answer: Výkonný nástroj pro správu závislostí tříd a provádění dependency injection
+  explanation: Laravel service container je hlavní kontejner pro dependency injection (DI). Spravuje vytváření instancí tříd, automaticky řeší jejich závislosti a umožňuje vám vázat rozhraní na konkrétní
+    implementace. Je základem pro elegantní systém dependency injection v Laravelu.
+- id: sc-002
+  topic: service-container
+  type: single
+  difficulty: lehká
+  question: Jak navážete jednoduchou closure do service container?
+  options:
+  - $app->bind('key', fn() => new Service());
+  - Container::add('key', fn() => new Service());
+  - $app->register('key', fn() => new Service());
+  - $app->set('key', fn() => new Service());
+  answer: $app->bind('key', fn() => new Service());
+  explanation: Metoda bind() registruje vazbu v kontejneru. Pokaždé, když kontejner řeší tento abstraktní typ, provede closure pro vytvoření nové instance. Toto je nejzákladnější způsob registrace služeb,
+    které by měly být při každém vyřešení vytvořeny znovu.
+- id: sc-003
+  topic: service-container
+  type: text
+  difficulty: lehká
+  question: Jaká metoda service container registruje třídu nebo rozhraní tak, aby byla pokaždé vrácena stejná instance?
+  answer: singleton
+  alternatives:
+  - singleton()
+  explanation: Metoda singleton() říká kontejneru, aby vazbu vyřešil pouze jednou a pak při všech následných požadavcích vrátil stejnou instanci. To je užitečné pro služby jako databázová připojení, cache
+    ovladače nebo konfigurační repozitáře, které by si měly udržovat stav v rámci aplikace.
+- id: sc-004
+  topic: service-container
+  type: multiple
+  difficulty: lehká
+  question: Které z následujících jsou platné způsoby, jak vyřešit službu z Laravel kontejneru?
+  options:
+  - Type-hinting třídy v konstruktoru controlleru
+  - Použití globální helper funkce resolve()
+  - Volání $container->make('ServiceName')
+  - Použití helper funkce app()
+  answers:
+  - Použití helper funkce app()
+  - Type-hinting třídy v konstruktoru controlleru
+  - Volání $container->make('ServiceName')
+  - Použití globální helper funkce resolve()
+  explanation: 'Laravel poskytuje více způsobů řešení služeb: helper app(), helper resolve(), metoda make() na kontejneru a automatické řešení přes type-hint v konstruktoru. Všechny tyto způsoby nakonec
+    používají rezolvační mechanismus kontejneru k vytvoření nebo získání požadované služby.'
+- id: sc-005
+  topic: service-container
+  type: single
+  difficulty: lehká
+  question: Co znamená „automatic resolution" (neboli autowiring) v kontextu Laravel service container?
+  options:
+  - Kontejner automaticky generuje boilerplate PHP kód pro registraci a konfiguraci nových servisních tříd
+  - Kontejner zkoumá type-hinty v konstruktoru a řeší závislosti bez explicitní vazby
+  - Kontejner automaticky objevuje a načítá konfigurační soubory služeb z adresáře config při spuštění
+  - Kontejner automaticky registruje a bootstrapuje všechny třídy nalezené v adresáři app projektu
+  answer: Kontejner zkoumá type-hinty v konstruktoru a řeší závislosti bez explicitní vazby
+  explanation: Autowiring znamená, že kontejner používá PHP Reflection API k prozkoumání konstruktoru třídy, identifikaci type-hintovaných závislostí a jejich rekurzivnímu vyřešení. Nemusíte explicitně
+    vázat konkrétní třídy – kontejner je dokáže vytvořit automaticky, pokud jsou všechny jejich závislosti řešitelné.
+- id: sc-006
+  topic: service-container
+  type: text
+  difficulty: lehká
+  question: Jak se jmenuje metoda kontejneru, která váže již vytvořenou instanci objektu do kontejneru?
+  answer: instance
+  alternatives:
+  - instance()
+  explanation: Metoda instance() váže existující instanci objektu do kontejneru. Na rozdíl od bind(), která používá closure k vytváření nových instancí, instance() uloží přesný objekt, který předáte. To
+    se běžně používá při testování k nahrazení reálných služeb mocky nebo stuby.
+- id: sc-007
+  topic: service-container
+  type: single
+  difficulty: lehká
+  question: Co se stane, když kontejner nemůže vyřešit závislost, protože nemá vazbu a třída má neřešitelné parametry konstruktoru?
+  options:
+  - Vyhodí BindingResolutionException
+  - Potichu vrátí null
+  - Vytvoří třídu bez chybějící závislosti
+  - Vrátí se k použití výchozího prázdného konstruktoru
+  answer: Vyhodí BindingResolutionException
+  explanation: Když kontejner nemůže vyřešit závislost – ať už proto, že neexistuje vazba a třída není konkrétní, nebo protože povinné parametry konstruktoru nelze splnit – vyhodí BindingResolutionException.
+    To pomáhá vývojářům včas identifikovat chybějící vazby.
+- id: sc-008
+  topic: service-container
+  type: multiple
+  difficulty: lehká
+  question: Které z následujících metod kontejneru registrují vazbu, která vytváří NOVOU instanci při každém vyřešení?
+  options:
+  - $app->bind('Service', fn($app) => new Service())
+  - $app->singleton('Service', fn($app) => new Service())
+  - $app->scoped('Service', fn($app) => new Service())
+  - $app->bind(Service::class, ConcreteService::class)
+  answers:
+  - $app->bind('Service', fn($app) => new Service())
+  - $app->bind(Service::class, ConcreteService::class)
+  explanation: Metoda bind() vždy vytváří novou instanci. Předání closure i předání názvu třídy do bind() vede k nové instanci při každém vyřešení. singleton() vrací stejnou instanci, a scoped() vrací stejnou
+    instanci v rámci jednoho Laravel požadavku/životního cyklu.
+- id: sc-009
+  topic: service-container
+  type: text
+  difficulty: lehká
+  question: Jaká globální helper funkce je nejběžnější zkratkový způsob, jak něco vyřešit z Laravel service container?
+  answer: app
+  alternatives:
+  - app()
+  explanation: Helper funkce app() je nejběžnější způsob řešení služeb z kontejneru. Při volání bez argumentů vrátí samotnou instanci kontejneru. Při volání s názvem třídy nebo rozhraní vyřeší a vrátí instanci
+    dané třídy z kontejneru.
+- id: sc-010
+  topic: service-container
+  type: single
+  difficulty: střední
+  question: Proč byste vázali rozhraní na konkrétní implementaci v service container?
+  options:
+  - Pro povolení dependency injection založené na abstrakcích, což vám umožňuje vyměnit implementace beze změny spotřebovávacího kódu
+  - Pro automatické generování databázových migrací pro konkrétní třídu při jejím prvním vyřešení z kontejneru
+  - Pro zpřístupnění konkrétní třídy přímo a volatelné přes Artisan CLI příkazy bez ruční registrace
+  - Pro registraci rozhraní jako globální middleware, který zachycuje a obaluje každý HTTP požadavek procházející aplikací
+  answer: Pro povolení dependency injection založené na abstrakcích, což vám umožňuje vyměnit implementace beze změny spotřebovávacího kódu
+  explanation: Vázání rozhraní na konkrétní třídu je základem principu inverze závislostí. Controllery a služby type-hintují rozhraní a kontejner je vyřeší na vázanou konkrétní implementaci. To znamená,
+    že můžete vyměnit implementace (např. pro testování nebo feature flagy) změnou jediné vazby bez úpravy jakéhokoli spotřebovávacího kódu.
+- id: sc-011
+  topic: service-container
+  type: single
+  difficulty: střední
+  question: Jaký je rozdíl mezi vazbami singleton() a scoped() v service container?
+  options:
+  - scoped byl v Laravel 13.x deprecován ve prospěch použití singleton pro všechny případy sdílených instancí
+  - singleton přetrvává napříč požadavky, zatímco scoped vytváří jednu instanci na požadavek/životní cyklus
+  - Neexistuje žádný významný rozdíl mezi těmito dvěma metodami; fungují jako zaměnitelné aliasy v kontejneru
+  - scoped přetrvává napříč více požadavky, zatímco singleton vytváří a zahazuje jednu novou instanci na životní cyklus požadavku
+  answer: singleton přetrvává napříč požadavky, zatímco scoped vytváří jednu instanci na požadavek/životní cyklus
+  explanation: Vazba singleton vrací stejnou instanci po celou dobu běhu aplikace. Naopak vazba scoped vrací stejnou instanci v rámci jednoho životního cyklu požadavku, ale pro další požadavek vytváří novou
+    instanci. Tento rozdíl je obzvláště důležitý při použití Laravel Octane, kde aplikace zůstává v paměti napříč požadavky.
+- id: sc-012
+  topic: service-container
+  type: text
+  difficulty: střední
+  question: Jaká metoda kontejneru vám umožňuje poskytnout různé implementace rozhraní v závislosti na tom, která třída je spotřebovává?
+  answer: when
+  alternatives:
+  - when()
+  - addContextualBinding
+  explanation: Metoda when() umožňuje contextual binding. Umožňuje vám instruovat kontejner, aby injektoval různé implementace stejného rozhraní v závislosti na tom, která třída je právě vyřizována. Například
+    můžete injektovat FilesystemLogger, když se řeší ReportGenerator, ale DatabaseLogger, když se řeší OrderProcessor.
+- id: sc-013
+  topic: service-container
+  type: multiple
+  difficulty: střední
+  question: Které z následujících jsou platné způsoby, jak injektovat primitivní hodnoty (řetězce, celá čísla) do služby přes kontejner?
+  options:
+  - Použití contextual binding s $app->when()->needs()->give()
+  - Definování výchozích hodnot v konstruktoru
+  - Použití $app->bindPrimitive('key', 'value')
+  - Předání dalších parametrů do $app->make(Service::class, ['key' => 'value'])
+  answers:
+  - Použití contextual binding s $app->when()->needs()->give()
+  - Předání dalších parametrů do $app->make(Service::class, ['key' => 'value'])
+  - Definování výchozích hodnot v konstruktoru
+  explanation: Kontejner nemůže autowire primitivní typy. Primitiva můžete předat přes contextual binding (when/needs/give), přepsat je druhým parametrem make(), nebo je definovat jako výchozí hodnoty v
+    konstruktoru. Neexistuje žádná metoda bindPrimitive() – první tři přístupy jsou standardní řešení.
+- id: sc-014
+  topic: service-container
+  type: single
+  difficulty: střední
+  question: Jak kontejner řeší cyklické závislosti, když dvě třídy na sobě vzájemně závisí?
+  options:
+  - Vytvoří obě třídy současně pomocí klonování
+  - Vyhodí CircularDependencyException
+  - Použije lazy proxy pro automatické přerušení cyklu
+  - Potichu ignoruje jednu ze závislostí
+  answer: Vyhodí CircularDependencyException
+  explanation: Když kontejner detekuje cyklickou závislost (např. ClassA závisí na ClassB, která závisí na ClassA), vyhodí CircularDependencyException. Vývojáři musí cyklus přerušit sami, typicky pomocí
+    lazy loading, setter injection nebo restrukturalizace kódu pro odstranění cyklického vztahu.
+- id: sc-015
+  topic: service-container
+  type: single
+  difficulty: střední
+  question: Jaký je účel metody „extend" na service container?
+  options:
+  - Dynamicky přidávat nové metody ke stávající servisní třídě za běhu pomocí zachytávání PHP magic metod
+  - Upravit nebo dekorovat vyřešenou službu poté, co ji kontejner vytvoří
+  - Rozšířit kontejner registrací dalších service providerů, které budou bootovány při spuštění aplikace
+  - Prodloužit životnost singleton vazby, aby přetrvávala i po ukončení aplikace
+  answer: Upravit nebo dekorovat vyřešenou službu poté, co ji kontejner vytvoří
+  explanation: Metoda extend() obalí nebo dekoruje dříve vyřešenou službu. Když kontejner řeší vazbu, nejprve vytvoří původní instanci a pak ji předá closure z extend(). To je užitečné pro přidávání průřezového
+    chování (jako logging, caching nebo validation) ke stávajícím službám bez úpravy jejich zdrojového kódu.
+- id: sc-016
+  topic: service-container
+  type: multiple
+  difficulty: střední
+  question: Které z následujících tvrzení jsou pravdivá o kontejnerovém „tagging"?
+  options:
+  - Tagy vám umožňují vyřešit více vazeb najednou podle jejich společného tagu
+  - Můžete otagovat vazby během registrace pomocí ->tag('report', 'export')
+  - Otagované služby řešíte pomocí $app->tagged('tagname')
+  - Otagované vazby musí všechny implementovat stejné rozhraní
+  answers:
+  - Tagy vám umožňují vyřešit více vazeb najednou podle jejich společného tagu
+  - Můžete otagovat vazby během registrace pomocí ->tag('report', 'export')
+  - Otagované služby řešíte pomocí $app->tagged('tagname')
+  explanation: Kontejnerové tagování umožňuje kategorizovat související vazby pod jeden nebo více tagů. Tagy přidáváte při registraci vazeb a později řešíte všechny služby s daným tagem pomocí $app->tagged().
+    Služby NEMUSÍ sdílet společné rozhraní. To je užitečné pro event handlery, generátory reportů nebo jakoukoli pluginovou architekturu.
+- id: sc-017
+  topic: service-container
+  type: text
+  difficulty: střední
+  question: Jakou metodu můžete zavolat na kontejneru, abyste zjistili, zda byl daný abstraktní typ v kontejneru vázán?
+  answer: bound
+  alternatives:
+  - bound()
+  - has
+  - has()
+  explanation: Metoda bound() kontroluje, zda byl daný abstrakt (název třídy, rozhraní nebo řetězcový klíč) zaregistrován v kontejneru. Vrací true, pokud vazba existuje, včetně singleton, instance, a běžných
+    vazeb. To je užitečné pro podmíněnou logiku při registraci služeb nebo kontrole volitelných závislostí.
+- id: sc-018
+  topic: service-container
+  type: single
+  difficulty: střední
+  question: Při použití contextual binding s $app->when(ReportGenerator::class)->needs(Filesystem::class)->give(), co představuje Filesystem::class?
+  options:
+  - Třída, která bude spotřebovávat závislost ve své metodě konstruktoru
+  - Třída service provideru zodpovědná za registraci vazby
+  - Type-hint parametru konstruktoru, který musí být splněn
+  - Název service provideru registrujícího vazbu
+  answer: Type-hint parametru konstruktoru, který musí být splněn
+  explanation: V řetězci contextual binding představuje Filesystem::class předané do needs() specifikaci, který parametr konstruktoru ReportGenerator má být přepsán. Metoda give() pak poskytuje konkrétní
+    implementaci nebo hodnotu k injektáži. To vám umožňuje poskytovat různé implementace stejného rozhraní v závislosti na spotřebovávací třídě.
+- id: sc-019
+  topic: service-container
+  type: single
+  difficulty: střední
+  question: Jakou výhodu poskytuje method injection oproti constructor injection při práci s kontejnerem?
+  options:
+  - Method injection je jediný přístup, který umožňuje injektovat služby do closure-based route definic a controller metod
+  - Method injection automaticky registruje každou injektovanou závislost jako singleton, čímž zajistí, že v kontejneru existuje pouze jedna instance
+  - Method injection je výrazně rychlejší v benchmarcích, protože zcela obchází rezoluci kontejneru založenou na reflexi
+  - Method injection umožňuje injektovat závislosti, které jsou potřeba pouze pro konkrétní metody, čímž snižuje zbytečné vytváření objektů
+  answer: Method injection umožňuje injektovat závislosti, které jsou potřeba pouze pro konkrétní metody, čímž snižuje zbytečné vytváření objektů
+  explanation: Method injection (type-hintování závislostí v metodách controlleru nebo služby) umožňuje kontejneru řešit závislosti pouze tehdy, když je zavolána konkrétní metoda. To je efektivnější než
+    constructor injection pro závislosti, které nejsou používány každou metodou, a Laravel router a kontejner tento vzor plně podporují.
+- id: sc-020
+  topic: service-container
+  type: text
+  difficulty: střední
+  question: Jaká událost kontejneru se spustí PO úplném vyřešení služby, což vám umožní provést další nastavení na vyřešené instanci?
+  answer: afterResolving
+  alternatives:
+  - after resolving
+  - after_resolving
+  explanation: Metoda afterResolving() registruje callback, který se spustí po úplném vyřešení služby z kontejneru. Na rozdíl od resolving(), která se spouští před vrácením služby, afterResolving() vám
+    umožňuje provést dodatečnou konfiguraci na plně vytvořené instanci. To je užitečné pro aplikaci výchozích nastavení nebo registraci event listenerů na službu.
+- id: sc-021
+  topic: service-container
+  type: multiple
+  difficulty: střední
+  question: Které z následujících jsou legitimní případy použití pro funkci rebinding service containeru?
+  options:
+  - Znovu registrovat event listenery, když je vyměněna implementace loggeru
+  - Upozornit ostatní služby, když je vazba přepsána
+  - Obnovit cached data, když se změní konfigurační vazba
+  - Automaticky migrovat databázi, když se změní vazba modelu
+  answers:
+  - Obnovit cached data, když se změní konfigurační vazba
+  - Znovu registrovat event listenery, když je vyměněna implementace loggeru
+  - Upozornit ostatní služby, když je vazba přepsána
+  explanation: 'Metoda rebinding() registruje callback, který se spustí, když je vazba přepsána. To je užitečné pro obnovení závislého stavu: pokud vyměníte cache ovladač, možná budete muset vymazat cache;
+    pokud vyměníte logger, možná budete muset znovu zaregistrovat handlery. Nemělo by se to používat pro databázové migrace – to je záležitost nasazení.'
+- id: sc-022
+  topic: service-container
+  type: single
+  difficulty: střední
+  question: Co kontejner provede, když zavoláte $app->make(Service::class, ['timeout' => 30])?
+  options:
+  - Vytvoří novou instanci service provideru předkonfigurovanou se zadanou hodnotou timeout pro danou službu
+  - Přidá hodnotu timeout k existující singleton instanci služby uložené v kontejneru
+  - Registruje zcela novou vazbu pro třídu Service s parametrem timeout trvale nastaveným na 30
+  - Vyřeší službu a přepíše jakýkoli parametr konstruktoru s názvem '$timeout' hodnotou 30
+  answer: Vyřeší službu a přepíše jakýkoli parametr konstruktoru s názvem '$timeout' hodnotou 30
+  explanation: Druhý parametr make() (nebo resolve()) vám umožňuje přepsat konkrétní parametry konstruktoru podle názvu. Kontejner normálně vyřeší všechny ostatní závislosti, ale nahradí explicitně zadané
+    hodnoty. To je obzvláště užitečné pro injektáž primitivních hodnot, které nelze autowirovat.
+- id: sc-023
+  topic: service-container
+  type: text
+  difficulty: střední
+  question: V kontextu service container, jak se nazývá řetězec nebo název třídy, který používáte k registraci a pozdějšímu získání vazby (např. první argument bind())?
+  answer: abstract
+  alternatives:
+  - abstract type
+  explanation: V terminologii Laravel kontejneru se první argument bind(), singleton() atd. nazývá „abstract." Je to klíč (obvykle rozhraní nebo název třídy), který používáte k registraci a pozdějšímu vyřešení
+    vazby. Kontejner mapuje tento abstract na „concrete" (closure, název třídy nebo instanci, která se skutečně vyřeší).
+- id: sc-024
+  topic: service-container
+  type: single
+  difficulty: těžká
+  question: Jak kontejner řeší třídu, která má variadic parametr konstruktoru (např. array $reports), při použití autowiring?
+  options:
+  - Ve výchozím stavu předá prázdné pole, protože variadic parametry konstruktoru nelze automaticky autowirovat
+  - Vyhodí BindingResolutionException, protože kontejner nemůže autowirovat variadic parametry
+  - Použije reflexi k nalezení všech tříd implementujících type-hint parametru a injektuje je všechny
+  - Vyřeší všechny vazby, které sdílejí stejný název tagu jako variadic parametr, a injektuje je všechny
+  answer: Použije reflexi k nalezení všech tříd implementujících type-hint parametru a injektuje je všechny
+  explanation: Když konstruktor má variadic parametr s type-hintem (např. iterable $reports), kontejner použije reflexi k nalezení všech registrovaných vazeb, které implementují toto rozhraní, a pak je
+    všechny injektuje jako pole. To funguje i s tagovanými vazbami, což je výkonné pro pluginové architektury, kde je potřeba shromáždit více implementací.
+- id: sc-025
+  topic: service-container
+  type: multiple
+  difficulty: těžká
+  question: V Laravel Octane se Swoole, které typy vazeb kontejneru mohou způsobit problémy se zastaralým stavem mezi požadavky?
+  options:
+  - Instance vazby nastavené během předchozího požadavku
+  - Scoped vazby, které jsou nesprávně registrovány jako singletons
+  - bind() closures, protože vždy vytvářejí nové instance
+  - Singleton vazby, které ukládají data specifická pro požadavek
+  answers:
+  - Singleton vazby, které ukládají data specifická pro požadavek
+  - Scoped vazby, které jsou nesprávně registrovány jako singletons
+  - Instance vazby nastavené během předchozího požadavku
+  explanation: V Octane proces přetrvává mezi požadavky, takže singletons a instance vazby, které ukládají data specifická pro požadavek, způsobí únik stavu. Například singleton ukládající aktuálně přihlášeného
+    uživatele by obsloužil špatnému uživateli v dalším požadavku. bind() closures jsou bezpečné, protože vytvářejí čerstvé instance. Použití scoped() místo singleton() je doporučené řešení.
+- id: sc-026
+  topic: service-container
+  type: text
+  difficulty: těžká
+  question: Jaká metoda kontejneru vám umožňuje provést closure pouze jednou, uložit a vrátit výsledek pro všechna následná volání, podobně jako lazy singleton?
+  answer: remember
+  alternatives:
+  - remember()
+  explanation: Metoda remember() na kontejneru provede closure při prvním volání a výsledek uloží do mezipaměti. Při následných voláních vrátí uložený výsledek bez opětovného provedení closure. Je to v
+    podstatě vzor lazy singleton – odloží drahou operaci až do jejího prvního potřebného použití a pak výsledek znovu používá.
+- id: sc-027
+  topic: service-container
+  type: single
+  difficulty: těžká
+  question: Když kontejner používá reflexi k vytvoření třídy, jaký je správný pořadí řešení závislostí konstruktoru?
+  options:
+  - Všechny závislosti jsou řešeny čistě přes autowiring a jakékoliv explicitně registrované vazby jsou zcela ignorovány
+  - Contextual binding jsou kontrolovány jako první, pak explicitní přepsání make(), pak registrované vazby kontejneru, pak autowiring
+  - Explicitní vazby mají přednost jako první, následuje autowiring, pak contextual binding přepíší a nakonec parametry make()
+  - Autowiring proběhne jako první přes reflexi, pak contextual binding může přepsat a nakonec mají přednost parametry make()
+  answer: Contextual binding jsou kontrolovány jako první, pak explicitní přepsání make(), pak registrované vazby kontejneru, pak autowiring
+  explanation: 'Kontejner dodržuje jasnou prioritu: nejprve zkontroluje contextual binding specifické pro spotřebovávací třídu, pak hledá explicitní parametry předané do make(), pak zkontroluje registrované
+    vazby (bind/singleton/scoped) a nakonec se vrátí k autowiring konkrétní třídy přes reflexi. Toto pořadí zajišťuje, že vždy vyhraje nejkonkrétnější konfigurace.'
+- id: sc-028
+  topic: service-container
+  type: single
+  difficulty: těžká
+  question: Jaké je hlavní riziko používání příliš mnoha „instance" vazeb (vazeb předem vytvořených objektů) během testování?
+  options:
+  - Může vytvořit těsně provázané testy, které se rozbijí, když se změní struktura vazeb kontejneru
+  - Kontejner odmítne instance vazby registrované po boot fázi a vyhodí runtime exception
+  - Způsobí, že testy běží pomaleji kvůli výkonové režii z mnoha předem vytvořených instancí objektů
+  - Instance vazby lze používat pouze s konkrétními třídami, nikoliv s rozhraními nebo abstraktními typy
+  answer: Může vytvořit těsně provázané testy, které se rozbijí, když se změní struktura vazeb kontejneru
+  explanation: Nadužívání instance() vazeb v testech může způsobit, že budou křehké. Pokud testy spoléhají na specifické instance objektů, stanou se provázané s interním stavem kontejneru namísto testování
+    chování přes veřejné API. Preferovaným přístupem je použití vazeb na rozhraní nebo dependency injection, aby testy zůstaly oddělené od implementačních detailů kontejneru.
+- id: sc-029
+  topic: service-container
+  type: multiple
+  difficulty: těžká
+  question: Které z následujících výroků správně popisují, jak kontejner zachází s krokem „build" pro konkrétní třídu bez registrované vazby?
+  options:
+  - Rekurzivně vyřeší každý parametr konstruktoru před vytvořením instance třídy
+  - Vyžaduje, aby všechny parametry konstruktoru měly výchozí hodnoty, pokud nejsou type-hintované
+  - Použije PHP ReflectionClass k prozkoumání konstruktoru
+  - Uloží výsledky reflexe do mezipaměti pro rychlejší následná řešení
+  answers:
+  - Použije PHP ReflectionClass k prozkoumání konstruktoru
+  - Rekurzivně vyřeší každý parametr konstruktoru před vytvořením instance třídy
+  - Uloží výsledky reflexe do mezipaměti pro rychlejší následná řešení
+  explanation: Při buildingu neregistrované konkrétní třídy kontejner použije ReflectionClass k analýze konstruktoru, rekurzivně vyřeší každou type-hintovanou závislost a vytvoří instanci třídy. Také ukládá
+    výsledky reflexe do build stacku pro zamezení redundantní reflexe při následných požadavcích. Parametry bez type-hint musí mít výchozí hodnoty, aby byly řešitelné.

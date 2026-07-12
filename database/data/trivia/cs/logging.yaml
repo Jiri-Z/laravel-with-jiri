@@ -1,0 +1,134 @@
+- answer: alert
+  difficulty: lehká
+  explanation: 'PSR-3 definuje osúrovňových logovacích úrovní podle závažnosti: debug, info, notice, warning, error, critical, alert, emergency. alert znamená, že musí být přijata okamžitá akce — případ
+    nedostupného webu nebo služby sem patří. critical je pro kritické podmínky, ale alert je specificky pro situace vyžadující urgentní lidský zásah. emergency je vyhrazeno pro nepoužitelný systém.'
+  id: lg-001
+  options:
+  - critical
+  - error
+  - emergency
+  - alert
+  question: Která PSR-3 logovací úroveň byste měli použít pro podmínku, která vyžaduje okamžitou pozornost, jako je nedostupná databáze?
+  topic: logging
+  type: single
+- alternatives:
+  - logging.php
+  answer: config/logging.php
+  difficulty: lehká
+  explanation: 'Soubor config/logging.php definuje všechny logovací kanály dostupné v aplikaci a určuje, který kanál je výchozí. Každá konfigurace kanálu zahrnuje ovladač (single, daily, syslog, stderr,
+    custom, atd.), cestu k logu, práh logovací úrovně a jakékoli ovladačem specifické volby. Odkazujete na názvy kanálů při psaní logů: Log::channel(''slack'')->info(...).'
+  id: lg-002
+  question: Který konfigurační soubor definuje logovací kanály Laravelu a výchozí logovací kanál?
+  topic: logging
+  type: text
+- answers:
+  - single
+  - daily
+  - stack
+  - monolog
+  difficulty: lehká
+  explanation: 'Laravel poskytuje několik vestavěných ovladačů: single zapisuje do jednoho logovacího souboru, daily rotuje logovací soubory podle dne (s konfigurovatelnou retencí), stack kombinuje více
+    kanálů, monolog umožňuje přímou konfiguraci Monologu, syslog a stderr zapisují do systémového logování a custom umožňuje vytvářet třídy ovladačů. Všechny jsou definovány v config/logging.php.'
+  id: lg-003
+  options:
+  - stack
+  - single
+  - monolog
+  - daily
+  question: Které z následujících jsou platné vestavěné ovladače logovacích kanálů v Laravelu? (Vyberte všechny, které platí)
+  topic: logging
+  type: multiple
+- answer: Automaticky rotuje logovací soubory denně a odstraňuje staré
+  difficulty: střední
+  explanation: Ovladač daily vytvoří nový logovací soubor pro každý den (např. laravel-2025-01-15.log) a odstraní soubory starší než konfigurovaný počet dní (výchozí 7). To brání neomezenému růstu jednotlivých
+    logovacích souborů, což je častý problém s ovladačem single v produkci. Možnost konfigurace days řídí dobu uchování.
+  id: lg-004
+  options:
+  - Umožňuje streamování logů v reálném čase do externích monitorovacích a upozorňovacích služeb
+  - Zapisuje logovací záznamy přímo do databáze místo do lokálních souborů
+  - Automaticky rotuje logovací soubory denně a odstraňuje staré
+  - Zachycuje a loguje podrobnější debugovací zprávy s kompletním stack trace
+  question: Jaká je klíčová výhoda ovladače 'daily' oproti výchozímu ovladači 'single'?
+  topic: logging
+  type: single
+- alternatives:
+  - Log::withContext
+  - shareContext
+  answer: withContext
+  difficulty: střední
+  explanation: 'Log::withContext([''user_id'' => $user->id]) přidá kontextová data, která se připojí ke každé logovací zprávě zbytek aktuálního požadavku. To je užitečné pro přidávání metadat specifických
+    pro požadavek, jako je ID uživatele, ID požadavku nebo ID tenanty. Poznámka: Log::shareContext() je jiné — sdílí kontext napříč celým procesem (užitečné pro zařazované úlohy), zatímco withContext()
+    je omezeno na scope požadavku.'
+  id: lg-005
+  question: Jaká metoda Log facade přidá kontextová data, která budou zahrnuta u každého následujícího logovacího záznamu v aktuálním požadavku?
+  topic: logging
+  type: text
+- answer: Zasílá logovací zprávy do více kanálů současně
+  difficulty: střední
+  explanation: Ovladač stack umožňuje zapisovat jednu logovací zprávu do více kanálů. Konfigurujete jej s polem názvů kanálů pod klíčem channels. Například kanál stack může zapisovat jak do kanálu s denními
+    soubory daily, tak do kanálu s upozorněním na Slack slack. To umožňuje udržovat komplexní logování, zatímco se konkrétní typy zpráv směrují příslušným destinacím.
+  id: lg-006
+  options:
+  - Dává logovací zprávy do dávky a zapisuje je najednou pro zvýšení výkonu
+  - Ukládá logovací zprávy do datové struktury založené na stacku pro načítání LIFO
+  - Zasílá logovací zprávy do více kanálů současně
+  - Komprimuje logovací soubory do archivu tarball
+  question: Co dělá ovladač kanálu 'stack' v konfiguraci logování Laravelu?
+  topic: logging
+  type: single
+- answers:
+  - Log::info('User logged in', ['user_id' => 1])
+  - info('User logged in') pomocí globálního pomocníka info()
+  - Log::channel('stderr')->debug('Debug message')
+  difficulty: střední
+  explanation: Laravel poskytuje Log facade s metodami specifickými pro úroveň (debug, info, warning, error, atd.), globálními pomocnými funkcemi (info(), logger()) a logováním specifickým pro kanál přes
+    Log::channel('name'). Druhý argument je volitelné pole kontextu. Logger::write() není platná Laravel metoda.
+  id: lg-007
+  options:
+  - Logger::write('info', 'Message')
+  - info('User logged in') pomocí globálního pomocníka info()
+  - Log::info('User logged in', ['user_id' => 1])
+  - Log::channel('stderr')->debug('Debug message')
+  question: Které z následujících správně popisují, jak zapisovat logovací zprávy v Laravelu? (Vyberte všechny, které platí)
+  topic: logging
+  type: multiple
+- answer: shareContext() udržuje kontext napříč procesy zařazených úloh, zatímco withContext() je omezeno na scope požadavku
+  difficulty: těžká
+  explanation: Log::withContext() přidá kontext pouze pro aktuální životní cyklus požadavku. Když se zařazená úloha spustí v samostatném procesu, tento kontext je ztracen. Log::shareContext() však sdílí
+    kontext napříč celým procesem a je automaticky předán zařazeným úlohám. To je nezbytné, když potřebujete ID požadavku nebo ID tenanta, aby přetrvalo z controlleru přes logovací záznamy v dispatchované
+    úloze.
+  id: lg-008
+  options:
+  - shareContext() šifruje kontextová data před předáním ovladači logovacího kanálu
+  - shareContext() je výrazně rychlejší než withContext(), protože vynechává re-parsing
+  - shareContext() udržuje kontext napříč procesy zařazených úloh, zatímco withContext() je omezeno na scope požadavku
+  - Neexistuje funkční rozdíl — jsou plně zaměnitelné ve všech scénářích
+  question: Proč byste mohli použít Log::shareContext() místo Log::withContext() v aplikaci, která používá zařazené úlohy?
+  topic: logging
+  type: single
+- alternatives:
+  - Log::build
+  - Log::stack
+  answer: build
+  difficulty: těžká
+  explanation: 'Log::build() vytvoří jednorázovou instanci kanálu s vlastní konfigurací a volitelným dodatečným kontextem. Například: Log::build([''driver'' => ''single'', ''path'' => storage_path(''logs/custom.log'')])->info(''Zpráva'').
+    To je užitečné, když potřebujete zapisovat do nekonfigurovaného kanálu nebo kanálu s nastaveními specifickými pro běh bez úpravy config/logging.php nebo ovlivnění výchozího kanálu.'
+  id: lg-009
+  question: Jaká metoda na Log facade vytváří novou instanci logovacího kanálu s dodatečným vlastním kontextem, bez ovlivnění výchozího kanálu?
+  topic: logging
+  type: text
+- answers:
+  - Klíč 'via' odkazující na callable, který vytváří Logger instanci
+  - Klíč 'driver' nastavený na 'custom'
+  difficulty: těžká
+  explanation: 'Vlastní logovací kanál vyžaduje driver nastavený na custom a klíč via. Hodnota via je volatelná (typicky vyvolatelná třída nebo [Class::class, ''method'']), která přijímá konfigurační pole
+    kanálu a musí vrátit instanci Psr     og     oggerInterface. Uvnitř této volatelné konfigurujete Monolog handlery a procesory. Neexistuje požadovaný klíč path nebo handler — to jsou implementační detaily, které si definujete sami.'
+  id: lg-010
+  options:
+  - Třída 'handler', která rozšiřuje Monolog\Handler\HandlerInterface
+  - Klíč 'via' odkazující na callable, který vytváří Logger instanci
+  - Klíč 'path' určující, kam se mají zapisovat logs
+  - Klíč 'driver' nastavený na 'custom'
+  question: Při vytváření vlastního logovacího kanálu pomocí 'custom' driveru, co musíte poskytnout v konfiguraci kanálu? (Vyberte vše, co platí)
+  topic: logging
+  type: multiple

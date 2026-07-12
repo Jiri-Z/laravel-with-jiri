@@ -1,0 +1,386 @@
+- id: rs-001
+  topic: responses
+  type: single
+  difficulty: lehká
+  question: Co vrací helper funkce response() ve výchozím nastavení v Laravelu?
+  options:
+  - Objekt JSON response s datovým payloadem
+  - Přímo instanci Symfony Response
+  - Prostý textový řetězec vykresleného výstupu
+  - Instanci Illuminate\Http\Response
+  answer: Instanci Illuminate\Http\Response
+  explanation: Helper response() vrací instanci Illuminate\Http\Response, která dědí z BaseResponse od Symfony. Můžete na ní řetězit metody jako header(), cookie() a setContent(). Když z controlleru vrátíte
+    řetězec, Laravel jej automaticky obalí do Response objektu.
+- id: rs-002
+  topic: responses
+  type: text
+  difficulty: lehká
+  question: Jaká helper funkce vytváří redirect response na předchozí URL v Laravelu?
+  answer: back
+  alternatives:
+  - back()
+  - redirect()->back()
+  - redirect back
+  explanation: Helper back() (nebo redirect()->back()) vytváří redirect response na předchozí URL, přičemž využívá HTTP hlavičku Referer nebo se vrátí na nakonfigurovanou záložní URL. To se běžně používá
+    po odeslání formuláře pro návrat uživatele na stránku, ze které přišel, často s chybovými hláškami validation uloženými v session.
+- id: rs-003
+  topic: responses
+  type: single
+  difficulty: lehká
+  question: Která metoda se používá pro vrácení JSON response s konkrétním HTTP status kódem v controlleru?
+  options:
+  - response()->json(['data' => $items], 201)
+  - Response::make($items)->toJson(201)
+  - json(['data' => $items])->status(201)
+  - response()->toJson(['data' => $items], 201)
+  answer: response()->json(['data' => $items], 201)
+  explanation: Metoda response()->json() přijímá data jako první argument a volitelný HTTP status kód jako druhý. Automaticky nastaví hlavičku Content-Type na application/json a zakóduje data. Toto je standardní
+    způsob vrácení JSON API response v Laravel controllerech.
+- id: rs-004
+  topic: responses
+  type: multiple
+  difficulty: lehká
+  question: Které z následujících jsou platné způsoby vytvoření redirect response v Laravel controlleru? (Vyberte všechny, které platí)
+  options:
+  - redirect()->route('home')
+  - redirect()->action([HomeController::class, 'index'])
+  - redirect('/home')
+  - redirect()->to('home')
+  answers:
+  - redirect('/home')
+  - redirect()->route('home')
+  - redirect()->action([HomeController::class, 'index'])
+  explanation: 'Laravel poskytuje více metod pro redirect: redirect(''/url'') pro přímé URL, redirect()->route(''name'') pro pojmenované routy s volitelnými parametry a redirect()->action() pro controller
+    akce. Metoda redirect()->to() také funguje pro URL. Všechny vrací instanci RedirectResponse.'
+- id: rs-005
+  topic: responses
+  type: single
+  difficulty: lehká
+  question: Co dělá return response()->download($path)?
+  options:
+  - Vytvoří dočasný soubor na disku a vrátí jeho plnou systémovou cestu volajícímu kódu
+  - Pošle soubor jako download s příslušnými Content-Disposition hlavičkami
+  - Stáhne soubor ze vzdálené URL a postupně ho streamuje po částech do prohlížeče
+  - Přesune zadaný soubor z úložiště do veřejného adresáře pro přímý webový přístup
+  answer: Pošle soubor jako download s příslušnými Content-Disposition hlavičkami
+  explanation: Metoda download() pošle soubor na zadané cestě jako download response. Nastaví hlavičku Content-Disposition na 'attachment' a Content-Type na základě MIME typu souboru. Prohlížeč vyzve uživatele
+    k uložení souboru místo jeho zobrazení. Název souboru můžete upravit druhým parametrem.
+- id: rs-006
+  topic: responses
+  type: text
+  difficulty: lehká
+  question: Jaká metoda na response objektu vám umožňuje přidat cookie do odchozí HTTP response?
+  answer: cookie
+  alternatives:
+  - cookie()
+  - withCookie
+  explanation: Metoda cookie() na response objektu zařadí cookie do fronty pro odeslání s odpovědí. Přijímá název cookie, hodnotu, expiraci v minutách, cestu, doménu, secure flag a httpOnly flag. Toto je
+    protějšek na straně response pro čtení cookies z requestů.
+- id: rs-007
+  topic: responses
+  type: single
+  difficulty: lehká
+  question: Jak nastavíte vlastní hlavičku na Laravel response?
+  options:
+  - response()->setHeader('X-Custom', 'value')
+  - response()->header('X-Custom', 'value')
+  - response()->addHeader('X-Custom', 'value')
+  - response()->pushHeader('X-Custom', 'value')
+  answer: response()->header('X-Custom', 'value')
+  explanation: Metoda header() na response objektu přidá hlavičku k HTTP odpovědi. Přijímá název a hodnotu hlavičky. Běžně se používá pro vlastní API hlavičky, CORS hlavičky nebo cache control direktivy.
+    Více volání header() se stejným názvem nahradí předchozí hodnotu.
+- id: rs-008
+  topic: responses
+  type: multiple
+  difficulty: lehká
+  question: Které z následujících typů response jsou vestavěné v Laravelu? (Vyberte všechny, které platí)
+  options:
+  - JsonResponse
+  - CsvResponse
+  - RedirectResponse
+  - StreamedResponse
+  answers:
+  - JsonResponse
+  - RedirectResponse
+  - StreamedResponse
+  explanation: Laravel poskytuje JsonResponse pro JSON data, RedirectResponse pro HTTP přesměrování a StreamedResponse pro streamování velkých výstupů. Neexistuje žádná vestavěná CsvResponse — pro CSV download
+    byste typicky použili streamed response s callbackem, který vypisuje CSV řádky, nebo metodu response()->streamDownload().
+- id: rs-009
+  topic: responses
+  type: single
+  difficulty: lehká
+  question: Jaký je výchozí HTTP status kód při použití redirect() bez zadání kódu?
+  options:
+  - 301 Moved Permanently
+  - 200 OK
+  - 302 Found
+  - 307 Temporary Redirect
+  answer: 302 Found
+  explanation: Ve výchozím nastavení používají Laravelovy redirect response status kód 302, což je dočasné přesměrování. Můžete to změnit předáním status kódu jako druhého argumentu nebo použitím specifických
+    metod jako redirect()->permanentRedirect(), která používá 301. Pro API přesměrování zachovávají 307 nebo 308 HTTP metodu.
+- id: rs-010
+  topic: responses
+  type: text
+  difficulty: lehká
+  question: Jaká response metoda pošle soubor do prohlížeče pro inline zobrazení (např. zobrazení PDF v prohlížeči) místo vynucení stažení?
+  answer: file
+  alternatives:
+  - file()
+  - response()->file()
+  explanation: Metoda file() (response()->file($path)) pošle soubor s Content-Disposition 'inline', takže se prohlížeč pokusí ho přímo zobrazit. Naproti tomu download() používá 'attachment', což vyvolá
+    dialogové okno pro uložení. To je užitečné pro servírování obrázků, PDF nebo jiného média, které se má vykreslit v prohlížeči.
+- id: rs-011
+  topic: responses
+  type: single
+  difficulty: střední
+  question: Jaký je rozdíl mezi redirect()->with() a redirect()->withInput()?
+  options:
+  - with() je výhradně pro flashování chybových zpráv validation, zatímco withInput() pouze flashuje stará uživatelská vstupní data
+  - Není mezi nimi žádný významný rozdíl; jsou to prostě aliasy, které dělají úplně totéž
+  - with() flashuje data do session, withInput() flashuje pouze vstupní data do session
+  - with() trvale ukládá data v úložišti session, zatímco withInput() si data uchovává pouze pro jeden následující request
+  answer: with() flashuje data do session, withInput() flashuje pouze vstupní data do session
+  explanation: 'Obě metody flashují data do session pro další request. with(''key'', ''value'') flashuje libovolné klíč-hodnota páry (např. status zprávy), zatímco withInput() specificky flashuje veškerý
+    aktuální request input, aby mohly být formuláře předvyplněny. Často se používají společně: redirect()->withInput()->with(''status'', ''Aktualizováno!'')'
+- id: rs-012
+  topic: responses
+  type: single
+  difficulty: střední
+  question: Proč byste použili response()->stream() místo běžné response pro velký dataset?
+  options:
+  - Automaticky převádí response data do správně formátovaného JSON řetězce před odesláním klientovi
+  - Umožňuje efektivnější cachování response dat serverem a na CDN edge cachovacích umístěních
+  - Odesílá data po částech podle toho, jak jsou generována, což snižuje spotřebu paměti
+  - Umožňuje persistentní WebSocket připojení pro real-time obousměrné streamování response dat klientům
+  answer: Odesílá data po částech podle toho, jak jsou generována, což snižuje spotřebu paměti
+  explanation: Metoda stream() přijímá callback, který dostane výstupní stream. Váš kód do tohoto streamu zapisuje postupně a data se odesílají klientovi, jak jsou vytvořena. Tím se zabrání načtení celé
+    odpovědi do paměti, což je ideální pro velké CSV exporty, generování rozsáhlých reportů nebo jakýkoliv scénář, kde by byl celý výstup příliš velký na uchování v paměti.
+- id: rs-013
+  topic: responses
+  type: multiple
+  difficulty: střední
+  question: Při použití redirect()->route('profile', ['user' => 1]), které z následujících tvrzení jsou pravdivá? (Vyberte vše, co platí)
+  options:
+  - Parametr routy 'user' je automaticky URL-kódován
+  - Hodnota parametru 'user' je předána jako query string parametr, nikoliv jako parametr routy
+  - Vygeneruje URL na základě pojmenované routy a přesměruje na ni
+  - Můžete předat Eloquent modely místo ID a Laravel automaticky extrahuje route key
+  answers:
+  - Parametr routy 'user' je automaticky URL-kódován
+  - Vygeneruje URL na základě pojmenované routy a přesměruje na ni
+  - Můžete předat Eloquent modely místo ID a Laravel automaticky extrahuje route key
+  explanation: Metoda route() pro přesměrování generuje URL z pojmenované routy a dosazuje parametry do URI. Laravel automaticky URL-kóduje hodnoty parametrů a můžete předat Eloquent modely jako hodnoty
+    parametrů — Laravel použije route key modelu (typicky ID). Parametry, které se neobjeví v URI, jsou automaticky připojeny jako query string parametry.
+- id: rs-014
+  topic: responses
+  type: text
+  difficulty: střední
+  question: Jaká metoda na Redirector vám umožňuje flashovat chyby validation z instance validatoru spolu s přesměrováním?
+  answer: withErrors
+  alternatives:
+  - withErrors()
+  - withErrors
+  explanation: Metoda withErrors() přijímá instanci Validator, MessageBag nebo prosté pole a flashuje chyby do session. Při vykreslení přesměrované stránky je proměnná $errors automaticky k dispozici ve
+    vašich pohledech. Takto Laravel propojuje selhání validation u požadavku na formulář s formulářem, který jej odeslal.
+- id: rs-015
+  topic: responses
+  type: single
+  difficulty: střední
+  question: K čemu slouží response()->noContent() v REST API?
+  options:
+  - Vrací standardní 200 OK response s null JSON tělem pro indikaci prázdného, ale úspěšného výsledku
+  - Vrací status 204 No Content s prázdným tělem, ideální pro úspěšné operace DELETE nebo PUT
+  - Zakáže veškerou kompresi těla response, aby byl nezkomprimovaný obsah odeslán klientovi
+  - Odstraní všechny HTTP hlavičky z odchozí response, včetně content-type a cache-control direktiv
+  answer: Vrací status 204 No Content s prázdným tělem, ideální pro úspěšné operace DELETE nebo PUT
+  explanation: Metoda noContent() vrací HTTP 204 response bez těla, v souladu s osvědčenými postupy REST pro operace, které uspějí, ale nemají žádná data k vrácení. To se běžně používá po DELETE requestech
+    (zdroj smazán) nebo PUT/PATCH requestech (zdroj aktualizován), kde by vrácení celého zdroje bylo zbytečná režie.
+- id: rs-016
+  topic: responses
+  type: single
+  difficulty: střední
+  question: Jak se liší response()->jsonp($data, $callback) od response()->json($data)?
+  options:
+  - json je rychlejší, protože jsonp vyžaduje další zpracování na straně serveru pro zabalení payloadu do callbacku
+  - Není mezi nimi žádný funkční rozdíl; obě metody produkují identický výstup se stejnými hlavičkami a content type
+  - jsonp kóduje response data jako formát XML s JSON fallbackem pro kompatibilitu se staršími prohlížeči
+  - jsonp zabalí JSON do volání callback funkce pro cross-domain požadavky
+  answer: jsonp zabalí JSON do volání callback funkce pro cross-domain požadavky
+  explanation: 'JSONP (JSON with Padding) zabalí JSON odpověď do volání funkce určené parametrem callback (např. callbackName({...})). Tato technika umožňuje získávání dat napříč doménami využitím skutečnosti,
+    že <script> tagy nepodléhají stejnému původu (same-origin policy). Upozornění: JSONP je dnes z velké části zastaralý, protože CORS je široce podporován.'
+- id: rs-017
+  topic: responses
+  type: multiple
+  difficulty: střední
+  question: Které z následujících metod správně nastavují hlavičky související s mezipamětí na response? (Vyberte všechny, které platí)
+  options:
+  - response()->setCache(['max_age' => 3600, 'public' => true])
+  - response()->cache('no-store')
+  - response()->header('ETag', $hash)
+  - response()->header('Cache-Control', 'no-cache, no-store')
+  answers:
+  - response()->header('Cache-Control', 'no-cache, no-store')
+  - response()->header('ETag', $hash)
+  - response()->setCache(['max_age' => 3600, 'public' => true])
+  explanation: Cache hlavičky lze nastavit pomocí obecné metody header() nebo specializované metody setCache(), která přijímá pole cache direktiv. ETag lze také nastavit pomocí metody header(). Na response
+    objektu neexistuje žádná dedikovaná metoda cache() — tento název by byl nejednoznačný s Laravelovým cache systémem.
+- id: rs-018
+  topic: responses
+  type: text
+  difficulty: střední
+  question: Jak se jmenuje trait Macroable, který vám umožňuje definovat vlastní metody na Laravelově response objektu?
+  answer: Macroable
+  alternatives:
+  - Illuminate\Support\Traits\Macroable
+  - Macroable trait
+  explanation: Trait Macroable umožňuje přidávat vlastní metody k Laravelově Response třídě za běhu pomocí Response::macro('name', function() {}). To je užitečné pro vytváření znovupoužitelných response
+    vzorů. Například můžete vytvořit macro, který vrací standardizovaný formát API chybové response používaný napříč všemi controllery.
+- id: rs-019
+  topic: responses
+  type: single
+  difficulty: střední
+  question: Co se stane, když přímo z Laravel routy nebo controlleru vrátíte Eloquent model?
+  options:
+  - Laravel vykreslí výchozí Blade view šablonu pomocí všech atributů modelu jako view dat
+  - Laravel vyhodí runtime výjimku, protože Eloquent modely nelze přímo vracet z route closures
+  - Laravel serializuje model do XML dokumentu a nastaví příslušnou XML content-type hlavičku
+  - Laravel automaticky převede model na JSON response se status kódem 200
+  answer: Laravel automaticky převede model na JSON response se status kódem 200
+  explanation: Když je z controlleru vrácen Eloquent model nebo kolekce, Laravel jej automaticky serializuje do JSON a obalí do JsonResponse se status kódem 200. To platí také pro objekty implementující
+    Arrayable nebo Jsonable. Tato konvence dělá tvorbu API endpointů extrémně stručnou — stačí jednoduše vrátit model z vaší route closure nebo controller metody.
+- id: rs-020
+  topic: responses
+  type: single
+  difficulty: střední
+  question: Proč byste použili response()->streamDownload() místo response()->download()?
+  options:
+  - streamDownload nativně podporuje obnovitelné částečné downloady pomocí HTTP range hlaviček, zatímco metoda download nikoliv
+  - download funguje pouze se soubory na lokálním filesystému, zatímco streamDownload může stahovat ze vzdálených URL a streamovat je
+  - streamDownload generuje obsah souboru dynamicky přes callback, čímž se vyhýbá načítání celého souboru do paměti
+  - streamDownload je výrazně rychlejší pro malé soubory, protože se vyhýbá režii bufferování celého souboru v paměti
+  answer: streamDownload generuje obsah souboru dynamicky přes callback, čímž se vyhýbá načítání celého souboru do paměti
+  explanation: 'Metoda streamDownload() přijímá callback, který dostane zapisovatelný stream. Váš kód do tohoto streamu zapisuje postupně a response odesílá data, jak jsou generována, s hlavičkami Content-Disposition:
+    attachment. To je ideální pro dynamické generování velkých CSV nebo PDF exportů bez toho, abyste kdy drželi celý obsah souboru v paměti.'
+- id: rs-021
+  topic: responses
+  type: multiple
+  difficulty: střední
+  question: Které z následujících jsou platné způsoby vytvoření cookie na response v Laravelu? (Vyberte všechny, které platí)
+  options:
+  - Session::putCookie('name', 'value', 60)
+  - Cookie::queue('name', 'value', 60)
+  - response()->cookie('name', 'value', 60)
+  - $response->withCookie(cookie('name', 'value', 60))
+  answers:
+  - response()->cookie('name', 'value', 60)
+  - Cookie::queue('name', 'value', 60)
+  - $response->withCookie(cookie('name', 'value', 60))
+  explanation: Cookies lze připojit ke konkrétní response pomocí cookie() nebo withCookie(), nebo globálně zařadit do fronty pomocí Cookie::queue(), která bude odeslána s finální response bez ohledu na
+    to, který response objekt je vrácen. Neexistuje žádná metoda Session::putCookie() — cookies a session jsou v Laravelu samostatné koncepty.
+- id: rs-022
+  topic: responses
+  type: single
+  difficulty: těžká
+  question: Jaký je hlavní rozdíl mezi „resource response" (vrácení Resource třídy) a „JSON response" (použitím response()->json()) pro vývoj API?
+  options:
+  - Resource response automaticky zpracovávají paginaci metadata a filtrování polí, zatímco json() vyžaduje ruční strukturu
+  - Není mezi těmito přístupy žádný praktický rozdíl; API resource třídy interně volají json() pro vytvoření response
+  - json() je v benchmarcích znatelně rychlejší, protože API resources zavádějí zbytečnou režii transformace a extra volání metod
+  - Resource response lze použít pouze s instancemi Eloquent modelů a kolekcemi, nikoliv s prostými PHP poli nebo stdClass objekty
+  answer: Resource response automaticky zpracovávají paginaci metadata a filtrování polí, zatímco json() vyžaduje ruční strukturu
+  explanation: API Resources poskytují transformační vrstvu mezi vašimi modely a JSON odpověďmi. Zpracovávají paginaci odkazy, podmíněné zahrnutí polí pomocí when()/whenLoaded() a kontrolu načítání vztahů.
+    Zatímco json() je vhodný pro jednoduché odpovědi, resources vám dávají konzistentní, udržovatelné formátování API výstupu, které odděluje tvar odpovědi od vaší interní datové struktury.
+- id: rs-023
+  topic: responses
+  type: text
+  difficulty: těžká
+  question: Jaká metoda na response objektu okamžitě vyhodí HttpResponseException, čímž obejde veškerý zbývající kód v controlleru?
+  answer: throwResponse
+  alternatives:
+  - throwResponse()
+  - abort
+  - abort()
+  explanation: Metoda throwResponse() vezme response objekt a vyhodí jej jako HttpResponseException, kterou Laravelův exception handler zachytí a pošle do prohlížeče. Helper abort() interně používá tento
+    mechanismus. To je užitečné v middleware nebo službách, kde potřebujete předčasně ukončit request cyklus a okamžitě vrátit konkrétní response.
+- id: rs-024
+  topic: responses
+  type: single
+  difficulty: těžká
+  question: Co rozhoduje o tom, zda Laravel při selhání validation u FormRequest vrátí redirect nebo JSON response?
+  options:
+  - Konfigurační hodina APP_ENV aplikace udávající aktuální prostředí
+  - Konfigurační volba FAIL_ON_JSON v souboru validation.php
+  - Zda request očekává JSON (kontroluje Accept hlavičku nebo X-Requested-With)
+  - Definice routy — API routy vracejí JSON, web routy vracejí redirecty
+  answer: Zda request očekává JSON (kontroluje Accept hlavičku nebo X-Requested-With)
+  explanation: Laravelův FormRequest kontroluje $request->expectsJson() (který prohlíží Accept hlavičku pro application/json) a $request->ajax() pro rozhodnutí o formátu chyb. Pokud je některý z nich true,
+    vrátí 422 JSON response s chybami validation. V opačném případě přesměruje zpět na předchozí URL s flashnutými chybami a inputem. K tomu dochází v metodě failedValidation() třídy FormRequest.
+- id: rs-025
+  topic: responses
+  type: multiple
+  difficulty: těžká
+  question: Které z následujících tvrzení o response macros jsou správná? (Vyberte všechny, které platí)
+  options:
+  - Macros mohou přijímat parametry a vracet Response instanci
+  - Macros jsou automaticky k dispozici na JsonResponse, ale ne na RedirectResponse
+  - Jakmile jsou definovány, macros lze volat jako metody na jakékoliv response() instanci
+  - Macros jsou definovány pomocí Response::macro('name', Closure)
+  answers:
+  - Macros jsou definovány pomocí Response::macro('name', Closure)
+  - Jakmile jsou definovány, macros lze volat jako metody na jakékoliv response() instanci
+  - Macros mohou přijímat parametry a vracet Response instanci
+  explanation: Response macros jsou registrovány pomocí Response::macro() a stanou se dostupnými na všech response instancích. Mohou přijímat argumenty a měly by vracet Response objekt. Macros definované
+    na Illuminate\Http\Response však nejsou automaticky dostupné na JsonResponse nebo RedirectResponse, protože to jsou různé třídy — pro každou byste museli zaregistrovat samostatné macros.
+- id: rs-026
+  topic: responses
+  type: single
+  difficulty: těžká
+  question: Jak můžete vytvořit response, která nastaví více cookies při zachování čistého, znovupoužitelného kódu?
+  options:
+  - Zřetězit více volání cookie() na response objektu — avšak pouze to úplně první volání bude mít skutečný efekt
+  - Uložit cookies v session datách a nechat Laravel je automaticky přesunout do odchozích response hlaviček při odeslání
+  - Použít Cookie::queue() pro zařazení cookies do fronty před vrácením response, nebo vytvořit vlastní response macro
+  - Vrátit pole cookie objektů přímo z controller metody a nechat Laravel je připojit k response
+  answer: Použít Cookie::queue() pro zařazení cookies do fronty před vrácením response, nebo vytvořit vlastní response macro
+  explanation: Cookie::queue() je nejčistší přístup pro více cookies — zařadí cookies, které budou odeslány s jakoukoliv response, která je nakonec vrácena, čímž odděluje cookie logiku od budování response.
+    Případně můžete zřetězit volání cookie() na response (všechna volání fungují, nejen to první), nebo vytvořit response macro, která zapouzdří běžnou sadu cookies a hlaviček.
+- id: rs-027
+  topic: responses
+  type: text
+  difficulty: těžká
+  question: Jaká Symfony třída rozšiřuje Laravelovu BinaryFileResponse, která zpracovává file range požadavky (částečný obsah / byte serving)?
+  answer: BinaryFileResponse
+  alternatives:
+  - Symfony\Component\HttpFoundation\BinaryFileResponse
+  - Symfony\HttpFoundation\BinaryFileResponse
+  explanation: Laravelova response()->file() a response()->download() obě vrací instanci Illuminate\Http\BinaryFileResponse, která dědí ze Symfony BinaryFileResponse. Základní Symfony třída automaticky
+    zpracovává Range hlavičky pro byte-serving, podporuje funkce jako posouvání videa a obnovování stahování bez jakéhokoliv dodatečného kódu na vaší straně.
+- id: rs-028
+  topic: responses
+  type: single
+  difficulty: těžká
+  question: Jaký je správný přístup pro odeslání response se status kódem 429 Too Many Requests v Laravel aplikaci?
+  options:
+  - abort(429, 'Too Many Requests')
+  - Žádný z přístupů nefunguje; musíte použít vlastní třídu výjimky
+  - Oba přístupy fungují a jsou platné
+  - response()->json(['error' => 'Too Many Requests'], 429)
+  answer: Oba přístupy fungují a jsou platné
+  explanation: 'Jak response()->json([], 429), tak abort(429) produkují platné 429 odpovědi. Rozdíl je stylistický a kontextový: abort() vyhodí HttpResponseException, což je čistší v middleware nebo u časných
+    návratů, zatímco response()->json() vám dává větší kontrolu nad tělem odpovědi. Throttle middleware (RateLimiter) interně používá přístup přes abort.'
+- id: rs-029
+  topic: responses
+  type: multiple
+  difficulty: těžká
+  question: Při sestavování response v Laravel event listeneru nebo service provideru, které přístupy mohou správně vrátit response klientovi? (Vyberte všechny, které platí)
+  options:
+  - Vyhodit HttpResponseException s response
+  - Vypsat obsah response pomocí echo a zavolat exit
+  - Nastavit response na instanci aplikace pomocí $app->response = $response
+  - Vrátit response z route closure nebo controller metody
+  answers:
+  - Vrátit response z route closure nebo controller metody
+  - Vyhodit HttpResponseException s response
+  explanation: V běžném Laravel flow jsou response vraceny z route closures nebo controllerů. Nicméně v kontextech mimo controller (middleware, event listenery, service providery) můžete vyhodit HttpResponseException
+    pro okamžité odeslání response. Vypisování obsahu pomocí echo a volání exit obchází middleware a nikdy se nedoporučuje. Nastavení response na instanci aplikace není podporovaný mechanismus pro odesílání
+    response.

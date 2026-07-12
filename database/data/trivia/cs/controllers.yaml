@@ -1,0 +1,397 @@
+- answer: App\Http\Controllers
+  difficulty: lehká
+  explanation: Všechny kontrolery v Laravel aplikaci jsou ve výchozím umístěny v namespace App\Http\Controllers. Základní kontrolní třída (Controller.php) je také v tomto namespace a poskytuje sdílenou
+    funkcionalitu jako authorize() a validate() metody, které všechny kontrolery dědí.
+  id: ct-001
+  options:
+  - App\Controllers
+  - App\Http\Controllers
+  - App\Http\Controllers\Controller
+  - App\Http\Controller
+  question: Jaký je výchozí namespace pro kontrolery v Laravel aplikaci?
+  topic: controllers
+  type: single
+- answer: php artisan make:controller PostController --resource
+  difficulty: lehká
+  explanation: '--resource flag generuje kontroler se všemi sedmi standardními RESTful akcemi: index (vypsat všechny), create (zobrazit formulář pro vytvoření), store (uložit nový), show (zobrazit jeden),
+    edit (zobrazit formulář pro úpravu), update (uložit změny) a destroy (smazat). To poskytuje konzistentní konvenci pro CRUD operace, se kterou jsou Laravel vývojáři obeznámeni.'
+  id: ct-002
+  options:
+  - php artisan make:controller PostController --restful
+  - php artisan make:controller PostController --resource
+  - php artisan create:controller PostController --all
+  - php artisan make:resource PostController
+  question: Který artisan příkaz vytvoří nový resource controller se všemi sedmi RESTful metodami (index, create, store, show, edit, update, destroy)?
+  topic: controllers
+  type: single
+- answers:
+  - $this->validate($request, $rules)
+  - $this->authorize($ability, $arguments)
+  difficulty: lehká
+  explanation: Základní Controller třída (která používá AuthorizesRequests, ValidatesRequests a ValidatesInput traits) poskytuje validate() pro validaci požadavků a authorize() pro policy/gate autorizační
+    kontroly. Metoda middleware() je dostupná v kontrolerech ale pochází z ControllerMiddleware trait. Neexistuje vestavěná response() pomocná metoda v základním kontroleru — používáte response() globální
+    pomocnou funkci nebo přímo vracíte Response objekty.
+  id: ct-003
+  options:
+  - $this->validate($request, $rules)
+  - $this->response($data, $status)
+  - $this->middleware($middleware)
+  - $this->authorize($ability, $arguments)
+  question: Které z následujících jsou platné metody, které Laravel základní Controller třída poskytuje svým podtřídám?
+  topic: controllers
+  type: multiple
+- alternatives:
+  - php artisan make:controller PostController --api --resource --model=Post
+  - php artisan make:api:controller PostController --model=Post
+  answer: php artisan make:controller PostController --api --model=Post
+  difficulty: lehká
+  explanation: --api flag vytvoří resource controller pouze s API relevantními metodami (index, store, show, update, destroy — vynechává create a edit, které jsou pro HTML formuláře). --model=Post flag
+    přidává type-hints a route model binding do signatur metod. Tato kombinace je standardním způsobem, jak scaffoldovat API kontrolery v Laravel.
+  id: ct-004
+  question: Který artisan příkaz se používá pro vytvoření kontrolery, která je již vázána na konkrétní Eloquent model (API resource controller)?
+  topic: controllers
+  type: text
+- answer: Registruje více tras pro standardní CRUD operace, mapuje každý HTTP verb a path na příslušnou metodu kontroleru
+  difficulty: lehká
+  explanation: 'Route::resource(''posts'', PostController::class) vytvoří sedm tras: GET /posts (index), GET /posts/create (create), POST /posts (store), GET /posts/{post} (show), GET /posts/{post}/edit
+    (edit), PUT/PATCH /posts/{post} (update), a DELETE /posts/{post} (destroy). To poskyvá konvenční RESTful routing pattern.'
+  id: ct-005
+  options:
+  - Vytvoří jednu položku trasy, která dynamicky přesměrovává požadavky na různé metody kontroleru na základě HTTP metody
+  - Registruje více tras pro standardní CRUD operace, mapuje každý HTTP verb a path na příslušnou metodu kontroleru
+  - Vytvoří za běhu třídu kontroleru, která obsahuje předdefinované resource-specific akční metody pro každou HTTP metodu
+  - Registruje resource-based middleware, který automaticky zpracovává všechny standardní CRUD operace ve skupině tras
+  question: Co dělá Route::resource() metoda při mapování kontroleru na trasy?
+  topic: controllers
+  type: single
+- answers:
+  - only
+  - except
+  - names
+  difficulty: lehká
+  explanation: 'Route::resource() podporuje několik možností pro úpravu: only (určete, které trasy zahrnout), except (určete, které vynechat), names (vlastní mapování názvů), parameters (vlastní názvy parametrů)
+    a middleware (per-route middleware). "constraints" možnost není platná resource možnost — používáte ->where() pro omezení parametrů.'
+  id: ct-006
+  options:
+  - except
+  - constraints
+  - only
+  - names
+  question: Které z následujících jsou platné možnosti pro Route::resource() metodu pro úpravu, které trasy jsou registrovány?
+  topic: controllers
+  type: multiple
+- answer: Běžný kontroler má více metod; invokable kontroler má jedinou __invoke() metodu, která zpracovává požadavek
+  difficulty: lehká
+  explanation: 'Invokable kontrolery implementují __invoke() magickou metodu, což umožňuje jejich použití jako single-action kontroler. Místo odkazování na PostController@store odkazujete přímo na PostController::class.
+    To je užitečné pro kontrolery, které provádějí pouze jednu akci. Vytvoříte je pomocí: php artisan make:controller PublishPostController --invokable.'
+  id: ct-007
+  options:
+  - Běžný kontroler vrací views pro zobrazení; invokable kontroler výhradně vrací JSON-formátované API odpovědi
+  - Běžný kontroler zpracovává více web tras; invokable kontroler je navržen specificky pro API endpoint trasy
+  - Běžný kontroler má více metod; invokable kontroler má jedinou __invoke() metodu, která zpracovává požadavek
+  - Invokable kontroler rozšiřuje samostatnou InvokableController základní třídu místo standardní Controller třídy
+  question: Jaký je rozdíl mezi běžným kontrolerem a invokable kontrolerem v Laravel?
+  topic: controllers
+  type: single
+- alternatives:
+  - Illuminate\Foundation\Validation\ValidatesRequests
+  - trait ValidatesRequests
+  answer: ValidatesRequests
+  difficulty: lehká
+  explanation: ValidatesRequests trait poskytuje validate() metodu, kterou všechny kontrolery dědí. Tato metoda přijímá Request objekt a validation rules, spustí validaci a automaticky vrátí zpět s chybami
+    při selhání nebo pokračuje v provádění při úspěchu. Je to pohodlná alternativa k vytváření samostatných FormRequest tříd pro jednoduché validační scénáře.
+  id: ct-008
+  question: Jaký trait používá Laravel základní Controller třída k poskytnutí validate() metody pro inline validaci požadavků?
+  topic: controllers
+  type: text
+- answers:
+  - return view('posts.index', ['posts' => $posts]);
+  - return redirect()->route('posts.show', ['post' => $post->id]);
+  - return response()->json(['data' => $post]);
+  - return new JsonResponse($data, 200);
+  difficulty: lehká
+  explanation: Laravelové controllery jsou flexibilní v návratových typech. Můžete vracet odpovědi s view (pro HTML stránky), redirect odpovědi (pro odesílání formulářů), JSON odpovědi (pro API) a dokonce
+    přímo Response objekty. Laravelův router automaticky převádí různé návratové typy na správné HTTP odpovědi. Můžete také vracet řetězce, pole (převedená na JSON) nebo Eloquent modely.
+  id: ct-009
+  options:
+  - return redirect()->route('posts.show', ['post' => $post->id]);
+  - return response()->json(['data' => $post]);
+  - return new JsonResponse($data, 200);
+  - return view('posts.index', ['posts' => $posts]);
+  question: Které z následujících jsou platné způsoby, jak vrátit odpověď z metody Laravel controlleru?
+  topic: controllers
+  type: multiple
+- answer: FormRequest třídy oddělují logiku validace od controllerů, což činí kód znovupoužitelnějším, testovatelnějším a v souladu se zásadou jediné odpovědnosti
+  difficulty: střední
+  explanation: 'FormRequest třídy zapouzdřují validační pravidla a autorizační logiku ve vyhrazené třídě. Výhody zahrnují: (1) controllerů zůstávají zaměřeny na zpracování požadavků, (2) validační pravidla
+    mohou být znovupoužitelná napříč více controllerů, (3) FormRequest lze nezávisle jednotestovat a (4) authorized() metoda poskytuje čisté oddělení autorizačních kontrol. Vložená validace je vhodná pro
+    jednoduché případy, ale dobře neškáluje.'
+  id: ct-010
+  options:
+  - FormRequest třídy oddělují logiku validace od controllerů, což činí kód znovupoužitelnějším, testovatelnějším a v souladu se zásadou jediné odpovědnosti
+  - FormRequest třídy poskytují automatickou konverzi typů a databázové přetypování sloupců pro všechny odeslané vstupní pole, což vložená validace nemůže provádět
+  - FormRequest třídy jsou výrazně rychlejší než vložená validace, protože jejich validační pravidla jsou předem zkompilována do cacheovaných PHP souborů při startu aplikace
+  - Vložená validace má známé omezení, kdy nemůže správně zpracovat pole nahrávaných souborů nebo vůbec validovat hluboce vnořené struktury pole
+  question: Proč se doporučuje používat FormRequest třídy pro validaci v controllerech místo vložené $this->validate() metody?
+  topic: controllers
+  type: single
+- answer: Laravel vyvolá výjimku HTTP 403 Forbidden před zavoláním metody controlleru, čímž zabrání jejímu provedení
+  difficulty: střední
+  explanation: Když metoda authorized() FormRequestu vrátí false, Laravel automaticky přeruší s výjimkou HTTP 403. Metoda controlleru se nikdy nespustí. Toto chování můžete přizpůsobit přepsáním metody
+    failedAuthorization() ve vaší třídě FormRequest. To poskytuje čistý způsob, jak zkontrolovat přístup na úrovni požadavku před spuštěním jakéhokoli obchodního logiku.
+  id: ct-011
+  options:
+  - Metoda controlleru se stále normálně spustí, ale objekt $request obdrží dodatečnou vlastnost 'unauthorized' flag
+  - Požadavek je automaticky přesměrován na přihlašovací stránku s flash chybovou zprávou označující neoprávněný přístup
+  - Laravel vyvolá výjimku HTTP 403 Forbidden před zavoláním metody controlleru, čímž zabrání jejímu provedení
+  - FormRequest vyvolá ValidationException obsahující vlastní chybovou zprávu o neoprávněném přístupu a stavový kód 401
+  question: Co se stane, když metoda authorized() FormRequestu vrátí false?
+  topic: controllers
+  type: single
+- answers:
+  - Použití metody $this->middleware() uvnitř metody __construct() kontroleru
+  - Aplikace middleware na definici route pomocí ->middleware()
+  - 'Použití atributu #[Middleware] PHP 8 na třídu kontroleru nebo jednotlivé metody'
+  difficulty: střední
+  explanation: 'Laravel podporuje tři způsoby aplikace middleware na kontrolery: (1) v konstruktoru pomocí $this->middleware(''auth''), volitelně s ->only() nebo ->except() pro cílení na konkrétní metody;
+    (2) na definici route; (3) pomocí PHP 8 atributů jako #[Middleware(''auth'')]. Neexistuje vlastnost $middleware pole na kontroleru — to je přístup HTTP Kernelu.'
+  id: ct-012
+  options:
+  - Aplikace middleware na definici route pomocí ->middleware()
+  - Použití metody $this->middleware() uvnitř metody __construct() kontroleru
+  - Definice chráněné vlastnosti $middleware pole na třídě kontroleru
+  - 'Použití atributu #[Middleware] PHP 8 na třídu kontroleru nebo jednotlivé metody'
+  question: Které z následujících jsou platné způsoby, jak aplikovat middleware na kontroler v Laravelu?
+  topic: controllers
+  type: multiple
+- answer: Zaregistruje autorizační middleware, který mapuje každou metodu kontroleru zdrojů na odpovídající metodu policy (např. "index" se mapuje na "viewAny", "show" se mapuje na "view")
+  difficulty: střední
+  explanation: 'Metoda authorizeResource() automaticky mapuje metody kontroleru zdrojů na metody policy: index→viewAny, create→create, store→create, show→view, edit→update, update→update, destroy→delete.
+    To znamená, že každý požadavek na kontroler zdrojů automaticky kontroluje odpovídající metodu policy před spuštěním akce kontroleru, což poskytuje komplexní autorizaci bez ručních kontrol v každé metodě.'
+  id: ct-013
+  options:
+  - Generuje oborově vázané API autentizační tokeny pro model zdrojů a automaticky registruje specializované middleware pro ověřování tokenů na každé metodě kontroleru
+  - Automaticky generuje novou třídu policy pro přidružený Eloquent model kontroleru s výchozími pravidly autorizace typu "zakázat vše" pro každou akci
+  - Autorizuje všechny autentizované uživatele k volnému přístupu ke každé akci na kontroleru zdrojů, úplně vynechává jakékoliv kontroly oprávnění nebo policy gates
+  - Zaregistruje autorizační middleware, který mapuje každou metodu kontroleru zdrojů na odpovídající metodu policy (např. "index" se mapuje na "viewAny", "show" se mapuje na "view")
+  question: Jaký je účel metody $this->authorizeResource() v konstruktoru kontroleru?
+  topic: controllers
+  type: single
+- alternatives:
+  - php artisan make:request
+  - make:request
+  answer: php artisan make:request StorePostRequest
+  difficulty: střední
+  explanation: 'Příkaz make:request vytvoří třídu FormRequest v app/Http/Requests/. Vygenerovaná třída má dvě klíčové metody: rules() vrací pole s validačními pravidly a authorize() vrací boolean pro autorizaci.
+    Podle konvence jsou třídy pojmenovány podle akce, kterou validují (např. StorePostRequest, UpdateUserRequest).'
+  id: ct-014
+  question: Jaký artisan příkaz vytvoří třídu FormRequest pro validaci a autorizaci příchozích požadavků?
+  topic: controllers
+  type: text
+- answer: Kontejner služeb Laravelu řeší každý parametr podle typu, vhodnou instancí bez ohledu na pořadí parametrů
+  difficulty: střední
+  explanation: Kontejner služeb Laravelu provádí injekci metodou kontrolou type hintů v metodě controlleru a řeší každý parametr z kontejneru. Můžete použít type hint pro Request, Eloquent modely (pro route
+    model binding) a jakoukoliv registrovanou službu. Pořadí není důležité — Laravel páruje podle typu, ne podle pozice. To dělá controllery čisté a snadno testovatelné přes mockování závislostí.
+  id: ct-015
+  options:
+  - Injekce závislostí funguje pouze pro objekt Request v controllerech; všechny ostatní typy služeb musí být řešeny manuálně pomocí app()
+  - Kontejner služeb Laravelu řeší každý parametr podle typu, vhodnou instancí bez ohledu na pořadí parametrů
+  - Parametry jsou vkládány na základě jejich pozice — první parametr musí být vždy Request, druhý model
+  - Každou závislost musíte manuálně instantiate pomocí helper funkcí app() nebo resolve() uvnitř těla metody controlleru
+  question: Jak Laravel zpracovává injekci závislostí v parametrech metod controlleru pro objekty jako Request, Eloquent modely nebo vlastní služby?
+  topic: controllers
+  type: single
+- answers:
+  - Nepoužívají 'create' a 'store' routy, protože má zdroj pouze jednu instanci
+  - Nepoužívají 'index' routu, protože není k dispozici žádná kolekce k výpisu
+  difficulty: střední
+  explanation: Singleton controllery jsou pro zdroje, kde existuje přesně jedna instance (např. profil uživatele nebo nastavení stránky). Route::singleton('profile', ProfileController::class) zaregistruje
+    pouze show, edit, update a destroy (bez index, create nebo store). Můžete přidat 'creation' routy pomocí ->creatable(), pokud může být singleton vytvořen, ale nemůže být duplikován.
+  id: ct-016
+  options:
+  - Nepoužívají 'index' routu, protože není k dispozici žádná kolekce k výpisu
+  - Nepoužívají 'create' a 'store' routy, protože má zdroj pouze jednu instanci
+  - Používají Route::singleton() místo Route::resource()
+  - Automaticky přidávají routu 'adhesion' pro správu podřízených zdrojů singletonu
+  question: Které z následujících platí o singleton resource controllerech v Laravelu?
+  topic: controllers
+  type: multiple
+- answer: apiResource vynechává 'create' a 'edit' routy, které slouží HTML formulářům, a poskytuje pouze datové manipulační routy vhodné pro API
+  difficulty: střední
+  explanation: Route::apiResource() registruje pět rout (index, store, show, update, destroy) místo sedmi z Route::resource(). Routy 'create' a 'edit' jsou vynechány, protože typicky vrací HTML formuláře
+    pro vytváření a úpravu zdrojů — funkčnost, kterou API nepotřebuje. API spotřebatel vytváří zdroje pomocí POST a upravuje pomocí PUT/PATCH.
+  id: ct-017
+  options:
+  - apiResource automaticky registruje všechny routy zdrojů s povinnou předponou URI /api/ a aplikuje specifické konfigurace middleware pro API
+  - apiResource vynechává 'create' a 'edit' routy, které slouží HTML formulářům, a poskytuje pouze datové manipulační routy vhodné pro API
+  - apiResource automaticky aplikuje middleware ochranu 'auth:api' na všechny registrované routy pro bezpečnou autentizaci založenou na tokenech v API
+  - apiResource automaticky přidává formátování JSON odpovědí, zpracování chyb a paginaci do všech metod controlleru ve zdroji
+  question: Jaká je praktická výhoda použití routování zdrojů s API controllery (Route::apiResource()) oproti běžnému routování zdrojů?
+  topic: controllers
+  type: single
+- alternatives:
+  - Illuminate\Routing\Attributes\Method
+  answer: '#[Method]'
+  difficulty: střední
+  explanation: 'Laravel podporuje PHP atributy pro definici rout. Atribut #[Method(''GET'')] (spolu s #[Get], #[Post], #[Put], #[Patch], #[Delete]) lze umístit na metody controlleru. Když je kombinován
+    s #[Controller], Laravel automaticky objeví tyto routy bez ručního zadávání v souborech s routami. To poskytuje alternativní styl routování podobný frameworkům jako Symfony a ASP.NET.'
+  id: ct-018
+  question: Jaký PHP atribut můžete v Laravelu použít k omezení metody controlleru tak, aby akceptovala pouze specifické HTTP metody, jako alternativu k definici rout?
+  topic: controllers
+  type: text
+- answers:
+  - Spoléhejte na výchozí chování FormRequest, které při selhání validace vrátí 422 JSON odpověď s chybovými zprávami
+  - Přepište metodu failedValidation() ve třídě FormRequest pro přizpůsobení formátu chybové JSON odpovědi
+  - Nastavte hlavičku Accept na application/json a nechte Laravelův exception handler naformátovat chybovou odpověď
+  difficulty: střední
+  explanation: 'Laravel automaticky detekuje API požadavky (pomocí hlavičky Accept: application/json nebo skupiny middleware ''api'') a vrací chyby validace jako JSON. FormRequest vyvolá ValidationException,
+    kterou Laravel''s exception handler převede na 422 JSON odpověď. Můžete to přizpůsobit přepsáním metody failedValidation() ve vašem FormRequest, nebo přepsáním metody render v exception handleru.'
+  id: ct-019
+  options:
+  - Nastavte hlavičku Accept na application/json a nechte Laravelův exception handler naformátovat chybovou odpověď
+  - Spoléhejte na výchozí chování FormRequest, které při selhání validace vrátí 422 JSON odpověď s chybovými zprávami
+  - Chyťte ValidationException v try-catch bloku controlleru a ručně vraťte chybovou JSON odpověď
+  - Přepište metodu failedValidation() ve třídě FormRequest pro přizpůsobení formátu chybové JSON odpovědi
+  question: Které z následujících jsou platné přístupy ke zpracování chyb validace v controlleru, který vrací JSON odpovědi (v kontextu API)?
+  topic: controllers
+  type: multiple
+- answer: Použijte view composers v service provideru k automatickému vkládání dat do konkrétních nebo všech view
+  difficulty: střední
+  explanation: View composers jsou callbacky nebo třídy, které se spouštějí při vykreslování view. Můžete je zaregistrovat v service provideru pomocí View::composer('layouts.app', function ($view) { $view->with('notifications',
+    auth()->user()->unreadNotifications); }). Tím se metody controllerů zaměřují na své konkrétní povinnosti, zatímco sdílená data jsou vždy dostupná pro view. Toto je čistší přístup než opakování logiky
+    v každém controlleru.
+  id: ct-020
+  options:
+  - Použijte view composers v service provideru k automatickému vkládání dat do konkrétních nebo všech view
+  - Uložte sdílená data do statické třídy, kterou mohou Blade šablony přistupovat pomocí globální helper funkce
+  - Přidejte data do session v middleware a poté je čtěte z objektu session v Blade šablonách
+  - Přepište __call() metodu základního Controlleru pro automatické vkládání sdílených dat do každého response view
+  question: Jaký je doporučený způsob, jak sdílet data (jako položky navigačního menu nebo notifikace uživatele) se všemi view z controlleru bez opakování logiky v každé metodě?
+  topic: controllers
+  type: single
+- answer: Laravel automaticky převede model na JSON odpověď se stavovým kódem 200
+  difficulty: střední
+  explanation: Laravelův router zkontroluje, zda kontroler vrací objekt, který implementuje Responsable, je Response, nebo je Model/Collection. Eloquent modely a kolekce jsou automaticky převáženy na JSON
+    se stavovým kódem 200. To umožňuje psát velmi stručné API kontrolery — můžete jednoduše 'return $post;' místo 'return response()->json($post);'. Toto funguje také pro pole.
+  id: ct-021
+  options:
+  - Laravel se pokusí vykreslit výchozí Blade pohled pojmenovaný podle názvu třídy modelu
+  - Laravel vyvolá výjimku, protože kontrolery musí vždy vracet správný objekt Response
+  - Laravel serializuje model do odpovědi ve formátu XML s příslušnými hlavičkami content-type
+  - Laravel automaticky převede model na JSON odpověď se stavovým kódem 200
+  question: Když metoda kontroloru vrátí přímo Eloquent model, jak s ním Laravel naloží s odpovědí?
+  topic: controllers
+  type: single
+- alternatives:
+  - vytvořit, uložit
+  - pouze metody create a store
+  - metody create() a store()
+  answer: vytvořit a uložit
+  difficulty: střední
+  explanation: Metoda ->only() na middleware aplikovaném v konstruktoru omezuje middleware na specifické metody. V tomto případě budou vyžadovat autentizaci pouze metody create() a store(). Ostatní metody
+    jako index(), show(), edit(), update() a destroy() budou přístupné bez autentizace. Opakem je metoda ->except(), která aplikuje middleware na všechny metody kromě specifikovaných.
+  id: ct-022
+  question: Při použití $this->middleware('auth')->only('create', 'store') v konstruktoru controlleru, které metody controlleru budou mít middleware auth aplikován?
+  topic: controllers
+  type: text
+- answers:
+  - Můžete použít konstruktorovou propagaci k vložení a deklaraci závislostí v jednom kroku v konstruktoru
+  - Konstruktorová propagace funguje s vkládáním metod v Laravelu pro akce controllerů
+  - Použití konstruktorové propagace pro závislosti, které mají stav (jako repozitáře s databázovými připojeními), může způsobit problémy v dlouhotrvajících procesech jako Octane
+  difficulty: střední
+  explanation: Konstruktorová propagace v PHP 8 (public function __construct(private UserRepository $repo)) funguje dobře s Laravelovým kontejnerem. V dlouhotrvajících procesech jako Octane jsou však vložené
+    služby vyřešeny jednou a znovu použity napříč požadavky, což může způsobit problémy se zastaralým stavem. Proto se v prostředích Octane často upřednostňuje vkládání metod. Konstruktorová propagace je
+    nepovinná — Laravel ji nevyžaduje.
+  id: ct-023
+  options:
+  - Konstruktorová propagace je povinná pro všechny závislosti controllerů v Laravelu 13
+  - Konstruktorová propagace funguje s vkládáním metod v Laravelu pro akce controllerů
+  - Použití konstruktorové propagace pro závislosti, které mají stav (jako repozitáře s databázovými připojeními), může způsobit problémy v dlouhotrvajících procesech jako Octane
+  - Můžete použít konstruktorovou propagaci k vložení a deklaraci závislostí v jednom kroku v konstruktoru
+  question: Které z následujících platí ohledně použití konstruktorové propagace vlastností v PHP 8 v Laravelových controllerech?
+  topic: controllers
+  type: multiple
+- answer: Laravel automaticky vyvolá výjimku 404 Not Found přes ModelNotFoundException
+  difficulty: těžká
+  explanation: S vazbou modelu na trasu se Laravel snaží dotazovat databázi pro daný model. Pokud není nalezen žádný záznam, vyvolá výjimku ModelNotFoundException, kterou exception handler převede na odpověď
+    404. Pokud chcete jinou chování, můžete použít metodu newOrFail() na vazbě closure, nebo použít explicitní vazbu s vlastním řešením, které vrací null (i když to vyžaduje nullable type hint).
+  id: ct-024
+  options:
+  - Laravel automaticky vyvolá výjimku 404 Not Found přes ModelNotFoundException
+  - Laravel vytvoří novou instanci modelu s hodnotou parametru jako primárním klíčem
+  - Parametr obdrží null a metoda controlleru se normálně provede
+  - Metoda controlleru obdrží jako hodnotu parametru prázdný řetězec
+  question: Co se stane, když má metoda controlleru parametr s type hintem jako Eloquent model, ale odpovídající hodnota parametru v trase neodpovídá žádnému záznamu v databázi?
+  topic: controllers
+  type: single
+- answer: public function show(Post $post, Comment $comment)
+  difficulty: těžká
+  explanation: Vnořené resource routes mají dva parametry (např. /posts/{post}/comments/{comment}). S implicitním vázaním modelů route jsou oba parametry převedeny na jejich Eloquent modely. Podpis metody
+    by měl obsahovat oba modely v pořadí, v jakém se parametry objevují v URI. To také umožňuje vázané rozsahy — pokud použijete Route::scopeBindings(), komentář je automaticky vázán pouze na odpovídající
+    rodičovský příspěvek.
+  id: ct-025
+  options:
+  - public function show(Post $post, int $commentId)
+  - public function show(Post $post, Comment $comment)
+  - public function show(Comment $comment, ?Post $post)
+  - public function show(int $postId, int $commentId)
+  question: Při použití vnořené resource route jako Route::resource('posts.comments', CommentController::class), jaký je očekávaný podpis metody controlleru pro akci 'show'?
+  topic: controllers
+  type: single
+- answers:
+  - Implementace metody toResponse($request), která vrací instanci Illuminate\Http\Response
+  - Vrácení instance vlastní třídy přímo z metody controlleru, čímž Laravel automaticky zavolá toResponse()
+  difficulty: těžká
+  explanation: Responsable interface vyžaduje implementaci toResponse($request). Když controller vrátí objekt implementující toto rozhraní, Laravel automaticky zavolá toResponse() pro převod na HTTP odpověď.
+    To je užitečné pro vytváření znovupoužitelných typů odpovědí (např. třídy InvoicePdfResponse). Třída NEMUSÍ rozšířit Response — stačí implementovat rozhraní a vrátit Response z toResponse().
+  id: ct-026
+  options:
+  - Vrácení instance vlastní třídy přímo z metody controlleru, čímž Laravel automaticky zavolá toResponse()
+  - Implementace metody __toString() místo toResponse() pro jednodušší textové odpovědi
+  - Třída musí rozšířit Illuminate\Http\Response, aby implementovala Responsable
+  - Implementace metody toResponse($request), která vrací instanci Illuminate\Http\Response
+  question: Které z následujících jsou správné způsoby implementace Responsable rozhraní ve vlastní odpovědi použité controllerem?
+  topic: controllers
+  type: multiple
+- alternatives:
+  - Illuminate\Routing\ControllerMiddleware
+  - the ControllerMiddleware trait
+  answer: ControllerMiddleware
+  difficulty: těžká
+  explanation: Trait ControllerMiddleware poskytuje metodu middleware(), která se používá v konstruktorech controllerů. Tato metoda registruje middleware s routerem, s podporou pro ->only() a ->except()
+    pro cílení na konkrétní metody. Používá se v základní třídě Controller, a proto všechny Laravel controllery mohou používat $this->middleware() ve svých konstruktorech.
+  id: ct-027
+  question: Jak se jmenuje traita, která poskytuje metodu $this->middleware() controllerům, umožňující jim registrovat middleware z jejich konstruktoru?
+  topic: controllers
+  type: text
+- answer: Laravel vrátí první odpovídající záznam nalezený v výsledcích databázového dotazu
+  difficulty: těžká
+  explanation: Při použití vlastního klíče pro vazbu modelu trasy (jako 'slug') Laravel provede dotaz WHERE slug = ? a vezme první výsledek pomocí firstOrFail(). NEKONTROLUJÍ jedinečnost — pokud více záznamů
+    má stejný slug, vrátí ten, který databáze vrátí jako první (typicky ten s nejnižším primárním klíčem). Proto byste měli zajistit, aby vlastní vazební klíče byly v databázi jedinečné, nebo použít vázané
+    vazby k omezení výsledků.
+  id: ct-028
+  options:
+  - Laravel přidá klauzuli ORDER BY do sloupce created_at a vrátí nejnovější záznam
+  - Laravel vyhodí výjimku MultipleRecordsFoundException, pokud odpovídá více záznamů
+  - Laravel vrátí 404, protože dotaz vrátí více výsledků a nelze určit, který se má použít
+  - Laravel vrátí první odpovídající záznam nalezený v výsledcích databázového dotazu
+  question: V controlleru, který používá vazbu modelu trasy s vlastním klíčem (např. Route::get('/posts/{post:slug}', ...), co se stane, pokud sloupec 'slug' v databázi není jedinečný?
+  topic: controllers
+  type: single
+- answers:
+  - Použijte metodu $this->mock() poskytovanou Laravel testovacím frameworkem pro automatické mockování rozhraní a jeho navázání v kontejneru
+  - Ručně vytvořte instanci controlleru s mock závislostmi a zavolejte metody přímo, obcházejce router
+  - Použijte metodu app()->instance() k navázání mock implementace před tím, než test provede požadavek
+  difficulty: těžká
+  explanation: 'Laravel poskytuje několik testovacích strategií pro controllery: (1) app()->instance() nebo app()->bind() pro výměnu služby v kontejneru, (2) $this->mock(Interface::class) pro automatické
+    mockování, (3) přímou instanci pro unit testy, které nepotřebují celý HTTP stack. Metoda withMiddleware() je pro konfiguraci middleware, ne pro mockování závislostí. Každý přístup má kompromisy mezi
+    pokrytím integrace a izolací testu.'
+  id: ct-029
+  options:
+  - Použijte metodu $this->mock() poskytovanou Laravel testovacím frameworkem pro automatické mockování rozhraní a jeho navázání v kontejneru
+  - Použijte metodu $this->withMiddleware() k nahrazení middleware, které interferuje s testem
+  - Ručně vytvořte instanci controlleru s mock závislostmi a zavolejte metody přímo, obcházejce router
+  - Použijte metodu app()->instance() k navázání mock implementace před tím, než test provede požadavek
+  question: Při psaní testů pro controllery, které z následujících jsou platné přístupy k testování controlleru, který používá dependency injection?
+  topic: controllers
+  type: multiple

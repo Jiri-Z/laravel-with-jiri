@@ -1,0 +1,387 @@
+- id: rt-001
+  topic: routing
+  type: single
+  difficulty: lehká
+  question: Co se stane, když nadefinujete dvě route se stejnou URI a HTTP metodou, ale s různými closures ve stejném souboru route?
+  options:
+  - Obě route se provedou v pořadí a zkombinují obě odpovědi
+  - Poslední nadefinovaná route přepíše první
+  - Laravel vyhodí LogicException při bootování s informací o nejednoznačných definicích route
+  - První nadefinovaná route vyhraje; druhá je tiše ignorována
+  answer: První nadefinovaná route vyhraje; druhá je tiše ignorována
+  explanation: Router v Laravelu ukládá route do asociativního pole klíčovaného HTTP metodou a URI. Při registraci duplikátu druhá jednoduše přepíše první položku v interní kolekci, ale při porovnávání
+    je vrácena první shoda ze zkompilovaného seznamu route. V praxi byste se měli duplicitním definicím route vyhnout, abyste předešli zmatenému chování.
+- id: rt-002
+  topic: routing
+  type: single
+  difficulty: lehká
+  question: Kterou HTTP metodu si Laravel automaticky registruje vedle GET route pro obsluhu HEAD požadavků?
+  options:
+  - HEAD
+  - PATCH
+  - POST
+  - OPTIONS
+  answer: HEAD
+  explanation: Když registrujete GET route, Laravel automaticky registruje odpovídající HEAD route. Toto splňuje požadavky HTTP specifikace, kde by měl HEAD požadavek vracet stejné hlavičky jako GET požadavek,
+    ale s prázdným tělem. Toto chování nelze pro jednotlivé route vypnout.
+- id: rt-003
+  topic: routing
+  type: multiple
+  difficulty: lehká
+  question: Které z následujících jsou platná umístění souborů route, které Laravel standardně načítá?
+  options:
+  - routes/api.php
+  - routes/graphql.php
+  - routes/channels.php
+  - routes/web.php
+  answers:
+  - routes/web.php
+  - routes/api.php
+  - routes/channels.php
+  explanation: Výchozí nastavení route v Laravelu načítá routes/web.php (pro middleware skupinu web včetně CSRF, session, cookies), routes/api.php (pro bezstavové API route s rate limitingem) a routes/channels.php
+    (pro autorizaci broadcast kanálů). Soubor graphql.php není výchozím souborem route v Laravelu.
+- id: rt-004
+  topic: routing
+  type: single
+  difficulty: lehká
+  question: Jaký je hlavní účel pojmenování route pomocí metody ->name()?
+  options:
+  - Zlepšit SEO poskytnutím kanonického názvu URL, který mohou vyhledávače použít při indexování HTML odpovědí
+  - Umožnit generování URL a přesměrování pomocí názvu route místo pevně zapsaných URI, což usnadňuje refaktoring
+  - Povolit vestavěný generátor dokumentace route v Laravelu, který automaticky vytváří API dokumentaci z názvů route
+  - Přiřadit vlastní middleware skupinu k route a všem jejím vnořeným podřízeným definicím route ve skupině
+  answer: Umožnit generování URL a přesměrování pomocí názvu route místo pevně zapsaných URI, což usnadňuje refaktoring
+  explanation: Pojmenované route umožňují odkazovat se na ně pomocí zapamatovatelného řetězce (např. 'profile.update') místo URI. Můžete pak použít route('profile.update') nebo redirect()->route('profile.update')
+    pro generování URL. Pokud se URI změní, aktualizujete pouze definici route, nikoliv každý odkaz v celé kódové základně.
+- id: rt-005
+  topic: routing
+  type: text
+  difficulty: lehká
+  question: Jaký artisan příkaz zobrazí tabulku všech registrovaných route, jejich HTTP metod, URI a přidružených controller akcí?
+  answer: php artisan route:list
+  alternatives:
+  - artisan route:list
+  - php artisan route:list --columns=Method,URI
+  - route:list
+  explanation: Příkaz route:list je nezbytný pro ladění problémů s route. Zobrazí všechny registrované route s jejich HTTP metodami, URI, controller akcemi, middleware a názvy. Výsledky můžete filtrovat
+    pomocí parametrů --path=, --name= nebo --method=.
+- id: rt-006
+  topic: routing
+  type: single
+  difficulty: lehká
+  question: K čemu vám umožňuje použití metody where() v definici route?
+  options:
+  - Omezit parametry route pomocí regulárních výrazů pro kontrolu hodnot, které odpovídají parametru
+  - Nastavit výchozí záložní hodnoty pro parametry route, když chybí v příchozím URI požadavku
+  - Filtrovat příchozí požadavky podle hodnot jejich HTTP hlaviček předtím, než požadavek dorazí do controller metody
+  - Přesměrovat požadavek na zcela jiné URL na základě vyhodnocených hodnot parametrů v route
+  answer: Omezit parametry route pomocí regulárních výrazů pro kontrolu hodnot, které odpovídají parametru
+  explanation: Metoda where() vám umožňuje omezit, co může parametr route odpovídat, pomocí regexu. Například Route::get('/users/{id}', ...)->where('id', '[0-9]+') zajistí, že {id} odpovídá pouze číselným
+    hodnotám. Pokud parametr neodpovídá omezení, route je přeskočena a Laravel pokračuje ve vyhledávání.
+- id: rt-007
+  topic: routing
+  type: multiple
+  difficulty: lehká
+  question: Které z následujících jsou vestavěné zkratky pro omezení parametrů route poskytované Laravelem?
+  options:
+  - whereUuid()
+  - whereNumber()
+  - whereEmail()
+  - whereAlpha()
+  answers:
+  - whereNumber()
+  - whereAlpha()
+  - whereUuid()
+  explanation: 'Laravel poskytuje pohodlné metody pro omezení: whereNumber() omezuje na [0-9]+, whereAlpha() na [a-zA-Z]+ a whereUuid() na formát UUID. Jsou to syntaktický cukr nad metodou where(). Neexistuje
+    žádná vestavěná metoda whereEmail(), i když to lze dosáhnout pomocí where(''email'', ''^[^@]+@[^@]+\.[^@]+$'').'
+- id: rt-008
+  topic: routing
+  type: text
+  difficulty: lehká
+  question: Která Blade direktiva se používá pro vygenerování skrytého formulářového vstupního pole obsahujícího CSRF token?
+  answer: '@csrf'
+  alternatives:
+  - '{{ csrf_field() }}'
+  explanation: Blade direktiva @csrf generuje HTML skryté vstupní pole s názvem '_token' a hodnotou aktuálního CSRF tokenu. Je to standardní způsob zahrnutí CSRF ochrany do HTML formulářů. Starší helper
+    {{ csrf_field() }} také funguje, ale direktiva je preferována v moderních Blade šablonách.
+- id: rt-009
+  topic: routing
+  type: multiple
+  difficulty: lehká
+  question: Které z následujících metod route registrují přijímají pole URI jako první argument?
+  options:
+  - Route::any()
+  - Route::match()
+  - Route::post()
+  - Route::get()
+  answers:
+  - Route::get()
+  - Route::post()
+  explanation: Route::get() a Route::post() přijímají buď jeden řetězec URI nebo pole URI a registrují stejný handler pro více cest. Route::match() a Route::any() nepodporují pole URI — přijímají jediný
+    řetězec URI (nebo definici cesty) jako svůj argument.
+- id: rt-010
+  topic: routing
+  type: single
+  difficulty: střední
+  question: Proč selže příkaz php artisan route:cache, když jakýkoliv soubor route obsahuje route založenou na closure?
+  options:
+  - Route založené na closure jsou inherentně nebezpečné pro produkční cache a Laravel proaktivně blokuje jejich serializaci z bezpečnostních důvodů
+  - Closure nelze v PHP serializovat a route cache funguje tak, že serializuje zkompilovanou kolekci route do souboru
+  - Closure neobsahují metadata HTTP metody, což znemožňuje úplnou rekonstrukci definice route při načtení cache
+  - Kompilátor route cache vyžaduje plně kvalifikovaný název controller třídy pro správné vygenerování platného a unikátního klíče cache
+  answer: Closure nelze v PHP serializovat a route cache funguje tak, že serializuje zkompilovanou kolekci route do souboru
+  explanation: Route cache v Laravelu serializuje celou kolekci route pomocí var_export() pro vygenerování uloženého PHP souboru. Protože closure v PHP nelze serializovat, jakákoliv route používající closure
+    místo controller akce způsobí, že příkaz cache vyhodí výjimku. Proto všechny route v produkci musí používat controller metody.
+- id: rt-011
+  topic: routing
+  type: single
+  difficulty: střední
+  question: Jak určuje implicitní route model binding, který model má vyřešit, když název parametru route neodpovídá výchozímu klíči žádného modelu?
+  options:
+  - Vždy výchozí použije sloupec 'id' pro řešení, bez ohledu na název parametru
+  - Okamžitě vyhodí ModelNotFoundException, protože žádný model nelze namapovat
+  - Nevyřeší parametr a předá řetězcovou hodnotu controlleru
+  - Vrátí se k prohledávání všech registrovaných Eloquent modelů pro shodu názvu sloupce
+  answer: Nevyřeší parametr a předá řetězcovou hodnotu controlleru
+  explanation: Implicitní binding funguje tak, že odpovídá názvu parametru (např. {user}) modelové třídě podle konvence — hledá Eloquent model s jednotným číslem tohoto názvu (např. App\Models\User). Pokud
+    žádný model neodpovídá konvenci, parametr je považován za prostý řetězec. Toto lze přizpůsobit explicitním bindingem v RouteServiceProvider.
+- id: rt-012
+  topic: routing
+  type: multiple
+  difficulty: střední
+  question: Které z následujících jsou platné způsoby definice fallback route, která zpracovává všechny neodpovídající požadavky?
+  options:
+  - Route::view('/404', 'errors.404')->name('fallback');
+  - Route::any('{fallback}', function () { ... });
+  - Route::match(['get', 'post', 'put', 'patch', 'delete'], '/{any}', ...)->where('any', '.*');
+  - Route::fallback(function () { ... });
+  answers:
+  - Route::fallback(function () { ... });
+  - Route::any('{fallback}', function () { ... });
+  explanation: Route::fallback() je vestavěná metoda, která registruje catch-all route, vždy umístěnou jako poslední. Můžete také ručně vytvořit catch-all s Route::any() a regex omezením. Route::view()
+    jednoduše mapuje URI na view, ale nechytá neodpovídající route — reaguje pouze na to konkrétní URI.
+- id: rt-013
+  topic: routing
+  type: single
+  difficulty: střední
+  question: Jaký je klíčový rozdíl mezi Route::redirect() a Route::permanentRedirect()?
+  options:
+  - redirect() je pouze pro interní route, zatímco permanentRedirect() může přesměrovat na externí URL
+  - Mezi nimi není žádný skutečný rozdíl; jsou to aliasy pro stejnou metodu přesměrování
+  - redirect() zachovává všechny query parametry; permanentRedirect() je odstraňuje z cílového URL
+  - redirect() odesílá 302 dočasné přesměrování; permanentRedirect() odesílá 301 trvalé přesměrování
+  answer: redirect() odesílá 302 dočasné přesměrování; permanentRedirect() odesílá 301 trvalé přesměrování
+  explanation: Route::redirect() vrací statusový kód 302 Found (dočasný) ve výchozím stavu, což znamená, že prohlížeče a vyhledávače by měly nadále používat původní URL. Route::permanentRedirect() vrací
+    301 Moved Permanently, což signalizuje, že se zdroj trvale přesunul. Tento rozdíl je důležitý pro SEO, protože vyhledávače převádějí hodnocení stránky na cíl 301.
+- id: rt-014
+  topic: routing
+  type: text
+  difficulty: střední
+  question: Jakou metodu zavoláte na definici route, abyste určili, že má být přístupná pouze při spouštění testů?
+  answer: env
+  alternatives:
+  - ->env('testing')
+  explanation: Metoda ->env() omezuje route tak, aby byla registrována pouze v určitých prostředích aplikace. Například Route::get('/test-endpoint', ...)->env('testing') zajistí, že tato route existuje
+    pouze tehdy, když APP_ENV=testing. To je užitečné pro endpointy, které by nikdy neměly být přístupné v produkci, ale jsou potřeba během testování.
+- id: rt-015
+  topic: routing
+  type: multiple
+  difficulty: střední
+  question: V Laravelu 11+, jak můžete konfigurovat rate limiting API route pomocí fluent definice route v bootstrap/app.php?
+  options:
+  - ->middleware('throttle:api')
+  - ->middleware('throttle:60,1')
+  - ->limit(60)
+  - ->middleware(ThrottleRequests::class.':api')
+  answers:
+  - ->middleware('throttle:api')
+  - ->middleware(ThrottleRequests::class.':api')
+  explanation: V Laravelu 11+ je rate limiting konfigurován pomocí throttle middleware, a to buď pomocí aliasu ('throttle:api') nebo odkazem na třídu. Pojmenovaný limiter 'api' je definován v RateLimiter
+    facade. Metoda ->limit(60) není vestavěná metoda definice route; rate limiting je řešen prostřednictvím middleware, nikoliv přímou metodou route.
+- id: rt-016
+  topic: routing
+  type: single
+  difficulty: střední
+  question: Při použití prefixů skupin route, co se stane, když vnořená skupina route také definuje prefix?
+  options:
+  - Použije se pouze nejdelší řetězec prefixu a kratší je během kompilace tiše zahozen
+  - Prefixy se zřetězí s přidáním lomítka mezi nimi, čímž vznikne složená cesta
+  - Vnitřní prefix kompletně nahradí vnější prefix a zahodí dříve definované segmenty cesty
+  - Laravel vyhodí výjimku pro konfliktní definice prefixů, které by vytvořily nejednoznačné cesty route
+  answer: Prefixy se zřetězí s přidáním lomítka mezi nimi, čímž vznikne složená cesta
+  explanation: Prefixy skupin route jsou kumulativní a vnořitelné. Pokud má vnější skupina prefix('api') a vnitřní skupina prefix('v1/users'), výsledný prefix URI je /api/v1/users. Tato kompozitnost vám
+    umožňuje hierarchicky organizovat route, přičemž související definice route udržujete pohromadě a budujete úplnou cestu URI.
+- id: rt-017
+  topic: routing
+  type: text
+  difficulty: střední
+  question: Jaká metoda na skupině route vám umožňuje sdílet controller namespace napříč více route bez opakování úplné cesty k controlleru?
+  answer: namespace
+  alternatives:
+  - ->namespace('App\\Http\\Controllers\\Admin')
+  - namespace()
+  explanation: Metoda ->namespace() na skupině route nastavuje základní controller namespace. Například Route::namespace('Admin')->group(...) vám umožní odkazovat na controllery jako 'UserController' místo
+    'App\Http\Controllers\Admin\UserController'. V Laravelu 11+ se zjednodušenou strukturou route je to méně běžně potřeba, ale stále k dispozici.
+- id: rt-018
+  topic: routing
+  type: single
+  difficulty: střední
+  question: Proč by route s pattern omezením jako /posts/{slug} mohla stále odpovídat URL s lomítky v parametru slug, pokud nepřidáte explicitní regex omezení?
+  options:
+  - Parametry route vždy odpovídají chamtivě napříč více segmenty URL, pokud nejsou explicitně omezeny regexem
+  - Engine porovnávání route rozdělí URL na lomítkách a poté odpovídá každému segmentu parametru po pořadí
+  - Výchozí regex parametru v Laravelu je [^/]+, který vylučuje lomítka, takže route by NEODPOVÍDALA URL s lomítky v slugu
+  - Parametry route odpovídají ve výchozím stavu jakémukoliv znaku kromě mezer, včetně dopředných lomítek v hodnotě parametru
+  answer: Výchozí regex parametru v Laravelu je [^/]+, který vylučuje lomítka, takže route by NEODPOVÍDALA URL s lomítky v slugu
+  explanation: Ve výchozím stavu používají parametry route regex vzor [^/]+, což znamená, že odpovídají jednomu nebo více znakům, které NENÍ dopředné lomítko. To zajišťuje, že každý parametr zachycuje přesně
+    jeden URI segment. Pro umožnění lomítek v parametru musíte explicitně přepsat omezení, např. ->where('slug', '.*').
+- id: rt-019
+  topic: routing
+  type: multiple
+  difficulty: střední
+  question: Které z následujících správně popisují chování signed URL v Laravelu?
+  options:
+  - Pro platnost signed URL musí být uživatel ověřen
+  - Signed URL jsou generovány pomocí helperů URL::signedRoute() nebo URL::temporarySignedRoute()
+  - Signed URL automaticky vyprší po skončení session v Laravelu
+  - Signed URL připojuje hash-based podpis jako query parameter pro ověření, že URL nebyla manipulována
+  answers:
+  - Signed URL připojuje hash-based podpis jako query parameter pro ověření, že URL nebyla manipulována
+  - Signed URL jsou generovány pomocí helperů URL::signedRoute() nebo URL::temporarySignedRoute()
+  explanation: Signed URL používají HMAC pro vytvoření kryptografického podpisu připojeného k URL. URL::signedRoute() vytváří URL, která je platná neomezeně, zatímco URL::temporarySignedRoute() přidává
+    čas expirace. Nevyžadují ověření — bezpečnost vychází ze secret klíče použitého pro generování podpisu, což je činí ideálními pro veřejné odkazy jako ověření e-mailem.
+- id: rt-020
+  topic: routing
+  type: single
+  difficulty: střední
+  question: Jaký je praktický efekt volání Route::pattern('id', '[0-9]+') v metodě boot vašeho RouteServiceProvider?
+  options:
+  - Vytvoří pojmenovaný vzor route, který lze odkazovat pomocí ->where('id', 'pattern:id') v jednotlivých definicích route
+  - Definuje globální regex omezení, které se aplikuje na každý parametr route pojmenovaný 'id' v celé aplikaci
+  - Registruje novou fallback route, která odpovídá pouze tehdy, když segment URI 'id' obsahuje čistě číselnou hodnotu
+  - Upravuje databázovou migraci aplikace pro vynucení přísných auto-increment omezení na ID sloupcích
+  answer: Definuje globální regex omezení, které se aplikuje na každý parametr route pojmenovaný 'id' v celé aplikaci
+  explanation: Route::pattern() nastavuje globální omezení parametru. Jakmile je definováno, jakákoliv route s parametrem pojmenovaným 'id' automaticky použije omezení [0-9]+ bez nutnosti ->where('id',
+    '[0-9]+') na každé jednotlivé route. To je přívětivé k DRY principu a zabraňuje nechtěnému přijímání nečíselných hodnot pro ID parametry v celé aplikaci.
+- id: rt-021
+  topic: routing
+  type: text
+  difficulty: střední
+  question: Při definici route se scoped model bindingem pomocí Route::scopeBinding(), čemu musí odpovídat název parametru route vnořeného modelu, aby automatické scoping fungovalo?
+  answer: Název relationship metody na nadřazeném modelu
+  alternatives:
+  - název relationship metody
+  - název relationship metody na nadřazeném modelu
+  - relationship metoda
+  explanation: Se zapnutým scoped bindingem, pro route jako /users/{user}/posts/{post}, je parametr {post} automaticky omezen na nadřazený {user}. To funguje proto, že Laravel hledá relationship metodu
+    'posts' na modelu User (název parametru 'post' je převeden na jednotné číslo pro nalezení relationship 'posts'). Název parametru musí odpovídat názvu relationship metody pro automatické řešení.
+- id: rt-022
+  topic: routing
+  type: single
+  difficulty: střední
+  question: Co se stane, když přistupujete k subdoménové route jako {tenant}.myapp.com, ale hlavní doména má také route pro stejnou cestu?
+  options:
+  - Laravel vyhodí AmbiguousRouteException
+  - Obě route jsou registrovány a ta, která je definována první v souboru route, odpovídá
+  - Konkrétnější subdoménová route odpovídá jako první, protože Laravel vyhodnocuje subdoménové route před route bez domény
+  - Route hlavní domény má vždy prioritu bez ohledu na pořadí definice
+  answer: Obě route jsou registrovány a ta, která je definována první v souboru route, odpovídá
+  explanation: Subdoménové route nemají zvláštní prioritu při porovnávání. Laravel vyhodnocuje route v pořadí registrace. Router však také kontroluje host aktuálního požadavku proti omezení domény. Pokud
+    požadavek odpovídá vzoru subdomény, budou kandidáty pouze subdoménové route, které také odpovídají cestě. Route hlavní domény bez omezení domény bude stále kandidátem pro jakýkoliv host.
+- id: rt-023
+  topic: routing
+  type: multiple
+  difficulty: střední
+  question: Které z následujících tvrzení o middleware skupině v routes/web.php jsou správná?
+  options:
+  - Automaticky aplikuje middleware skupinu 'web', která zahrnuje session a CSRF ochranu
+  - Je načtena bootstrap/app.php pomocí konfigurace middleware skupiny web
+  - Route definované zde dostávají middleware skupinu 'api' ve výchozím stavu v Laravelu 13
+  - Route v tomto souboru používají pro ověřování výchozí 'web' guard
+  answers:
+  - Automaticky aplikuje middleware skupinu 'web', která zahrnuje session a CSRF ochranu
+  - Je načtena bootstrap/app.php pomocí konfigurace middleware skupiny web
+  explanation: V Laravelu 11+ konfiguruje bootstrap/app.php routes/web.php pro použití middleware skupiny 'web', která zahrnuje EncryptCookies, StartSession, VerifyCsrfToken a další session-related middleware.
+    Guard 'api' není automaticky aplikován — ověřovací guardy jsou konfigurovány samostatně. Middleware skupina 'web' je to, co odlišuje web route od API route.
+- id: rt-024
+  topic: routing
+  type: single
+  difficulty: těžká
+  question: Při použití explicitního route model bindingu s vlastním klíčem v RouteServiceProvider::bind(), jak Laravel zpracuje řešení, když vázaná closure vrátí null?
+  options:
+  - Přeskočí route a pokračuje v porovnávání se zbývajícími route
+  - Předá null controlleru a nechá controller, aby to zpracoval
+  - Automaticky vyhodí výjimku 404 Not Found
+  - Zkusí řešení znovu pomocí výchozího sloupce 'id' jako zálohy
+  answer: Automaticky vyhodí výjimku 404 Not Found
+  explanation: Když explicitní binding vyřeší model a vrátí null, router v Laravelu to považuje za 'model nenalezen' a automaticky vyhodí ModelNotFoundException, která je převedena na 404 HTTP odpověď.
+    Toto je stejné chování jako implicitní binding — pokud model nelze najít, uživatel dostane 404. Toto chování můžete přizpůsobit vrácením jiné odpovědi z binding closure.
+- id: rt-025
+  topic: routing
+  type: single
+  difficulty: těžká
+  question: Jak engine porovnávání route v Laravelu zachází s koncovými lomítky v definicích route oproti příchozím URI požadavků?
+  options:
+  - Laravel vyžaduje, aby všechny definice route obsahovaly koncové lomítko pro konzistenci
+  - Definice route s koncovými lomítky jsou tiše odstraněny a URI požadavků jsou porovnávány bez koncových lomítek
+  - Laravel automaticky odstraňuje koncová lomítka z definic route i URI požadavků před porovnáním
+  - 'Laravel normalizuje koncová lomítka: /posts a /posts/ jsou považovány za různé route, pokud nedefinujete obě'
+  answer: 'Laravel normalizuje koncová lomítka: /posts a /posts/ jsou považovány za různé route, pokud nedefinujete obě'
+  explanation: Laravel NENORMALIZUJE automaticky koncová lomítka. Route definovaná jako '/posts' NEODPOVÍDÁ požadavku na '/posts/' a naopak. Pokud chcete obsluhovat obě, musíte definovat obě route nebo
+    přidat přesměrování. Můžete přidat middleware pro globální odstranění koncových lomítek, pokud je toto chování pro vaši aplikaci nežádoucí.
+- id: rt-026
+  topic: routing
+  type: multiple
+  difficulty: těžká
+  question: Které z následujících jsou pravdivé o tom, jak Laravel kompiluje a ukládá do cache informace o route v souboru bootstrap/cache/routes-v7.php?
+  options:
+  - Uložený soubor obsahuje serializované definice route, které PHP includuje přímo místo parsování souborů route
+  - Caching route dramaticky zlepšuje výkon požadavků přeskočením registrace route při každém požadavku
+  - Uložený soubor obsahuje route založené na closure jejich převedením na anonymní metody tříd
+  - Uložený soubor se vyhýbá načítání service container frameworku pro řešení route
+  answers:
+  - Uložený soubor obsahuje serializované definice route, které PHP includuje přímo místo parsování souborů route
+  - Caching route dramaticky zlepšuje výkon požadavků přeskočením registrace route při každém požadavku
+  explanation: Když spustíte route:cache, Laravel serializuje zkompilovanou kolekci route do PHP souboru v bootstrap/cache/. Při následujících požadavcích je tento soubor načten přímo, čímž se obejde celá
+    fáze registrace route. To výrazně zlepšuje výkon v produkci. Route založené na closure však nelze uložit do cache (vyhodí výjimku) a service container je stále potřebný pro řešení controllerů.
+- id: rt-027
+  topic: routing
+  type: text
+  difficulty: těžká
+  question: Jaký konfigurační klíč v config/app.php řídí sadu platných názvů middleware skupin, které mohou být aplikovány na soubory route v bootstrap/app.php?
+  answer: middleware
+  alternatives:
+  - '''middleware'''
+  - konfigurační klíč middleware
+  explanation: Klíč 'middleware' v config/app.php (nebo konfigurace middleware v bootstrap/app.php pro Laravel 11+) definuje dostupné middleware skupiny a aliasy. V Laravelu 11+ se metoda withMiddleware()
+    v bootstrap/app.php používá pro konfiguraci middleware skupin, aliasů a priorit, které se pak aplikují na definice route. Koncept middleware skupin je zásadní pro to, jak web a API route dostávají různé
+    middleware zásobníky.
+- id: rt-028
+  topic: routing
+  type: single
+  difficulty: těžká
+  question: Ve scénáři, kde jsou definovány jak Route::view('/about', 'pages.about'), tak Route::get('/about', [PageController::class, 'about']), co určuje, který handler se provede?
+  options:
+  - Controller route má přednost, protože controller-based route jsou považovány za specifičtější než view route
+  - Route::view má přednost před Route::get, protože view route jsou registrovány ve vyšší prioritní interní kolekci route
+  - Route definovaná první v souboru route vyhraje, protože Laravel používá strategii první shody při řešení route
+  - Laravel sloučí oba handlery route dohromady a provede je v sekvenci, kombinující oba výstupy odpovědi
+  answer: Route definovaná první v souboru route vyhraje, protože Laravel používá strategii první shody při řešení route
+  explanation: Router v Laravelu iteruje přes route v pořadí, ve kterém byly registrovány, a vrátí první route, jejíž metoda, URI a omezení odpovídají. Neexistuje žádný inherentní rozdíl v prioritě mezi
+    Route::view() a Route::get() — vyhrává ta první registrovaná. Proto záleží na pořadí definice route a měli byste se vyhnout definování dvou route se stejnou metodou a URI.
+- id: rt-029
+  topic: routing
+  type: multiple
+  difficulty: těžká
+  question: Při použití RateLimiter facade pro konfiguraci pojmenovaných rate limiterů odkazovaných v route middleware, které z následujících jsou platné přístupy?
+  options:
+  - RateLimiter::for('api', function (Request $request) { return Limit::perSecond(1); });
+  - RateLimiter::for('api', function (Request $request) { return Limit::perMinute(60)->by($request->ip()); });
+  - RateLimiter::for('api', function (Request $request) { return Limit::perMinute(60); });
+  - RateLimiter::for('api', function (Request $request) { return [Limit::perMinute(60), Limit::perDay(1000)]; });
+  answers:
+  - RateLimiter::for('api', function (Request $request) { return Limit::perMinute(60); });
+  - RateLimiter::for('api', function (Request $request) { return Limit::perMinute(60)->by($request->ip()); });
+  - RateLimiter::for('api', function (Request $request) { return [Limit::perMinute(60), Limit::perDay(1000)]; });
+  explanation: 'RateLimiter facade podporuje všechny tyto vzory: vrácení jediného Limit, zřetězení ->by() pro omezení per uživatele/IP, vrácení pole více limitů (oba musí projít) a použití per-sekundových
+    limitů. Pojmenovaný limiter ''api'' je pak odkazován přes middleware(''throttle:api''). Tento flexibilní systém podporuje jak per-minutové, tak per-sekundové granulární rate limiting.'

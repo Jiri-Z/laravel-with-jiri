@@ -1,0 +1,134 @@
+- answer: url('/')
+  difficulty: lehká
+  explanation: Pomocná funkce url() generuje plně kvalifikovanou URL. Když je volána jako url('/'), vytvoří kořenovou URL aplikace (např. https://example.com/). Pomocná funkce route() vyžaduje pojmenovanou
+    trasu, ne cestu. Pomocná funkce asset() je určena výhradně pro soubory veřejných zdrojů.
+  id: ug-001
+  options:
+  - route('/')
+  - url('/')
+  - base_url()
+  - asset('/')
+  question: Která pomocná funkce generuje URL na kořen aplikace, když je volána bez argumentů?
+  topic: url-generation
+  type: single
+- alternatives:
+  - route()
+  answer: route
+  difficulty: lehká
+  explanation: 'Pomocná funkce route() generuje URL pro pojmenované trasy. Například, pokud máte Route::get(''/profile'', [ProfileController::class, ''show''])->name(''profile''), pak route(''profile'')
+    vygeneruje URL /profile. Můžete také předat parametry jako druhý argument: route(''profile'', [''id'' => 1]).'
+  id: ug-002
+  question: Jaká pomocná funkce Laravelu generuje URL na pojmenovanou trasu, když je jako první argument předán název trasy?
+  topic: url-generation
+  type: text
+- answers:
+  - Globální pomocná funkce url()
+  - Facade URL
+  - Třída Illuminate\Support\Facades\URL
+  - Singleton UrlGenerator ze service containeru
+  difficulty: lehká
+  explanation: Laravel poskytuje více způsobů generování URL. Pomocná funkce url() je rychlá globální funkce. Facade URL poskytuje přístup podobný statickému. V pozadí facade řeší singleton Illuminate\Routing\UrlGenerator
+    ze service containeru. Všechny čtyři přístupy nakonec používají stejný podkladový generátor URL.
+  id: ug-003
+  options:
+  - Facade URL
+  - Třída Illuminate\Support\Facades\URL
+  - Globální pomocná funkce url()
+  - Singleton UrlGenerator ze service containeru
+  question: Které z následujících jsou platné způsoby přístupu k funkcionalitě generování URL v Laravelu? (Vyberte všechny platné)
+  topic: url-generation
+  type: multiple
+- answer: Generuje absolutní URL místo relativního
+  difficulty: střední
+  explanation: Třetí argument pomocné funkce route() je $absolute. Ve výchozím stavu route() generuje absolutní URL (úplné URL s protokolem a doménou). Předání false jako třetího argumentu vytvoří relativní
+    cestu (např. /users/1 místo https://example.com/users/1). To je užitečné, když chcete URL relativní k protokolu nebo pouze cestu.
+  id: ug-004
+  options:
+  - Vynutí HTTPS bez ohledu na aktuální schéma požadavku
+  - Generuje absolutní URL místo relativního
+  - Okamžitě přesměruje na trasu
+  - Ověří parametry trasy před generováním URL
+  question: Co provede předání true jako třetího argumentu pomocné funkce route()?
+  topic: url-generation
+  type: single
+- alternatives:
+  - signedRoute
+  - URL::temporarySignedRoute
+  - temporarySignedUrl
+  answer: temporarySignedRoute
+  difficulty: střední
+  explanation: URL::temporarySignedRoute() generuje URL s časově omezeným kryptografickým podpisem. Přijímá název trasy, čas vypršení v sekundách (nebo DateTime) a volitelné parametry trasy. Podpisované
+    URL přidává query parameter signature a timestamp expires, který může ověřit Laravelův middleware signed. To je ideální pro odkazy pro ověření e-mailem, obnovení hesla a další časově závislé akce.
+  id: ug-005
+  question: Jaká metoda na facade URL generuje URL s dočasným, vypršejícím podpisem pro ověření, že URL nebylo zmanipulováno?
+  topic: url-generation
+  type: text
+- answer: action([UserController::class, 'show'], ['id' => 1])
+  difficulty: střední
+  explanation: Pomocná funkce action() generuje URL na základě akce controlleru. Přijímá pole třídy controlleru a metody jako první argument, s parametry jako druhým. I když jsou pojmenované trasy preferovány
+    (jsou údržebnější, protože nesvazují URL se strukturou controlleru), action() je užitečné, když neovládáte definice tras.
+  id: ug-006
+  options:
+  - action([UserController::class, 'show'], ['id' => 1])
+  - URL::toController('UserController@show', ['id' => 1])
+  - url()->controller('UserController@show', ['id' => 1])
+  - generate_action('UserController@show', ['id' => 1])
+  question: Jak vygenerujete URL pro akci controlleru bez použití pojmenované trasy?
+  topic: url-generation
+  type: single
+- answers:
+  - signature
+  - expires
+  difficulty: střední
+  explanation: Když generujete podepsané nebo dočasně podepsané URL, Laravel přidá parametr signature (base64-kódovaný HMAC hash URL) a parametr expires (Unix timestamp udávající čas vypršení URL). Parametr
+    query signature se používá také pro trvalé podepsané URL, zatímco expires se objevuje pouze u dočasných.
+  id: ug-007
+  options:
+  - timestamp
+  - signature
+  - token
+  - expires
+  question: Jaké query parametry přidává Laravel při generování podepsaného URL? (Vyberte všechny platné)
+  topic: url-generation
+  type: multiple
+- answer: Vyvolá výjimku MissingRouteParametersException
+  difficulty: těžká
+  explanation: Laravel striktně vyžaduje, aby při generování URL byly poskytnuty všechny parametry trasy. Pokud chybí jakýkoliv povinný parametr v poli předaném do route(), Laravel vyvolá výjimku Illuminate\Routing\Exceptions\MissingRouteParametersException.
+    Musíte explicitně poskytnout všechny povinné parametry nebo definovat výchozí hodnoty v definici vaší trasy.
+  id: ug-008
+  options:
+  - Vyvolá výjimku MissingRouteParametersException
+  - Vygeneruje URL s prázdnou hodnotou slug
+  - Vrátí se na hodnotu slug z aktuálního požadavku
+  - Automaticky vygeneruje slug z id
+  question: Co se stane, pokud zavoláte route('profile', ['id' => 1]), ale trasa 'profile' vyžaduje také parametr 'slug', který vynecháte?
+  topic: url-generation
+  type: single
+- alternatives:
+  - signed.middleware
+  - App\Http\Middleware\Signed
+  - Illuminate\Routing\Middleware\Signed
+  answer: signed
+  difficulty: těžká
+  explanation: Middleware signed (Illuminate\Routing\Middleware\ValidateSignature) kontroluje, zda parametr signature požadavku odpovídá platnému HMAC adrese URL. Pro dočasné podepsané URL také ověřuje,
+    že časové razítko expires nevypršelo. Aplikujete ho přes ->middleware('signed') na route. Pokud validace selže, vrátí odpověď 403 Forbidden.
+  id: ug-009
+  question: Jaké middleware musíte aplikovat na route pro validaci, že příchozí požadavek má platný podpis podepsané URL?
+  topic: url-generation
+  type: text
+- answers:
+  - Přepíše kořenovou URL URL generátoru pro celou životnost požadavku
+  - Je běžně používán v CLI příkazech nebo zařazovaných úlohách, kde neexistuje příchozí HTTP požadavek
+  - Ovlivňuje výstup pomocníků url() i route()
+  difficulty: těžká
+  explanation: URL::forceRootUrl('https://example.com') přepíše kořenovou URL použitou URL generátorem. To je nezbytné v Artisan příkazech nebo zařazovaných úlohách, kde neexistuje HTTP požadavek, ze kterého
+    by se dala odvodit základní URL. Ovlivňuje veškerou generování URL (jak url(), tak route()) pro aktuální proces. NEMODIFIKUJE soubor .env ani config — je to pouze běhová předefinování.
+  id: ug-010
+  options:
+  - Přepíše kořenovou URL URL generátoru pro celou životnost požadavku
+  - Trvale mění konfigurační hodnotu APP_URL
+  - Ovlivňuje výstup pomocníků url() i route()
+  - Je běžně používán v CLI příkazech nebo zařazovaných úlohách, kde neexistuje příchozí HTTP požadavek
+  question: Které z následujících správně popisují chování URL::forceRootUrl()? (Vyberte všechny správné odpovědi)
+  topic: url-generation
+  type: multiple

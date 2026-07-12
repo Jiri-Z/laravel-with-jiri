@@ -1,6 +1,13 @@
 @php $question = $this->questions[$this->currentIndex] ?? null; @endphp
 
 @if ($question)
+    @php
+        $difficultyColor = match ($question['difficulty'] ?? '') {
+            'easy', 'lehká' => 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300',
+            'medium', 'střední' => 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-300',
+            default => 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300',
+        };
+    @endphp
     <div class="mb-6">
         <div class="flex items-center justify-between mb-2">
             <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('trivia.question_counter', ['current' => $this->currentIndex + 1, 'total' => count($this->questions)]) }}</span>
@@ -14,7 +21,7 @@
     <div class="bg-white dark:bg-gray-750 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 mb-4">
         <div class="mb-4 flex flex-wrap items-center gap-2">
             <span class="px-2.5 py-0.5 text-xs font-semibold bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 rounded-full">{{ Str::title(str_replace('-', ' ', $question['topic'])) }}</span>
-            <span class="px-2.5 py-0.5 text-xs font-semibold {{ $question['difficulty'] === 'easy' ? 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300' : ($question['difficulty'] === 'medium' ? 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-700 dark:text-yellow-300' : 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300') }} rounded-full">{{ ucfirst($question['difficulty']) }}</span>
+            <span class="px-2.5 py-0.5 text-xs font-semibold {{ $difficultyColor }} rounded-full">{{ ucfirst($question['difficulty']) }}</span>
             <span class="px-2.5 py-0.5 text-xs font-semibold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">{{ $question['type'] === 'single' ? 'Single Answer' : ($question['type'] === 'multiple' ? 'Multiple Answers' : 'Type Answer') }}</span>
         </div>
 

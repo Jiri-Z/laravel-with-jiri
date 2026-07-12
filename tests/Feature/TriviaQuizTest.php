@@ -210,7 +210,27 @@ test('trivia question seeder sets correct locale', function () {
     expect($enCount)->toBeGreaterThan(0);
 
     $csCount = TriviaQuestion::where('locale', 'cs')->count();
-    expect($csCount)->toBe(0); // No CS YAML files exist yet
+    expect($csCount)->toBeGreaterThan(0);
+});
+
+test('czech difficulty badge renders correct color', function () {
+    TriviaQuestion::insert(triviaQuestion([
+        'topic' => 'routing',
+        'difficulty' => 'lehká',
+        'question' => 'CS lehká otázka?',
+        'locale' => 'cs',
+    ]));
+
+    app()->setLocale('cs');
+
+    $component = Livewire::actingAs($this->user)
+        ->test(TriviaQuiz::class)
+        ->set('selectedTopics', ['routing'])
+        ->call('start');
+
+    $component->assertOk();
+    $component->assertSee('CS lehká otázka?');
+    $component->assertSeeHtml('bg-green-100');
 });
 
 test('dashboard shows trivia card', function () {

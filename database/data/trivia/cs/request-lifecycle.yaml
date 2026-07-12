@@ -1,0 +1,381 @@
+- answer: public/index.php
+  difficulty: lehká
+  explanation: Každý HTTP požadavek vstupuje přes public/index.php, což je kořenový adresář webového serveru. Tento soubor načte Composerův autoloader a inicializuje instanci Laravel aplikace před zpracováním
+    požadavku.
+  id: rl-001
+  options:
+  - app/bootstrap.php
+  - public/start.php
+  - bootstrap/app.php
+  - public/index.php
+  question: Jaký je vstupní bod pro každý HTTP požadavek v Laravel aplikaci?
+  topic: request-lifecycle
+  type: single
+- answer: Application::handle()
+  difficulty: lehká
+  explanation: V Laravel 13.x je metoda handle() třídy Application jediným vstupním bodem, který přijímá HTTP požadavek, prochází celým životním cyklem včetně middleware a routingu a vrací HTTP odpověď.
+  id: rl-002
+  options:
+  - Application::handle()
+  - Application::handleRequest()
+  - Application::run()
+  - Application::dispatch()
+  question: Která metoda na instanci Application je použita k zpracování příchozího HTTP požadavku a vrácení odpovědi v Laravel 13.x?
+  topic: request-lifecycle
+  type: single
+- alternatives:
+  - bootstrap/app
+  - bootstrap/app.PHP
+  answer: bootstrap/app.php
+  difficulty: lehká
+  explanation: Laravel 13.x zrušil samostatné soubory pro HTTP a Console kernel. Veškeré inicializace aplikace, registrace middleware a konfigurace nyní probíhají v bootstrap/app.php, což výrazně zjednodušuje
+    životní cyklus požadavků frameworku.
+  id: rl-003
+  question: Který soubor nahrazuje HTTP kernel v zjednodušené struktuře aplikace Laravel 13.x?
+  topic: request-lifecycle
+  type: text
+- answer: Globální middleware, potom route middleware, a nakonec logika controlleru
+  difficulty: lehká
+  explanation: Laravel zpracovává nejdříve globální middleware (použité na každý request), potom route-specific middleware, a nakonec dosáhne controlleru nebo closure. Na cestě odpovědí middleware provádí
+    v opačném pořadí (LIFO - Last In, First Out).
+  id: rl-004
+  options:
+  - Route middleware první, potom globální middleware, a nakonec je vrácena odpověď
+  - Globální middleware, potom route middleware, a nakonec logika controlleru
+  - Route middleware, logika controlleru, a nakonec globální middleware
+  - Všechny middleware se spouštějí až po vrácení odpovědi controllerem
+  question: V jakém pořadí Laravel typicky zpracovává middleware během requestu?
+  topic: request-lifecycle
+  type: single
+- alternatives:
+  - Not Found
+  answer: '404'
+  difficulty: lehká
+  explanation: Když router nemůže najít odpovídající route, Laravel automaticky vrací odpověď 404 Not Found. Tato odpověď je generována metodou match třídy RouteCollection, která vyvolá výjimku NotFoundHttpException,
+    kterou zachytává handler výjimek.
+  id: rl-005
+  question: Jaký HTTP status code Laravel vrátí ve výchozím nastavení, když žádná route neodpovídá na URI příchozího požadavku?
+  topic: request-lifecycle
+  type: text
+- answer: Obsahuje bootstrapovací soubory frameworku, včetně app.php, který inicializuje aplikaci
+  difficulty: lehká
+  explanation: Adresář bootstrap obsahuje soubor app.php, který vytváří a konfiguruje instanci Application. Laravel 13.x, je to centrální místo, kde jsou definovány middleware, providery a další konfigurace
+    životního cyklu.
+  id: rl-006
+  options:
+  - Obsahuje bootstrapovací soubory frameworku, včetně app.php, který inicializuje aplikaci
+  - Ukládá konfigurační soubory aplikace, jako jsou nastavení databáze, e-mailu a ovladačů cache
+  - Obsahuje soubory migrací databáze, které definují změny schématu pro aplikaci
+  - Ukládá kompilované Blade šablony a cachované soubory tras pro vyšší výkon
+  question: Jaký je účel adresáře bootstrap v Laravel aplikaci?
+  topic: request-lifecycle
+  type: single
+- answer: bootstrap/cache/routes-v7.php
+  difficulty: lehká
+  explanation: Laravel ukládá kompilované routy do adresáře bootstrap/cache. Spuštěním příkazu 'php artisan route:cache' se vygeneruje tento soubor, který umožňuje routeru úplně přeskočit fázi registrace
+    rout při následujících požadavcích, což zvyšuje výkon.
+  id: rl-007
+  options:
+  - bootstrap/cache/routes-v7.php
+  - storage/framework/routes/
+  - storage/cache/routes.php
+  - bootstrap/cache/compiled_routes.php
+  question: Kam ukládá Laravel cachované routy pro zrychlení životního cyklu požadavku?
+  topic: request-lifecycle
+  type: single
+- answers:
+  - Registrace a bootování service provider
+  - Bootování HTTP kernelu a provádění middleware
+  - Směrování route na controller nebo closure
+  difficulty: lehká
+  explanation: Životní cyklus Laravel HTTP požadavku zahrnuje bootování kernelu, provádění middleware, registraci/bootování service provider a dispatching route. Kompilace databázového schématu není součástí
+    standardního životního cyklu požadavku; je to operace během buildu nebo migrace.
+  id: rl-008
+  options:
+  - Kompilace databázového schématu
+  - Registrace a bootování service provider
+  - Bootování HTTP kernelu a provádění middleware
+  - Směrování route na controller nebo closure
+  question: Které z následujících jsou fáze životního cyklu Laravel HTTP požadavku?
+  topic: request-lifecycle
+  type: multiple
+- alternatives:
+  - Application::configure
+  - configure()
+  answer: Application::configure()
+  difficulty: lehká
+  explanation: Laravel 13.x používá plynulou metodu Application::configure() v bootstrap/app.php pro nastavení aplikace. Tento přístup nahrazuje starší model vytváření instance App a samostatného vázání
+    HTTP kernelu, čímž proces bootstrappingu činí deklarativnějším.
+  id: rl-009
+  question: V Laravel 13.x, jaká jediná metoda v bootstrap/app.php vrátí připravenou instanci Application?
+  topic: request-lifecycle
+  type: text
+- answer: Aby se zabránilo neoprávněnému přístupu k citlivým souborům jako .env, config a zdrojovému kódu
+  difficulty: střední
+  explanation: Nastavením kořenového adresáře dokumentů na public/ jsou vystaveny pouze soubory určené pro webový přístup (index.php, assets). Soubory jako .env, databázové migrace a konfigurační soubory
+    zůstávají mimo webový kořen, což je chrání před přímým přístupem přes URL – klíčová bezpečnostní opatření.
+  id: rl-010
+  options:
+  - Aby se zabránilo neoprávněnému přístupu k citlivým souborům jako .env, config a zdrojovému kódu
+  - Aby povolil vestavěný server Laravelu pro HTTP/2 push pro zlepšení výkonu načítání assetů
+  - Protože Composer vyžaduje veřejný adresář pro správnou funkci automatického načítání tříd
+  - Aby se snížila velikost HTTP požadavku vyloučením frameworkových souborů z kořene
+  question: Proč doporučuje Laravel umisťovat webový kořen adresář do 'public' adresáře, nikoli do kořene projektu?
+  topic: request-lifecycle
+  type: single
+- answers:
+  - Providery volají $app->booted() callbacky
+  - Všechny providery byly zaregistrovány a jejich vazby jsou dostupné
+  - Probíhá registrace route
+  difficulty: střední
+  explanation: Během fáze boot všechny service providery již byly registrovány, takže jejich vazby jsou dostupné v kontejneru. Providery mohou registrovat routy, listenery událostí a provádět úkoly, které
+    závisí na jiných registrovaných službách. Databázová spojení jsou lazy-loaded, nejsou vytvořena během boot.
+  id: rl-011
+  options:
+  - Databázová spojení jsou vytvořena
+  - Providery volají $app->booted() callbacky
+  - Všechny providery byly zaregistrovány a jejich vazby jsou dostupné
+  - Probíhá registrace route
+  question: V Laravel 13.x, co z následujícího se děje během fáze boot service providerů?
+  topic: request-lifecycle
+  type: multiple
+- answer: Spustí se po odeslání odpovědi prohlížeči, užitečné pro úklid nebo protokolování
+  difficulty: střední
+  explanation: Metoda terminate() v middleware spustí poté, co je odpověď odeslána klientovi. To je užitečné pro úlohy po odeslání odpovědi, jako je zapisování přístupových protokolů, sběr metrik nebo čištění
+    zdrojů. Laravel volá tuto metodu pomocí FastCGI finish_request nebo Symfony's TerminableMiddlewareInterface.
+  id: rl-012
+  options:
+  - Okamžitě přeruší aktuální požadavek a odešle odpověď s chybou 500 Internal Server Error
+  - Spustí se po odeslání odpovědi prohlížeči, užitečné pro úklid nebo protokolování
+  - Ukončí PHP worker proces zpracovávající požadavek a vytvoří náhradu
+  - Zastaví provádění všech následujících middleware a vrací aktuální odpověď dříve
+  question: Co se stane, když je zavolána metoda terminate() v terminate middleware?
+  topic: request-lifecycle
+  type: single
+- alternatives:
+  - chain of responsibility
+  - Chain of Responsibility pattern
+  - Responsibility chain
+  answer: Chain of Responsibility
+  difficulty: střední
+  explanation: Middleware pipeline v Laravelu následuje Chain of Responsibility pattern. Každý middleware může zpracovat request, předat ho dalšímu middleware nebo přerušit řetězec tím, že vrátí odpověď
+    dříve. Přístup pipe-and-filter vám umožňuje složit složité zpracování požadavků z malých, zaměřených middleware.
+  id: rl-013
+  question: Jaký je název design patternu, který middleware pipeline v Laravelu implementuje pro zpracování požadavků prostřednictvím řazeného řetězce?
+  topic: request-lifecycle
+  type: text
+- answer: Zabaluje celý životní cyklus požadavku a zachycuje jakékoli výjimky vyvolané během routování, spouštění controlleru nebo middleware
+  difficulty: střední
+  explanation: Exception handler je zaregistrován jako singleton a zabaluje proces dispatch požadavku. Jakákoli výjimka vyvolaná během životního cyklu—ať už z middleware, routeru, controllerů nebo views—je
+    zachycena handlerem, který ji na základě typu výjimky a debug módu aplikace převede na odpovídající HTTP response.
+  id: rl-014
+  options:
+  - Nahrazuje celou vrstvu routování, když nastane jakákoli výjimka, a vrátí se na předdefinovanou chybovou trasu handleru
+  - Zabaluje celý životní cyklus požadavku a zachycuje jakékoli výjimky vyvolané během routování, spouštění controlleru nebo middleware
+  - Aktivuje se pouze během lokálního vývoje při použití příkazu artisan serve pro vestavěný PHP vývojový server
+  - Běží jako první globální middleware před jakýmkoli dalším zpracováním, zachycuje chyby dříve, než mohou dále šířit
+  question: Jak se Laravel exception handler integruje do životního cyklu požadavku?
+  topic: request-lifecycle
+  type: single
+- answers:
+  - Middleware vykonává v odpovědní fázi v pořadí LIFO (poslední přidaný, první provedený)
+  - Globální middleware běží před route middleware během fáze požadavku
+  - Logika 'before' middleware běží při vstupu, logika 'after' při výstupu
+  difficulty: střední
+  explanation: 'Middleware vytváří cibulovou strukturu: globální a poté route middleware obalují controller. Na cestě požadavku middleware běží shora dolů. Poté, co controller vrátí odpověď, prochází odpověď
+    zpět přes každý middleware v opačném pořadí (LIFO). Kód před $next($request) běží při vstupu; kód po běží při výstupu.'
+  id: rl-015
+  options:
+  - Middleware vykonává v odpovědní fázi v pořadí LIFO (poslední přidaný, první provedený)
+  - Globální middleware běží před route middleware během fáze požadavku
+  - Logika 'before' middleware běží při vstupu, logika 'after' při výstupu
+  - Všechny middleware běží znovu od začátku během odpovědní fáze
+  question: Které z následujících správně popisují pořadí vykonávání middleware v Laravelu při zpracování požadavku a jeho odpovědi?
+  topic: request-lifecycle
+  type: multiple
+- answer: Shoduje se URI požadavku a HTTP metoda s registrovanými routami a předává požadavek na obsluhu shodné routy
+  difficulty: střední
+  explanation: Po průchodu přes middleware stack dosáhne požadavek na Router, který se pokusí shodnout URL cestu a HTTP slovo proti všem registrovaným routám. Jakmile je shoda nalezena, extrahuje parametry
+    routy, spustí middleware routy a předá požadavek na controller nebo closure definovaný v routě.
+  id: rl-016
+  options:
+  - Navazuje databázové připojení potřebné pro controller a zahajuje transakci
+  - Spravuje session data napříč požadavky a zajišťuje, že je session načtena před provedením
+  - Shoduje se URI požadavku a HTTP metoda s registrovanými routami a předává požadavek na obsluhu shodné routy
+  - Serializuje návratovou hodnotu controlleru buď do JSON odpovědi, nebo do vykreslené HTML view
+  question: Jakou roli hraje Router v životním cyklu požadavku Laravel po zpracování middleware?
+  topic: request-lifecycle
+  type: single
+- alternatives:
+  - Symfony\Component\HttpKernel\TerminableMiddlewareInterface
+  - Illuminate\Contracts\Http\TerminableMiddleware
+  answer: TerminableMiddleware
+  difficulty: střední
+  explanation: V Laravel 13.x, middleware implementující rozhraní TerminableMiddleware (nebo Symfony TerminableMiddlewareInterface) bude mít jeho metodu terminate() volána automaticky po odeslání odpovědi
+    prohlížeči. To je zvláště užitečné pro úkoly, které by neměly blokovat odpověď, jako je logování nebo sběr metrik.
+  id: rl-017
+  question: V Laravel 13.x, jaké PHP rozhraní musí middleware implementovat, aby byla jeho metoda terminate() automaticky volána po odeslání odpovědi?
+  topic: request-lifecycle
+  type: text
+- answer: Aby se eliminoval režim spojený s registrací tras při každém požadavku načtením předkompilovaného souboru tras
+  difficulty: střední
+  explanation: Příkaz route:cache serializuje všechny registrované trasy do jednoho souboru v mezipaměti. Při následných požadavcích Laravel načítá tento soubor místo opětovné registrace každé trasy, což
+    může výrazně snížit dobu spouštění v aplikacích s mnoha trasami. Jedná se o standardní optimalizaci pro produkční prostředí.
+  id: rl-018
+  options:
+  - Aby se automaticky generovaly chybějící soubory definic tras, které jsou odkazovány, ale ještě nebyly vytvořeny
+  - Aby se z mezipaměti odstranily neplatné nebo zastaralé trasy, které již nemají odpovídající metodu v controlleru
+  - Aby se snížila spotřeba paměti uložením zkompilovaných definic tras v databázi místo v paměti
+  - Aby se eliminoval režim spojený s registrací tras při každém požadavku načtením předkompilovaného souboru tras
+  question: Proč by vývojář mohl použít 'php artisan route:cache' v produkčním prostředí?
+  topic: request-lifecycle
+  type: single
+- answers:
+  - Může registrovat middleware skupiny a jednotlivé middleware
+  - Vrací instanci Application pro řetězení metod
+  - Nahrazuje potřebu oddělených HTTP a Console kernel tříd
+  difficulty: střední
+  explanation: Fluent API Application::configure() zavedená v posledních verzích Laravelu a vylepšená v 13.x umožňuje veškeré nastavení aplikace — registraci middleware, konfiguraci providerů, definice
+    cest — prostřednictvím jednoho řetězce metod. Tím se eliminuje tradiční rozdělení na HTTP/Console kernel. Je voláno v bootstrap/app.php, nikoli ze service providerů.
+  id: rl-019
+  options:
+  - Může registrovat middleware skupiny a jednotlivé middleware
+  - Vrací instanci Application pro řetězení metod
+  - Nahrazuje potřebu oddělených HTTP a Console kernel tříd
+  - Musí být voláno zevnitř service provideru
+  question: V Laravel 13.x, které z následujících jsou pravdivé ohledně řetězce metod Application::configure() v bootstrap/app.php?
+  topic: request-lifecycle
+  type: multiple
+- answer: Nastavuje základní detekci prostředí, načítání konfigurace, zpracování výjimek a fasády
+  difficulty: střední
+  explanation: 'Než spustí jakékoliv poskytovatele služeb, Laravel inicializuje základní prostředí: detekuje prostředí (načítání .env), načítá konfigurační soubory, registruje handler výjimek, nastavuje
+    systém protokolování a připravuje fasády. To zajišťuje, že všichni poskytovatelé mají konzistentní základ, se kterým mohou pracovat.'
+  id: rl-020
+  options:
+  - Navazuje spojení přes WebSocket pro funkce vysílání v reálném čase a řízenou komunikaci událostmi
+  - Zkompiluje všechny Blade šablony do cacheovaných PHP souborů pro výrazně rychlejší vykreslování při každém požadavku
+  - Nastavuje základní detekci prostředí, načítání konfigurace, zpracování výjimek a fasády
+  - Automaticky spustí všechny čekající databázové migrace než začne aplikace zpracovávat požadavek
+  question: Jaký je účel fáze 'inicializace' (bootstrapping), která nastane před registrací poskytovatelů služeb?
+  topic: request-lifecycle
+  type: single
+- alternatives:
+  - artisan optimize:clear
+  - php artisan optimize-clear
+  answer: php artisan optimize:clear
+  difficulty: střední
+  explanation: 'Příkaz "php artisan optimize:clear" je pohodlný příkaz, který najednou spouští více příkazů pro vyčištění cache: route:clear, config:clear, view:clear, cache:clear, event:clear a další.
+    Je užitečný během vývoje, kdy uložené cache soubory mohou způsobovat zastaralé chování.'
+  id: rl-021
+  question: Jaký artisan příkaz vyčistí všechny cache soubory související s životním cyklem požadavku, včetně tras, konfigurace, pohledů a událostí?
+  topic: request-lifecycle
+  type: text
+- answer: Vyvolá výjimku MethodNotAllowedHttpException, která vrací odpověď 405
+  difficulty: střední
+  explanation: Když URL odpovídá vzoru route, ale HTTP metoda neodpovídá žádnému zaregistrovanému route, Laravel vyvolá výjimku MethodNotAllowedHttpException. Handler výjimek převede tuto výjimku na odpověď
+    405 Method Not Allowed, která může také obsahovat hlavičku Allow s platnými HTTP metodami pro dané URI.
+  id: rl-022
+  options:
+  - Vrací odpověď 403 Forbidden bez dalších informací o povolených metodách
+  - Tichy návrat na odpovídající GET route, pokud je definována pro stejné URI
+  - Vyvolá výjimku MethodNotAllowedHttpException, která vrací odpověď 405
+  - Přesměruje uživatele na stejné URL, ale s přidanou správnou HTTP metodou v hlavičce
+  question: Jak Laravel zpracuje požadavek na URL, které odpovídá route, ale použije špatnou HTTP metodu (např. GET místo POST)?
+  topic: request-lifecycle
+  type: single
+- answers:
+  - Pro ověření nebo autorizaci uživatelů před dosažením controlleru
+  - Pro transformaci vstupních dat z požadavku před dosažením controlleru
+  - Pro úpravu odpovědi po zpracování controlleru
+  difficulty: střední
+  explanation: Middleware je ideální pro průřezové problémy jako je ověřování, autorizace, transformace vstupních dat a úprava odpovědí. Neměl by být použit pro jádrovou obchodní logiku jako jsou databázové
+    dotazy pro zjištění tras – to je zodpovědností routeru.
+  id: rl-023
+  options:
+  - Pro ověření nebo autorizaci uživatelů před dosažením controlleru
+  - Pro transformaci vstupních dat z požadavku před dosažením controlleru
+  - Pro úpravu odpovědi po zpracování controlleru
+  - Pro přímý dotaz do databáze pro všechny registrované trasy
+  question: Které z následujících jsou platné důvody pro vytvoření vlastního middleware v životním cyklu požadavku?
+  topic: request-lifecycle
+  type: multiple
+- alternatives:
+  - Response::send
+  - $response->send()
+  answer: send()
+  difficulty: střední
+  explanation: Po dokončení celého middleware pipeline a vrácení odpovědi z controlleru volá Laravel metodu Response::send(). Tato metoda odešle HTTP status řádek, hlavičky a tělo odpovědi klientovi. Metoda
+    send() je finální krok před spuštěním middleware terminate.
+  id: rl-024
+  question: Jaká metoda na objektu Response volá Laravel pro odeslání hlaviček a těla odpovědi do prohlížeče?
+  topic: request-lifecycle
+  type: text
+- answer: Ukládáním vyřešených instancí do pole 'instances' kontejneru a jejich vrácením při následných voláních metody resolve
+  difficulty: těžká
+  explanation: Service container udržuje pole 'instances' (a také pole 'resolved') pro sledování vazeb singletonů. Když je singleton poprvé vyřešen, kontejner uloží instanci. Při dalších pokusech o vyřešení
+    ve stejném požadavku vrátí uloženou instanci místo vytvoření nové, což zajišťuje konzistentní chování v rámci middleware stacku.
+  id: rl-025
+  options:
+  - Použitím statických proměnných PHP k zachování vyřešených instancí mezi voláními funkcí v rámci middleware stacku
+  - Serializací vyřešených instancí služeb do session storage mezi jednotlivými vrstvami middleware
+  - Ukládáním vyřešených instancí do pole 'instances' kontejneru a jejich vrácením při následných voláních metody resolve
+  - Použitím globální proměnné $_GLOBALS pro sledování všech instancovaných služeb a prevenci duplicitního vyřešení
+  question: V Laravel 13.x, jak framework zajišťuje, že služby typu singleton vázané v kontejneru nejsou znovu instancovány při následných vrstvách middleware ve stejném požadavku?
+  topic: request-lifecycle
+  type: single
+- answers:
+  - Aplikace je spuštěna jednou a uchována v paměti napříč více požadavky
+  - Singleton instance přetrvávají mezi požadavky, což může způsobovat únik stavu
+  difficulty: těžká
+  explanation: S Octane (Swoole/RoadRunner) se Laravel spustí jednou a zůstane rezidentní v paměti. To znamená, že fáze bootování, registrace poskytovatelů služeb a cachování tras probíhají pouze jednou.
+    Nicméně, singleton instance přetrvávají mezi požadavky, takže vývojáři musí dávat pozor, aby neukládali stav specifický pro požadavek do singleton služeb – to je základní rozdíl v životním cyklu oproti
+    tradičnímu FPM.
+  id: rl-026
+  options:
+  - Aplikace je spuštěna jednou a uchována v paměti napříč více požadavky
+  - Kontejner služeb a všichni poskytovatelé služeb jsou pro každý požadavek znovu spuštěni
+  - Middleware mezi požadavky již není vykonáváno
+  - Singleton instance přetrvávají mezi požadavky, což může způsobovat únik stavu
+  question: V aplikaci Laravel 13.x používající Octane s Swoolem, které z následujících změn v životním cyklu požadavku nastávají oproti tradičnímu FPM?
+  topic: request-lifecycle
+  type: multiple
+- alternatives:
+  - Kompilace route
+  - kompilace route
+  - kompilování route
+  answer: kompilace route
+  difficulty: těžká
+  explanation: Kompilace route je proces, při kterém Laravel převádí vzory URI tras (s volitelnými parametry, zástupnými symboly a omezeními) na regulární výrazy pro efektivní porovnávání. Zkompilované
+    trasy jsou cachovány pomocí příkazu route:cache. Třídu RouteCompiler řídí tento proces a generuje kompatibilní vzory regulárních výrazů Symfony, které router používá pro rychlé porovnávání URL.
+  id: rl-027
+  question: V kontextu životního cyklus požadavků v Laravelu, jaký je termín pro proces převodu vzoru URI trasy jako '/users/{id}' na zkompilovaný regulární výraz pro rychlé porovnávání?
+  topic: request-lifecycle
+  type: text
+- answer: Výjimky během fáze boot mohou zabránit celé aplikaci ve zpracování jakéhokoli požadavku, zatímco výjimky v controlleru ovlivňují pouze tento jednotlivý požadavek
+  difficulty: těžká
+  explanation: Pokud metoda boot poskytovatele služeb vyvolá výjimku, samotné bootstrapování aplikace selže, což znamená, že aplikace nemůže dokončit svou inicializaci. To může celou aplikaci znefunkčnit,
+    dokud chyba není opravena. Výjimky v controlleru jsou naopak zachyceny pro každý požadavek ovlivňují pouze tento konkrétní požadavek, zatímco aplikace zůstává funkční pro ostatní uživatele.
+  id: rl-028
+  options:
+  - Výjimky v controlleru způsobí přesměrování na předchozí stránku, zatímco výjimky během fáze boot vždy zobrazí generickou chybovou stránku 500
+  - Výjimky během fáze boot jsou tiše zaznamenány do souboru, zatímco výjimky v controlleru jsou plně zobrazeny koncovému uživateli
+  - Mezi těmito dvěma typy není žádný rozdíl; všechny výjimky procházejí stejným handlerem a vytvářejí identickou chybovou odpověď
+  - Výjimky během fáze boot mohou zabránit celé aplikaci ve zpracování jakéhokoli požadavku, zatímco výjimky v controlleru ovlivňují pouze tento jednotlivý požadavek
+  question: Jaký je klíčový rozdíl v tom, jak Laravel zpracovává požadavek, který vyvolá výjimku během 'boot' fáze poskytovatelů služeb versus během vykonávání controlleru?
+  topic: request-lifecycle
+  type: single
+- id: rl-029
+  topic: request-lifecycle
+  type: multiple
+  difficulty: těžká
+  question: V Laravel 13.x, když je spuštěn příkaz 'php artisan config:cache', které z následujících důsledků pro životní cyklus nastanou?
+  options:
+  - Soubor .env se již při každém požadavku nečte; místo toho se použije cachovaná konfigurace
+  - Změny proměnných v .env se neprojeví, dokud nebude znovu spuštěn config:cache
+  - Všichni service provider jsou okamžitě znovu zaregistrováni
+  - Aplikace automaticky detekuje změny v konfiguraci a znovu je cachuje
+  answers:
+  - Soubor .env se již při každém požadavku nečte; místo toho se použije cachovaná konfigurace
+  - Změny proměnných v .env se neprojeví, dokud nebude znovu spuštěn config:cache
+  explanation: Když je spuštěn config:cache, Laravel spojí všechny konfigurační soubory s hodnotami z .env do jednoho cachovaného souboru v bootstrap/cache/. Po tomto kroku se soubor .env při každém požadavku
+    nečte. Jakékoliv změny v souboru .env nebo konfiguračních souborech budou ignorovány, dokud znovu nespustíte config:clear a následně config:cache. To je běžný zdroj zmatků při ladění v produkčním prostředí.

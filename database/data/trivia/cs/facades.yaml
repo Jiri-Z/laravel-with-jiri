@@ -1,0 +1,384 @@
+- answer: Třída, která poskytuje přístup ke službám z kontejneru služeb podobný statickému přístupu
+  difficulty: lehká
+  explanation: Facade poskytuje statické rozhraní pro třídy dostupné v kontejneru služeb aplikace. Když zavoláte statickou metodu na Facade, Laravel vyřeší základní službu z kontejneru a předá volání metody
+    této instanci. To vám dává pohodlí statické syntaxe s testovatelností injekce závislostí.
+  id: fc-001
+  options:
+  - Front-end UI knihovna komponent, která nabízí předpřipravené view komponenty pro Laravel webové aplikace
+  - Bezpečnostní vrstva, která skrývá interní strukturu aplikace a routy před externím přístupem
+  - Třída, která poskytuje přístup ke službám z kontejneru služeb podobný statickému přístupu
+  - Abstrakce databázového query builderu, která poskytuje rozhraní pro skládání SQL dotazů
+  question: Co je Laravel Facade?
+  topic: facades
+  type: single
+- answer: 'Cache::'
+  difficulty: lehká
+  explanation: Cache facade poskytuje přístup k Laravel cache systému. Pomocí něj můžete volat metody jako Cache::get(), Cache::put(), Cache::remember() a Cache::forget(). V pozadí řeší cache manager z
+    service containeru a deleguje volání metody.
+  id: fc-002
+  options:
+  - 'Storage::'
+  - 'Store::'
+  - 'Cache::'
+  - 'Session::'
+  question: Facade byste použili pro interakci s Laravel cache systémem?
+  topic: facades
+  type: single
+- alternatives:
+  - __callstatic
+  - __CALLSTATIC
+  answer: __callStatic
+  difficulty: lehká
+  explanation: Všechny Laravel facades rozšiřují základní Facade třídu, která implementuje __callStatic() magickou metodu. Když zavoláte statickou metodu jako Cache::get(), PHP spustí __callStatic(), která
+    řeší podkladovou službu z kontejneru a předává jí volání metody. Tímto způsobem facades poskytují statickou syntaxe pro instance metody.
+  id: fc-003
+  question: Jakou magickou PHP metodu používají Laravel facades k zachycení statických volání metod a jejich delegování podkladové službě?
+  topic: facades
+  type: text
+- answers:
+  - 'DB::'
+  - 'Log::'
+  - 'Http::'
+  - 'Request::'
+  difficulty: lehká
+  explanation: DB, Log, Http a Request jsou všechny platné Laravel facades. DB poskytuje přístup k databázovému query builderu a connection manageru, Log k logovacímu systému, Http k HTTP klientovi a Request
+    k aktuální HTTP request instanci. Laravel poskytuje facades pro téměř každou hlavní framework službu.
+  id: fc-004
+  options:
+  - 'Http::'
+  - 'Request::'
+  - 'DB::'
+  - 'Log::'
+  question: Které z následujících jsou platné Laravel facades?
+  topic: facades
+  type: multiple
+- answer: Laravel service container
+  difficulty: lehká
+  explanation: Každý facade řeší svou podkladovou službu ze service containeru. Metoda getFacadeAccessor() facade vrací klíč řetězce a kontejner používá tento klíč k vyřešení skutečné instance služby. To
+    znamená, že facades jsou v podstatě tenká proxy vrstva nad kontejnerem.
+  id: fc-005
+  options:
+  - Globální PHP proměnná
+  - Konfigurační soubor .env
+  - Statická registry pole definované v každé facade třídě
+  - Laravel service container
+  question: Odkud facade řeší svou podkladovou instanci služby?
+  topic: facades
+  type: single
+- alternatives:
+  - getFacadeAccessor()
+  - protected function getFacadeAccessor()
+  answer: getFacadeAccessor
+  difficulty: lehká
+  explanation: Každá vlastní facade musí implementovat metodu getFacadeAccessor(), která vrací řetězec sloužící jako klíč pro vyřešení služby z kontejneru. Například Cache facade vrací 'cache', který kontejner
+    řeší na instanci cache manageru.
+  id: fc-006
+  question: Jakou metodu musí implementovat vlastní facade třída, aby Laravel věděl, které container binding by měl proxy?
+  topic: facades
+  type: text
+- answer: Odstraní cacheovanou singleton instanci 'cache' bindingu z kontejneru
+  difficulty: lehká
+  explanation: Metoda clearResolvedInstance() odstraní vyřešenou instanci z cache instance kontejneru. To je užitečné při testování, když chcete donutit kontejner vytvořit novou instanci služby při dalším
+    vyřešení. Neovlivňuje cacheovaná data v cache driveru samotném.
+  id: fc-007
+  options:
+  - Odstraní cacheovanou singleton instanci 'cache' bindingu z kontejneru
+  - Odstraní celou mapu aliasů facade třídy z konfigurace autoloaderu aplikace
+  - Smaže všechny uložené cache datové záznamy z aktuálně aktivní cache driver instance
+  - Zruší registraci Cache service provideru z stacku bootstrap service providerů aplikace
+  question: Co následující kód dělá? Facade::clearResolvedInstance('cache');
+  topic: facades
+  type: single
+- answers:
+  - Použití Cache::shouldReceive('get')->andReturn('value')
+  - Použití Cache::fake()
+  - Přepsání bindingu v kontejneru mock instancí
+  difficulty: lehká
+  explanation: 'Laravel poskytuje více přístupů k testování: metoda shouldReceive() používá Mockery očekávání na podkladové instanci facade, metoda fake() nahrazuje skutečnou implementaci s in-memory fake
+    (pro cache, queue, mail atd.), a ručně můžete do kontejneru svázat mock. Třetí možnost ($this->mock(Cache::class)) nefunguje přímo, protože facades nejsou skutečné třídy pro mockování.'
+  id: fc-008
+  options:
+  - Použití Cache::fake()
+  - Použití Cache::shouldReceive('get')->andReturn('value')
+  - Použití $this->mock(Cache::class)
+  - Přepsání bindingu v kontejneru mock instancí
+  question: Které z následujících jsou platné způsoby, jak mockovat facade během testování v Laravel?
+  topic: facades
+  type: multiple
+- alternatives:
+  - Real-time facade
+  - real time facades
+  - real-time facade
+  - realtime facades
+  answer: Real-time facades
+  difficulty: lehká
+  explanation: Real-time facades umožňují používat jakoukoliv třídu jako facade aliasováním s předponou 'Fades\'. Například 'use Facades\App\Services\InvoiceGenerator;' umožňuje staticky volat InvoiceGenerator::generate(),
+    což vyřeší službu z kontejneru. Není potřeba žádná vlastní facade třída.
+  id: fc-009
+  question: Jak se jmenuje funkce, která umožňuje používat jakoukoliv třídu jako facade přidáním předpony 'Facades\' v příkazu use?
+  topic: facades
+  type: text
+- answer: Používají plně kvalifikovaný název třídy jako klíč kontejneru
+  difficulty: střední
+  explanation: Při použití real-time facade jako 'use Facades\App\Services\InvoiceGenerator' Laravel automaticky vytvoří facade, která používá 'App\Services\InvoiceGenerator' jako klíč vazby v kontejneru.
+    To znamená, že třída musí být v kontejneru registrována (buď přes service provider nebo autowiring), aby real-time facade fungovala.
+  id: fc-010
+  options:
+  - Používají plně kvalifikovaný název třídy jako klíč kontejneru
+  - Vždy vracejí instanci singleton bez ohledu na typ vazby
+  - Hledají metodu getFacadeAccessor() na cílové třídě
+  - Používají krátký název třídy jako klíč kontejneru
+  question: Jak real-time facades určují, kterou službu z kontejneru mají vyřešit?
+  topic: facades
+  type: single
+- id: fc-011
+  topic: facades
+  type: single
+  difficulty: střední
+  question: Proč jsou facades považovány za testovatelné, ačkoliv používají statická volání metod?
+  options:
+  - Protože statické metody jsou ze své podstaty snáze mockovatelné a testovatelné izolovaně ve srovnání s voláními instančních metod
+  - Protože facades automaticky detekují testovací prostředí a za běhu nahrazují lehkými fake implementacemi
+  - Protože PHP nativně podporuje mockování statických metod prostřednictvím vestavěných funkcí reflection a override
+  - Protože podkladová služba je vyřešena z kontejneru, který lze během testování vyměnit za mock
+  answer: Protože podkladová služba je vyřešena z kontejneru, který lze během testování vyměnit za mock
+  explanation: Přestože facades používají statickou syntaxi, delegují na instance vyřešené z kontejneru. Během testování můžete nahradit container binding mockem nebo použít specifické testovací metody
+    facades jako shouldReceive() nebo fake(). Statické volání je jen syntactic sugar — skutečná práce probíhá na vyměnitelné instanci, což zachovává testovatelnost.
+- id: fc-012
+  topic: facades
+  type: multiple
+  difficulty: střední
+  question: Které z následujících správně popisují vztah mezi facades a service containerem?
+  options:
+  - Facades automaticky registrují své vlastní bindingy v kontejneru
+  - Facades jsou v podstatě statické proxy k instancím vyřešeným z kontejneru
+  - Ke stejné službě lze přistupovat jak přes facade, tak přes constructor injection
+  - Odstranění facade bindingu z kontejneru by způsobilo vyhození výjimky facade
+  answers:
+  - Facades jsou v podstatě statické proxy k instancím vyřešeným z kontejneru
+  - Odstranění facade bindingu z kontejneru by způsobilo vyhození výjimky facade
+  - Ke stejné službě lze přistupovat jak přes facade, tak přes constructor injection
+  explanation: Facades jsou čisté proxy — nic v kontejneru neregistrují. Service providery registrují bindingy a facades k nim přistupují. Pokud binding neexistuje, facade vyhodí RuntimeException. Stejná
+    podkladová instance služby je přístupná jak přes facade, tak přes constructor injection, protože oba přístupy řeší službu ze stejného kontejneru.
+- id: fc-013
+  topic: facades
+  type: text
+  difficulty: střední
+  question: Jaká testovací metoda facade nahrazuje podkladovou implementaci in-memory fake, běžně používaná s Cache, Queue a Mail facades?
+  answer: fake
+  alternatives:
+  - fake()
+  explanation: Metoda fake() nahrazuje podkladovou službu facade in-memory implementací, která neprovádí skutečné operace. Například Cache::fake() používá array-based cache, Queue::fake() zachytává joby
+    bez jejich spuštění a Mail::fake() zachycuje e-maily. Po testu můžete ověřit, že byly zavolány očekávané operace.
+- id: fc-014
+  topic: facades
+  type: single
+  difficulty: střední
+  question: Jaký je hlavní argument kritiků proti používání facades a jak ho Laravel řeší?
+  options:
+  - Facades nepodporují method chaining; Laravel to řeší vracením $this
+  - Facades jsou pomalé, protože na každém volání používají reflection; Laravel to řeší cachováním
+  - Facades nelze type-hintovat; Laravel to řeší pomocí PHPDoc anotací v IDE stubs
+  - Facades vytvářejí těsnou vazbu na framework; Laravel to řeší tím, že fungují jako proxy do kontejneru
+  answer: Facades nelze type-hintovat; Laravel to řeší pomocí PHPDoc anotací v IDE stubs
+  explanation: Hlavní kritikou facades je, že statická volání nelze type-hintovat jako parametry konstruktoru, což znesnadňuje viditelnost závislostí. Laravel poskytuje IDE helper balíčky a obsahuje PHPDoc
+    anotace na facade třídách, což umožňuje auto-completion a goto-definition v IDE, čímž mitiguje problém s vývojářskou zkušeností.
+- id: fc-015
+  topic: facades
+  type: single
+  difficulty: střední
+  question: Co se stane, když zavoláte metodu na facade, která neexistuje na podkladové službě?
+  options:
+  - Místo toho zavolá __toString() na službě
+  - Předá volání další registrované službě
+  - Vyhodí BadMethodCallException
+  - Potichu vrátí null
+  answer: Vyhodí BadMethodCallException
+  explanation: Když zavoláte metodu, která neexistuje na vyřešené službě, PHP magická metoda __call() na službě vyhodí BadMethodCallException. Zpráva výjimky obsahuje název metody a třídu, na které byla
+    zavolána, což usnadňuje identifikaci problému — obvykle překlep nebo nesprávný předpoklad o dostupném API.
+- id: fc-016
+  topic: facades
+  type: multiple
+  difficulty: střední
+  question: Které z následujících jsou běžné případy použití, kde jsou facades v Laravelu obzvláště vhodné?
+  options:
+  - Interakce s globálními službami jako Cache, Config a Log, které nemají stav specifický pro request
+  - Přístup k framework službám v Blade šablonách přes direktivy
+  - Rychlé jednorázové volání v routes nebo closures, kde není k dispozici constructor injection
+  - Nahrazení veškerého constructor dependency injection v celé kódové základně
+  answers:
+  - Rychlé jednorázové volání v routes nebo closures, kde není k dispozici constructor injection
+  - Interakce s globálními službami jako Cache, Config a Log, které nemají stav specifický pro request
+  explanation: Facades vynikají při přístupu k dobře známým globálním službám (Cache, Config, Log, DB) a v kontextech, kde není k dispozici constructor injection (routes, Blade, Artisan příkazy). Neměly
+    by nahrazovat veškerou dependency injection — Laravel dokumentace doporučuje constructor injection pro závislosti tříd a facades pro framework služby.
+- id: fc-017
+  topic: facades
+  type: text
+  difficulty: střední
+  question: Jaká metoda na facade umožňuje vyměnit podkladovou instanci z kontejneru během testování, například pro nahrazení skutečné služby mockem?
+  answer: swap
+  alternatives:
+  - swap()
+  explanation: Metoda swap() nahrazuje podkladovou instanci, na kterou facade deleguje. Například Cache::swap(new ArrayCache()) by nahradilo cache instanci. To je užitečné v testech, když potřebujete nahradit
+    skutečnou službu test doublem, čímž získáte plnou kontrolu nad chováním služby.
+- id: fc-018
+  topic: facades
+  type: single
+  difficulty: střední
+  question: Jak funguje metoda shouldReceive() při testování facades?
+  options:
+  - Zachytí statická volání a zaznamená je pro assert bez provedení skutečné metody
+  - Vytvoří novou testovací facade třídu, která přepisuje metodu
+  - Modifikuje zdrojový kód facade za běhu pomocí eval()
+  - Používá Mockery k nastavení očekávání na podkladové vyřešené instanci služby
+  answer: Používá Mockery k nastavení očekávání na podkladové vyřešené instanci služby
+  explanation: Metoda shouldReceive() je testovací helper, který používá Mockery k vytvoření očekávání na instanci služby, na kterou facade deleguje. Při zavolání nahradí vyřešenou instanci Mockery mockem
+    se zadanými očekáváními. Po testu jsou assert automaticky ověřeny.
+- id: fc-019
+  topic: facades
+  type: single
+  difficulty: střední
+  question: Jakou základní třídu rozšiřují všechny Laravel facades?
+  options:
+  - Illuminate\Support\Traits\Facade — trait, který poskytuje helper metody pro facades
+  - Illuminate\Foundation\Facade — základní facade třída pro framework-level facades
+  - Laravel\Facade\BaseFacade — root namespace facade třída
+  - Illuminate\Support\Facades\Facade
+  answer: Illuminate\Support\Facades\Facade
+  explanation: Všechny Laravel facades rozšiřují abstraktní základní třídu Illuminate\Support\Facades\Facade. Tato základní třída implementuje magickou metodu __callStatic(), poskytuje kontrakt getFacadeAccessor()
+    a nabízí testovací helpery jako shouldReceive(), fake() a swap(). Vlastní facades musí také dědit z této třídy.
+- id: fc-020
+  topic: facades
+  type: multiple
+  difficulty: střední
+  question: Které z následujících jsou platné přístupy k vytvoření vlastního facade pro vaši službu?
+  options:
+  - Přidání statické metody do třídy služby, která se vyřeší z kontejneru
+  - Vytvoření třídy dědící z Illuminate\Support\Facades\Facade a implementující getFacadeAccessor()
+  - Použití real-time facade s předponou jmenného prostoru Facades\
+  - Vytvoření aliasu v config/app.php ukazujícího na facade třídu
+  answers:
+  - Vytvoření třídy dědící z Illuminate\Support\Facades\Facade a implementující getFacadeAccessor()
+  - Použití real-time facade s předponou jmenného prostoru Facades\
+  explanation: 'Existují dva hlavní způsoby vytvoření facades: tradiční přístup (dědění ze základní Facade třídy a implementace getFacadeAccessor()) a moderní přístup real-time facade (předpona třídy ''Facades\''
+    v use příkazu). Přidání statických metod do třídy služby nevytvoří facade a v Laravel 13.x se aliasy registrují jinak.'
+- id: fc-021
+  topic: facades
+  type: text
+  difficulty: střední
+  question: Jak se jmenuje návrhový vzor, který Laravel facades implementují a který poskytuje zjednodušené rozhraní ke komplexnímu subsystému?
+  answer: Facade pattern
+  alternatives:
+  - Facade
+  - the Facade pattern
+  - facade design pattern
+  explanation: Laravel facades implementují návrhový vzor GoF „Facade", který poskytuje jednotné rozhraní k sadě rozhraní v subsystému. Přestože je implementace Laravelu jedinečná, protože kombinuje vzor
+    Facade se vzorem Proxy (delegováním na instance vyřešené z kontejneru), základní záměr — poskytnout zjednodušené, pohodlné rozhraní — je stejný.
+- id: fc-022
+  topic: facades
+  type: single
+  difficulty: střední
+  question: Jaký je rozdíl mezi tím, jak fungují Facade::fake() a Facade::shouldReceive() v testech?
+  options:
+  - fake() funguje pouze v feature testech, zatímco shouldReceive() je omezeno na izolované unit test scénáře
+  - shouldReceive() kompletně nahrazuje instanci služby; fake() pouze zachytává volání metod bez nahrazení
+  - Mezi těmito dvěma přístupy není žádný funkční rozdíl; jsou to aliasy pro stejný testovací mechanismus
+  - fake() nahradí celou službu fake implementací; shouldReceive() používá Mockery k mockování konkrétních metod
+  answer: fake() nahradí celou službu fake implementací; shouldReceive() používá Mockery k mockování konkrétních metod
+  explanation: fake() nahradí celou podkladovou službu lehkou fake implementací (např. ArrayCache, FakeQueue). shouldReceive() používá Mockery k vytvoření částečného mocku, kde jsou mockovány pouze zadané
+    metody, zatímco ostatní procházejí na skutečnou implementaci. Použijte fake() pro „nechceme dělat skutečné věci, ale chci si ověřit volání" a shouldReceive() pro „tato konkrétní metoda by měla být zavolána
+    s těmito argumenty".
+- id: fc-023
+  topic: facades
+  type: single
+  difficulty: těžká
+  question: Jak systém aliasování facades v Laravelu (používaný pro 'use Cache;') překládá krátký název facade na skutečnou třídu?
+  options:
+  - Třída Application udržuje alias loader, který mapuje krátké názvy na plně kvalifikované facade třídy
+  - Každý facade se registruje v globálním statickém registry poli při prvním odkazu nebo instanciaci
+  - Composer classmap autoloader automaticky objeví a zaregistruje všechny dostupné facade aliasy v době instalace
+  - Vestavěný PHP class autoloader prohledává include paths pro třídy odpovídající krátkému názvu facade
+  answer: Třída Application udržuje alias loader, který mapuje krátké názvy na plně kvalifikované facade třídy
+  explanation: Laravel registruje alias loader pomocí spl_autoload_register, který mapuje krátké názvy facades (např. „Cache") na jejich plně kvalifikované názvy tříd (např. „Illuminate\\Support\\Facades\\Cache").
+    V Laravel 13.x je to konfigurováno v bootstrap/app.php. Když PHP narazí na nedefinovanou třídu, alias loader ji zachytí a namapuje na správnou facade třídu.
+- id: fc-024
+  topic: facades
+  type: multiple
+  difficulty: těžká
+  question: V kontextu real-time facades, která z následujících tvrzení jsou pravdivá o tom, jak Laravel vytváří facade třídu za běhu?
+  options:
+  - Real-time facades používají eval() k definici třídy v aktuálním scope
+  - Vygenerovaná facade třída je zapsána do storage/framework/cache/ a načítána při následujících requestech
+  - Laravel generuje dynamickou facade třídu dědící ze základní Facade třídy
+  - Vygenerovaná třída implementuje getFacadeAccessor() vracející FQCN původní třídy
+  answers:
+  - Laravel generuje dynamickou facade třídu dědící ze základní Facade třídy
+  - Vygenerovaná třída implementuje getFacadeAccessor() vracející FQCN původní třídy
+  explanation: Při použití real-time facade Laravel dynamicky vytváří novou třídu za běhu, která dědí ze základní Facade a implementuje getFacadeAccessor() s FQCN cílové třídy. Třída není zapsána na disk
+    — Laravel interně používá eval() k jejímu definování. Funguje celá v paměti bez persistentního cachování.
+- id: fc-025
+  topic: facades
+  type: text
+  difficulty: těžká
+  question: Když je zavolána metoda facade, co vrátí metoda __callStatic základní Facade třídy, pokud podkladová metoda služby vrací hodnotu?
+  answer: Návratová hodnota volání podkladové metody
+  alternatives:
+  - návratová hodnota podkladové metody
+  - cokoliv podkladová metoda vrátí
+  - návratová hodnota metody
+  explanation: Metoda __callStatic() vyřeší podkladovou službu, zavolá na ní požadovanou metodu se zadanými argumenty a vrátí cokoliv tato metoda vrátí. To znamená, že facades jsou plně transparentní proxy
+    — jakákoliv návratová hodnota, včetně objektů pro method chaining, je předána beze změny.
+- id: fc-026
+  topic: facades
+  type: single
+  difficulty: těžká
+  question: Jaký potenciální problém vzniká při použití real-time facades s konkrétními třídami, které nejsou registrovány v service containeru?
+  options:
+  - Laravel vyhodí FacadeNotRegisteredException, která indikuje, že pro facade neexistuje žádný container binding
+  - Kontejner se pokusí třídu autowirovat, což sice funguje, ale obejde jakékoliv explicitní bindingy nebo konfiguraci
+  - Facade vrací null pro každé volání metody a potichu zahodí všechny předané argumenty
+  - Facade automaticky registruje nevyřešenou třídu jako singleton binding v service containeru
+  answer: Kontejner se pokusí třídu autowirovat, což sice funguje, ale obejde jakékoliv explicitní bindingy nebo konfiguraci
+  explanation: Pokud cílová třída není v kontejneru explicitně svázána, Laravel se uchýlí k autowiringu. To znamená, že třída je instanciována se svými constructor závislostmi automaticky vyřešenými. Zatímco
+    to funguje pro jednoduché třídy, obejde jakoukoliv vlastní konfiguraci, singletony nebo kontextuální bindingy, které jste zamýšleli, což může vést k neočekávanému chování.
+- id: fc-027
+  topic: facades
+  type: multiple
+  difficulty: těžká
+  question: Které z následujících tvrzení správně popisují výkonnostní charakteristiky Laravel facades?
+  options:
+  - Používání facades je významně pomalejší než constructor injection kvůli reflection na každém volání
+  - Volání facades přidávají zanedbatelnou režii ve srovnání s přímými voláními instančních metod
+  - Každé volání facade spustí resolution z kontejneru, ale vyřešené instance jsou cachovány pro singleton bindingy
+  - Laravel cachuje mapování mezi facade třídami a jejich container bindingy
+  answers:
+  - Každé volání facade spustí resolution z kontejneru, ale vyřešené instance jsou cachovány pro singleton bindingy
+  - Laravel cachuje mapování mezi facade třídami a jejich container bindingy
+  explanation: Každé volání metody facade vyřeší službu z kontejneru, ale u singletonů (které většina facades používá) je instance cachována po prvním vyřešení. Laravel také cachuje mapování facade na binding.
+    Skutečná režie na volání je minimální — jen lookup v poli a dispatch metody — což činí facades dostatečně výkonné pro produkční použití.
+- id: fc-028
+  topic: facades
+  type: single
+  difficulty: těžká
+  question: Jak můžete přistoupit k vyřešené instanci za facade bez volání jakékoliv konkrétní metody na ní?
+  options:
+  - Facade::getFacadeRoot()
+  - Facade::getInstance()
+  - Facade::resolvedInstance()
+  - app(Facade::class)
+  answer: Facade::getFacadeRoot()
+  explanation: Statická metoda getFacadeRoot() na základní Facade třídě vrací vyřešenou instanci služby z kontejneru. To je užitečné, když potřebujete předat podkladovou instanci jiné službě nebo provést
+    operace, které nejsou dostupné přes facade rozhraní. Každý facade má také getFacadeRoot() alias na úrovni instance.
+- id: fc-029
+  topic: facades
+  type: text
+  difficulty: těžká
+  question: Jaký návrhový vzor v kombinaci se vzorem Facade Laravel používá k poskytování statického přístupu k instancím služeb vyřešeným z kontejneru?
+  answer: Proxy pattern
+  alternatives:
+  - Proxy
+  - the Proxy pattern
+  - Service Locator
+  - service locator pattern
+  explanation: Laravel facades kombinují vzor Facade (poskytování zjednodušeného rozhraní) se vzorem Proxy (předávání volání jinému objektu). Statická facade třída funguje jako proxy k instanci vyřešené
+    z kontejneru. Někteří to také popisují jako variantu vzoru Service Locator, protože kontejner funguje jako locator, který facade dotazuje pro nalezení služby.

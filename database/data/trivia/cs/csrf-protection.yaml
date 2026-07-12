@@ -1,0 +1,412 @@
+- answer: Cross-Site Request Forgery, kde škodlivý web oklamá prohlížeč uživatele, aby neoprávněně vytvořil požadavky na vaši aplikaci
+  difficulty: lehká
+  explanation: CSRF (Cross-Site Request Forgery) využívá skutečnosti, že prohlížeče automaticky zahrnují cookies (včetně session cookies) s požadavky na doménu. Útočník může vytvořit stránku, která odesílá
+    formulář do vaší aplikace, a prohlížeč zahrne session cookie uživatele. Ochrana CSRF v Laravelu tomu brání vyžadováním tajného tokenu, který útočníkův web nemůže znát.
+  id: cs-001
+  options:
+  - SQL injection útoky, kdy jsou škodlivé SQL příkazy vloženy do formulářových polí, aby manipulovaly nebo extrahovaly záznamy z databáze
+  - Brute-force útoky, které systematicky pokoušejuhádat uživatelská hesla opakovanými automatizovanými pokusy o přihlášení na přihlašovacích formulářích
+  - Cross-Site Scripting (XSS) útoky, kdy je do stránek vaší aplikace vkládán škodlivý JavaScript kód, aby ukradl uživatelská data
+  - Cross-Site Request Forgery, kde škodlivý web oklamá prohlížeč uživatele, aby neoprávněně vytvořil požadavky na vaši aplikaci
+  question: Jakému typu útoku brání Laravelova ochrana CSRF?
+  topic: csrf-protection
+  type: single
+- answer: '@csrf'
+  difficulty: lehká
+  explanation: 'Direktiva @csrf v Blade generuje skryté pole vstupu: <input type="hidden" name="_token" value="...">. Tento token je automaticky validován middlewarem VerifyCsrfToken pro všechny POST, PUT,
+    PATCH a DELETE požadavky. Je to nejjednodušší a nejčastější způsob, jak do HTML formulářů zahrnout ochranu CSRF.'
+  id: cs-002
+  options:
+  - '@token'
+  - '@protect'
+  - '@secure'
+  - '@csrf'
+  question: Která Blade direktiva generuje skryté HTML vstupní pole obsahující CSRF token?
+  topic: csrf-protection
+  type: single
+- answers:
+  - GET
+  - HEAD
+  - OPTIONS
+  difficulty: lehká
+  explanation: Laravel vylučuje GET, HEAD a OPTIONS požadavky z ověření CSRF. Tyto metody jsou považovány za 'bezpečné' podle HTTP specifikace — neměly by způsobovat změny stavu na serveru. Pouze změnové
+    metody (POST, PUT, PATCH, DELETE) vyžadují ověření CSRF tokenu. Proto by vaše aplikace měla používat správnou HTTP metodu pro každou akci.
+  id: cs-003
+  options:
+  - POST
+  - GET
+  - OPTIONS
+  - HEAD
+  question: Které HTTP metody jsou ve výchozím nastavení vyloučeny z ověření CSRF middlewarem VerifyCsrfToken v Laravelu?
+  topic: csrf-protection
+  type: multiple
+- alternatives:
+  - pole _token
+  - _token vstup
+  answer: _token
+  difficulty: lehká
+  explanation: Middleware VerifyCsrfToken v Laravelu hledá vstupní pole požadavku s názvem '_token' (nebo hlavičku X-XSRF-TOKEN). Když použijete direktivu @csrf v Blade, vytvoří skrytý vstup s name='_token'
+    obsahující aktuální hodnotu CSRF tokenu. Middleware pak porovná tuto hodnotu s tokenem uloženým v session uživatele.
+  id: cs-004
+  question: Jaký je název výchozího vstupního pole, které Laravel hledá při ověřování CSRF tokenu z odeslání formuláře?
+  topic: csrf-protection
+  type: text
+- answer: V session datech uživatele
+  difficulty: lehká
+  explanation: Laravel ukládá CSRF token do session uživatele. Když session začne, Laravel vygeneruje CSRF token a uloží ho do session dat. Token odeslaný s formulářem (pomocí @csrf) musí odpovídat tomu
+    uloženému v session. Pokud je session obnovena (např. po přihlášení), vygeneruje se nový CSRF token a staré tokeny se stanou neplatnými.
+  id: cs-005
+  options:
+  - V aplikativní cache (Redis, file cache atd.)
+  - V šifrovaném cookie na klientovi
+  - V databázové tabulce nazvané csrf_tokens
+  - V session datech uživatele
+  question: Kde Laravel ukládá CSRF token, který používá pro porovnání během ověřování?
+  topic: csrf-protection
+  type: single
+- answers:
+  - Zahrnutí hlavičky X-XSRF-TOKEN přečtené z cookie XSRF-TOKEN
+  - Zahrnutí hlavičky X-CSRF-TOKEN s hodnotou meta tagu nazvaného csrf-token
+  - Přidání tokenu jako parametru dotazu s názvem _token
+  difficulty: lehká
+  explanation: 'Laravel podporuje více přístupů pro AJAX: (1) Přečíst cookie XSRF-TOKEN (automaticky nastavenou Laravelu) a poslat ji jako hlavičku X-XSRF-TOKEN — middleware VerifyCsrfToken to automaticky
+    kontroluje. (2) Přečíst meta tag csrf-token a poslat ho jako X-CSRF-TOKEN. (3) Zahrnout _token jako parametr dotazu. Všechny tři přístupy jsou validovány middlewarem.'
+  id: cs-006
+  options:
+  - Zahrnutí hlavičky X-XSRF-TOKEN přečtené z cookie XSRF-TOKEN
+  - Zahrnutí hlavičky X-CSRF-TOKEN s hodnotou meta tagu nazvaného csrf-token
+  - Přidání tokenu jako parametru dotazu s názvem _token
+  - Nastavení document.cookie s CSRF tokenem před požadavkem
+  question: Které z následujících jsou platné způsoby, jak zahrnout CSRF token do AJAX/fetch požadavku v Laravelu?
+  topic: csrf-protection
+  type: multiple
+- answer: Aktuální řetězec CSRF tokenu, který by měl být zahrnut ve formulářích a AJAX požadavcích
+  difficulty: lehká
+  explanation: 'Funkce csrf_token() vrací prostý textový řetězec CSRF tokenu. Můžete ho použít programově (např. v API odpovědích nebo JavaScriptu), když direktiva @csrf v Blade není vhodná. Například můžete
+    ho předat svému frontendu přes meta tag: <meta name=''csrf-token'' content=''{{ csrf_token() }}''>.'
+  id: cs-007
+  options:
+  - Aktuální řetězec CSRF tokenu, který by měl být zahrnut ve formulářích a AJAX požadavcích
+  - Booleovská hodnota označující, zda je ochrana CSRF aktuálně povolena v aplikaci
+  - Odkaz na JavaScriptovou funkci, která může být volána k obnovení aktuálního řetězce CSRF tokenu
+  - Šifrovaný řetězec obsahující jak CSRF token, tak identifikátor session uživatele
+  question: Co vrací pomocná funkce csrf_token()?
+  topic: csrf-protection
+  type: single
+- alternatives:
+  - 419 Page Expired
+  - 419 (Page Expired)
+  answer: '419'
+  difficulty: lehká
+  explanation: Laravel vrací stavový kód 419 Page Expired, když ověření CSRF selže. Jedná se o nestandardní stavový kód specifický pro Laravel (není v oficiální HTTP specifikaci). Stavový kód 419 byl zvolen,
+    aby se odlišila chyba CSRF od standardního 403 Forbidden. Výchozí chybová stránka zobrazuje uživateli text '419 Page Expired'.
+  id: cs-008
+  question: Jaký HTTP stavový kód odpovědi vrací Laravel, když selže validace CSRF tokenu?
+  topic: csrf-protection
+  type: text
+- answers:
+  - Obsahuje stejnou hodnotu jako CSRF token uložený v session
+  - Má krátkou dobu platnosti odpovídající životnosti session
+  difficulty: lehká
+  explanation: XSRF-TOKEN cookie je nastavena middleware VerifyCsrfToken a obsahuje surovou (nešifrovanou) hodnotu CSRF tokenu. Je explicitně vyloučena ze šifrování v konfiguraci middleware EncryptCookies.
+    To umožňuje JavaScriptovým frameworkům (jako Angular) číst cookie a odesílat ji zpět jako hlavičku X-XSRF-TOKEN. Doba platnosti cookie je vázána na session.
+  id: cs-009
+  options:
+  - Obsahuje stejnou hodnotu jako CSRF token uložený v session
+  - Má krátkou dobu platnosti odpovídající životnosti session
+  - Je ve výchozím nastavení šifrována jako ostatní Laravel cookies
+  - Je nastavena automaticky konfigurací except v middleware EncryptCookies
+  question: Které z následujících tvrzení jsou pravdivé ohledně XSRF-TOKEN cookie, kterou nastavuje Laravel?
+  topic: csrf-protection
+  type: multiple
+- answer: Protože cookie XSRF-TOKEN musí být čitelná klientským JavaScriptem (např. Angular, Axios), aby mohla být zahrnuta v záhlaví AJAX, a šifrované cookies nelze přečíst bez serverového dešifrování
+  difficulty: střední
+  explanation: 'Cookie XSRF-TOKEN je speciálně navržena tak, aby byla čitelná frontendovými JavaScriptovými frameworky. Axios například automaticky čte cookie XSRF-TOKEN a odesílá ji jako záhlaví X-XSRF-TOKEN.
+    Pokud by cookie byla šifrována, JavaScript by nemohl přečíst její hodnotu. Cookie je stále chráněná, protože: (1) je nastavena serverem, (2) má atribut SameSite a (3) musí odpovídat serverovému session
+    tokenu.'
+  id: cs-010
+  options:
+  - Protože cookie XSRF-TOKEN je ve výchozím nastavení nastavena s příznakem HttpOnly a nelze k ní přistupovat z klientského JavaScriptu bez ohledu na to, zda je šifrována nebo ne
+  - Protože šifrování přidává příliš velký výpočetní overhead pro token, který se mění u každého jednotlivého požadavku, což by výrazně zpomalilo celý AJAX pipeline
+  - Protože cookie XSRF-TOKEN je již podepsána bezpečným HMAC pomocí aplikačního klíče, což poskytuje dostatečnou ochranu integrity bez nutnosti dalšího šifrování
+  - Protože cookie XSRF-TOKEN musí být čitelná klientským JavaScriptem (např. Angular, Axios), aby mohla být zahrnuta v záhlaví AJAX, a šifrované cookies nelze přečíst bez serverového dešifrování
+  question: Proč Laravel ve výchozím nastavení šifruje většinu cookies, ale úmyslně vylučuje cookie XSRF-TOKEN ze šifrování?
+  topic: csrf-protection
+  type: single
+- answer: Přidání tras do vlastnosti $except pole ve třídě middleware VerifyCsrfToken
+  difficulty: střední
+  explanation: 'Middleware VerifyCsrfToken má vlastnost $except, kde můžete uvést vzory URI, které by měly přeskočit ověření CSRF. Například: protected $except = [''webhooks/*'', ''api/payment/*''];. Tento
+    přístup se běžně používá pro webhooky ze služeb třetích stran (jako Stripe nebo GitHub), které odesílají POST požadavek do vaší aplikace a nemohou zahrnout CSRF token.'
+  id: cs-011
+  options:
+  - Přidání vlastního middleware pro vyjmutí z ověření CSRF na trasy, které chcete vyloučit
+  - Nastavení proměnné prostředí CSRF_ENABLED=false v souboru .env pro dané konkrétní trasy
+  - Přidání direktivy @csrf_exempt v šablonách Blade pro každou vyloučenou trasu
+  - Přidání tras do vlastnosti $except pole ve třídě middleware VerifyCsrfToken
+  question: Jaký je správný způsob, jak vyloučit konkrétní trasy z ověření CSRF v middleware VerifyCsrfToken?
+  topic: csrf-protection
+  type: single
+- answers:
+  - API routy jsou typicky bezstavové a nepoužívají autentizaci založenou na session cookies
+  - Autentizace API používá tokeny (Sanctum, Passport) nebo OAuth, které se posílají v hlavičkách nikoli v cookies, což činí útoky CSRF nemožnými
+  - Middleware VerifyCsrfToken je zahrnut pouze ve skupině middleware 'web', nikoli ve skupině 'api'
+  difficulty: střední
+  explanation: Útoky CSRF spoléhají na automatické odesílání cookies pro požadavky mezi různými zdroji. API routy typicky používají token-based autentizaci (Bearer tokeny v Authorization hlavičkách), které
+    prohlížeče automaticky neodesílají. Kromě toho je middleware VerifyCsrfToken pouze ve skupině middleware 'web'. Pokud však použijete SPA autentizaci Sanctum (která používá cookies), ochrana proti CSRF
+    se automaticky aplikuje.
+  id: cs-012
+  options:
+  - API požadavky jsou vždy prováděny ze stejného původu, takže CSRF není problémem
+  - Middleware VerifyCsrfToken je zahrnut pouze ve skupině middleware 'web', nikoli ve skupině 'api'
+  - API routy jsou typicky bezstavové a nepoužívají autentizaci založenou na session cookies
+  - Autentizace API používá tokeny (Sanctum, Passport) nebo OAuth, které se posílají v hlavičkách nikoli v cookies, což činí útoky CSRF nemožnými
+  question: Které z následujících jsou důvody, proč ochrana proti CSRF není v Laravelu automaticky aplikována na API routy?
+  topic: csrf-protection
+  type: multiple
+- answer: Při novém sezení je vygenerován nový CSRF token, čímž se neplatí jakékoli formuláře, které byly načteny před přihlášením
+  difficulty: střední
+  explanation: Když Laravel regeneruje sezení (což se standardně děje po přihlášení z bezpečnostních důvodů), stará data sezení — včetně CSRF tokenu — jsou zničena a vytvoří se nové sezení s novým tokenem.
+    To znamená, že jakékoli formuláře vykreslené před přihlášením budou obsahovat zastaralý token. Aby se toto vyřešilo, můžete buď znovu načíst stránku po přihlášení, nebo použít JavaScript k obnovení
+    CSRF tokenu v DOM.
+  id: cs-013
+  options:
+  - Při novém sezení je vygenerován nový CSRF token, čímž se neplatí jakékoli formuláře, které byly načteny před přihlášením
+  - Ověření CSRF je dočasně vypnuto frameworkem během přechodného období přihlášení na několik sekund
+  - Stejný CSRF token je zachován ze starého sezení a plynule přenesen do nově vytvořeného sezení
+  - CSRF token je uložen v trvalém šifrovaném cookie, které automaticky přežije události regenerace sezení
+  question: Co se stane s CSRF tokenem, když se uživatel přihlásí a sezení je regenerováno?
+  topic: csrf-protection
+  type: single
+- alternatives:
+  - <meta name='csrf-token'>
+  - meta name csrf-token
+  answer: csrf-token
+  difficulty: střední
+  explanation: 'Starter sady a dokumentace Laravelu používají <meta name=''csrf-token'' content=''{{ csrf_token() }}''>. JavaScriptové knihovny a frameworky mohou poté číst tento meta tag a zahrnout token
+    do AJAX požadavků. Axios, například, lze nakonfigurovat globálně pro čtení z tohoto tagu: axios.defaults.headers.common[''X-CSRF-TOKEN''] = document.querySelector(''meta[name="csrf-token"]'').getAttribute(''content'');'
+  id: cs-014
+  question: Jakou konvenci pro název meta tagu doporučuje Laravel pro ukládání CSRF tokenu v HTML <head> pro použití JavaScriptovými frameworky?
+  topic: csrf-protection
+  type: text
+- answer: SameSite=Lax umožňuje odesílání cookies při navigacích nejvyšší úrovně (GET požadavky z odkazů), ale blokuje je u cross-site POST požadavků, přidává vrstvu obrany v hloubce spolu s CSRF tokenem
+  difficulty: střední
+  explanation: 'Laravel nastavuje atribut SameSite=Lax na cookies ve výchozím nastavení. To znamená, že prohlížeče nebudou zahrnovat cookies v cross-site POST požadavcích (které jsou hlavním vektorem útoků
+    CSRF), zatímco stále umožňují jejich odesílání pro navigace nejvyšší úrovně GET (jako je následování odkazů). To poskytuje obranu v hloubce: i když by byl CSRF token nějakým způsobem kompromitován,
+    atribut SameSite brání odesílání session cookie s cross-origin formuláři.'
+  id: cs-015
+  options:
+  - SameSite=Strict brání prohlížeči v zahrnutí cookies na jakémkoliv cross-site požadavku, úplně blokuje útoky CSRF bez nutnosti mechanismu ověření založeného na tokenu
+  - SameSite=Lax umožňuje odesílání cookies při navigacích nejvyšší úrovně (GET požadavky z odkazů), ale blokuje je u cross-site POST požadavků, přidává vrstvu obrany v hloubce spolu s CSRF tokenem
+  - Atribut SameSite cookie nemá přímou souvislost s ochranou proti CSRF — je navržen pouze k řízení, zda třetí strany mohou přistupovat k cookies ve vlastním kontextu
+  - SameSite=None zakazuje všechny omezení SameSite pro cookies, spoléhá se výhradně na mechanismus CSRF tokenu aplikace pro ochranu proti cross-site request forgery
+  question: Jak přispívá atribut SameSite cookie v Laravelu k ochraně proti CSRF?
+  topic: csrf-protection
+  type: single
+- answers:
+  - X-CSRF-TOKEN očekává sytou hodnotu tokenu (typicky z meta tagu); X-XSRF-TOKEN očekává šifrovanou hodnotu cookie, kterou Laravel automaticky dešifruje
+  - Oba hlavičky jsou přijímány middlewarem VerifyCsrfToken, ale očekávají různé formáty tokenu
+  difficulty: střední
+  explanation: Middleware VerifyCsrfToken kontroluje obě hlavičky, ale zpracovává je odlišně. X-CSRF-TOKEN by měl obsahovat sytou řetězcovou hodnotu tokenu (shodnou s tou v session). X-XSRF-TOKEN by měl
+    obsahovat hodnotu z cookie XSRF-TOKEN — Laravel automaticky dešifruje tuto hodnotu cookie před porovnáním. Axios čte cookie XSRF-TOKEN a odesílá ji jako hlavičku X-XSRF-TOKEN, což činí tento přístup
+    jednodušším pro AJAX.
+  id: cs-016
+  options:
+  - X-XSRF-TOKEN je jediná hlavička, kterou Laravelova vestavěná konfigurace Axios odesílá automaticky
+  - X-CSRF-TOKEN očekává sytou hodnotu tokenu (typicky z meta tagu); X-XSRF-TOKEN očekává šifrovanou hodnotu cookie, kterou Laravel automaticky dešifruje
+  - Oba hlavičky jsou přijímány middlewarem VerifyCsrfToken, ale očekávají různé formáty tokenu
+  - X-CSRF-TOKEN je pouze pro POST požadavky; X-XSRF-TOKEN je pro všechny metody požadavků
+  question: Který z následujících bodů správně popisuje rozdíl mezi hlavičkami požadavku X-CSRF-TOKEN a X-XSRF-TOKEN?
+  topic: csrf-protection
+  type: multiple
+- answer: Protože jakýkoliv škodlivý web by mohl oklamat ověřené uživatele, aby prováděli nežádoucí akce odesíláním formulářů do vaší aplikace
+  difficulty: střední
+  explanation: Bez ochrany proti CSRF může útočník vytvořit stránku na vlastní doméně s skrytým formulářem, který se automaticky odešle do vaší aplikace. Protože prohlížeč uživatele automaticky zahrnuje
+    session cookies, požadavek se jeví jako ověřený. Toto lze použít k převodu peněz, změně emailových adres, smazání dat nebo provedení jakékoli akce, kterou je uživatel oprávněn provádět. Tokeny proti
+    tomu brání, protože útočník nemůže znát hodnotu tokenu.
+  id: cs-017
+  options:
+  - Protože zakázání ochrany proti CSRF také zakáže šifrování session, což by odhalilo citlivá data uživatelů potenciálnímu zachycení
+  - Protože jakýkoliv škodlivý web by mohl oklamat ověřené uživatele, aby prováděli nežádoucí akce odesíláním formulářů do vaší aplikace
+  - Protože Laravel vyvolá runtime chybu, pokud middleware proti CSRF není správně registrován ve skupině middleware 'web' během bootstrappingu
+  - Protože celkový výkon aplikace se bez režie ověřování CSRF tokenu na každý požadavek výrazně snižuje
+  question: Proč byste nikdy neměli úplně vypnout ochranu proti CSRF pro webovou aplikaci, která používá ověřování založené na cookies?
+  topic: csrf-protection
+  type: single
+- alternatives:
+  - $request->input('_token')
+  - request()->input('_token')
+  - $request->session()->token()
+  - session()->token()
+  - csrf_token()
+  answer: token
+  difficulty: střední
+  explanation: 'Existuje více způsobů, jak získat CSRF token: $request->input(''_token'') získá token z formuláře, $request->header(''x-csrf-token'') získá token z hlavičky, $request->session()->token()
+    nebo session()->token() získá token ze session a csrf_token() je globální helper. Nejčastěji se používá helper csrf_token() nebo metoda pro získání session tokenu.'
+  id: cs-018
+  question: Jakou metodu na objektu Illuminate\Http\Request můžete použít k získání CSRF tokenu z příchozího požadavku ve vašem controlleru?
+  topic: csrf-protection
+  type: text
+- answers:
+  - Přidejte URI webhooku do pole $except ve třídě VerifyCsrfToken, aby pro daný route byly kontroly CSRF přeskočeny
+  - Ověřte webhook pomocí podpisu nebo klíče z externí služby místo CSRF tokenů
+  - Vytvořte vlastní middleware, který ověřuje podpis webhooku, a použijte jej místo VerifyCsrfToken
+  difficulty: střední
+  explanation: Webhooky z externích služeb nemohou obsahovat váš CSRF token, protože jde o server-to-server požadavky. Doporučeným postupem je vyloučit webhook route z ověřování CSRF a místo toho ověřit
+    vlastní podpis webhooku (například Stripe posílá hlavičku s podpisem, kterou můžete ověřit pomocí vašeho webhook tajného klíče). Vypnutí globálně je nikdy správným přístupem, protože nechává vaši celou
+    aplikaci zranitelnou.
+  id: cs-019
+  options:
+  - Ověřte webhook pomocí podpisu nebo klíče z externí služby místo CSRF tokenů
+  - Globálně vypněte ochranu CSRF v souboru bootstrap/app.php
+  - Přidejte URI webhooku do pole $except ve třídě VerifyCsrfToken, aby pro daný route byly kontroly CSRF přeskočeny
+  - Vytvořte vlastní middleware, který ověřuje podpis webhooku, a použijte jej místo VerifyCsrfToken
+  question: Při konfiguraci endpointů webhooků pro příjem POST požadavků z externích služeb (jako Stripe), které z následujících jsou platné přístupy ke zpracování ochrany CSRF?
+  topic: csrf-protection
+  type: multiple
+- answer: Sanctum automaticky aplikuje middleware VerifyCsrfToken na trasy pro ověřování pomocí cookie pro SPA a nastavuje cookie XSRF-TOKEN pro čtení frontendem
+  difficulty: střední
+  explanation: Při použití ověřování pomocí cookie pro SPA (Single Page Application) v Sanctum Sanctum konfiguruje ochranu proti CSRF tak, aby fungovala s vaším frontendem. Zajišťuje, že cookie XSRF-TOKEN
+    je nastavena a middleware VerifyCsrfToken validuje požadavky. To se liší od ověřování pomocí API tokenu, které nevyžaduje ochranu proti CSRF. Middleware je automaticky aplikován na trasy uvnitř skupiny
+    'sanctum.csrf' nebo skupiny 'web'.
+  id: cs-020
+  options:
+  - Sanctum používá vlastní middleware pro CSRF, který validuje tokeny pomocí přístupu založeného na JWT namísto standardního porovnávání tokenů založených na session
+  - Sanctum automaticky aplikuje middleware VerifyCsrfToken na trasy pro ověřování pomocí cookie pro SPA a nastavuje cookie XSRF-TOKEN pro čtení frontendem
+  - Sanctum úplně vypne ochranu proti CSRF pro aplikace SPA, protože používají ověřování pomocí tokenů, které nezávisí na prohlížečových cookie
+  - Sanctum generuje samostatný a unikátní CSRF token pro každý jednotlivý API požadavek a zahrnuje jej do hlaviček odpovědi pro frontend
+  question: Jak Laravel Sanctum zpracovává ochranu proti CSRF pro ověřování pomocí SPA (Single Page Application)?
+  topic: csrf-protection
+  type: single
+- answer: Požadavky GET jsou vyjmuty z ověření CSRF, takže útočník by mohl vytvořit odkaz nebo tag img, který spustí akci, když prohlížeč uživatele načte škodlivou stránku
+  difficulty: střední
+  explanation: Protože Laravel vyjímá požadavky GET z ověření CSRF, jakákoli akce měnící stav, která je přístupná přes GET, je zranitelná. Útočník by mohl vložit <img src='https://yourapp.com/users/1/delete'>
+    do e-mailu nebo webové stránky a prohlížeč uživatele by provedl požadavek s jejich cookies relace. Vždy používejte POST, PUT, PATCH nebo DELETE pro operace měnící stav — tyto metody jsou chráněny CSRF
+    tokeny.
+  id: cs-021
+  options:
+  - Požadavky GET jsou plně chráněny CSRF tokeny stejně jako požadavky POST, takže při použití GET pro změny stavu neexistuje žádné další bezpečnostní riziko
+  - Prohlížeče automaticky vylepšují požadavky GET na požadavky POST pro zvýšení bezpečnosti dříve, než dosáhnou vrstvy směrování Laravel aplikace
+  - Požadavky GET jsou vyjmuty z ověření CSRF, takže útočník by mohl vytvořit odkaz nebo tag img, který spustí akci, když prohlížeč uživatele načte škodlivou stránku
+  - Požadavky GET nelze použít pro akce měnící stav, protože router Laravelu automaticky blokuje jakoukoli trasu, která mění stav aplikace
+  question: Jaké bezpečnostní implikace má použití požadavku GET pro provádění akcí měnících stav (jako je mazání zdroje) v Laravel aplikaci s ochranou CSRF?
+  topic: csrf-protection
+  type: single
+- alternatives:
+  - hash_equals()
+  answer: hash_equals
+  difficulty: střední
+  explanation: Laravel používá funkci hash_equals() PHP pro bezpečné porovnání řetězců z hlediska načasování při ověřování CSRF tokenů. To brání útokům načasování, kdy by útočník mohl měřit dobu odezvy
+    a postupně zjistit správné znaky tokenu po znacích. Porovnání bezpečné z hlediska načasování vždy trvá stejnou dobu bez ohledu na to, kolik znaků odpovídá, což činí takové útoky ne proveditelnými.
+  id: cs-022
+  question: Jakou metodu PHP používá middleware VerifyCsrfToken k porovnání tokenu z požadavku s tokenem uloženým v session?
+  topic: csrf-protection
+  type: text
+- answers:
+  - Uživatel nechal formulář otevřený po dlouhou dobu a jeho session vypršela, než ho odeslal
+  - Session byla regenerována mezi načtením formuláře a jeho odesláním
+  - Uživatel má v prohlížeči zakázané cookies
+  - Aplikace běží v prostředí s load balancerem bez sdíleného úložiště session
+  difficulty: střední
+  explanation: Všechny tyto scénáře mohou způsobit selhání validace CSRF. Vypršení session znamená, že token uložený na straně serveru zmizel. Regenerace session vytvoří nový token, který neodpovídá starému
+    z formuláře. Zakázané cookies znamenají, že session (a token) nemohou být zachovány. Bez sdílených session v load balanceru může požadavek narazit na jiný server, který nemá session. Každý scénář vyžaduje
+    jiné řešení (doladování životnosti session, obnovení tokenu, požadavky na cookies, konfigurace session driveru).
+  id: cs-023
+  options:
+  - Session byla regenerována mezi načtením formuláře a jeho odesláním
+  - Uživatel nechal formulář otevřený po dlouhou dobu a jeho session vypršela, než ho odeslal
+  - Uživatel má v prohlížeči zakázané cookies
+  - Aplikace běží v prostředí s load balancerem bez sdíleného úložiště session
+  question: Který z následujících scénářů může způsobit, že legitimní uživatel oběří chybu 419 Page Expired?
+  topic: csrf-protection
+  type: multiple
+- answer: Protože CSRF token je vázán na session driver a klienti API používající autentizaci tokenem nemusí mít aktivní session obsahující tento token
+  difficulty: těžká
+  explanation: CSRF tokeny jsou uloženy a ověřovány vůči session. Pokud se API klient autentizuje pomocí Bearer tokenu (ne cookies), session nemusí být spuštěna nebo nemusí obsahovat CSRF token. Middleware
+    VerifyCsrfToken získává token z session a bez platné session jej nemůže ověřit. To je důvod, proč se ochrana proti CSRF obvykle neaplikuje na čisté API trasy — spoléhá na infrastrukturu session.
+  id: cs-024
+  options:
+  - Protože middleware VerifyCsrfToken ověřuje tokeny pouze pro autentizační guard 'web' bez ohledu na přiřazenou middleware group trasy
+  - Protože požadavky API vždy používají jiný šifrovací klíč pro generování a ověřování CSRF tokenů ve srovnání s middleware group web
+  - Protože CSRF tokeny vyprší pevně stanoveném časovém okně 60 sekund bez ohledu na životnost session, což způsobuje časté selhání ověřování u pomalých volání API
+  - Protože CSRF token je vázán na session driver a klienti API používající autentizaci tokenem nemusí mít aktivní session obsahující tento token
+  question: V aplikaci Laravel používající zároveň více guardů (web a api) proč může CSRF chráněný POST požadavek selhat i s platným tokenem, když požadavek pochází z API klienta?
+  topic: csrf-protection
+  type: single
+- answer: Token na požadavek by zabránil uživateli v použití tlačítka Zpět v prohlížeči nebo otevírání více karet s formuláři, protože každý formulář by měl jiný token
+  difficulty: těžká
+  explanation: Laravel používá token na relaci (ne na požadavek) přesně proto, aby se předešlo problémům s použitelností. Token na požadavek by byl neplatný, jakmile by byl odeslán jakýkoliv formulář na
+    stránce, což by znemožnilo mít více formulářů otevřených v různých kartách, používat tlačítko Zpět nebo řešit chyby validace formuláře. Náhradou je, že token na relaci poskytuje méně ochrany proti určitým
+    teoretickým útokům, ale praktická bezpečnost s cookies SameSite a tokeny na relaci je považována za dostatečnou.
+  id: cs-025
+  options:
+  - Token na požadavek by zabránil uživateli v použití tlačítka Zpět v prohlížeči nebo otevírání více karet s formuláři, protože každý formulář by měl jiný token
+  - Token na požadavek by byl zranitelný vůči útokům XSS, které by mohly ukrást čerstvý token z DOM před odesláním formuláře
+  - Token na požadavek by neposkytoval dostatečnou ochranu proti útokům s opakováním, kdy útočník zachytí a znovu odešle dříve zachycený platný požadavek
+  - Token na požadavek by způsobil podmíněnou závislost při současném odesílání více AJAX požadavků, protože každý požadavek by zneplatnil token pro ostatní
+  question: Jaký potenciální bezpečnostní problém by mohl vzniknout, pokud implementujete ochranu CSRF pouze pomocí tokenu na požadavek (generovaného čerstvého pro každý požadavek) bez jakéhokoliv trvalého
+    tokenu na relaci?
+  topic: csrf-protection
+  type: single
+- answers:
+  - Token musí být kryptograficky náhodný a dostatečně dlouhý (alespoň 40 znaků) pro prevenci hádání hrubou silou
+  - Porovnání tokenů musí používat časově bezpečné porovnání pro prevenci časových útoků vedlejších kanálů
+  - Token musí být unikátní na relaci a musí být regenerován, když je regenerována relace
+  difficulty: těžká
+  explanation: 'Bezpečná implementace CSRF vyžaduje: (1) kryptograficky náhodné tokeny pomocí CSPRNG (Laravel používá Str::random(40)), (2) časově bezpečné porovnání pomocí hash_equals() pro prevenci časových
+    útoků, a (3) unikátnost na relaci s regenerací. Token NEMUSÍ být v formuláři šifrován — je to veřejná hodnota, která musí odpovídat serverovému tajemství. Šifrování tokenu by nepřidalo žádný bezpečnostní
+    přínos, protože porovnávaná hodnota (v relaci) by stále byla potřeba.'
+  id: cs-026
+  options:
+  - Token musí být unikátní na relaci a musí být regenerován, když je regenerována relace
+  - Token musí být před uložením do formuláře šifrován, aby se zabránilo krádeži tokenu pomocí XSS
+  - Token musí být kryptograficky náhodný a dostatečně dlouhý (alespoň 40 znaků) pro prevenci hádání hrubou silou
+  - Porovnání tokenů musí používat časově bezpečné porovnání pro prevenci časových útoků vedlejších kanálů
+  question: Při vytváření vlastní implementace CSRF tokenu, které bezpečnostní vlastnosti musí být zachovány, aby odpovídaly úrovni ochrany Laravelu?
+  topic: csrf-protection
+  type: multiple
+- alternatives:
+  - database
+  - redis
+  - memcached
+  - dynamodb
+  - jakýkoli ovladač, který ukládá relace centralizovaně
+  answer: Sdílený ovladač relací (database, Redis, Memcached nebo DynamoDB)
+  difficulty: těžká
+  explanation: Výchozí ovladač relací 'file' ukládá data relací na místní souborový systém. V prostředí s vyrovnáváním zátěže s více servery může požadavek narazit na Server A (který vytvoří relaci a CSRF
+    token), zatímco následný požadavek narazí na Server B (který nemá ten soubor relace). Musíte použít centralizovaný ovladač relací — database, Redis, Memcached nebo DynamoDB — aby všichni serveři mohli
+    přistupovat ke stejným datům relací a ověřovat CSRF tokeny konzistentně.
+  id: cs-027
+  question: Jaká konfigurace ovladače relací v Laravelu je vyžadována při běhu za více aplikačními servery (s vyrovnáváním zátěže), aby se zajistilo, že CSRF tokeny zůstanou platné na všech serverech?
+  topic: csrf-protection
+  type: text
+- answer: Šifrovaná hodnota cookie nebude odpovídat syrovému tokenu relace, což způsobí selhání ověření CSRF i pro legitimní požadavky
+  difficulty: těžká
+  explanation: Pokud je cookie XSRF-TOKEN šifrována (není v seznamu $except EncryptCookies), hodnota cookie bude šifrovaný řetězec. Když JavaScript přečte tuto cookie a odešle ji jako hlavičku X-XSRF-TOKEN,
+    VerifyCsrfToken se pokusí ji dešifrovat (zpracovává XSRF-TOKEN dešifrováním) — ale pokud je dvojité šifrování nebo šifrováno jinak než se očekává, porovnání selže. Laravel vylučuje 'XSRF-TOKEN' ze šifrování
+    ve výchozím nastavení, ale chybná konfigurace může způsobit tento problém.
+  id: cs-028
+  options:
+  - Šifrování cookie XSRF-TOKEN by způsobilo zranitelnost dvojitého šifrování, která oslabuje celkové šifrování
+  - Šifrovaná hodnota cookie nebude odpovídat syrovému tokenu relace, což způsobí selhání ověření CSRF i pro legitimní požadavky
+  - Middleware EncryptCookies by odstranil cookie z požadavku, než by ho VerifyCsrfToken mohl přečíst
+  - Šifrovaná cookie se výrazně zvětší a může překročit maximální velikost cookie v prohlížeči 4096 bajtů
+  question: Jak vytvoření potenciálního problému mezi middleware EncryptCookies a VerifyCsrfToken v Laravelu, pokud je cookie XSRF-TOKEN omylem zahrnuta do šifrování?
+  topic: csrf-protection
+  type: single
+- answers:
+  - Ošetřit validaci CSRF na úrovni brány a odstranit tokeny CSRF před předáváním požadavků interním službám
+  - Předat ověřený CSRF token interním službám pomocí vlastní hlavičky, aby mohly ověřit, že branu provedla validaci
+  - Použít sdílené tajemství mezi bránou a interními službami, podepisovat každý předaný požadavek pomocí HMAC
+  difficulty: těžká
+  explanation: 'V architektuře s bránou by měla být CSRF validována na okraji (bráně). Interní služby obvykle komunikují server-server bez kontextu prohlížeče, takže je zde CSRF irelevantní. Platné strategie
+    zahrnují: validaci na bráně a nepředávání interním službám, předání důkazu o validaci, nebo použití interní autentizace (HMAC/sdílené tajemství) mezi bránou a službami. Implementace CSRF nezávisle na
+    každé interní službě by byla zbytečná a komplikovaná, a vypnutí na bráně by odstranilo ochranu úplně.'
+  id: cs-029
+  options:
+  - Použít sdílené tajemství mezi bránou a interními službami, podepisovat každý předaný požadavek pomocí HMAC
+  - Ošetřit validaci CSRF na úrovni brány a odstranit tokeny CSRF před předáváním požadavků interním službám
+  - Předat ověřený CSRF token interním službám pomocí vlastní hlavičky, aby mohly ověřit, že branu provedla validaci
+  - Vypnout ochranu CSRF na bráně a implementovat ji nezávisle na každé interní službě
+  question: V architektuře mikroslužeb, kde Laravel brána předává požadavky interním službám, které z následujících jsou platné strategie ochrany CSRF?
+  topic: csrf-protection
+  type: multiple

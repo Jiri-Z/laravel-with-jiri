@@ -1,0 +1,375 @@
+- answer: '{{ }} automaticky escapuje HTML entity, zatímco {!! !!} vypsuje surové neescapované HTML'
+  difficulty: lehká
+  explanation: Dvojité složené závorky {{ }} automaticky escapují speciální HTML znaky pomocí PHP's htmlspecialchars(), čímž brání útokům XSS. Syntaxe {!! !!} vypisuje obsah tak, jak je, což je nebezpečné
+    s uživatelským vstupem. Používejte {!! !!} pouze tehdy, když máte důvěryhodný, předem očištěný HTML obsah, který by měl být vykreslen jako HTML.
+  id: bt-001
+  options:
+  - '{{ }} automaticky escapuje HTML entity, zatímco {!! !!} vypsuje surové neescapované HTML'
+  - Mezi těmito dvěma syntaxemi není žádný rozdíl; jsou plně zaměnitelné ve všech kontextech Blade šablon
+  - '{{ }} je rychlejší, protože používá jednodušší kompilační cestu; {!! !!} je pomalejší kvůli dodatečnému parsování'
+  - '{{ }} funguje pouze s řetězcovými proměnnými, zatímco {!! !!} je vyžadováno při vykreslování polí nebo kolekcí dat'
+  question: Jaký je hlavní rozdíl mezi {{ $name }} a {!! $name !!} v Blade šablonách?
+  topic: blade-templates
+  type: single
+- answer: Skryté vstupní pole obsahující CSRF token
+  difficulty: lehká
+  explanation: Direktiva @csrf generuje skryté <input type="hidden" name="_token" value="..."> pole. Tento token je ověřen middleware VerifyCsrfToken u POST, PUT, PATCH a DELETE požadavků. Je nezbytný pro
+    ochranu proti útokům Cross-Site Request Forgery ve všech HTML formulářích.
+  id: bt-002
+  options:
+  - Skryté vstupní pole obsahující CSRF token
+  - Meta tag obsahující CSRF token
+  - JavaScript funkce, která načítá CSRF token přes AJAX
+  - Cookie s CSRF tokenem
+  question: Co generuje direktiva @csrf ve formuláři?
+  topic: blade-templates
+  type: single
+- alternatives:
+  - section
+  answer: '@section'
+  difficulty: lehká
+  explanation: Direktiva @section definuje blok obsahu, který mapuje na @yield v nadřazeném layoutu. Například @section('title', 'Home') definuje krátký sekci, zatímco @section('content') ... @endsection
+    definuje blok. Nadřazený layout používá @yield('title') a @yield('content') pro umístění obsahu z podřízené šablony.
+  id: bt-003
+  question: Jaká Blade direktiva se používá k definování sekce obsahu v podřízené šabloně, která bude vložena do @yield v nadřazeném layoutu?
+  topic: blade-templates
+  type: text
+- answers:
+  - '@extends'
+  - '@yield'
+  - '@section'
+  difficulty: lehká
+  explanation: Dědičnost šablon v Blade používá @extends('layout.name') v podřízené šabloně pro určení rodiče, @yield('name') v rodiči pro definici slotů a @section('name') v podřízené šabloně pro vyplnění
+    těchto slotů. V Blade neexistuje direktiva @import — tento koncept patří jiným template enginům.
+  id: bt-004
+  options:
+  - '@section'
+  - '@import'
+  - '@extends'
+  - '@yield'
+  question: Které z následujících Blade direktiv se používají pro dědičnost šablon? (Vyberte všechny platné)
+  topic: blade-templates
+  type: multiple
+- answer: Proměnná $loop s informacemi o aktuální iteraci (index, počet, první, poslední atd.)
+  difficulty: lehká
+  explanation: Blade's @foreach automaticky poskytuje proměnnou $loop obsahující vlastnosti jako $loop->index (0-based), $loop->iteration (1-based), $loop->first, $loop->last, $loop->count, $loop->even,
+    $loop->odd a $loop->depth pro vnořené smyčky. To eliminuje potřebu ručního sledování těchto hodnot.
+  id: bt-005
+  options:
+  - Vestavěná podpora paginace, která automaticky generuje odkazy na stránky a spravuje stav aktuální stránky
+  - Proměnná $loop s informacemi o aktuální iteraci (index, počet, první, poslední atd.)
+  - Automatická ochrana CSRF pro obsah smyčky, zajišťující, že každý formulář vykreslený ve smyčce má platný token
+  - Automatická optimalizace SQL dotazů, která snižuje počet databázových dotazů během iterace
+  question: Co poskytuje direktiva @foreach automaticky, což běžný PHP foreach ne?
+  topic: blade-templates
+  type: single
+- alternatives:
+  - forelse
+  answer: '@forelse'
+  difficulty: lehká
+  explanation: '@forelse($items as $item) ... @empty ... @endforelse kombinuje smyčku foreach s prázdným stavem. Pokud kolekce má položky, iteruje normálně. Pokud je kolekce prázdná, vykreslí obsah uvnitř
+    @empty. Je to čistší než obalení @foreach uvnitř @if($items->isNotEmpty()) kontroly.'
+  id: bt-006
+  question: Jaká Blade direktiva zobrazí záložnou zprávu při iteraci přes prázdnou kolekci?
+  topic: blade-templates
+  type: text
+- answer: '{{-- Toto je Blade komentář --}}'
+  difficulty: lehká
+  explanation: Blade komentáře {{-- --}} jsou kompletně odstraněny z kompilovaného výstupu a nikdy nedosáhnou prohlížeče. Naopak HTML komentáře (<!-- -->) jsou odeslány klientovi a viditelné v zdroji stránky.
+    Používejte Blade komentáře pro poznámky vývojářů a HTML komentáře pouze tehdy, když je chcete záměrně vypsat.
+  id: bt-007
+  options:
+  - /* Toto je Blade komentář */
+  - // Toto je Blade komentář
+  - '{{-- Toto je Blade komentář --}}'
+  - <!-- Toto je HTML komentář -->
+  question: Jak napíšete komentář v Blade šabloně, který se NEobjeví ve vykresleném HTML?
+  topic: blade-templates
+  type: single
+- answers:
+  - '@auth'
+  - '@guest'
+  difficulty: lehká
+  explanation: '@auth zobrazuje obsah pouze, když je uživatel přihlášen, a @guest ukazuje obsah pouze pro neautentizované uživatele. Obě podporují specifikaci guardu: @auth(''admin'') kontroluje ''admin''
+    guard. V Blade neexistují direktivy @login nebo @loggedin — ty nejsou platnou Blade syntaxí.'
+  id: bt-008
+  options:
+  - '@loggedin'
+  - '@guest'
+  - '@auth'
+  - '@login'
+  question: Které z následujících Blade direktiv kontrolují stav autentizace? (Vyberte všechny platné)
+  topic: blade-templates
+  type: multiple
+- answer: Skryté vstupní pole _method s hodnotou PUT
+  difficulty: lehká
+  explanation: Protože HTML formuláře nativně podporují pouze GET a POST, @method('PUT') vygeneruje <input type="hidden" name="_method" value="PUT">. Middleware pro falšování metod v Laravelu přečte toto
+    pole a interpretuje požadavek jako PUT požadavek. To funguje s metodami PUT, PATCH a DELETE.
+  id: bt-009
+  options:
+  - Meta tag, který instruuje prohlížeč, aby použil PUT
+  - Vyvolá chybu, protože HTML formuláře nepodporují PUT
+  - Skryté vstupní pole _method s hodnotou PUT
+  - Změní atribut metody formuláru na PUT
+  question: Co vypíše direktiva @method('PUT') v šabloně Blade u formuláře?
+  topic: blade-templates
+  type: single
+- alternatives:
+  - php
+  answer: '@php'
+  difficulty: lehká
+  explanation: 'Direktiva @php umožňuje psát čistý PHP kód v šabloně Blade: @php $count = count($items); @endphp. I když je užitečná pro složitou logiku, nadužívání @php porušuje účel Blade jako šablonovacího
+    engine. Obecně je lepší přesunout složitou logiku do controlleru nebo view composeru.'
+  id: bt-010
+  question: Jaká direktiva Blade umožňuje psát syrový PHP kód, který by neměl být Blade kompilován?
+  topic: blade-templates
+  type: text
+- answer: Připojí obsah z @yield rodičovského layoutu před obsahem potomka
+  difficulty: střední
+  explanation: '@parent vypíše jakýkoli obsah, který byl definován v bloku @section rodičovského layoutu (pokud existuje). To umožňuje potomkovému šabloně rozšířit spíše než nahradit sekci rodiče. Například
+    pokud rodičovský @section(''scripts'') zahrnuje CDN jQuery, potomek může přidat vlastní skripty, přičemž zachová rodičovské pomocí @parent.'
+  id: bt-011
+  options:
+  - Automaticky zahrne sekce záhlaví a zápatí rodičovské šablony do potomka
+  - Připojí obsah z @yield rodičovského layoutu před obsahem potomka
+  - Umožní sekci zdědit všechny CSS třídy a atributy inline stylů z rodiče
+  - Zavolá metodu rodičovského controlleru pro sdílení dat mezi rodičovským a potomkovým view
+  question: Jaký je účel @parent uvnitř bloku @section v potomkové šabloně?
+  topic: blade-templates
+  type: single
+- answer: '@verbatim zabrání Blade zpracování {{ }} a @ direktiv uvnitř svého bloku, což je užitečné pro JavaScript frameworky'
+  difficulty: střední
+  explanation: Při použití Vue.js, Alpine.js nebo podobných frameworků, které používají syntax {{ }}, by se Blade pokusil zkompilovat tyto výrazy. @verbatim říká Blade, aby přeskočil kompilaci uvnitř
+    svého bloku, čímž ponechá {{ }} jako literálový text pro zpracování JavaScript frameworkem. To je čistší řešení než ruční escapování každého výrazu jednotlivě.
+  id: bt-012
+  options:
+  - '@verbatim umožňuje bezpečně používat Blade syntax uvnitř JavaScript kódových bloků bez způsobení chyb kompilace'
+  - '@verbatim je bezpečnější, protože automaticky sanitizuje a escapuje veškerý výstup ve svém bloku'
+  - '@verbatim se kompiluje do rychlejšího PHP kódu než @php, protože přeskočí Blade kompilační engine'
+  - '@verbatim zabrání Blade zpracování {{ }} a @ direktiv uvnitř svého bloku, což je užitečné pro JavaScript frameworky'
+  question: Proč byste použili @verbatim místo @php v šabloně Blade?
+  topic: blade-templates
+  type: single
+- answers:
+  - '@class([''active'' => $isActive, ''disabled'' => $isDisabled])'
+  - '@style([''color: red'' => $hasError, ''font-weight: bold'' => $isImportant])'
+  difficulty: střední
+  explanation: '@class() podmíněně kompiluje názvy CSS tříd na základě boolean hodnot, vrací řetězec "class="active disabled". @style() dělá totéž pro inline styly. Oba přijímají asociativní pole, kde klíče
+    jsou hodnoty tříd/stylů a hodnoty jsou boolean podmínky. Neexistují žádné direktivy @attr nebo @css.'
+  id: bt-013
+  options:
+  - '@style([''color: red'' => $hasError, ''font-weight: bold'' => $isImportant])'
+  - '@css([''text-red'' => $hasError])'
+  - '@attr([''class'' => ''active''])'
+  - '@class([''active'' => $isActive, ''disabled'' => $isDisabled])'
+  question: Které z následujících jsou platné Blade direktivy pro podmíněné atributy tříd a stylů? (Vyberte všechny správné možnosti)
+  topic: blade-templates
+  type: multiple
+- alternatives:
+  - jednou
+  answer: '@once'
+  difficulty: střední
+  explanation: '@once ... @endonce zajišťuje, že uzavřený obsah se vykreslí pouze jednou za požadavek, i když je šablona nebo komponenta obsahující tento blok vložena vícekrát. To je užitečné pro vkládání
+    skriptů nebo stylů, které by se měly objevit pouze jednou, a zabrání tak duplicitním <script> nebo <style> tagům, když je komponenta vykreslována v cyklu.'
+  id: bt-014
+  question: Jaký Blade direktivář zajišťuje, že blok kódu je vykreslen pouze jednou za vykreslovací cyklus, i když je šablona obsahuje vícekrát?
+  topic: blade-templates
+  type: text
+- answer: '@push přidává obsah do zásobníku; @stack vykresluje veškerý obsah, který byl přidán do pojmenovaného zásobníku'
+  difficulty: střední
+  explanation: '@push(''scripts'') ... @endpush ukládá obsah do pojmenovaného zásobníku a @stack(''scripts'') vypíše veškerý přidaný obsah na úrovni layoutu. Toto se běžně používá v layoutech pro definování,
+    kde mohou podřízené šablony vkládat skripty nebo styly. @prepend funguje jako @push, ale přidává obsah na začátek zásobníku.'
+  id: bt-015
+  options:
+  - '@push okamžitě vykresluje obsah do výstupního bufferu; @stack ukládá obsah do paměti pro pozdější použití'
+  - '@push je výhradně pro JavaScriptové soubory, zatímco @stack se používá pouze pro vkládání CSS stylů'
+  - '@push přidává obsah do zásobníku; @stack vykresluje veškerý obsah, který byl přidán do pojmenovaného zásobníku'
+  - Jedná se o identické direktivy, které lze zaměnitelně používat v jakémkoli kontextu Blade šablony
+  question: Jaký je rozdíl mezi direktivami @push a @stack v Blade šablonách?
+  topic: blade-templates
+  type: single
+- answer: Zkontroluje, zda existuje validační chyba pro pole 'email' a zobrazí její zprávu
+  difficulty: střední
+  explanation: '@error(''email'') kontroluje sdílenou MessageBag $errors (která je vždy dostupná ve viewch) chybu pro klíč ''email''. Pokud chyba existuje, obsah uvnitř direktivy se vykreslí, a $message
+    je dostupná uvnitř bloku. Toto je standardní způsob, jak zobrazit inline validační chyby vedle polí formuláře.'
+  id: bt-016
+  options:
+  - Vymaže chybovou zprávu pole email z session po jejím zobrazení uživateli
+  - Validuje pole email na straně klienta pomocí JavaScriptu před odesláním formuláře
+  - Zkontroluje, zda existuje validační chyba pro pole 'email' a zobrazí její zprávu
+  - Vyvolá chybovou výjimku, pokud je pole email prázdné a zastaví další vykreslování šablony
+  question: Co dělá @error('email') v Blade šabloně?
+  topic: blade-templates
+  type: single
+- answers:
+  - '@selected($option == old(''country''))'
+  - '@checked($user->is_admin)'
+  - '@disabled(!$user->active)'
+  difficulty: střední
+  explanation: 'Tyto direktivy podmíněně vypisují příslušné HTML atributy: @selected vypíše ''selected'' pro elementy <option>, @checked vypíše ''checked'' pro zaškrtávací políčka a přepínače, a @disabled
+    vypíše ''disabled''. Přijímají boolean výrazy a atribut vypíší pouze když je podmínka pravdivá. Neexistuje direktiva @required.'
+  id: bt-017
+  options:
+  - '@selected($option == old(''country''))'
+  - '@checked($user->is_admin)'
+  - '@disabled(!$user->active)'
+  - '@required($field->is_required)'
+  question: Které z následujících Blade direktiv pomáhají se správou stavu formulářů nastavením HTML atributů na základě podmínek? (Vyberte všechny možné odpovědi)
+  topic: blade-templates
+  type: multiple
+- alternatives:
+  - json
+  answer: '@json'
+  difficulty: střední
+  explanation: '@json($data) kóduje PHP proměnnou jako JSON s správným escapováním, což zajišťuje bezpečné vložení do HTML script tagů. Je běžně používáno jako <script>let data = @json($data);</script>.
+    To je bezpečnější než ruční volání json_encode(), protože Blade správně zpracuje escapovací kontext, čímž brání XSS skrze injekci skriptů.'
+  id: bt-018
+  question: Jaká Blade direktiva zkompiluje PHP proměnnou do JSON a umožní tak bezpečně předat ji do JavaScriptu uvnitř <script> tagu?
+  topic: blade-templates
+  type: text
+- answer: Sekce úplně nahradí rodičovský @yield; @parent nelze použít
+  difficulty: střední
+  explanation: Krátká syntaxe @section('název', 'obsah') definuje sekci s vloženým obsahem. Tím nahrazuje cokoliv, co poskytuje rodičovský @yield. Protože zde není tělo bloku, nelze použít @parent. Syntaxe
+    bloku (@section('název') ... @endsection) je potřeba, když chcete přidat nebo upravit obsah rodiče pomocí @parent.
+  id: bt-019
+  options:
+  - Sekce je vždy připojena k obsahu rodiče místo nahrazení původní hodnoty yield
+  - Sekce se vykreslí, ale obsah je před odesláním do výstupu prohlížeče HTML-escapován
+  - Sekce je uložena v session datech pro další požadavek, aby mohla být později načtena a vykreslena
+  - Sekce úplně nahradí rodičovský @yield; @parent nelze použít
+  question: Co se stane, když sekce v podřízeném šabloně používá krátkou syntaxi @section('title', 'Page Title') místo syntaxe bloku?
+  topic: blade-templates
+  type: single
+- answer: '@break'
+  difficulty: střední
+  explanation: Blade's @switch funguje jako PHP switch statement. Každý blok @case('value') musí být ukončen příkazem @break, aby se zabránilo propadu (fall-through). Celý switch je uzavřen pomocí @endswitch.
+    Případ @default zpracovává všechny neshodné hodnoty. To poskytuje čistší syntaxi než PHP switch při míchání HTML a logiky.
+  id: bt-020
+  options:
+  - '@break'
+  - '@done'
+  - '@endcase'
+  - '@endswitch'
+  question: Při použití @switch v Blade, jaký direktiva ukončuje blok @case?
+  topic: blade-templates
+  type: single
+- answer: Podmíněně vykresluje obsah na základě prostředí aplikace
+  difficulty: střední
+  explanation: '@env(''production'') ... @endenv vykresluje obsah pouze když aplikace běží v zadaném prostředí. Můžete předat více prostředí: @env(''staging'', ''production''). To je užitečné pro zobrazení/skrytí
+    analytických skriptů, ladících nástrojů nebo bannerů na základě prostředí bez JavaScriptových kontrol.'
+  id: bt-021
+  options:
+  - Podmíněně vykresluje obsah na základě prostředí aplikace
+  - Nastavuje proměnnou APP_ENV za běhu, což umožňuje dynamickou změnu prostředí během požadavku
+  - Načítá prostřední specifické konfigurační soubory na základě detekovaného prostředí aplikace
+  - Vypisuje název aktuálního prostředí aplikace jako řetězec přímo do vykresleného HTML
+  question: Jaký je účel direktivy @env v šablonách Blade?
+  topic: blade-templates
+  type: single
+- answers:
+  - Použití metody boot() service provideru pro volání Blade::directive()
+  - Blade::directive('datetime', function($expression) { return "<?php echo ($expression)->format('m/d/Y H:i'); ?>"; });
+  difficulty: střední
+  explanation: Vlastní Blade direktivy jsou registrovány v metodě boot() service provideru pomocí Blade::directive('name', callback). Callback obdrží řetězec výrazu a musí vrátit platný PHP řetězec. Neexistuje
+    syntaxe @directive pro definování direktiv za běhu, ani žádná konfigurační možnost blade_directives — vše se dělá přes PHP.
+  id: bt-022
+  options:
+  - Použití metody boot() service provideru pro volání Blade::directive()
+  - Přidání do konfiguračního pole 'blade_directives'
+  - Blade::directive('datetime', function($expression) { return "<?php echo ($expression)->format('m/d/Y H:i'); ?>"; });
+  - '@directive(datetime) v šabloně Blade'
+  question: Které z následujících jsou platné způsoby registrace vlastní Blade direktivy? (Vyberte všechny, které platí)
+  topic: blade-templates
+  type: multiple
+- alternatives:
+  - Blade::if()
+  answer: Blade::if
+  difficulty: těžká
+  explanation: Blade::if('admin', function() { return auth()->check() && auth()->user()->is_admin; }) vytvoří vlastní podmíněnou direktivu. V šablonách můžete pak použít @admin ... @else ... @endadmin.
+    Je to čistší než Blade::directive() pro booleovské podmínky, protože vrácený PHP automaticky zpracuje otevírací if/else/uzavírací logiku.
+  id: bt-023
+  question: Jaká metoda vytváří vlastní podmíněnou direktivu Blade, která umožňuje syntaxi jako @admin ... @endadmin bez předávání výrazu?
+  topic: blade-templates
+  type: text
+- answer: Návratová hodnota musí být platný PHP kód, který Blade připojí ke kompilovanému šabloně
+  difficulty: těžká
+  explanation: Callbacky metod Blade::directive() musí vracet syrový PHP kód (včetně úvodních značek <?php, pokud je potřeba), který se přímo vloží do kompilované šablony. Pokud vrátíte neplatný PHP, kompilovaná
+    šablona selže. Proto je pro jednoduché podmínky často preferována metoda Blade::if() — ta automaticky zpracovává zabalení do PHP.
+  id: bt-024
+  options:
+  - Návratová hodnota je automaticky HTML-escapována Blade před odesláním do odpovědi prohlížeče
+  - Návratová hodnota musí být platný PHP kód, který Blade připojí ke kompilovanému šabloně
+  - Návratová hodnota musí být vždy boolean hodnota, která určuje, zda direktiva vykreslí svůj obsah
+  - Direktivy mohou vracet pouze řetězcové literály, ne dynamické výrazy nebo proměnné z kontextu šablony
+  question: Proč by se při použití vlastní Blade direktivy vytvořené pomocí Blade::directive() měli být opatrní s návratovou hodnotou?
+  topic: blade-templates
+  type: single
+- answers:
+  - Jsou jednosouborové komponenty uložené v resources/views/components/
+  - Automaticky přijímají všechny atributy jako $attributes Bag
+  - NEvyžadují odpovídající PHP třídu
+  difficulty: těžká
+  explanation: Anonymní Blade komponenty jsou .blade.php soubory v resources/views/components/, které nepotřebují PHP třídu. Přijímají všechny ne-slot atributy přes $attributes a podporují @props pro type
+    hinting a výchozí hodnoty. Plně podporují slots přes @slot, což je činí výkonnými pro opakovaně použitelné UI prvky bez režie komponent založených na třídách.
+  id: bt-025
+  options:
+  - Automaticky přijímají všechny atributy jako $attributes Bag
+  - Nemohou přijímat slots nebo mít subkomponenty
+  - Jsou jednosouborové komponenty uložené v resources/views/components/
+  - NEvyžadují odpovídající PHP třídu
+  question: Které z následujících jsou pravdivé o anonymních Blade komponentách v Laravelu? (Vyberte vše, co platí)
+  topic: blade-templates
+  type: multiple
+- answer: Deklaruje, že komponenta by měla přijímat specifická data od své rodičovské komponenty bez explicitního předávání props
+  difficulty: těžká
+  explanation: '@aware([''color'' => ''gray'']) v dceřiné komponentě deklaruje, že očekává přijetí ''color'' z rodičovské komponenty''s @props nebo data. Když rodičovská komponenta vykresluje tohoto potomka,
+    odpovídající data rodiče automaticky proudí dolů. To je zvláště užitečné u vnořených komponent v komponentách založených na třídách, kde chcete implicitní předávání dat.'
+  id: bt-026
+  options:
+  - Zaznamenává dobu vykreslování komponenty a spotřebu paměti pro účely ladění do aplikačního logu
+  - Umožňuje poslouchání událostí v rámci komponenty, takže může odesílat a naslouchat událostem Laravel frameworku
+  - Deklaruje, že komponenta by měla přijímat specifická data od své rodičovské komponenty bez explicitního předávání props
+  - Dělá komponentu vědomou dat rodiče a automaticky sdílí všechny proměnné rodiče do rozsahu
+  question: Jaký je účel direktivy @aware v Blade komponentě?
+  topic: blade-templates
+  type: single
+- alternatives:
+  - ComponentAttributeBag
+  - Illuminate\View\ComponentAttributeBag
+  - AttributeBag
+  answer: ComponentAttributeBag
+  difficulty: těžká
+  explanation: Třída ComponentAttributeBag spravuje atributy komponent a poskytuje inteligentní sloučení tříd, stylů a dalších atributů. Když komponenta definuje výchozí atributy a spotřebitel přidá další,
+    tačka je sloučí, nikoli přepíše. Poskytuje metody jako class(), style(), merge() a filter() pro jemnou kontrolu v komponentách založených na třídách.
+  id: bt-027
+  question: Jak se jmenuje nástroj pro sloučení atributů a správu tříd, který Blade komponenty používají k inteligentnímu zpracování HTML atributů (např. neduplikování atributů 'class')?
+  topic: blade-templates
+  type: text
+- answer: '@pushOnce je zastaralé v Laravel 13.x a nahrazeno direktivou @unique pro zásobníky'
+  difficulty: těžká
+  explanation: '@pushOnce(''scripts'', ''unique-id'') zajišťuje, že obsah se zadaným jedinečným ID je do zásobníku vložen pouze jednou za požadavek, i když je šablona nebo komponenta obsahující @pushOnce
+    vykreslena vícekrát. Tím se zabrání duplicitním vkládáním skriptů nebo stylů v cyklech, podobně jako u @once, ale specificky pro zásobníky.'
+  id: bt-028
+  options:
+  - '@pushOnce je rychlejší, protože používá méně paměti a vyhýbá se duplicitním operacím s DOM v každém cyklu vykreslování'
+  - '@pushOnce funguje pouze v souborech layoutů, ne v podřízených šablonách, které rozšiřují rodičovský layout'
+  - '@pushOnly vkládá obsah pouze pokud zásobník se zadaným názvem v tomto požadavku ještě nepřijal žádný obsah'
+  - '@pushOnce je zastaralé v Laravel 13.x a nahrazeno direktivou @unique pro zásobníky'
+  question: Jaká je klíčová rozdíl mezi @pushOnce a @push v Blade šablonách?
+  topic: blade-templates
+  type: single
+- answers:
+  - Může vrátit přímo řetězec s HTML obsahem
+  - Může vrátit View objekt (z view() helperu)
+  difficulty: těžká
+  explanation: Metoda render() v komponentě založené na třídě je velmi flexibilní — může vrátit View objekt (nejčastěji ukazující na Blade šablonu) nebo přímo řetězec s HTML obsahem. Veřejné vlastnosti
+    třídy se automaticky stanou dostupnými jako proměnné v pohledu. Metoda NENÍ přijímá atributy/slots jako parametry — ty jsou spravovány odděleně přes mechanismy $attributes a slot komponenty.
+  id: bt-029
+  options:
+  - 'Musí vždy přijmout přesně dva parametry: $data a $slots'
+  - Může vrátit View objekt (z view() helperu)
+  - Může vrátit přímo řetězec s HTML obsahem
+  - Přijímá automaticky všechny atributy a slots komponenty přes injekci metod
+  question: Při vytváření komponenty založené na třídě ve Blade, které z následujících platí o metodě render()? (Vyberte všechny správné odpovědi)
+  topic: blade-templates
+  type: multiple

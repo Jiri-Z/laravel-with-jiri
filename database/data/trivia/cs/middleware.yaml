@@ -1,0 +1,399 @@
+- id: mw-001
+  topic: middleware
+  type: single
+  difficulty: lehká
+  question: Jaký je základní účel middleware v aplikaci Laravel?
+  options:
+  - Filtrovat a kontrolovat HTTP požadavky, než dosáhnou route handleru, a upravovat odpovědi, než se odešlou zpět klientovi
+  - Kompilovat Blade šablonové soubory do mezipaměti PHP kódu před vykreslením a spravovat životní cyklus mezipaměti kompilovaných šablon
+  - Sloužit jako centrální vstupní bod pro všechny příchozí HTTP požadavky před jejich dosažením routeru, s obsluhou počátečního bootstrappingu
+  - Spravovat sdružování databázových připojení a provádět optimalizaci dotazů pro každý příchozí požadavek
+  answer: Filtrovat a kontrolovat HTTP požadavky, než dosáhnou route handleru, a upravovat odpovědi, než se odešlou zpět klientovi
+  explanation: Middleware tvoří vrstvený řetězec filtrů kolem vaší aplikace. Každý middleware může zkontrolovat příchozí požadavek, provést akce (jako ověření, protokolování nebo omezování rychlosti), předat
+    požadavek hlouběji do zásobníku a následně upravit odpověď na její cestě zpět. Tento návrhový vzor poskytuje čistý, komponovatelný způsob řešení průřezových záležitostí.
+- id: mw-002
+  topic: middleware
+  type: single
+  difficulty: lehká
+  question: Který artisan příkaz se používá k vytvoření nové třídy middleware v Laravelu?
+  options:
+  - php artisan generate:middleware CheckAge
+  - php artisan create:middleware CheckAge
+  - php artisan make:middleware CheckAge
+  - php artisan middleware:new CheckAge
+  answer: php artisan make:middleware CheckAge
+  explanation: Příkaz make:middleware vytvoří novou třídu middleware v adresáři app/Http/Middleware/. Vygenerovaná třída obsahuje metodu handle() s parametry $request a closure $next, připravenou k přidání
+    vaší logiky. Toto je standardní způsob vytvoření základu middleware v Laravelu.
+- id: mw-003
+  topic: middleware
+  type: multiple
+  difficulty: lehká
+  question: Které z následujících jsou platné způsoby aplikace middleware na route?
+  options:
+  - Použití metody ->middleware() přímo na definici route
+  - Přidání třídy middleware do proměnné APP_MIDDLEWARE v souboru .env
+  - Registrace middleware jako globálního v bootstrap/app.php
+  - Přiřazení middleware do route skupiny
+  answers:
+  - Použití metody ->middleware() přímo na definici route
+  - Přiřazení middleware do route skupiny
+  - Registrace middleware jako globálního v bootstrap/app.php
+  explanation: 'Middleware lze aplikovat na třech úrovních: na úrovni jednotlivé route pomocí ->middleware(), na úrovni skupiny pomocí Route::middleware()->group(), nebo globálně v bootstrap/app.php pomocí
+    ->withMiddleware(). Neexistuje žádná proměnná prostředí APP_MIDDLEWARE — konfigurace middleware se provádí v PHP kódu, nikoli v proměnných prostředí.'
+- id: mw-004
+  topic: middleware
+  type: text
+  difficulty: lehká
+  question: Jaké jsou dva parametry, které metoda handle() každého middleware přijímá?
+  answer: $request a $next
+  alternatives:
+  - Request $request, Closure $next
+  - požadavek a další closure
+  - $request, Closure $next
+  - požadavek a další
+  explanation: Každá metoda handle() middleware přijímá objekt Illuminate\Http\Request ($request) a Closure ($next), která předává řízení dalšímu middleware v zásobníku. $request obsahuje data příchozího
+    HTTP požadavku a volání $next($request) předá požadavek další vrstvě a vrátí odpověď.
+- id: mw-005
+  topic: middleware
+  type: single
+  difficulty: lehká
+  question: Na co se standardně mapuje alias middleware 'auth' v aplikaci Laravel?
+  options:
+  - App\Http\Middleware\Authenticate
+  - App\Http\Middleware\EnsureUserIsAdmin
+  - Illuminate\Auth\Middleware\Authorize
+  - App\Http\Middleware\RedirectIfAuthenticated
+  answer: App\Http\Middleware\Authenticate
+  explanation: Alias middleware 'auth' je namapován na App\Http\Middleware\Authenticate (nebo Illuminate\Auth\Middleware\Authenticate ve starších verzích). Tento middleware kontroluje, zda je uživatel ověřen,
+    a pokud ne, přesměruje ho na přihlašovací route (pro webové požadavky) nebo vrátí 401 JSON odpověď (pro API požadavky).
+- id: mw-006
+  topic: middleware
+  type: multiple
+  difficulty: lehká
+  question: Které třídy middleware jsou součástí výchozí skupiny middleware 'web' v Laravelu?
+  options:
+  - VerifyCsrfToken
+  - ThrottleRequests
+  - TrimStrings
+  - EncryptCookies
+  answers:
+  - EncryptCookies
+  - VerifyCsrfToken
+  - TrimStrings
+  explanation: Skupina middleware 'web' zahrnuje EncryptCookies (dešifruje šifrované cookie), StartSession (spouští session), VerifyCsrfToken (validuje CSRF tokeny), TrimStrings (ořezává textové vstupy)
+    a ConvertEmptyStringsToNull. ThrottleRequests není ve výchozí skupině 'web' — obvykle se aplikuje selektivně na routy, které vyžadují omezování rychlosti požadavků.
+- id: mw-007
+  topic: middleware
+  type: single
+  difficulty: lehká
+  question: Co se stane, když metoda handle() middleware vrátí odpověď bez volání $next($request)?
+  options:
+  - Laravel vyhodí MiddlewareException, protože smlouva middleware pipeline vyžaduje, aby každý handler zavolal $next($request)
+  - Odpověď je dočasně uložena do vyrovnávací paměti a odeslána klientovi až po úplném provedení veškerého zbývajícího middleware v pipeline
+  - Middleware řetězec je přerušen a odpověď je okamžitě vrácena klientovi, přičemž se přeskočí veškerý zbývající middleware a route handler
+  - Požadavek pokračuje na další middleware, ale vrácený objekt odpovědi je potichu zahozen a místo něj se použije finální odpověď
+  answer: Middleware řetězec je přerušen a odpověď je okamžitě vrácena klientovi, přičemž se přeskočí veškerý zbývající middleware a route handler
+  explanation: Vynecháním volání $next($request) může middleware zabránit požadavku v dosažení hlubších vrstev. To se běžně používá pro řízení přístupu — například 'auth' middleware může vrátit přesměrovávací
+    odpověď, pokud uživatel není ověřen, a zcela tak obejít controller. Toto chování přerušení (short-circuiting) je základní vlastností vzoru middleware.
+- id: mw-008
+  topic: middleware
+  type: text
+  difficulty: lehká
+  question: Jaké PHP rozhraní může middleware implementovat, aby se po odeslání odpovědi prohlížeči zavolala jeho metoda terminate()?
+  answer: TerminableMiddleware
+  alternatives:
+  - Illuminate\Contracts\Routing\TerminableMiddleware
+  - TerminableMiddleware interface
+  explanation: 'Rozhraní TerminableMiddleware (nebo prostě definování metody terminate($request, $response) na vašem middleware) umožňuje logiku po odeslání odpovědi. Metoda terminate() se spustí poté,
+    co byla odpověď odeslána prohlížeči, což je ideální pro úkoly jako protokolování, sběr metrik nebo uvolňování zdrojů. Upozornění: terminate() je voláno HTTP kernelem Laravelu, nikoli během provádění
+    middleware řetězce.'
+- id: mw-009
+  topic: middleware
+  type: multiple
+  difficulty: lehká
+  question: Které z následujících jsou ve výchozím stavu registrovány jako globální middleware v čerstvé aplikaci Laravel?
+  options:
+  - TrustProxies
+  - VerifyCsrfToken
+  - TrimStrings
+  - PreventRequestsDuringMaintenance
+  answers:
+  - TrimStrings
+  - TrustProxies
+  - PreventRequestsDuringMaintenance
+  explanation: Globální middleware se spouští u každého požadavku. Výchozí nastavení Laravelu zahrnuje TrimStrings (ořezává vstupy), TrustProxies (zpracovává hlavičky load balanceru), PreventRequestsDuringMaintenance
+    (blokuje požadavky během php artisan down) a ValidatePostSize (validuje délku obsahu). VerifyCsrfToken je ve skupině 'web', nikoli globální, proto se vztahuje pouze na webové routy.
+- id: mw-010
+  topic: middleware
+  type: single
+  difficulty: střední
+  question: Proč může metoda terminate() middleware obdržet jiné instance objektů než metoda handle() v produkčním prostředí s určitými konfiguracemi PHP?
+  options:
+  - Protože je objekt response zkopírován před odesláním klientovi a originál je zničen
+  - Protože OPcache v PHP serializuje a deserializuje objekty mezi handle() a terminate(), čímž vytváří nové instance
+  - Protože Laravel vytváří novou instanci request pro fázi terminate, aby se zabránilo únikům paměti z nahromaděných dat
+  - Protože je metoda terminate() volána v samostatném PHP procesu nezávisle na handle() při použití PHP-FPM
+  answer: Protože OPcache v PHP serializuje a deserializuje objekty mezi handle() a terminate(), čímž vytváří nové instance
+  explanation: Při použití PHP-FPM nebo Swoole může životní cyklus terminate() běžet v jiném kontextu než handle(). Pro terminable middleware Laravel serializuje instanci middleware (pokud je to nutné)
+    a může ji později deserializovat, což potenciálně vytváří jiné instance objektů. To znamená, že byste se neměli spoléhat na to, že stav objektu nastavený v handle() bude dostupný v terminate(). Místo
+    toho extrahujte potřebná data přímo z parametrů $request a $response.
+- id: mw-011
+  topic: middleware
+  type: single
+  difficulty: střední
+  question: Jaký je rozdíl mezi before middleware a after middleware z hlediska umístění kódu v metodě handle()?
+  options:
+  - Before middleware je samostatná třída implementující rozhraní BeforeMiddleware; after middleware implementuje AfterMiddleware
+  - Neexistuje žádný reálný rozdíl — Laravel zachází se všemi middleware identicky bez ohledu na to, kde je zavolána closure $next()
+  - Before middleware provádí logiku před voláním $next($request); after middleware provádí logiku po volání $next($request)
+  - Before middleware používá dedikovanou metodu before() místo handle(); after middleware používá samostatnou metodu after()
+  answer: Before middleware provádí logiku před voláním $next($request); after middleware provádí logiku po volání $next($request)
+  explanation: Rozdíl je čistě poziční v rámci metody handle(). Kód umístěný před $next($request) se spouští, když požadavek cestuje směrem dovnitř (před controllerem), zatímco kód po $next($request) se
+    spouští, když odpověď cestuje směrem ven (po controlleru). Jednotlivý middleware může provádět logiku jak před, tak po, což dělá tento vzor velmi flexibilním bez nutnosti samostatných tříd.
+- id: mw-012
+  topic: middleware
+  type: multiple
+  difficulty: střední
+  question: V Laravel 11+, které z následujících jsou platné způsoby registrace aliasů middleware v bootstrap/app.php?
+  options:
+  - Přidání do konfiguračního klíče 'middleware.aliases' v config/app.php
+  - Použití metody $middleware->alias() uvnitř closure withMiddleware()
+  - ->middleware(['admin' => EnsureUserIsAdmin::class])
+  - ->withMiddleware(function (Middleware $middleware) { $middleware->alias(['admin' => EnsureUserIsAdmin::class]); })
+  answers:
+  - ->withMiddleware(function (Middleware $middleware) { $middleware->alias(['admin' => EnsureUserIsAdmin::class]); })
+  - Použití metody $middleware->alias() uvnitř closure withMiddleware()
+  explanation: V Laravel 11+ je konfigurace middleware centralizována v bootstrap/app.php pomocí closure withMiddleware(). Instance Middleware předaná do closure poskytuje metody jako alias(), append(),
+    prepend() a group() pro konfiguraci middleware. Starý přístup přes config/app.php byl odstraněn v Laravel 11 slim kostře.
+- id: mw-013
+  topic: middleware
+  type: single
+  difficulty: střední
+  question: Co znamená konfigurace parametru middleware 'throttle:60,1'?
+  options:
+  - Povolit maximálně 1 požadavek každých 60 sekund, další požadavky jsou blokovány
+  - Povolit 60 požadavků, poté blokovat na 1 celou sekundu před povolením dalších požadavků
+  - Povolit maximálně 60 požadavků za sekundu, s resetováním limitu každou sekundu
+  - Povolit maximálně 60 požadavků za 1 minutu, s resetováním počítadla každou minutu
+  answer: Povolit maximálně 60 požadavků za 1 minutu, s resetováním počítadla každou minutu
+  explanation: 'Middleware throttle přijímá dva parametry: maximální počet požadavků a dobu rozpadu v minutách. Takže ''throttle:60,1'' znamená 60 požadavků za 1 minutu. Toto je stará syntaxe — v moderním
+    Laravelu (10+) můžete také použít pojmenované limity definované pomocí RateLimiter::for() a odkazovat se na ně pomocí ''throttle:api'', což podporuje limity za sekundu a složitější strategie.'
+- id: mw-014
+  topic: middleware
+  type: text
+  difficulty: střední
+  question: Jaká metoda na třídě Illuminate\Foundation\Http\Middleware umožňuje vyloučit konkrétní URI z globálního middleware?
+  answer: except
+  alternatives:
+  - ->except()
+  - skip
+  - $middleware->except()
+  explanation: Metoda except() (dostupná na určitých middleware jako TrimStrings, ConvertEmptyStringsToNull a TrustProxies) vám umožňuje definovat URI vzory, které by měly middleware přeskočit, i když je
+    registrován globálně. Například TrimStrings může potřebovat vyloučit API endpointy, které zpracovávají surová binární data. Konfigurujete to v bootstrap/app.php při registraci middleware.
+- id: mw-015
+  topic: middleware
+  type: single
+  difficulty: střední
+  question: Jak se middleware 'can' liší od middleware 'auth' z hlediska toho, co kontroluje?
+  options:
+  - Middleware 'can' validuje CSRF tokeny a oprávnění uživatele; 'auth' validuje pouze CSRF tokeny
+  - Middleware 'can' kontroluje konkrétní schopnost autorizační policy; 'auth' pouze ověřuje, zda je uživatel přihlášen
+  - Neexistuje žádný významný rozdíl — 'can' je prostě alias pro 'auth', který přidává dodatečné protokolování požadavků
+  - Middleware 'can' kontroluje ověření i roli uživatele; 'auth' kontroluje pouze ověření
+  answer: Middleware 'can' kontroluje konkrétní schopnost autorizační policy; 'auth' pouze ověřuje, zda je uživatel přihlášen
+  explanation: Middleware 'can' (např. middleware('can:update,post')) kontroluje autorizační systém Laravelu — konkrétně ověřuje, zda má ověřený uživatel oprávnění provést danou akci na zdroji pomocí policies.
+    Middleware 'auth' pouze zajišťuje, že je uživatel přihlášen. Middleware 'can' implicitně vyžaduje ověření (neověření uživatelé dostanou 403), ale jde ještě dál a kontroluje autorizaci.
+- id: mw-016
+  topic: middleware
+  type: multiple
+  difficulty: střední
+  question: Které z následujících správně popisují, jak předat parametry middleware z definice route?
+  options:
+  - Route::get('/posts', ...)->middleware('role:admin,editor')
+  - Route::middleware('role', ['admin', 'editor'])->get('/posts', ...)
+  - Route::get('/posts', ...)->middleware(['role' => ['admin', 'editor']])
+  - Route::get('/posts', ...)->middleware(new EnsureRole('admin', 'editor'))
+  answers:
+  - Route::get('/posts', ...)->middleware('role:admin,editor')
+  - Route::get('/posts', ...)->middleware(new EnsureRole('admin', 'editor'))
+  explanation: 'Parametry middleware lze předat dvěma způsoby: pomocí řetězce odděleného dvojtečkou (''middleware:param1,param2''), který Laravel rozparsuje a předá jako dodatečné argumenty do handle(),
+    nebo přímou instanciací třídy middleware a předáním parametrů do jejího konstruktoru. Syntaxe s klíčem pole není pro parametry middleware platná.'
+- id: mw-017
+  topic: middleware
+  type: single
+  difficulty: střední
+  question: Co se stane, pokud middleware vyhodí výjimku během metody handle() před voláním $next($request)?
+  options:
+  - Výjimka se propaguje nahoru middleware zásobníkem a je zpracována exception handlerem Laravelu, který vygeneruje chybovou odpověď
+  - Výjimka je potichu zachycena frameworkem a požadavek pokračuje na další middleware v pipeline, jako by se nic nestalo
+  - Middleware řetězec pokračuje v běhu a detaily výjimky jsou připojeny k finálnímu objektu odpovědi jako error payload
+  - Laravel automaticky opakuje požadavek až 3krát, než nakonec vrátí HTTP chybovou odpověď klientovi
+  answer: Výjimka se propaguje nahoru middleware zásobníkem a je zpracována exception handlerem Laravelu, který vygeneruje chybovou odpověď
+  explanation: Výjimky v middleware nejsou potichu zachyceny. Probublávají nahoru middleware zásobníkem a nakonec jsou zachyceny exception handlerem Laravelu (registrovaným v bootstrap/app.php). Handler
+    převádí výjimku na odpovídající HTTP odpověď — chybovou stránku 500 pro webové požadavky nebo JSON chybu pro API požadavky. Toto je stejný tok zpracování výjimek jako výjimky hozené v controllerech.
+- id: mw-018
+  topic: middleware
+  type: text
+  difficulty: střední
+  question: Jak se jmenuje middleware Laravelu, který blokuje požadavky během údržby (když je aktivní php artisan down)?
+  answer: PreventRequestsDuringMaintenance
+  alternatives:
+  - Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance
+  - CheckForMaintenanceMode
+  explanation: Middleware PreventRequestsDuringMaintenance kontroluje, zda je aplikace v režimu údržby (určeno souborem storage/framework/down). Pokud je režim údržby aktivní, vrátí odpověď 503 Service
+    Unavailable. Starší název byl CheckForMaintenanceMode, který byl přejmenován v Laravel 8+. V Laravel 11+ je tento middleware výchozím globálním middleware.
+- id: mw-019
+  topic: middleware
+  type: multiple
+  difficulty: střední
+  question: Které z následujících tvrzení jsou pravdivá o poli $middlewarePriority v HTTP kernelu Laravelu?
+  options:
+  - Middleware neuvedený v $middlewarePriority se spouští v pořadí registrace
+  - Lze jej upravit přepsáním vlastnosti v kernelu vaší aplikace
+  - Zajišťuje, že ověřovací middleware se spustí před autorizačním middleware bez ohledu na pořadí registrace
+  - Ovlivňuje pouze globální middleware, nikoli route-specific middleware
+  answers:
+  - Zajišťuje, že ověřovací middleware se spustí před autorizačním middleware bez ohledu na pořadí registrace
+  - Middleware neuvedený v $middlewarePriority se spouští v pořadí registrace
+  explanation: Pole $middlewarePriority (v HTTP Kernelu) definuje pevné pořadí pro kritické třídy middleware. Jakýkoli middleware uvedený v tomto poli je seřazen do své definované pozice, zatímco neuvedený
+    middleware si zachovává pořadí registrace. Toto platí pro všechny middleware — globální, skupinové i route-specific. Výchozí priorita zajišťuje rozumné pořadí, např. auth před can:authorize.
+- id: mw-020
+  topic: middleware
+  type: single
+  difficulty: střední
+  question: Proč je middleware TrustProxies nezbytný při spouštění aplikace Laravel za load balancerem nebo reverzním proxy (jako Nginx nebo AWS ELB)?
+  options:
+  - Protože load balancer ukončuje SSL a předává požadavky jako HTTP, a TrustProxies je potřeba k ověření identity proxy pomocí sdílené tajné hlavičky
+  - Protože load balancer ukončuje SSL a předává požadavky jako HTTP, takže TrustProxies říká Laravelu, aby důvěřoval X-Forwarded-* hlavičkám pro správné generování URL a detekci schématu
+  - Protože load balancer může upravit nebo bufferovat tělo požadavku během ukončování SSL a TrustProxies obnovuje původní nezměněný obsah požadavku
+  - Protože TrustProxies šifruje HTTP připojení mezi load balancerem a aplikací Laravel, což zajišťuje plně bezpečný interní přenos dat mezi službami
+  answer: Protože load balancer ukončuje SSL a předává požadavky jako HTTP, takže TrustProxies říká Laravelu, aby důvěřoval X-Forwarded-* hlavičkám pro správné generování URL a detekci schématu
+  explanation: Při použití za reverzním proxy se původní schéma požadavku (HTTPS) a IP klienta ztrácejí, protože proxy vytváří nové HTTP připojení k vaší aplikaci. Proxy přidává hlavičky X-Forwarded-Proto
+    a X-Forwarded-For, ale Laravel jim standardně nedůvěřuje z bezpečnostních důvodů. TrustProxies říká Laravelu, kterým proxy lze důvěřovat, aby mohl číst tyto hlavičky pro generování správných HTTPS URL
+    a identifikaci skutečné IP klienta.
+- id: mw-021
+  topic: middleware
+  type: single
+  difficulty: střední
+  question: Co dělá middleware 'signed' při aplikaci na route?
+  options:
+  - Digitálně podepisuje odchozí odpověď pomocí SSL certifikátu před odesláním zpět klientovi k ověření
+  - Generuje kryptografický digitální podpis pro payload těla požadavku pro zajištění integrity dat během přenosu
+  - Zajišťuje, že příchozí požadavek obsahuje platný API klíč nebo bearer token v hlavičce Authorization
+  - Validuje, že URL požadavku má platný podpis, a odmítá požadavky s pozměněnými URL nebo chybějícími podpisy
+  answer: Validuje, že URL požadavku má platný podpis, a odmítá požadavky s pozměněnými URL nebo chybějícími podpisy
+  explanation: Middleware 'signed' (App\Http\Middleware\ValidateSignature) kontroluje platný podpis v query stringu požadavku. URL jsou podepsány pomocí URL::signedRoute() nebo URL::temporarySignedRoute().
+    Pokud podpis chybí, je neplatný nebo vypršel, middleware vrátí 403 (nebo vlastní abort odpověď). To se běžně používá pro ověřovací odkazy v e-mailech, odkazy na obnovení hesla a další citlivé veřejné
+    URL.
+- id: mw-022
+  topic: middleware
+  type: multiple
+  difficulty: střední
+  question: Které z následujících jsou platné přístupy k podmíněné aplikaci middleware na základě požadavku?
+  options:
+  - Registrace middleware s úrovní priority, která určuje podmíněné spuštění
+  - Kontrola podmínek uvnitř metody handle() middleware a volání $next() nebo vrácení odpovědi podle toho
+  - Použití closure middleware přímo na route, které vyhodnocuje podmínku
+  - Přepsání metody shouldRun() middleware pro určení, zda se má spustit
+  answers:
+  - Kontrola podmínek uvnitř metody handle() middleware a volání $next() nebo vrácení odpovědi podle toho
+  - Použití closure middleware přímo na route, které vyhodnocuje podmínku
+  explanation: 'Dva hlavní způsoby podmíněné aplikace middleware jsou: (1) přidat podmíněnou logiku do metody handle() (např. kontrola, zda uživatel má určitou roli, a pak zavolat $next() nebo vrátit odpověď
+    403), nebo (2) použít inline closure middleware jako ->middleware(function ($request, $next) { if ($condition) return $next($request); return redirect(''/''); }). Neexistuje žádná metoda shouldRun()
+    ani podmíněné spouštění na základě priority v Laravelu.'
+- id: mw-023
+  topic: middleware
+  type: text
+  difficulty: střední
+  question: Jak se jmenuje middleware, který převádí prázdné řetězce ve vstupech požadavku na hodnoty null?
+  answer: ConvertEmptyStringsToNull
+  alternatives:
+  - Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull
+  - TrimStrings and ConvertEmptyStringsToNull
+  explanation: Middleware ConvertEmptyStringsToNull iteruje přes vstupy požadavku a převádí prázdné řetězcové hodnoty na null. To je užitečné, protože HTML formuláře odesílají prázdná pole jako prázdné
+    řetězce, ale vaše aplikační logika často potřebuje rozlišovat mezi "neposkytnuto" (null) a "poskytnuto jako prázdné" (prázdný řetězec). Tento middleware je součástí výchozího globálního zásobníku middleware.
+- id: mw-024
+  topic: middleware
+  type: single
+  difficulty: těžká
+  question: Když více middleware potřebuje sdílet data mezi sebou nebo s controllrem, jaký je doporučený přístup v Laravelu namísto použití globálního stavu nebo statických vlastností?
+  options:
+  - Zápis dat do dočasného souboru na disku a jejich čtení z tohoto souboru v následujícím middleware nebo controlleru
+  - Použití facade Config k nastavení dynamických hodnot za běhu, které trvají po dobu aktuálního HTTP požadavku
+  - Uložení sdílených dat do session uživatele, která je automaticky přístupná všem middleware a controllerům
+  - Přidání vlastních atributů k objektu $request pomocí $request->attributes->set(), čímž vznikne čistý kontejner dat vymezený pro jeden požadavek
+  answer: Přidání vlastních atributů k objektu $request pomocí $request->attributes->set(), čímž vznikne čistý kontejner dat vymezený pro jeden požadavek
+  explanation: Objekt Request má ParameterBag 'attributes' navržený speciálně pro tento účel. Middleware může volat $request->attributes->set('key', 'value') a následující middleware nebo controllery mohou
+    jej načíst pomocí $request->get('key'). Tento přístup je upřednostňován před statickými vlastnostmi (které mohou unikat mezi požadavky v dlouho běžících procesech) nebo úložištěm session (které by se
+    nemělo používat pro interní data vymezená požadavkem).
+- id: mw-025
+  topic: middleware
+  type: single
+  difficulty: těžká
+  question: Proč může spoléhání se na závislosti injektované přes konstruktor v middleware být problematické v prostředích jako Octane nebo dlouho běžící workery?
+  options:
+  - Protože jsou závislosti konstruktoru vyřešeny pouze jednou při první instanciaci middleware a injektované objekty mohou nést zastaralý stav napříč následujícími požadavky v dlouho běžícím procesu
+  - Protože v modelu spouštění Octane jsou konstruktory middleware volány po metodě handle(), což obrací běžné pořadí inicializace a může způsobit nedostupnost závislostí
+  - Protože Octane vůbec nepodporuje dependency injection založenou na konstruktoru a middleware musí výhradně používat method injection pro přijetí závislostí z service containeru
+  - Protože injection přes konstruktor v Octane používá zcela samostatnou instanci service containeru než method injection, což způsobuje nekonzistentní vyřešené závislosti
+  answer: Protože jsou závislosti konstruktoru vyřešeny pouze jednou při první instanciaci middleware a injektované objekty mohou nést zastaralý stav napříč následujícími požadavky v dlouho běžícím procesu
+  explanation: V tradičním PHP-FPM je pro každý požadavek spuštěn nový proces, takže injection přes konstruktor vždy vytváří nové instance. Ale v dlouho běžících procesech, jako je Octane (Swoole/RoadRunner),
+    je middleware instanciován jednou a znovu použit pro mnoho požadavků. Pokud má služba injektovaná přes konstruktor měnitelný stav, může unikat mezi požadavky. Proto dokumentace Octane doporučuje používat
+    method injection v handle() namísto injection přes konstruktor u middleware.
+- id: mw-026
+  topic: middleware
+  type: multiple
+  difficulty: těžká
+  question: Které z následujících jsou pravdivé o tom, jak Laravel zpracovává pořadí middleware, když má route middleware z více zdrojů (globální, skupinový a route-specific)?
+  options:
+  - Route-specific middleware definovaný přes ->middleware() je připojen za middleware skupiny v pipeline
+  - Middleware skupiny se vždy spouští v přesném pořadí definovaném ve skupině, bez ohledu na $middlewarePriority
+  - Pole $middlewarePriority může přeuspořádat middleware napříč všemi zdroji, což může způsobit, že route-specific middleware se spustí před globálním
+  - Globální middleware definovaný přes ->withMiddleware()->append() se spouští před všemi skupinovými a route middleware
+  answers:
+  - Globální middleware definovaný přes ->withMiddleware()->append() se spouští před všemi skupinovými a route middleware
+  - Pole $middlewarePriority může přeuspořádat middleware napříč všemi zdroji, což může způsobit, že route-specific middleware se spustí před globálním
+  explanation: 'Pořadí spouštění je: nejprve globální middleware, poté skupinový middleware, poté route-specific middleware. Pole $middlewarePriority však funguje jako přeuspořadávač — pokud se jakákoliv
+    třída middleware (bez ohledu na její zdroj) objeví v tomto poli, Laravel ji seřadí do její prioritetní pozice. To znamená, že globální middleware s nižší prioritou se může ve skutečnosti spustit po
+    route-specific middleware s vyšší prioritou.'
+- id: mw-027
+  topic: middleware
+  type: text
+  difficulty: těžká
+  question: V Laravel 11+, jakou metodu zavoláte na instanci Middleware uvnitř withMiddleware() pro registraci middleware, který by se měl spouštět u každého API požadavku ve skupině 'api'?
+  answer: appendToGroup
+  alternatives:
+  - ->appendToGroup('api', MiddlewareClass::class)
+  - appendToGroup('api', ...)
+  - append
+  explanation: V Laravel 11+ poskytuje instance Middleware předaná do withMiddleware() metodu appendToGroup($group, $middleware) pro přidání middleware do existující skupiny. Například $middleware->appendToGroup('api',
+    EnsureTokenIsValid::class) přidá middleware do zásobníku skupiny 'api'. Můžete také použít prependToGroup() pro přidání na začátek skupiny, nebo metodu group() pro definování zcela nové skupiny.
+- id: mw-028
+  topic: middleware
+  type: single
+  difficulty: těžká
+  question: Jaký je důsledek registrace stejné třídy middleware vícekrát v pipeline pro jeden požadavek (např. jednou globálně, jednou ve skupině a jednou na route)?
+  options:
+  - Laravel automaticky deduplikuje třídy middleware, takže middleware se spustí pouze jednou bez ohledu na to, kolikrát je registrován
+  - Middleware se spustí vícekrát — jednou pro každou registraci — což může způsobit chyby u stavového middleware jako session nebo throttle
+  - Laravel vyhodí DuplicateMiddlewareException při spuštění aplikace, čímž zabrání startu aplikace, pokud jsou detekovány duplikáty
+  - Měří se pouze poslední registrace a všechny dřívější registrace stejné třídy middleware jsou frameworkem potichu ignorovány
+  answer: Middleware se spustí vícekrát — jednou pro každou registraci — což může způsobit chyby u stavového middleware jako session nebo throttle
+  explanation: 'Laravel NEdeduplikuje middleware. Pokud se stejná třída objeví v globálním, skupinovém a route middleware, provede se třikrát. To může způsobit vážné problémy: dvojitá CSRF validace, více
+    throttle počítadel na požadavek nebo vícekrát spuštěná session. Musíte si dát pozor, abyste neregistrovali stejný middleware na více úrovních, pokud toto chování není záměrné.'
+- id: mw-029
+  topic: middleware
+  type: multiple
+  difficulty: těžká
+  question: Při vytváření vlastního middleware, který potřebuje upravit odpověď po provedení controlleru, které z následujících přístupů jsou správné a bezpečné?
+  options:
+  - Úprava hlaviček odpovědi pomocí $response->header() na zachycené odpovědi z $next($request)
+  - Použití response()->macro() uvnitř middleware pro přidání vlastních metod response
+  - Použití output bufferingu s ob_start() v metodě handle() pro zachycení a úpravu těla odpovědi
+  - Zachycení návratové hodnoty $next($request) a volání metod na objektu Response před jeho vrácením
+  answers:
+  - Zachycení návratové hodnoty $next($request) a volání metod na objektu Response před jeho vrácením
+  - Úprava hlaviček odpovědi pomocí $response->header() na zachycené odpovědi z $next($request)
+  explanation: 'Správný přístup pro after middleware je: $response = $next($request); /* upravit $response */; return $response;. Můžete upravovat hlavičky, obsah a stavový kód na objektu Response. Použití
+    ob_start() v middleware je anti-pattern, který může kolidovat se zpracováním odpovědí v Laravelu. Přístup response()->macro() mění globální stav response builderu, nikoli konkrétní odpověď, což není
+    účel after middleware.'

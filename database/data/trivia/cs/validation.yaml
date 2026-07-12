@@ -1,0 +1,132 @@
+- answer: rules()
+  difficulty: lehká
+  explanation: V třídě FormRequest metoda rules() vrací pole pravidel validace, která Laravel automaticky aplikuje před voláním vaší metody v controlleru. Metoda authorize() určuje, zda má aktuální uživatel
+    oprávnění požadavek provést. Metoda validate() se používá na facade Validator nebo přímo na objekt $request, nikoli uvnitř FormRequest.
+  id: vd-001
+  options:
+  - authorize()
+  - validate()
+  - rules()
+  - getRules()
+  question: Kterou metodu v třídě FormRequest byste měli předefinovat pro definici vašich pravidel validace?
+  topic: validation
+  type: single
+- alternatives:
+  - email|required
+  answer: required|email
+  difficulty: lehká
+  explanation: Pravidla validace v Laravelu jsou řetězce oddělené svislými čarami. required|email nejprve zkontroluje, že pole je přítomno a není prázdné, poté ověří, že odpovídá formátu e-mailu. Pořadí
+    nemá význam — Laravel vyhodnocuje všechna pravidla nezávisle. Můžete to použít v rules() FormRequest, v metodě $request->validate() nebo na facade Validator.
+  id: vd-002
+  question: Jaké pravidlo validace zajistí, že pole je povinné a musí být platný formát e-mailu?
+  topic: validation
+  type: text
+- answers:
+  - Vložení třídy FormRequest do signatury metody controlleru
+  - Volání $request->validate() uvnitř controlleru
+  - Použití facade Validator::make()
+  difficulty: lehká
+  explanation: 'Laravel nabízí tři hlavní přístupy k validaci: (1) Třídy FormRequest vložené jako parametry metod — automaticky validují před spuštěním controlleru, (2) $request->validate() volané ručně
+    uvnitř controlleru pro rychlou inline validaci, a (3) Validator::make() pro plnou manuální kontrolu včetně vlastního zpracování selhání. Eloquent modely ve výchozím stavu nemají metodu validate().'
+  id: vd-003
+  options:
+  - Použití facade Validator::make()
+  - Volání $request->validate() uvnitř controlleru
+  - Vložení třídy FormRequest do signatury metody controlleru
+  - Volání validate() na Eloquent modelu
+  question: Které z následujících jsou platné způsoby validace příchozích dat v controlleru? (Vyberte všechny možné odpovědi)
+  topic: validation
+  type: multiple
+- answer: Vyvolá ValidationException, která přesměruje zpět s chybami a starými vstupy
+  difficulty: střední
+  explanation: Když $request->validate() selže, Laravel vyvolá ValidationException. U webových požadavků obslužná rutina výjimek automaticky přesměruje zpět na předchozí stránku s chybovými hláškami validace
+    uloženými do session a starými vstupy pro opětovné vyplnění formuláře. U AJAX/XHR požadavků vrátí JSON odpověď se stavovým kódem 422 a chybovými hláškami.
+  id: vd-004
+  options:
+  - Vrátí null z controlleru a nastaví chyby validace na objekt požadavku
+  - Vyvolá obecnou runtime Exception obsahující chybovou hlášku a názvy polí
+  - Vyvolá ValidationException, která přesměruje zpět s chybami a starými vstupy
+  - Vždy vrací JSON odpověď se stavovým kódem 422 bez ohledu na typ požadavku
+  question: Co se stane, když $request->validate() selže v controlleru?
+  topic: validation
+  type: single
+- alternatives:
+  - confirmed:field
+  answer: confirmed
+  difficulty: střední
+  explanation: Pravidlo confirmed zkontroluje, že pole má odpovídající dvojče {field}_confirmation. Například, pokud je vaše pole password, Laravel hledá pole password_confirmation a zajišťuje, že se shodují.
+    To se běžně používá pro změny hesel a formuláře pro ověření e-mailu. Nemusíte specifikovat cílové pole — je to založeno na konvenci.
+  id: vd-005
+  question: Jaké pravidlo validace zajistí, že hodnota jednoho pole musí odpovídat hodnotě jiného pole (např. potvrzení hesla)?
+  topic: validation
+  type: text
+- answer: sometimes přeskočí všechna pravidla validace, pokud pole není přítomno
+  difficulty: střední
+  explanation: sometimes je předpona pravidla, která říká Laravelu, aby přeskočil veškerou validaci pro toto pole, pokud je v požadavku úplně chybí. To je užitečné pro podmíněnou validaci v PATCH požadavcích,
+    kde jsou odeslána pouze některá pole. nullable, na rozdíl od toho, umožňuje přítomnost pole, ale prázdnou hodnotu (null/prázdný řetězec) a stále spouští další pravidla. sometimes zabrání spuštění pravidel
+    úplně, když klíče chybí.
+  id: vd-006
+  options:
+  - sometimes aplikuje svou logiku validace pouze tehdy, když pole obsahuje datový typ řetězec
+  - sometimes přeskočí všechna pravidla validace, pokud pole není přítomno
+  - Mezi těmito dvěma přístupy v Laravelu 13 není skutečný funkční rozdíl
+  - nullable bylo plně zastaralé a odstraněno v vydání frameworku Laravel 13.x
+  question: Proč byste měli použít předponu validace 'sometimes' místo toho, aby bylo pole volitelné s 'nullable'?
+  topic: validation
+  type: single
+- answers:
+  - required_if:field,value
+  - required_with:field
+  - exclude_if:field,value
+  difficulty: střední
+  explanation: Laravel nabízí bohatou podmíněnou validaci. required_if:field,value udělá pole povinné, když jiné pole má konkrétní hodnotu. required_with:field udělá pole povinné, když je jiné pole přítomno.
+    exclude_if:field,value úplně odstraní pole z validace, když je splněna podmínka. nullable není podmíněné — jednoduše umožňuje null/prázdné hodnoty.
+  id: vd-007
+  options:
+  - required_if:field,value
+  - exclude_if:field,value
+  - nullable
+  - required_with:field
+  question: Která z následujících jsou podmíněná pravidla validace, která se spouští na základě jiných vstupních hodnot? (Vyberte všechny možné odpovědi)
+  topic: validation
+  type: multiple
+- answer: unique:users,email,{{$id}}
+  difficulty: těžká
+  explanation: 'Pravidlo unique přijímá parametr pro ignorování jako třetí hodnotu oddělenou čárkami. Syntaxe je unique:table,column,except. Použijete Blade syntaxi {{ }} pro vložení ID aktuálního modelu:
+    unique:users,email,{{$user->id}}. To říká Laravelu, aby přeskočil kontrolu jedinečnosti pro aktuální záznam. Bez toho by aktualizace záznamu selhala, protože kontrola jedinečnosti by našla vlastní stávající
+    hodnotu záznamu.'
+  id: vd-008
+  options:
+  - unique:users,email,except:id
+  - unique:users,email,{{$id}}
+  - unique:users,email,{{ $id }}
+  - unique:users,email,ignore:id
+  question: Při použití pravidla validace 'unique' pro kontrolu proti databázi, jak ignorujete aktuální záznam během operace aktualizace?
+  topic: validation
+  type: single
+- alternatives:
+  - messages()
+  - customMessages
+  answer: messages
+  difficulty: těžká
+  explanation: Ve třídě FormRequest definováním metody messages() můžete přepsat výchozí chybové zprávy ověření. Vracá asociativní pole, kde klíče používají formát 'field.rule' (např. 'email.required' =>
+    'Potřebujeme váš email'). To vám dává polecnou, pravidelnou kontrolu nad chybovými zprávami bez úpravy jazykových souborů.
+  id: vd-009
+  question: Jakou metodu můžete definovat ve třídě FormRequest pro přizpůsobení chybových zpráv pro konkrétní pole a pravidla?
+  topic: validation
+  type: text
+- answers:
+  - validate($attribute, $value, $fail)
+  - message()
+  difficulty: těžká
+  explanation: 'V Laravelu 13.x, vlastní objekty pravidel vytvořené pomocí make:rule implementují dvě metody: validate($attribute, $value, $fail) — která obsahuje vaši logiku ověření (volá $fail(''message'')
+    při selhání), a message() — která vrací výchozí řetězec chybové zprávy. Starší vzor passes() a message() se používal v Laravelu 9 a dříve, ale validate() je nyní standardní přístup.'
+  id: vd-010
+  options:
+  - message()
+  - rules()
+  - validate($attribute, $value, $fail)
+  - passes($attribute, $value)
+  question: Při vytváření vlastního objektu pravidla ověření pomocí 'php artisan make:rule', které dvě metody musíte implementovat? (Vyberte všechny možné)
+  topic: validation
+  type: multiple

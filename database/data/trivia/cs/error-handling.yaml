@@ -1,0 +1,106 @@
+- answer: bootstrap/app.php
+  difficulty: lehká
+  explanation: V Laravel 13.x je zpracování výjimek konfigurováno v `bootstrap/app.php` pomocí metody `$app->withExceptions()`. Předchozí verze používaly `app/Exceptions/Handler.php`, ale Laravel 13 to
+    zjednodušuje tím, že konfiguruje obsluhu výjimek přímo v bootstrapu aplikace. Můžete přizpůsobit chování reportování a vykreslování prostřednictvím closure předané do `withExceptions()`.
+  id: eh-001
+  options:
+  - app/Http/Kernel.php
+  - app/Providers/ExceptionHandlerServiceProvider.php
+  - bootstrap/app.php
+  - app/Exceptions/Handler.php
+  question: Kde Laravel registruje svou logiku zpracování výjimek pro všechny HTTP a konzolové výjimky?
+  topic: error-handling
+  type: single
+- alternatives:
+  - reportable
+  - reportUsing
+  answer: report
+  difficulty: lehká
+  explanation: Uvnitř closure `withExceptions()` vám metoda `report()` (nebo `reportable()`) umožňuje přizpůsobit reportování výjimek. Můžete použít `$exceptions->report(function (SomeException $e) { ...
+    })` k definování vlastní logiky reportování pro konkrétní typy výjimek. Můžete také použít `$exceptions->report()` bez argumentů k přidání globálního reportera, který běží pro každou výjimku.
+  id: eh-002
+  question: Jaká metoda uvnitř closure withExceptions v bootstrap/app.php umožňuje přizpůsobit, jak jsou výjimky reportovány (např. odeslány do logovacích služeb)?
+  topic: error-handling
+  type: text
+- answers:
+  - Výjimka je nahlášena do logu
+  - Výjimka je vykreslena jako HTTP odpověď
+  difficulty: střední
+  explanation: 'Obsluha výjimek v Laravel má dvě fáze: reportování a vykreslování. Každá neošetřená výjimka je nahlášena (zalogována nebo odeslána do nakonfigurovaných služeb) a poté vykreslena jako HTTP
+    odpověď. Pro webové požadavky to má za následek chybovou stránku (podrobná stránka Ignition v lokálním prostředí, nebo obecná chybová stránka v produkci). Aplikace zpracovává výjimku elegantně, namísto
+    toho, aby spadla.'
+  id: eh-003
+  options:
+  - Výjimka je vykreslena jako HTTP odpověď
+  - Obecná stránka 500.html je vrácena uživateli
+  - Aplikace okamžitě ukončí svůj běh
+  - Výjimka je nahlášena do logu
+  question: Co z následujícího se automaticky stane, když v Laravel webové routě nastane neošetřená výjimka? (Vyberte vše, co platí)
+  topic: error-handling
+  type: multiple
+- answer: Použijte $exceptions->dontReport() v bootstrap/app.php
+  difficulty: střední
+  explanation: V `bootstrap/app.php`, uvnitř closure `withExceptions()`, můžete zavolat `$exceptions->dontReport([SomeException::class])` k zabránění reportování konkrétních typů výjimek do logů. Výjimka
+    bude stále vykreslena jako HTTP odpověď uživateli. To je užitečné pro očekávané výjimky, které nepotřebují logování, jako jsou chyby validace nebo scénáře "uživatel nenalezen".
+  id: eh-004
+  options:
+  - Použijte $exceptions->dontReport() v bootstrap/app.php
+  - Zachyťte výjimku v každé metodě controlleru, kde by mohla být vyhozena
+  - Nastavte proměnnou prostředí APP_REPORT_LEVEL v .env pro potlačení reportování výjimek
+  - Vyhoďte výjimku s vlastností 'dont-report' připojenou k instanci
+  question: Jak zabráníte reportování konkrétního typu výjimky do vašich logů, ale stále umožníte její vykreslení uživateli?
+  topic: error-handling
+  type: single
+- answer: Pro převod výjimky na vlastní HTTP odpověď
+  difficulty: střední
+  explanation: Callback `render()` v `withExceptions()` umožňuje přizpůsobit HTTP odpověď odeslanou zpět uživateli pro konkrétní typ výjimky. Například `$exceptions->render(function (ModelNotFoundException
+    $e, $request) { return response()->json(['error' => 'Not found'], 404); })`. To odděluje logiku vykreslování od logiky reportování, což vám dává jemnou kontrolu nad tím, co uživatel vidí.
+  id: eh-005
+  options:
+  - Pro zalogování výjimky do vyhrazeného kanálu s dodatečnými informacemi pro ladění
+  - Pro automatické opakování neúspěšného HTTP požadavku po krátkém konfigurovatelném čekacím období
+  - Pro převod výjimky na vlastní HTTP odpověď
+  - Pro odeslání e-mailové notifikace vývojáři o výjimce, která nastala
+  question: Jaký je účel callbacku 'render' v konfiguraci zpracování výjimek v Laravel?
+  topic: error-handling
+  type: single
+- alternatives:
+  - 404 Not Found
+  answer: '404'
+  difficulty: těžká
+  explanation: Když selže vázání modelu trasy (například při návštěvě `/users/999` a uživatel 999 neexistuje), Laravel vyvolá výjimku `ModelNotFoundException`. Výchozí vykreslovač výjimek převede tuto výjimku
+    na odpověď 404 Not Found. To dává smysl, protože chybějící modelový zdroj je sémanticky ekvivalentní chybějící stránce.
+  id: eh-006
+  question: Jaký HTTP stavový kód Laravel vrátí ve výchozím nastavení, když je během vázání modelu trasy vyvolána výjimka ModelNotFoundException?
+  topic: error-handling
+  type: text
+- answers:
+  - Definování render() callbacks pro specifické typy výjimek v bootstrap/app.php
+  - Vytváření vlastních výjimečných tříd implementujících Responsable
+  - Přepsání metody report() ve vlastní třídě výjimky
+  difficulty: těžká
+  explanation: 'Laravel 13.x podporuje více přístupů k přizpůsobení: (1) render/report callbacky v `bootstrap/app.php`, (2) vlastní výjimky implementující `Responsable` pro definování vlastní odpovědi,
+    (3) přepsání metody `report()` ve třídách výjimek pro vlastní logiku reportování. Registrace vlastní Handler třídy v configu je starší vzor, který se v Laravel 13 již nepoužívá.'
+  id: eh-007
+  options:
+  - Přepsání metody report() ve vlastní třídě výjimky
+  - Definování render() callbacks pro specifické typy výjimek v bootstrap/app.php
+  - Registrace vlastní Handler třídy v config/app.php
+  - Vytváření vlastních výjimečných tříd implementujících Responsable
+  question: Které z následujících jsou platné způsoby přizpůsobení zpracování výjimek v Laravel 13.x? (Vyberte všechny možné odpovědi)
+  topic: error-handling
+  type: multiple
+- answer: Report se zabývá logging/monitoring; render se zabývá generováním HTTP odpovědi
+  difficulty: těžká
+  explanation: Fáze report se týká pozorovatelnosti — logování výjimek, odesílání službám jako Sentry nebo Flare a notifikace vývojářů. Fáze render se týká uživatelského zážitku — převod výjimky na odpovídající
+    HTTP odpověď. Toto oddělení umožňuje nezávisle kontrolovat, co je sledováno, versus co uživatel vidí. Například výjimka validace může být reportována do analytických nástrojů, ale vykreslena jako přátelská
+    chyba formuláře.
+  id: eh-008
+  options:
+  - Report je výhradně pro HTTP výjimky; render je výhradně pro console výjimky
+  - Report se spouští pouze v produkčním prostředí; render se spouští pouze v lokálním vývoji
+  - Neexistuje žádný zásadní rozdíl — jsou to prostě aliasy pro stejný interní proces
+  - Report se zabývá logging/monitoring; render se zabývá generováním HTTP odpovědi
+  question: Jaký je klíčový rozdíl mezi fázemi 'report' a 'render' v zpracování výjimek Laravel?
+  topic: error-handling
+  type: single

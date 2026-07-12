@@ -1,0 +1,385 @@
+- id: sp-001
+  topic: service-providers
+  type: single
+  difficulty: lehká
+  question: Jaká je hlavní role service provideru v Laravelu?
+  options:
+  - Sloužit jako centrální místo pro registraci vazeb, event listenerů a další bootstrapping logiky pro aplikaci
+  - Zpracovávat příchozí HTTP requesty, směrovat je na controllery a vracet odpovídající response klientovi
+  - Kompilovat Blade šablony do cachovaného PHP a spravovat pipeline renderování views pro aplikaci
+  - Spravovat pool databázových připojení, provádět surové SQL dotazy a řídit proces inicializace Eloquent ORM
+  answer: Sloužit jako centrální místo pro registraci vazeb, event listenerů a další bootstrapping logiky pro aplikaci
+  explanation: Service providery jsou srdcem Laravel bootstrapping procesu. Jsou centrálním místem, kde registrujete věci do service containeru, konfigurujete event listenery, nastavujete route a provádíte
+    jakýkoli další bootstrapping, který váš balíček nebo aplikace potřebuje. Každá hlavní funkce Laravelu je registrována přes service provider.
+- id: sp-002
+  topic: service-providers
+  type: single
+  difficulty: lehká
+  question: Které dvě metody musí service provider definovat?
+  options:
+  - register() a boot()
+  - init() a configure()
+  - setup() a tearDown()
+  - bind() a resolve()
+  answer: register() a boot()
+  explanation: Každý service provider musí implementovat metody register() a boot(). Metoda register() slouží k vázání služeb do kontejneru, zatímco metoda boot() slouží k provádění akcí, které závisí na
+    jiných registrovaných službách (jako je registrace event listenerů, route nebo views).
+- id: sp-003
+  topic: service-providers
+  type: text
+  difficulty: lehká
+  question: V jaké metodě service provideru byste měli vázat služby do kontejneru — register() nebo boot()?
+  answer: register
+  alternatives:
+  - register()
+  - metoda register
+  explanation: Metoda register() je určena specificky pro vázání služeb do kontejneru. Měli byste ji používat pouze pro container vazby a nikdy pro přístup k jiným přeloženým službám. To zajistí, že všechny
+    vazby budou na místě, než se jakýkoli provider pokusí použít je ve své metodě boot().
+- id: sp-004
+  topic: service-providers
+  type: multiple
+  difficulty: lehká
+  question: Které z následujících jsou vhodné úkoly k provedení v metodě boot() service provideru?
+  options:
+  - Registrace event listenerů
+  - Vázání rozhraní na implementace v kontejneru
+  - Definování route
+  - Publikování konfiguračních souborů
+  answers:
+  - Registrace event listenerů
+  - Definování route
+  - Publikování konfiguračních souborů
+  explanation: Metoda boot() se spouští po tom, co všichni providéři zaregistrovali své služby, takže je bezpečné přistupovat k jakékoli container vazbě. Můžete registrovat event listenery, definovat route,
+    publikovat prostředky a provádět jakoukoli inicializaci, která závisí na registrovaných službách. Container vazby by měly jít do metody register().
+- id: sp-005
+  topic: service-providers
+  type: single
+  difficulty: lehká
+  question: Kde se nachází výchozí AppServiceProvider v Laravel aplikaci?
+  options:
+  - bootstrap/AppServiceProvider.php
+  - app/Providers/AppServiceProvider.php
+  - app/Http/Kernel/AppServiceProvider.php
+  - config/providers/app_provider.php
+  answer: app/Providers/AppServiceProvider.php
+  explanation: Laravel automaticky vygeneruje AppServiceProvider v adresáři app/Providers. Slouží jako pohodlné místo pro přidání globálních vazeb service containeru a boot logiky. V Laravel 13.x jsou providéři
+    registrováni v bootstrap/app.php pomocí metody withProviders().
+- id: sp-006
+  topic: service-providers
+  type: text
+  difficulty: lehká
+  question: Jaká vlastnost service provideru vám poskytuje přístup k instanci application/container?
+  answer: $app
+  alternatives:
+  - app
+  - $this->app
+  - this->app
+  explanation: Každý service provider má chráněnou vlastnost $app, která obsahuje instanci aplikace (kontejneru). Přistupujete k ní přes $this->app v rámci metod provideru. Tímto způsobem vážete služby,
+    překládáte závislosti a interagujete se zbytkem frameworku.
+- id: sp-007
+  topic: service-providers
+  type: single
+  difficulty: lehká
+  question: Co se stane, když se pokusíte přeložit službu z kontejneru uvnitř metody register() provideru, která byla vázána jiným providerem?
+  options:
+  - Kontejner automaticky odloží překlad, dokud nebudou zaregistrováni všichni providéři
+  - Vyhodí BindingResolutionException, protože vazba ještě není k dispozici
+  - Může to selhat, protože druhý provider možná ještě nebyl zaregistrován
+  - Funguje to normálně, protože všichni providéři jsou načteni paralelně před jakýmkoli překladem
+  answer: Může to selhat, protože druhý provider možná ještě nebyl zaregistrován
+  explanation: Metoda register() by se měla používat pouze pro vázání, nikoli pro překlad. Vzhledem k tomu, že providéři jsou registrováni postupně, metoda register() nemá záruku, že jiný provider již zaregistroval
+    své vazby. Pokud potřebujete použít přeloženou službu, udělejte to v metodě boot(), kde jsou všechny registrace dokončeny.
+- id: sp-008
+  topic: service-providers
+  type: multiple
+  difficulty: lehká
+  question: Které z následujících jsou výchozí service providéři zahrnuté v nové Laravel aplikaci?
+  options:
+  - BroadcastServiceProvider
+  - RouteServiceProvider
+  - AuthServiceProvider
+  - AppServiceProvider
+  answers:
+  - AppServiceProvider
+  - RouteServiceProvider
+  - BroadcastServiceProvider
+  - AuthServiceProvider
+  explanation: 'Čerstvá Laravel instalace obsahuje několik hlavních service providerů: AppServiceProvider (obecné vazby), RouteServiceProvider (načítání route), AuthServiceProvider (autentizační gates a
+    policies), BroadcastServiceProvider (broadcasting kanály) a EventServiceProvider (registrace event listenerů). V Laravel 13.x jsou tyto automaticky objeveny.'
+- id: sp-009
+  topic: service-providers
+  type: text
+  difficulty: lehká
+  question: Jaký CLI příkaz vytvoří nový soubor třídy service provideru?
+  answer: php artisan make:provider
+  alternatives:
+  - artisan make:provider
+  - php artisan make:provider ProviderName
+  - artisan make:provider ProviderName
+  explanation: Příkaz 'php artisan make:provider ProviderName' vygeneruje novou třídu service provideru v adresáři app/Providers. Vygenerovaná třída rozšiřuje Illuminate\Support\ServiceProvider a obsahuje
+    prázdné metody register() a boot() připravené k vyplnění vašimi vazbami a bootstrapping logikou.
+- id: sp-010
+  topic: service-providers
+  type: single
+  difficulty: střední
+  question: Proč byste mohli chtít nastavit service provider jako 'deferred'?
+  options:
+  - Pro odložení načítání služeb provideru, dokud nejsou skutečně potřeba, a zlepšení výkonu
+  - Pro zabránění cachování provideru pomocí artisan config:cache, aby byl vždy znovu registrován při každém requestu
+  - Pro spuštění provideru po dokončení boot fáze všech ostatních providerů, s vynucením přísného pořadí načítání
+  - Pro umožnění zakázání provideru za běhu bez změn kódu, pomocí feature flagu nebo kontroly proměnné prostředí
+  answer: Pro odložení načítání služeb provideru, dokud nejsou skutečně potřeba, a zlepšení výkonu
+  explanation: Deferred providéři se nenačítají během boot fáze aplikace. Místo toho Laravel registruje pouze služby, které provider deklaruje, že poskytuje. Když je jedna z těchto služeb poprvé přeložena,
+    provider je načten a jeho metoda register() se provede. To výrazně zkracuje boot čas u velkých aplikací s mnoha providery.
+- id: sp-011
+  topic: service-providers
+  type: single
+  difficulty: střední
+  question: Co musí deferred service provider definovat, aby Laravel věděl, které služby spouští jeho načtení?
+  options:
+  - Vlastnost $triggers s closure callbacky, které určují, kdy má být provider načten do kontejneru
+  - Metodu loadWhen() s podmíněnou logikou, která vyhodnocuje prostředí nebo konfiguraci pro rozhodnutí o načtení
+  - Vlastnost $bindings seznamující všechny registrované abstracts, které kontejner používá pro párování překladu závislostí
+  - Metodu provides() vracející pole service container abstracts, které provider registruje
+  answer: Metodu provides() vracející pole service container abstracts, které provider registruje
+  explanation: Deferred provider musí implementovat metodu provides(), která vrací pole container abstracts (klíčů vazeb), které tento provider registruje. Když je některý z těchto abstracts přeložen, Laravel
+    načte provider, spustí jeho metody register() a boot() a pak dokončí překlad.
+- id: sp-012
+  topic: service-providers
+  type: text
+  difficulty: střední
+  question: V Laravel 13.x, jaká metoda se volá na Application builderu v bootstrap/app.php pro registraci service providerů?
+  answer: withProviders
+  alternatives:
+  - withProviders()
+  - withProviders()
+  explanation: V Laravel 13.x jsou service providéři registrováni přes metodu withProviders() v řetězci Application::configure() v souboru bootstrap/app.php. Toto nahrazuje starší přístup se seznamováním
+    providerů v config/app.php a zjednodušuje konfiguraci do jednoho fluent volání metody.
+- id: sp-013
+  topic: service-providers
+  type: multiple
+  difficulty: střední
+  question: Které z následujících jsou platné důvody pro rozdělení vazeb napříč více service providery místo umístění všeho do AppServiceProvider?
+  options:
+  - Pro umožnění odložení konkrétních providerů pro lepší výkon
+  - Pro usnadnění testování aplikace izolací odpovědností
+  - Protože AppServiceProvider má maximální limit vazeb
+  - Pro uspořádání souvisejících vazeb podle domény nebo funkce
+  answers:
+  - Pro uspořádání souvisejících vazeb podle domény nebo funkce
+  - Pro umožnění odložení konkrétních providerů pro lepší výkon
+  - Pro usnadnění testování aplikace izolací odpovědností
+  explanation: Uspořádání providerů podle domény (např. PaymentServiceProvider, NotificationServiceProvider) zlepšuje udržovatelnost kódu, umožňuje deferred načítání pro nepodstatné služby a usnadňuje testování
+    tím, že umožňuje jemně odstupňovanou kontrolu nad tím, které služby jsou k dispozici. Neexistuje žádný maximální limit vazeb — jde čistě o rozhodnutí o návrhu.
+- id: sp-014
+  topic: service-providers
+  type: single
+  difficulty: střední
+  question: Jaký je rozdíl mezi 'deferred' providerem a 'lazy' providerem v Laravelu?
+  options:
+  - Deferred providéři jsou načítáni, když je přeložena registrovaná služba; v Laravelu neexistuje samostatný koncept 'lazy' provideru
+  - Jsou to totéž pod různými názvy a Laravel podporuje oba termíny zaměnitelně v dokumentaci
+  - Lazy providéři se načítají při každém requestu, ale zpožďují svou metodu boot(); deferred providéři přeskočí register i boot
+  - Lazy providéři používají dekorátor vzor, zatímco deferred providéři používají proxy vzor pro překlad služeb
+  answer: Deferred providéři jsou načítáni, když je přeložena registrovaná služba; v Laravelu neexistuje samostatný koncept 'lazy' provideru
+  explanation: Laravel používá termín 'deferred' pro providery, které se načítají na vyžádání. Ve frameworku neexistuje samostatný typ 'lazy' provideru. Metody register() a boot() deferred provideru se
+    provedou pouze tehdy, když je jedna z jeho deklarovaných služeb skutečně přeložena z kontejneru. To je jediná forma lazy načítání pro providery.
+- id: sp-015
+  topic: service-providers
+  type: single
+  difficulty: střední
+  question: Jak funguje auto-discovery providerů v Laravelu pro service providery balíčků?
+  options:
+  - Prohledá všechny PHP soubory v vendor/ a hledá třídy rozšiřující základní třídu ServiceProvider pro jejich automatickou registraci
+  - Providéři jsou objevováni přes soubor providers.config.php v každém balíčku, který uvádí všechny dostupné service providery
+  - Framework automaticky registruje jakoukoli třídu nalezenou v namespace Providers v adresářové struktuře aplikace
+  - Balíčky definují své providery v klíči 'providers' v sekci extra jejich composer.json
+  answer: Balíčky definují své providery v klíči 'providers' v sekci extra jejich composer.json
+  explanation: Laravel auto-discovery balíčků čte pole 'extra.laravel.providers' z composer.json každého nainstalovaného balíčku. Tyto providéři jsou automaticky registrováni bez nutnosti ručního přidávání
+    do bootstrap/app.php nebo config/app.php. To zjednodušuje instalaci balíčků — stačí composer require a provider je registrován.
+- id: sp-016
+  topic: service-providers
+  type: text
+  difficulty: střední
+  question: Jaký artisan příkaz vám umožní zobrazit seznam všech registrovaných service providerů, včetně toho, zda jsou deferred?
+  answer: php artisan package:discover
+  alternatives:
+  - artisan package:discover
+  explanation: Příkaz 'php artisan package:discover' zobrazuje všechny auto-discovered balíčky a jejich service providery. Přestože nezobrazuje všechny ručně registrované providery, odhaluje auto-discovery
+    mechanismus. Pro zobrazení všech načtených providerů můžete programově inspektovat $app->getLoadedProviders().
+- id: sp-017
+  topic: service-providers
+  type: single
+  difficulty: střední
+  question: Jaký je důsledek volání $this->app->make() uvnitř metody register() provideru pro překlad vazby z jiného provideru?
+  options:
+  - Laravel automaticky odloží překlad až do boot fáze, čímž zajistí, že všichni providéři dokončili registraci
+  - Funguje to, ale je to považováno za špatnou praxi, protože metoda register() druhého provideru možná ještě neběžela
+  - Ticho vrátí null a zapíše varování do souboru storage/logs/laravel.log pro pozdější ladění
+  - Způsobí fatální chybu PHP, která shodí aplikaci a okamžitě ukončí aktuální request
+  answer: Funguje to, ale je to považováno za špatnou praxi, protože metoda register() druhého provideru možná ještě neběžela
+  explanation: Přestože překlad v register() může fungovat, pokud byl druhý provider náhodou zaregistrován jako první, je nespolehlivý, protože pořadí registrace providerů není zaručeno tak, aby odpovídalo
+    pořadí závislostí. Metoda register() by měla pouze vázat služby. Pokud potřebujete přeložit a použít službu, udělejte to v metodě boot(), kde jsou všechny registrace zaručeně dokončeny.
+- id: sp-018
+  topic: service-providers
+  type: multiple
+  difficulty: střední
+  question: Které z následujících jsou pravdivé ohledně toho, jak Laravel zpracovává pořadí načítání service providerů?
+  options:
+  - Metody boot() jsou volány ve stejném pořadí jako metody register()
+  - Metody register() všech providerů jsou volány před metodou boot() jakéhokoli provideru
+  - RouteServiceProvider se vždy bootuje před AppServiceProvider
+  - Metody register() a boot() deferred providerů jsou přeskočeny během počátečního bootu
+  answers:
+  - Metody register() všech providerů jsou volány před metodou boot() jakéhokoli provideru
+  - Metody boot() jsou volány ve stejném pořadí jako metody register()
+  - Metody register() a boot() deferred providerů jsou přeskočeny během počátečního bootu
+  explanation: Laravel nejprve zavolá metody register() všech non-deferred providerů v pořadí, pak zavolá jejich metody boot() ve stejném pořadí. Deferred providéři jsou během bootu kompletně přeskočeni.
+    RouteServiceProvider nemá zaručené pořadí bootování vzhledem k AppServiceProvider — záleží na pořadí registrace.
+- id: sp-019
+  topic: service-providers
+  type: text
+  difficulty: střední
+  question: Jaká metoda na service provideru se používá pro publikování konfigurace, migrací nebo view souborů z balíčku do aplikace?
+  answer: publishes
+  alternatives:
+  - publishes()
+  - $this->publishes()
+  explanation: Metoda publishes() registruje prostředky (konfigurační soubory, migrace, views atd.), které mohou být publikovány do aplikace pomocí 'php artisan vendor:publish'. Určíte zdrojovou cestu a
+    volitelný group tag. To umožňuje uživatelům balíčku přizpůsobit konfigurovatelné prostředky balíčku bez úpravy zdrojových souborů balíčku.
+- id: sp-020
+  topic: service-providers
+  type: single
+  difficulty: střední
+  question: Kdy byste měli použít vyhrazený RouteServiceProvider místo registrace route v AppServiceProvider?
+  options:
+  - Když potřebujete řídit cachování route, registrovat route middleware nebo organizovat route do samostatných souborů
+  - Když používáte Laravel Eloquent ORM pro definice databázových modelů a správu vztahů ve vaší aplikaci
+  - Pouze při tvorbě balíčků, ne aplikací, protože balíčky potřebují izolovanou správu route pro distribuci
+  - Když máte více než 5 route, které vyžadují různé strategie cachování nebo konfigurace middleware
+  answer: Když potřebujete řídit cachování route, registrovat route middleware nebo organizovat route do samostatných souborů
+  explanation: 'RouteServiceProvider poskytuje specializované metody pro route-related bootstrapping: konfiguraci route middleware, definování route vzorů a načítání route souborů způsobem kompatibilním
+    s route caching. Přestože můžete registrovat route v jakémkoli provideru, RouteServiceProvider poskytuje správnou strukturu pro správu route.'
+- id: sp-021
+  topic: service-providers
+  type: multiple
+  difficulty: střední
+  question: Které z následujících jsou platné způsoby, jak zabránit auto-discovery service provideru balíčku v Laravelu?
+  options:
+  - Použití 'php artisan package:discover --ignore=package/name'
+  - Přidání balíčku do 'dont-discover' v sekci extra souboru composer.json
+  - Přidání provideru do pole 'providers' v bootstrap/app.php nezabraňuje discovery
+  - Smazání třídy provideru z adresáře vendor
+  answers:
+  - Přidání balíčku do 'dont-discover' v sekci extra souboru composer.json
+  - Použití 'php artisan package:discover --ignore=package/name'
+  explanation: Auto-discovery můžete zabránit přidáním balíčku do pole 'extra.laravel.dont-discover' v composer.json vaší aplikace, nebo pomocí flagu --ignore s příkazem package:discover. Mazání souborů
+    vendor by se rozbilo při composer update a ruční přidávání providerů discovery nezakáže.
+- id: sp-022
+  topic: service-providers
+  type: single
+  difficulty: střední
+  question: Co je třída 'DeferredProvider' v Laravelu a kdy se používá?
+  options:
+  - Je to speciální typ provideru používaný pouze pro queue workery, který inicializuje pipeline zpracování jobů
+  - Je to middleware, který odkládá načítání provideru až po úplném ověření session uživatelským autentizačním guardem
+  - Je to základní třída pro všechny deferred providery, kterou musí rozšiřovat místo standardní třídy ServiceProvider
+  - Je to interní wrapper třída, kterou kontejner používá k reprezentaci deferred provideru před jeho načtením
+  answer: Je to interní wrapper třída, kterou kontejner používá k reprezentaci deferred provideru před jeho načtením
+  explanation: Když je deferred provider zaregistrován, Laravel ho zabalí do interní třídy DeferredProvider. Tento wrapper ukládá název třídy provideru a služby, které poskytuje. Když je jedna z těchto
+    služeb přeložena, wrapper instanciuje skutečný provider a spustí jeho metody register() a boot().
+- id: sp-023
+  topic: service-providers
+  type: text
+  difficulty: střední
+  question: Jakou vlastnost můžete nastavit na true ve třídě service provideru, abyste určili, že jeho služby se mají načítat pouze podle potřeby?
+  answer: $defer
+  alternatives:
+  - defer
+  - protected $defer = true
+  explanation: Nastavení chráněné vlastnosti $defer = true na service provideru jej označí jako deferred. Při true se metody register() a boot() provideru nespustí během boot fáze aplikace. Místo toho se
+    provedou pouze tehdy, když je jedna ze služeb uvedených v metodě provides() přeložena z kontejneru.
+- id: sp-024
+  topic: service-providers
+  type: single
+  difficulty: těžká
+  question: Pokud metoda boot() deferred provideru registruje event listenery a provider je načten uprostřed requestu, zachytí tyto listenery eventy dispatchnuté před načtením provideru?
+  options:
+  - Ne, eventy dispatchnuté před spuštěním metody boot() provideru nebudou zachyceny jeho listenery
+  - Ano, protože event listenery jsou vždy registrovány synchronně před tím, než může framework dispatchnout jakékoli eventy
+  - Záleží na tom, zda jsou eventy dispatchnuty pomocí dispatch() nebo dispatchSync() a na úrovni priority provideru
+  - Ano, protože Laravel přehraje všechny dříve dispatchnuté eventy nově registrovaným listenerům po dokončení bootu
+  answer: Ne, eventy dispatchnuté před spuštěním metody boot() provideru nebudou zachyceny jeho listenery
+  explanation: Event listenery jsou registrovány, když se spustí metoda boot(). Pokud byl event dispatchnut před načtením a bootováním deferred provideru, tyto listenery ještě neexistují a nezachytí event.
+    To je důležitá úvaha při odlaďování providerů — ujistěte se, že žádné eventy, na které naslouchají, nejsou dispatchnuty předtím, než může být provider načten.
+- id: sp-025
+  topic: service-providers
+  type: multiple
+  difficulty: těžká
+  question: V Laravel 13.x, které z následujících správně popisují, jak funguje cachování providerů v interakci s životním cyklem aplikace?
+  options:
+  - Spuštění 'php artisan package:discover' generuje cache soubor bootstrap/cache/packages.php
+  - Po cachování přidání nového balíčku vyžaduje opětovné spuštění 'php artisan package:discover' nebo vymazání cache
+  - Cached seznam providerů se používá místo skenování composer.json souborů při každém requestu
+  - Cachování providerů ovlivňuje pouze auto-discovered balíčky, nikoli ručně registrované providery
+  answers:
+  - Spuštění 'php artisan package:discover' generuje cache soubor bootstrap/cache/packages.php
+  - Cached seznam providerů se používá místo skenování composer.json souborů při každém requestu
+  - Po cachování přidání nového balíčku vyžaduje opětovné spuštění 'php artisan package:discover' nebo vymazání cache
+  - Cachování providerů ovlivňuje pouze auto-discovered balíčky, nikoli ručně registrované providery
+  explanation: Laravel cachuje seznam auto-discovered package providerů v bootstrap/cache/packages.php. Tím se vyhne skenování všech composer.json souborů při každém requestu. Po instalaci nového balíčku
+    musíte znovu spustit package:discover nebo vymazat cache. Ručně registrovaní providéři v bootstrap/app.php nejsou touto cache nikdy ovlivněni.
+- id: sp-026
+  topic: service-providers
+  type: single
+  difficulty: těžká
+  question: Jaká je běžná architektonická chyba, když metoda boot() service provideru provádí náročné operace jako velké databázové dotazy?
+  options:
+  - Náročné operace se spouští při každém requestu, i když služby, které konfigurují, nejsou nikdy použity
+  - Laravel automaticky odkládá metody boot(), které trvají příliš dlouho, a přesouvá je na background queue pro asynchronní zpracování
+  - Dotazy jsou automaticky cachovány Laravelem, takže nemají žádný dopad na výkon při následných requestech aplikace
+  - Metoda boot() je volána pouze jednou a pak cachována, takže nemá žádný dopad na celkový životní cyklus requestu
+  answer: Náročné operace se spouští při každém requestu, i když služby, které konfigurují, nejsou nikdy použity
+  explanation: Metody boot() non-deferred providerů se spouštějí při každém jednotlivém requestu. Pokud boot() provádí náročné operace (těžké DB dotazy, API volání, čtení souborů), tato cena je zaplacena
+    bez ohledu na to, zda request skutečně používá tyto služby. Řešením je buď provider odložit (defer), přesunout náročnou logiku do samotné služby (lazy loading), nebo zajistit, aby operace byla skutečně
+    potřeba při každém requestu.
+- id: sp-027
+  topic: service-providers
+  type: text
+  difficulty: těžká
+  question: Jak se jmenuje event, který se spustí po bootování všech service providerů, a na který můžete naslouchat přes $app->booted()?
+  answer: booted
+  alternatives:
+  - App\Events\Booted
+  - Událost booted aplikace
+  explanation: Třída Application spouští event 'booted' po dokončení metody boot() všech service providerů. Můžete registrovat callbacky přes $app->booted(function() { ... }) pro spuštění kódu, který závisí
+    na tom, že je celá aplikace plně bootstrappována. To je užitečné pro úkoly, které vyžadují kompletní kontext aplikace.
+- id: sp-028
+  topic: service-providers
+  type: single
+  difficulty: těžká
+  question: Jak může service provider podmíněně registrovat své vazby na základě prostředí aplikace (např. pouze v produkci)?
+  options:
+  - Použitím příkazu if v metodě register() s kontrolou $this->app->environment()
+  - Nastavením vlastnosti $environments na třídě provideru, která uvádí povolená prostředí pro registraci
+  - Service providéři nemohou být podmíněně načítáni na základě prostředí, protože všichni providéři musí být vždy zaregistrováni
+  - Přidáním provideru do pole 'production' v config/app.php pro omezení pouze na produkční prostředí
+  answer: Použitím příkazu if v metodě register() s kontrolou $this->app->environment()
+  explanation: Můžete použít $this->app->environment('production') uvnitř metody register() nebo boot() pro podmíněné provedení vazeb. Přestože neexistuje vestavěné filtrování providerů na základě prostředí,
+    tento vzor se běžně používá pro registraci různých implementací služeb nebo konfigurací na základě aktuálního prostředí.
+- id: sp-029
+  topic: service-providers
+  type: multiple
+  difficulty: těžká
+  question: Při vytváření znovupoužitelného Laravel balíčku, které z následujících jsou osvědčené postupy pro jeho service provider?
+  options:
+  - Použití metody provides() a zvážení nastavení provideru jako deferred
+  - Registrace všech route, views a migrací přímo v register() pro maximální výkon
+  - Poskytnutí rozumných výchozích hodnot, ale umožnění přepsání veškeré konfigurace přes publikované konfigurační soubory
+  - Použití metody publishes() s výstižnými group tags pro organizovaný výstup vendor:publish
+  answers:
+  - Poskytnutí rozumných výchozích hodnot, ale umožnění přepsání veškeré konfigurace přes publikované konfigurační soubory
+  - Použití metody provides() a zvážení nastavení provideru jako deferred
+  - Použití metody publishes() s výstižnými group tags pro organizovaný výstup vendor:publish
+  explanation: Dobří package providéři poskytují výchozí hodnoty, podporují deferred pro výkon, používají tagované publishes pro organizaci a udržují registrace v příslušné metodě (vazby v register(), vše
+    ostatní v boot()). Route, views a migrace by měly být registrovány v boot(), nikoli v register(), protože mohou záviset na službách kontejneru.

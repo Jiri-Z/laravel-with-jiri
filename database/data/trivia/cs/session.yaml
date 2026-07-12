@@ -1,0 +1,133 @@
+- answer: config/session.php — spravuje ovladače relace, životnost a další nastavení související s relací
+  difficulty: lehká
+  explanation: Soubor config/session.php řídí všechna nastavení související s relací v Laravelu, včetně ovladače relace (file, database, redis, atd.), životnosti relace, názvu cookie, cesty, domény a nastavení
+    šifrování. Zde přizpůsobujete, jak se relace chovají v vaší aplikaci.
+  id: ss-001
+  options:
+  - config/session.php — spravuje ovladače relace, životnost a další nastavení související s relací
+  - config/auth.php — zpracovává ověřovací stráže, poskytovatele a nastavení obnovení hesla
+  - config/app.php — spravuje nastavení na úrovni aplikace, jako jsou časové pásmo, locale a ladění
+  - config/cache.php — konfiguruje úložiště cache, výchozí ovladač cache a prefix cache
+  question: Který konfigurační soubor řídí nastavení relace v Laravelu, včetně ovladače a životnosti?
+  topic: session
+  type: single
+- alternatives:
+  - ovladač file
+  answer: file
+  difficulty: lehká
+  explanation: Výchozím ovladačem relace v Laravelu je file, který ukládá data relace do adresáře storage/framework/sessions/. To je pro většinu jednoserverových aplikací dostatečné. Pro distribuované aplikace
+    byste přepnuli na ovladače database, redis, memcached nebo dynamodb, aby mohly relace být sdíleny napříč více servery.
+  id: ss-002
+  question: Jaký je výchozí ovladač relace používaný v nové instalaci Laravelu?
+  topic: session
+  type: text
+- answers:
+  - file
+  - cookie
+  - database
+  - redis
+  difficulty: lehká
+  explanation: 'Laravel dodává několik ovladačů relace: file (systém souborů), cookie (šifrované cookies na klientovi), database (tabulka relační databáze), redis, memcached, dynamodb, array (v paměti,
+    pro testování) a null (žádná relace). Každý ovladač má různé kompromisy z hlediska výkonu, škálovatelnosti a zabezpečení.'
+  id: ss-003
+  options:
+  - cookie
+  - database
+  - file
+  - redis
+  question: Které z následujících jsou plat vestavěné ovladače relace v Laravelu 13.x? (Vyberte všechny, které platí)
+  topic: session
+  type: multiple
+- answer: Data cookie se ukládají do prohlížeče klienta a potenciálně mohou být dešifrovány
+  difficulty: střední
+  explanation: Ovladač cookie relace šifruje všechna data relace před uložením do cookie v prohlížeči klienta. Avšak, protože šifrovaný payload je uložen na straně klienta, zůstává na zařízení uživatele.
+    I když je šifrování Laravelu (AES-256-CBC) silné, nejlepší praxí je vyhnout se ukládání vysoce citlivých přihlašovacích údajů do jakéhokoli úložiště na straně klienta. Porušení šifrovacího klíče by
+    odhalila všechna data relace.
+  id: ss-004
+  options:
+  - Ovladač cookie ukládá data relace bez jakéhokoli šifrování
+  - Cookies mají přísný limit velikosti 4 KB, který brání ukládání velkých payloadů relace
+  - Cookies vyprší po pevném časovém okně 30 minut bez ohledu na jakékoli nastavení životnosti
+  - Data cookie se ukládají do prohlížeče klienta a potenciálně mohou být dešifrovány
+  question: Proč byste nikdy neměli ukládat hesla nebo citlivé tokeny do relace při použití ovladače relace 'cookie'?
+  topic: session
+  type: single
+- alternatives:
+  - artisan session:table
+  answer: php artisan session:table
+  difficulty: střední
+  explanation: Spuštění php artisan session:table vytvoří migraci, která přidá tabulku sessions s sloupci pro id, user_id, ip_address, user_agent, payload, last_activity a příslušné indexy. Po spuštění
+    migrace můžete v souboru .env nastavit SESSION_DRIVER=database pro ukládání relací do databáze.
+  id: ss-005
+  question: Jaký Artisan příkaz generuje migrační soubor potřebný pro použití ovladače relace 'database'?
+  topic: session
+  type: text
+- answers:
+  - $request->session()->put('key', 'value')
+  - session(['key' => 'value'])
+  difficulty: střední
+  explanation: put() a globální pomocná funkce session() s polem argumentů ukládají data trvale – zůstávají v relaci, dokud nejsou explicitně odstraněny. flash() ukládá data pouze pro další požadavek (pak
+    se automaticky smaže) a now() ukládá data pouze pro aktuální požadavek (není dostupné ani pro další požadavek). Porozumění těmto rozdílům v životnosti je klíčové pro správné zpracování zpráv flash.
+  id: ss-006
+  options:
+  - $request->session()->flash('key', 'value')
+  - session(['key' => 'value'])
+  - $request->session()->now('key', 'value')
+  - $request->session()->put('key', 'value')
+  question: Které z následujících metod relace uloží data, která přetrvávají i po dalším požadavku? (Vyberte všechny, které platí)
+  topic: session
+  type: multiple
+- answer: flash() přetrvává pro další požadavek; now() existuje pouze v aktuálním požadavku
+  difficulty: střední
+  explanation: flash() ukládá data relace, která budou dostupná v aktuálním a dalším požadavku, a poté se automaticky odstraní. To je ideální pro stavové zprávy po přesměrováních. now() ukládá data pouze
+    pro životnost aktuálního požadavku – nebudou dostupné v následujících požadavcích. To je užitečné pro dočasná data, která potřebujete v rámci stejného cyklu požadavku.
+  id: ss-007
+  options:
+  - flash() přetrvává pro další požadavek; now() existuje pouze v aktuálním požadavku
+  - now() přetrvává pro další požadavek; flash() existuje pouze v aktuálním požadavku
+  - Mezi těmito dvěma metodami není významný rozdíl – slouží jako zaměnitelné aliasy
+  - flash() šifruje data relace před uložením, zatímco now() ukládá data v prostém textu
+  question: Jaký je rozdíl mezi session()->flash() a session()->now()?
+  topic: session
+  type: single
+- answer: Aby mohli správci dotazovat a neplatnit všechny relace pro konkrétního uživatele
+  difficulty: těžká
+  explanation: Sloupec user_id v tabulce relací umožňuje cílit na relace konkrétního uživatele. To je klíčové pro funkce jako 'odhlásit ze všech ostatních zařízení' nebo vynucení změny hesla zneplatněním
+    všech existujících relací pro uživatele. Můžete dotazovat DB::table('sessions')->where('user_id', $userId)->delete(), abyste toho dosáhli. Není to o vynucení jedné relace nebo výkonu.
+  id: ss-008
+  options:
+  - Zrychlení dotazů na načítání relace poskytnutím sekundárního databázového indexu na user_id
+  - Aby mohli správci dotazovat a neplatnit všechny relace pro konkrétního uživatele
+  - A vynutit přísnou politiku jedné relace, aby každý uživatel mohl mít pouze jednu aktivní relaci
+  - A automaticky obnovit předchozí data relace uživatele po úspěšném ověření
+  question: Když se používá ovladač relace 'database', proč Laravel ukládá user_id do tabulky relací, když je uživatel ověřen?
+  topic: session
+  type: single
+- alternatives:
+  - keep
+  - session()->reflash
+  - session()->keep
+  answer: reflash
+  difficulty: těžká
+  explanation: Obě metody reflash() a keep() brání smazání flash dat. Metoda reflash() uchová všechny aktuálně flashované hodnoty pro další požadavek. Metoda keep(['key']) je selektivnější — uchová pouze
+    zadané klíče. To je užitečné v vícekrokových průvodcích formulářemi, kde potřebujete, aby flash data přetrvala přes několik cyklů přesměrování.
+  id: ss-009
+  question: Jaká metoda na instanci session udržuje flashovanou hodnotu naživu pro jeden další požadavek, čímž brání její automatickému smazání?
+  topic: session
+  type: text
+- answers:
+  - StartSession
+  - EncryptCookies
+  difficulty: těžká
+  explanation: Middleware StartSession (který čte/zapisuje session data) a middleware EncryptCookies (který dešifruje Laravel session cookie předtím, než session začne) musí být oba přítomny v middleware
+    stacku, aby sessions správně fungovaly. Bez EncryptCookies nelze dešifrovat session ID cookie. Bez StartSession se session nikdy neinicializuje. VerifyCsrfToken používá session, ale pro samotnou funkčnost
+    session není vyžadován.
+  id: ss-010
+  options:
+  - StartSession
+  - EncryptCookies
+  - Authenticate
+  - VerifyCsrfToken
+  question: Které middleware musí být přítomno na vaší route, aby $request->session() správně fungovalo? (Vyberte všechny možnosti)
+  topic: session
+  type: multiple

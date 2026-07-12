@@ -1,0 +1,130 @@
+- answer: Vite
+  difficulty: lehká
+  explanation: Laravel 13.x dodává Vite jako výchozí nástroj pro balení assetů. Vite nahradil Laravel Mix (který byl založen na Webpacku) od verze Laravel 9.x. Vite nabízí výrazně rychlejší hot module
+    replacement (HMR) a modernější vývojový zážitek ve srovnání s řešeními založenými na Webpacku.
+  id: ab-001
+  options:
+  - Parcel
+  - Vite
+  - esbuild directly
+  - Webpack via Laravel Mix
+  question: Který nástroj používá Laravel 13.x jako výchozí nástroj pro balení assetů?
+  topic: asset-bundling
+  type: single
+- alternatives:
+  - vite.config.ts
+  answer: vite.config.js
+  difficulty: lehká
+  explanation: Konfigurace Vite v Laravelu se nachází v vite.config.js (nebo vite.config.ts pro projekty v TypeScriptu) v kořenovém adresáři projektu. Tento soubor definuje vstupní body, pluginy (jako laravel-vite-plugin)
+    a jakákoli Vite-specifická nastavení jako hostitel serveru nebo aliasy.
+  id: ab-002
+  question: Jak se jmenuje JavaScript konfigurační soubor, který Laravel používá ke konfiguraci Vite v kořenovém adresáři projektu?
+  topic: asset-bundling
+  type: text
+- answer: '@vite'
+  difficulty: lehká
+  explanation: Direktiva @vite v rendruje potřebné <script> a <link> tagy pro načtení vašich assetů spravovaných Vitem. V režimu vývoje odkazuje na Vite vývojový server pro HMR. V produkci načítá verze
+    s hashem názvů souborů z adresáře build pro prolomení cache.
+  id: ab-003
+  options:
+  - '@webpack'
+  - '@vite'
+  - '@mix'
+  - '@assets'
+  question: Jaká Blade direktiva se používá pro načítání Vite-spravovaných CSS a JavaScript assetů v Laravel layoutu?
+  topic: asset-bundling
+  type: single
+- answers:
+  - resources/css/app.css
+  - resources/js/app.js
+  difficulty: střední
+  explanation: Výchozí konfigurace Vite v Laravelu registruje resources/css/app.css a resources/js/app.js jako vstupní body. Tyto soubory jsou importovány direktivou @vite. Adresář resources/ je konvenční
+    umístění pro zdrojové assety, ne public/ nebo assets/.
+  id: ab-004
+  options:
+  - resources/js/app.js
+  - assets/js/main.js
+  - public/css/app.css
+  - resources/css/app.css
+  question: Které z následujících jsou platné výchozí vstupní body nakonfigurované ve standardní Laravel Vite instalaci?
+  topic: asset-bundling
+  type: multiple
+- alternatives:
+  - npm run prod
+  answer: npm run build
+  difficulty: střední
+  explanation: Spuštění npm run build spustí Vite v produkčním režimu, který minifikuje, provádí tree-shaking a exportuje vaše assety do adresáře public/build s hashi v názvech souborů. To zajišťuje dlouhodobé
+    prolomení cache. Starší příkaz npm run prod se používal s Laravel Mix, ale npm run build je ekvivalent pro Vite.
+  id: ab-005
+  question: Jaký npm příkaz spustíte pro kompilaci a verzi vašich assetů pro produkci v Laravel projektu používajícím Vite?
+  topic: asset-bundling
+  type: text
+- answer: To není nutné — stačí odkázat pouze na vstupní bod JS
+  difficulty: střední
+  explanation: Pokud váš JavaScript vstupní bod již importuje váš CSS (např. import './bootstrap.css'), stačí odkázat pouze na JS soubor v direktivě @vite. Vite automaticky extrahuje CSS a vloží <link>
+    tag. Odkazování na CSS vstupní bod zvlášť je však užitečné, pokud ho chcete načíst jako blokující zdroj v <head> při odložení JS.
+  id: ab-006
+  options:
+  - Laravel Vite plugin potřebuje oba pro vygenerování správných manifest záznamů pro HTML
+  - CSS musí být načteno zvlášť, aby se zabránilo blikání nestylovaného obsahu (FOUC)
+  - To není nutné — stačí odkázat pouze na vstupní bod JS
+  - Vite vyžaduje explicitní registraci CSS, aby fungoval hot module replacement
+  question: Proč direktiva @vite potřebuje odkazovat na oba vstupní body CSS a JS, když jsou již importovány uvnitř vašich JavaScript souborů?
+  topic: asset-bundling
+  type: single
+- answers:
+  - Vite vývojový server se spustí a naslouchá změnám souborů
+  - Hot Module Replacement (HMR) je povoleno pro okamžité aktualizace v prohlížeči
+  difficulty: střední
+  explanation: npm run dev spustí Vite vývojový server, který slouží assety na vyžádání bez jejich balení na disk. Povoluje HMR, takže když uložíte soubor, prohlížeč se aktualizuje téměř okamžitě bez úplného
+    znovunačtení stránky. Assety NEJSOU zapsány do public/build — to se stává pouze při npm run build.
+  id: ab-007
+  options:
+  - Assety jsou zkompilovány a zapsány do adresáře public/build s hashi
+  - Hot Module Replacement (HMR) je povoleno pro okamžité aktualizace v prohlížeči
+  - Aplikace automaticky běží v lokálním prostředí
+  - Vite vývojový server se spustí a naslouchá změnám souborů
+  question: Co se stane, když spustíte npm run dev v Laravel projektu používajícím Vite? (Vyberte všechny, co platí)
+  topic: asset-bundling
+  type: multiple
+- answer: Zkontroluje, zda Vite vývojový server běží, pokusem o HTTP připojení k němu
+  difficulty: těžká
+  explanation: Plugin laravel-vite-plugin inteligentně detekuje prostředí pokusem o připojení k Vite vývojovému serveru na jeho konfigurovaném hot URL. Pokud se připojení podaří, vloží skripty vývojového
+    serveru. Pokud selže (jako v produkci), vrátí se ke čtení public/build/manifest.json pro získání URL verzí assetů. To znamená, že nemusete přepínat konfiguraci mezi prostředími.
+  id: ab-008
+  options:
+  - Zkontroluje, zda Vite vývojový server běží, pokusem o HTTP připojení k němu
+  - Přečte speciální příznak prostředí nakonfigurovaný v souboru vite.config.js pro určení režimu
+  - Vždy čte z manifest souboru a případně se vrátí k vývojovému serveru
+  - Přečte proměnnou prostředí APP_ENV ze souboru .env a podle toho přepne režim
+  question: Jak plugin laravel-vite-plugin určuje, zda má sloužit assety z Vite vývojového serveru nebo z buildovaného manifestu v produkci?
+  topic: asset-bundling
+  type: single
+- alternatives:
+  - laravel({})
+  - laravel-vite-plugin
+  answer: laravel()
+  difficulty: těžká
+  explanation: 'Uvnitř vite.config.js voláte laravel() jako plugin, který je importován z laravel-vite-plugin. Tato funkce konfiguruje vstupní entry pointy, nastavuje hot file pro vývojový server a spravuje
+    build manifest. Typické použití je laravel({ input: [''resources/css/app.css'', ''resources/js/app.js''] }).'
+  id: ab-009
+  question: Jaká metoda Vite pluginu se používá v souboru vite.config.js pro konfiguraci integrace Laravelu s Vite?
+  topic: asset-bundling
+  type: text
+- answers:
+  - Laravel poskytuje metodu Vite::render() pro vykreslení SSR entry pointů na serveru
+  - SSR bundle je generován spolu s client bundle během npm run build
+  - Musíte nakonfigurovat samostatný SSR entry point v souboru vite.config.js
+  difficulty: těžká
+  explanation: 'Integrace Vite v Laravelu podporuje SSR od základu. Konfigurujete samostatný SSR entry point (např. resources/js/ssr.js) pomocí laravel({ ssr: ''resources/js/ssr.js'' }). Spuštěním npm run
+    build se vygenerují jak client, tak SSR bundly. Můžete pak použít Vite::render() nebo direktivu @viteReactRefresh pro SSR vykreslování. Samostatný SSR balíček není potřeba — je to všechno zabudované
+    v laravel-vite-plugin.'
+  id: ab-010
+  options:
+  - Musíte nakonfigurovat samostatný SSR entry point v souboru vite.config.js
+  - SSR bundle je generován spolu s client bundle během npm run build
+  - Laravel poskytuje metodu Vite::render() pro vykreslení SSR entry pointů na serveru
+  - SSR s Vite vyžaduje instalaci balíčku laravel-vite-plugin-ssr
+  question: Které z následujících platí ohledně toho, jak Vite zpracovává SSR (Server-Side Rendering) v Laravelu? (Vyberte všechny správné odpovědi)
+  topic: asset-bundling
+  type: multiple

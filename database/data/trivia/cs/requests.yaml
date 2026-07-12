@@ -1,0 +1,380 @@
+- id: rq-001
+  topic: requests
+  type: single
+  difficulty: lehká
+  question: Jaký je hlavní rozdíl mezi $request->input('name') a $request->query('name') v Laravelu?
+  options:
+  - query() kontroluje query string i tělo requestu, zatímco input() kontroluje pouze tělo
+  - input() kontroluje query string i tělo requestu, zatímco query() kontroluje pouze query string
+  - Mezi oběma metodami neexistuje žádný rozdíl — fungují jako zaměnitelné aliasy
+  - input() čte pouze z těla requestu, zatímco query() čte pouze z URL query stringu
+  answer: input() kontroluje query string i tělo requestu, zatímco query() kontroluje pouze query string
+  explanation: Metoda input() načítá hodnoty z celé request payload včetně query stringu, těla requestu a dokonce i parametrů route. Naproti tomu query() cílí specificky pouze na parametry query stringu.
+    Tento rozdíl je důležitý, když název parametru existuje v těle i v query stringu, protože input() upřednostní hodnotu z těla.
+- id: rq-002
+  topic: requests
+  type: single
+  difficulty: lehká
+  question: Co vrátí $request->has('email'), pokud je v requestu přítomen klíč 'email', ale jeho hodnota je prázdný řetězec?
+  options:
+  - Vyhodí výjimku
+  - 'null'
+  - 'true'
+  - 'false'
+  answer: 'true'
+  explanation: Metoda has() kontroluje přítomnost klíče v datech requestu bez ohledu na jeho hodnotu. I když je pole 'email' prázdný řetězec (''), has() vrátí true, protože samotný klíč existuje. Pokud
+    potřebujete ověřit, že hodnota není pouze přítomna, ale také neprázdná, použijte místo toho filled().
+- id: rq-003
+  topic: requests
+  type: multiple
+  difficulty: lehká
+  question: Které z následujících metod mohou získat vstup 'name' z requestu? (Vyberte všechny, které platí)
+  options:
+  - $request->name
+  - $request->get('name')
+  - $request->retrieve('name')
+  - $request->input('name')
+  answers:
+  - $request->input('name')
+  - $request->name
+  - $request->get('name')
+  explanation: Laravel poskytuje několik způsobů přístupu k datům vstupu. Metoda input() je nejběžnější, get() je alias pro input() a dynamické vlastnosti ($request->name) také fungují přes proxy na input().
+    Na objektu Request neexistuje žádná metoda retrieve() — pokus o její volání by vyvolal chybu.
+- id: rq-004
+  topic: requests
+  type: text
+  difficulty: lehká
+  question: Jaká globální PHP helper funkce v Laravelu poskytuje rychlý přístup k hodnotám vstupu aktuálního requestu, ekvivalentní k použití $request->input()?
+  answer: request()
+  alternatives:
+  - request
+  explanation: Helper funkce request() je pohodlný způsob přístupu k aktuální instanci requestu nebo přímému získání hodnot vstupu. Můžete zavolat request('key', 'default') pro získání konkrétní vstupní
+    hodnoty s volitelným výchozím nastavením, což je stručná alternativa k injektování objektu Request v jednoduchých scénářích.
+- id: rq-005
+  topic: requests
+  type: single
+  difficulty: lehká
+  question: Jak získáte podmnožinu vstupních dat jako asociativní pole, například pouze 'name' a 'email'?
+  options:
+  - $request->get(['name', 'email'])
+  - $request->only(['name', 'email'])
+  - $request->subset('name', 'email')
+  - $request->filter(['name', 'email'])
+  answer: $request->only(['name', 'email'])
+  explanation: Metoda only() přijímá pole klíčů a vrací nové asociativní pole obsahující pouze tyto vstupní hodnoty. To je užitečné, když chcete extrahovat specifickou podmnožinu dat, například pro hromadné
+    přiřazení na model. Doplňková metoda except() funguje opačně — vrací vše kromě zadaných klíčů.
+- id: rq-006
+  topic: requests
+  type: single
+  difficulty: lehká
+  question: Která HTTP metoda se používá pro nahrávání souborů v HTML formulářích a jaký Laravel middleware zpracovává multipart requesty?
+  options:
+  - POST — není potřeba žádný speciální middleware; Laravel zpracovává multipart/form-data nativně
+  - GET requesty spárované s FileMiddleware pro zpracování proudu souborů při nahrávání
+  - POST s middleware TrimStrings a ConvertEmptyStringsToNull zpracovávajícím nahraná data
+  - PUT s middleware HandleFileUploads pro zpracování multipart requestů na nahrávání souborů
+  answer: POST — není potřeba žádný speciální middleware; Laravel zpracovává multipart/form-data nativně
+  explanation: HTML formuláře používají POST (nebo PUT/PATCH) s enctype='multipart/form-data' pro nahrávání souborů. Laravel automaticky detekuje multipart content type a zpřístupní nahrané soubory přes
+    metodu $request->file() nebo dynamické vlastnosti. Pro základní práci se soubory není vyžadována žádná další konfigurace middleware.
+- id: rq-007
+  topic: requests
+  type: text
+  difficulty: lehká
+  question: Jaká metoda na objektu Request kontroluje, zda je aktuální request AJAX request (konkrétně takový, který vyžaduje JSON)?
+  answer: wantsJson
+  alternatives:
+  - wantsJson()
+  explanation: Metoda wantsJson() vrací true, pokud má request hlavičku Accept nastavenou na application/json nebo */* s preferencí JSON. To se běžně používá v controllerech k rozhodnutí, zda vrátit JSON
+    response nebo view. Je přesnější než starší metoda ajax(), která kontroluje pouze hlavičku X-Requested-With.
+- id: rq-008
+  topic: requests
+  type: multiple
+  difficulty: lehká
+  question: Které z následujících jsou platné způsoby přístupu k cookie s názvem 'theme' z requestu? (Vyberte všechny, které platí)
+  options:
+  - $request->cookie('theme')
+  - Cookie::get('theme')
+  - $request->cookies->get('theme')
+  - $request->input('theme')
+  answers:
+  - $request->cookie('theme')
+  - $request->cookies->get('theme')
+  - Cookie::get('theme')
+  explanation: Cookie odeslané prohlížečem jsou přístupné přes objekt Request pomocí cookie(), přes podkladový cookie bag s cookies->get(), nebo přes Cookie facade. Nicméně $request->input('theme') NEZÍSKÁ
+    cookie — input() přistupuje pouze k query stringu, tělu a parametrům route, nikoli k cookie.
+- id: rq-009
+  topic: requests
+  type: single
+  difficulty: lehká
+  question: Co vrátí metoda $request->ip()?
+  options:
+  - Pole všech IP adres proxy
+  - Název domény klienta
+  - IP adresa serveru
+  - IP adresa klienta
+  answer: IP adresa klienta
+  explanation: Metoda ip() vrací IP adresu klienta, který odesílá request. Pokud je vaše aplikace za proxy nebo load balancerem, měli byste zajistit, aby byl middleware TrustProxies správně nakonfigurován,
+    aby ip() vracela skutečnou IP klienta, nikoli IP proxy.
+- id: rq-010
+  topic: requests
+  type: text
+  difficulty: lehká
+  question: Jaká metoda vrací úplnou URL aktuálního requestu včetně query stringu?
+  answer: fullUrl
+  alternatives:
+  - fullUrl()
+  - $request->fullUrl()
+  explanation: Metoda fullUrl() vrací kompletní URL včetně schématu, hostitele, cesty a query stringu. Naproti tomu url() vrací URL bez query stringu a path() vrací pouze část cesty. To je užitečné pro
+    logování nebo přesměrování zpět na aktuální stránku se všemi jejími parametry.
+- id: rq-011
+  topic: requests
+  type: single
+  difficulty: střední
+  question: Proč by se mohlo použít $request->input('items.0.name') místo $request->input('items')?
+  options:
+  - Zabraňuje útokům cross-site scripting při přístupu k vnořeným datovým strukturám ve vstupu uživatele
+  - Tečková notace je vyžadována při přístupu k JSON request body, ale je volitelná pro standardní odeslání formulářových dat
+  - Tečková notace umožňuje přímý přístup k vnořeným prvkům pole bez ručního procházení pole
+  - Metoda input() nepodporuje čtení vnořených polí vůbec bez použití tečkové notace
+  answer: Tečková notace umožňuje přímý přístup k vnořeným prvkům pole bez ručního procházení pole
+  explanation: Metoda input() v Laravelu podporuje tečkovou notaci pro získávání hodnot z vnořených polí nebo objektů. Použití 'items.0.name' přímo přistupuje k $items[0]['name'] bez nutnosti nejprve získat
+    'items' a následně do něj indexovat. To funguje pro formulářově kódovaná pole i JSON request body, což činí tento způsob výkonným a konzistentním pro přístup k vnořeným datům.
+- id: rq-012
+  topic: requests
+  type: single
+  difficulty: střední
+  question: 'Jaký je účel hlavičky ''X-Requested-With: XMLHttpRequest'' v Laravel requestech?'
+  options:
+  - Povolí CORS hlavičky pro request a umožní cross-origin sdílení zdrojů
+  - Signalizuje Laravelu, aby obešel kontrolu CSRF ověření na příchozím requestu
+  - Autentizuje request pomocí bearer tokenů z autorizační hlavičky
+  - Identifikuje AJAX requesty, které metoda $request->ajax() kontroluje
+  answer: Identifikuje AJAX requesty, které metoda $request->ajax() kontroluje
+  explanation: Mnoho JavaScript knihoven jako jQuery a Axios automaticky nastavuje hlavičku X-Requested-With na XMLHttpRequest. Metoda $request->ajax() v Laravelu kontroluje tuto hlavičku k určení, zda
+    byl request proveden přes AJAX. Přestože je to užitečné, moderní metody prefersJson()/wantsJson() jsou pro API-driven aplikace často vhodnější.
+- id: rq-013
+  topic: requests
+  type: multiple
+  difficulty: střední
+  question: Které z následujících metod správně získají nahraný soubor z requestu s formulářovým polem s názvem 'avatar'? (Vyberte všechny, které platí)
+  options:
+  - $request->avatar
+  - UploadedFile::find('avatar')
+  - $request->input('avatar')
+  - $request->file('avatar')
+  answers:
+  - $request->file('avatar')
+  - $request->avatar
+  explanation: Nahrané soubory lze získat pomocí metody file() nebo přes dynamické vlastnosti na objektu request. Obě vracejí instanci Illuminate\Http\UploadedFile. Nicméně input('avatar') by vrátilo původní
+    klientské jméno souboru jako řetězec, nikoli objekt nahraného souboru. Neexistuje žádná metoda UploadedFile::find().
+- id: rq-014
+  topic: requests
+  type: single
+  difficulty: střední
+  question: Co se stane, když zavoláte $request->merge(['role' => 'admin']) během životního cyklu requestu?
+  options:
+  - Podmíněně přidá klíč 'role' pouze pokud ještě neexistuje ve vstupních datech requestu
+  - Uloží hodnotu 'role' do session místo jejího sloučení do aktuálního vstupu requestu
+  - Přidá nebo přepíše klíč 'role' v existujícím vstupu requestu bez ovlivnění ostatních vstupů
+  - Kompletně přepíše celé pole vstupu requestu a nahradí všechny klíče pouze klíčem 'role'
+  answer: Přidá nebo přepíše klíč 'role' v existujícím vstupu requestu bez ovlivnění ostatních vstupů
+  explanation: Metoda merge() kombinuje poskytnuté pole se stávajícím vstupem requestu. Pokud klíč již existuje, jeho hodnota je přepsána; pokud neexistuje, je přidán. Všechny ostatní vstupní hodnoty zůstávají
+    nedotčeny. To se běžně používá v middleware pro rozšíření dat requestu, než se dostanou do controlleru.
+- id: rq-015
+  topic: requests
+  type: text
+  difficulty: střední
+  question: Jakou metodu na objektu Request byste měli použít ke kontrole, zda request obsahuje NĚKTERÝ z daných klíčů, místo VŠECH?
+  answer: hasAny
+  alternatives:
+  - hasAny()
+  - $request->hasAny()
+  explanation: Metoda hasAny() přijímá pole klíčů a vrací true, pokud je přítomen alespoň jeden z nich v requestu. Toto je doplněk k has(), která kontroluje, že všechny zadané klíče existují. Existuje také
+    odpovídající metoda filledAny(), která kontroluje, zda některý z daných klíčů má neprázdné hodnoty.
+- id: rq-016
+  topic: requests
+  type: single
+  difficulty: střední
+  question: Ve třídě FormRequest, kde byste měli umístit autorizační logiku, která určuje, zda má aktuální uživatel oprávnění provést tento request?
+  options:
+  - V metodě rules()
+  - V metodě authorize()
+  - V metodě __construct()
+  - V metodě messages()
+  answer: V metodě authorize()
+  explanation: Třídy FormRequest oddělují autorizaci od validation. Metoda authorize() by měla vrátit true nebo false (nebo vyhodit výjimku), aby rozhodla, zda má request pokračovat. Pokud vrátí false,
+    Laravel automaticky vrátí 403 Forbidden response. Metoda rules() je výhradně pro definici validation pravidel.
+- id: rq-017
+  topic: requests
+  type: single
+  difficulty: střední
+  question: Jak ovlivňuje middleware 'TrimStrings' v Laravelu příchozí data requestu?
+  options:
+  - Odstraní prázdné znaky ze začátku a konce všech hodnot typu string
+  - Odstraní všechny prázdné znaky z každé hodnoty typu string v celém payloadu těla requestu
+  - Převede všechny prázdné řetězcové hodnoty na null hodnoty v celých vstupních datech requestu
+  - Ořízne prázdné znaky pouze ze specifických whitelisted vstupních polí definovaných v konfiguračním poli
+  answer: Odstraní prázdné znaky ze začátku a konce všech hodnot typu string
+  explanation: Middleware TrimStrings, ve výchozím stavu povolený v Laravelu, automaticky ořezává počáteční a koncové prázdné znaky ze všech řetězcových hodnot ve vstupu requestu. K tomu dochází před spuštěním
+    validation, takže vaše validation pravidla dostanou čistá data. Konkrétní pole můžete vyloučit z ořezávání přidáním do vlastnosti $except na middleware.
+- id: rq-018
+  topic: requests
+  type: multiple
+  difficulty: střední
+  question: Které z následujících jsou vlastnosti, které můžete nakonfigurovat na třídě FormRequest pro přizpůsobení jejího chování? (Vyberte všechny, které platí)
+  options:
+  - $stopOnFirstFailure
+  - $redirectRoute
+  - $redirect
+  - $validator
+  answers:
+  - $redirect
+  - $redirectRoute
+  - $stopOnFirstFailure
+  explanation: Třídy FormRequest vystavují několik konfiguračních vlastností. $redirect určuje URL pro přesměrování při selhání validation, $redirectRoute pojmenuje route pro přesměrování a $stopOnFirstFailure
+    (boolean) zastaví validation po selhání prvního pravidla. Vlastnost $validator není konfigurovatelné přepsání — je nastavena interně po spuštění validation.
+- id: rq-019
+  topic: requests
+  type: text
+  difficulty: střední
+  question: Jak se jmenuje skryté formulářové pole, které Laravel používá k napodobení HTTP metod jako PUT a DELETE v HTML formulářích?
+  answer: _method
+  alternatives:
+  - _method
+  - the _method field
+  explanation: HTML formuláře nativně podporují pouze metody GET a POST. Method spoofing v Laravelu používá skryté pole _method k určení skutečné HTTP metody (PUT, PATCH, DELETE). Middleware ConvertEmptyStringsToNull
+    a TrimStrings to zpracují před routováním. Middleware App\Http\Middleware\ConvertEmptyStringsToNull běží v globálním middleware stacku.
+- id: rq-020
+  topic: requests
+  type: single
+  difficulty: střední
+  question: Proč existuje metoda $request->boolean('active') místo pouhého použití $request->input('active')?
+  options:
+  - boolean() kontroluje HTML atribut type pro určení, jak zpracovat odeslanou hodnotu
+  - Metoda input() nedokáže číst hodnoty checkbox odeslané z HTML formulářů
+  - boolean() vrací správný boolean typ místo surového řetězce '1' nebo '0'
+  - Mezi oběma metodami neexistuje praktický rozdíl při zpracování standardních odeslání formulářů
+  answer: boolean() vrací správný boolean typ místo surového řetězce '1' nebo '0'
+  explanation: HTML formuláře odesílají hodnoty checkbox a radio jako řetězce jako '1', '0', 'true' nebo 'false'. Metoda boolean() převede tyto na skutečné PHP boolean hodnoty (true nebo false), zpracovávající
+    různé truthy/falsy řetězcové reprezentace. To je obzvláště užitečné pro přepínání boolean databázových sloupců bez ručního přetypování.
+- id: rq-021
+  topic: requests
+  type: single
+  difficulty: střední
+  question: Jaký je rozdíl mezi $request->collect('items') a collect($request->input('items'))?
+  options:
+  - Neexistuje žádný rozdíl; produkují identické kolekce
+  - $request->collect() může přijímat tečkovou notaci a výchozí hodnotou je prázdná kolekce, zatímco collect() na null vrací prázdnou kolekci s jiným chováním
+  - collect() na vstupu vytváří lazy collection, zatímco $request->collect() vytváří eager collection
+  - $request->collect() je zastaralá v Laravel 13.x
+  answer: Neexistuje žádný rozdíl; produkují identické kolekce
+  explanation: Oba přístupy vytvářejí instanci Illuminate\Support\Collection z vstupu requestu. Metoda $request->collect() je pohodlný obal, který interně volá collect() na vstupní hodnotě. Pokud klíč neexistuje,
+    $request->collect() vrací prázdnou kolekci, což odpovídá chování collect($request->input('items')) když je vstup null.
+- id: rq-022
+  topic: requests
+  type: multiple
+  difficulty: střední
+  question: Které z následujících metod requestu vrací informace o hlavičkách HTTP requestu? (Vyberte všechny, které platí)
+  options:
+  - $request->header('Content-Type')
+  - $request->getHeader('Content-Type')
+  - $request->bearerToken()
+  - $request->headers->get('Content-Type')
+  answers:
+  - $request->header('Content-Type')
+  - $request->headers->get('Content-Type')
+  - $request->bearerToken()
+  explanation: Hlavičky requestu jsou přístupné přes pomocnou metodu header(), přes Symfony HttpFoundation headers bag pomocí headers->get(), nebo specificky pro bearer tokeny pomocí bearerToken(). Na třídě
+    Request v Laravelu neexistuje přímá metoda getHeader() — to je metoda rozhraní PSR-7.
+- id: rq-023
+  topic: requests
+  type: text
+  difficulty: střední
+  question: Jaká metoda na objektu UploadedFile vrací původní klientské jméno souboru (nikoli dočasnou cestu)?
+  answer: getClientOriginalName
+  alternatives:
+  - getClientOriginalName()
+  - getClientOriginalName
+  explanation: Metoda getClientOriginalName() vrací jméno souboru tak, jak bylo na klientském počítači před nahráním. Toto by mělo být používáno opatrně, protože klientsky poskytnutá jména souborů mohou
+    být škodlivá. Pro ukládání souborů je obecně preferována metoda hashName(), protože generuje bezpečné, unikátní jméno souboru.
+- id: rq-024
+  topic: requests
+  type: single
+  difficulty: střední
+  question: Jak získáte hodnotu parametru route uvnitř metody rules() třídy FormRequest?
+  options:
+  - route_param('id')
+  - $this->input('id')
+  - $this->parameter('id')
+  - $this->route('id')
+  answer: $this->route('id')
+  explanation: 'Uvnitř třídy FormRequest přistupuje $this->route(''parameter_name'') k parametrům route. To je nezbytné pro validation pravidla jako unique, která potřebují vyloučit aktuální model: ''unique:users,email,''
+    . $this->route(''user''). Použití $this->input() by spolehlivě nepřistupovalo k URI parametrům definovaným v definici route.'
+- id: rq-025
+  topic: requests
+  type: single
+  difficulty: těžká
+  question: Při použití $request->validate() přímo v controlleru, jak se chování Laravelu liší od použití třídy FormRequest?
+  options:
+  - Mezi oběma přístupy validation neexistuje významný rozdíl v chování ve standardních scénářích web requestů
+  - FormRequest vždy vrací chybové odpovědi ve formátu JSON, zatímco inline validate() vrací pouze přesměrovací odpovědi
+  - validate() v controlleru nepodporuje funkci 'StopOnFirstFailure', kterou mohou třídy FormRequest nakonfigurovat
+  - validate() v controlleru při selhání přesměruje na předchozí URL, zatímco FormRequest může přesměrování přizpůsobit
+  answer: validate() v controlleru při selhání přesměruje na předchozí URL, zatímco FormRequest může přesměrování přizpůsobit
+  explanation: 'Oba přístupy spouštějí stejný validation engine. Třídy FormRequest však poskytují větší kontrolu: můžete přepsat metodu failedValidation() pro vlastní chybové odpovědi, nastavit vlastnosti
+    $redirect nebo $redirectRoute a oddělit autorizační logiku v authorize(). Inline metoda validate() vždy přesměruje na předchozí URL pro web requesty nebo vrací JSON pro AJAX requesty.'
+- id: rq-026
+  topic: requests
+  type: multiple
+  difficulty: těžká
+  question: Které z následujících správně popisují chování $request->whenHas('name', callback)? (Vyberte všechny, které platí)
+  options:
+  - Callback se spustí pouze pokud je 'name' přítomen v requestu
+  - Callback přijímá hodnotu 'name' jako svůj první argument
+  - Vyhodí chybu 422, pokud 'name' není přítomen
+  - Volitelně lze poskytnout druhý closure jako výchozí, když klíč chybí
+  answers:
+  - Callback přijímá hodnotu 'name' jako svůj první argument
+  - Callback se spustí pouze pokud je 'name' přítomen v requestu
+  - Volitelně lze poskytnout druhý closure jako výchozí, když klíč chybí
+  explanation: Metoda whenHas() podmíněně spouští closure, když je klíč přítomen v requestu. Closure přijímá hodnotu jako svůj argument. Druhý closure může být předán ke spuštění, když klíč chybí. Toto
+    je funkcionální alternativa k obalení kontrol has() do příkazů if. Nikdy nevyhazuje chyby — prostě nevolá první closure, pokud klíč chybí.
+- id: rq-027
+  topic: requests
+  type: text
+  difficulty: těžká
+  question: Jaké rozhraní musí třída Laravel FormRequest implementovat, aby byla automaticky vyřešena a validována frameworkem?
+  answer: ValidatesWhenResolved
+  alternatives:
+  - Illuminate\Contracts\Validation\ValidatesWhenResolved
+  explanation: Třídy FormRequest implementují ValidatesWhenResolved (přes základní třídu FormRequest). Toto rozhraní je kontrolováno service containerem Laravelu během dependency injection. Když controller
+    typově označí FormRequest, container ho vyřeší, zavolá validate() a teprve poté ho injectuje do controlleru — což znamená, že controller se nikdy nespustí s neplatnými daty.
+- id: rq-028
+  topic: requests
+  type: single
+  difficulty: těžká
+  question: Jaký je hlavní důvod používat $request->json('data.items') místo $request->input('data.items') při přijímání API requestu?
+  options:
+  - json() automaticky dekóduje base64-encoded JSON payloady před parsováním podkladových strukturovaných dat
+  - Metoda input() nedokáže parsovat hluboce vnořené JSON struktury a podporuje pouze přístup k plochým klíč-hodnota párům
+  - json() je rychlejší, protože přímo přistupuje k parsovanému tělu a přeskočí veškeré zpracování middleware
+  - json() čte pouze z JSON těla, zatímco input() také kontroluje query string a může způsobit nechtěné shody
+  answer: json() čte pouze z JSON těla, zatímco input() také kontroluje query string a může způsobit nechtěné shody
+  explanation: Metoda json() získává data výhradně z dekódovaného JSON těla requestu. Naproti tomu input() nejprve kontroluje query string a poté tělo. Při vytváření API je použití json() výslovnější a
+    zabraňuje tomu, aby parametry query stringu nechtěně přepisovaly nebo rušily data JSON těla. Obě metody podporují tečkovou notaci pro vnořené struktury.
+- id: rq-029
+  topic: requests
+  type: multiple
+  difficulty: těžká
+  question: Které z následujících jsou pravdivé o tom, jak Laravel zpracovává vstupní data requestu, než se dostanou k vašemu controlleru? (Vyberte všechny, které platí)
+  options:
+  - Middleware ConvertEmptyStringsToNull převádí prázdné řetězce na null
+  - Middleware TrimStrings ořezává prázdné znaky z řetězcových hodnot
+  - Globální vstup je automaticky sanitizován proti SQL injekci
+  - Hlavičky requestu jsou sloučeny do input bagu
+  answers:
+  - Middleware TrimStrings ořezává prázdné znaky z řetězcových hodnot
+  - Middleware ConvertEmptyStringsToNull převádí prázdné řetězce na null
+  explanation: 'Dva globální middleware ve výchozím stavu zpracovávají všechny příchozí requesty: TrimStrings odstraňuje počáteční/koncové prázdné znaky z řetězcových vstupů a ConvertEmptyStringsToNull
+    převádí prázdné řetězce na null. Tyto běží před validation. Laravel automaticky NESANITIZUJE vstup proti SQL injekci přes request vrstvu — to řeší parameter binding Eloquentu. Hlavičky jsou uloženy
+    odděleně a nikdy nejsou sloučeny do input bagu.'
