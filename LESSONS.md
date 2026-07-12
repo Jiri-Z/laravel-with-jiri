@@ -4,6 +4,60 @@ Accumulated patterns and operational knowledge from developing this application.
 
 ---
 
+## Critical Context
+
+Key invariants and gotchas that apply across the codebase. Read this first when onboarding.
+
+### Symfony YAML parser is safe by default
+
+`Symfony\Component\Yaml\Yaml::parse()` does **not** support `!php/object` or any PHP-object tags without explicitly passing `Yaml::PARSE_CUSTOM_TAGS` as the second argument. No sandboxing needed for untrusted YAML — the parser throws a `ParseException` on object-tagged input by default. Still validate structure and depth separately (YAML bomb detection).
+
+### Duster bundles all four code-style tools
+
+`tightenco/duster` runs **TLint + PHP_CodeSniffer + PHP-CS-Fixer + Pint** in a single command. Use `./vendor/bin/duster fix` for auto-fixing and `./vendor/bin/duster lint` for reporting. The pre-commit pipeline is `Rector → Duster fix → Larastan` — Duster replaces standalone Pint invocations. `--dirty` flag limits to changed files.
+
+### Queue driver is `database`
+
+The `QUEUE_CONNECTION` is set to `database`. The `jobs`, `job_batches`, and `failed_jobs` tables exist. No Redis or other in-memory queue. Non-trivial side effects should be dispatched as jobs, not run synchronously.
+
+### `unlocked_at` is a one-way ratchet
+
+The `unlocked_at` column on `step_completions` is set once and **never cleared** — it's not reset on re-ordering or content changes. It represents the earliest moment the next step was unlocked by this user. Used in conjunction with `completed_at` to determine step accessibility.
+
+### Idempotent import matches by title, not slug
+
+`course:import` and `lesson:import` identify existing records by **title**, not slug. Re-running the same YAML produces no duplicates — the action finds the record by title and skips creation. Manual title changes between runs create new records.
+
+### Slugs are auto-generated with collision resolution
+
+All slugs are derived from titles via `Str::slug($title)`. Never required in YAML. If the slug collides with an existing record, a 5-character random hex string is appended; if that still collides, longer random hex strings are tried until unique. The collision check queries only the relevant model table.
+
+### Conventional Commits for git history
+
+All commits follow the [Conventional Commits](https://www.conventionalcommits.org/) format: `type(scope): description` (e.g., `feat: add REPL tab`, `fix(policies): correct instructor ownership check`). Types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`. Scopes are optional, lowercase.
+
+### Strict TDD order
+
+**Red → Green → Refactor** is non-negotiable for every code change:
+1. Write a failing test before any implementation
+2. Write the minimum implementation to pass
+3. Clean up without adding features
+4. Run tests after every step
+
+### localStorage for Monaco editor state
+
+Monaco editor content is persisted to `localStorage` on every change event (`editor.onDidChangeModelContent`). Default: `<?php\n\n`. Key: `repl-code`. No server-side persistence — the editor is client-side only. Applies to the REPL tab; coding-viewer steps may use their own keys.
+
+### PHP runs in-browser only, never server-side
+
+The REPL tab and coding-step viewer execute PHP **entirely in the browser** via `php-wasm` (WebAssembly). No code is sent to the server. The WASM binary is loaded from CDN (`https://cdn.jsdelivr.net/npm/php-wasm/PhpWeb.mjs`). Listen for `'ready'` event before running; capture output via `'output'` event (not `run()` return value).
+
+### `firstOrCreate` over try-catch for idempotence
+
+Prefer `Model::firstOrCreate(uniqueAttrs, extraAttrs)` over try-catch + `QueryException` for duplicate-safe inserts. No driver-specific SQLSTATE matching, no fragile string parsing. Used in `CourseEnrollment`, `StepCompletion`, `StepAnswer` creation.
+
+---
+
 ## Ordered swap (unique constraint safe)
 
 When swapping two rows that share a unique constraint on `[parent_id, order]`, a direct assignment swap violates the constraint. Use a 3-step temp value approach:
