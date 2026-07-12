@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * @method static Builder<self> ordered()
  * @method static Builder<self> published()
+ * @method static Builder<self> ownedBy(User $user)
  */
 #[Fillable(['lesson_id', 'title', 'type', 'reading_content', 'quiz_content', 'coding_content', 'order', 'published'])]
 class Step extends Model
@@ -52,6 +53,14 @@ class Step extends Model
     protected function published(Builder $query): Builder
     {
         return $query->where('published', true);
+    }
+
+    /** @param Builder<self> $query
+     * @return Builder<self> */
+    #[Scope]
+    protected function ownedBy(Builder $query, User $user): Builder
+    {
+        return $query->whereHas('lesson.course', fn (Builder $q): Builder => $q->where('user_id', $user->id));
     }
 
     /** @param Builder<self> $query

@@ -48,7 +48,12 @@ class AdminLessonList extends Component
 
     public function render(): View
     {
+        $user = auth()->user();
         $query = Lesson::where('course_id', $this->course->id);
+
+        if ($user !== null && $user->isInstructor()) {
+            $query->ownedBy($user);
+        }
 
         if ($this->search !== '') {
             $query->search($this->search);

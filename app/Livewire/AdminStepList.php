@@ -53,7 +53,12 @@ class AdminStepList extends Component
 
     public function render(): View
     {
+        $user = auth()->user();
         $query = Step::where('lesson_id', $this->lesson->id);
+
+        if ($user !== null && $user->isInstructor()) {
+            $query->ownedBy($user);
+        }
 
         if ($this->search !== '') {
             $query->search($this->search);
