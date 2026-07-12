@@ -31,7 +31,9 @@ class CourseList extends Component
     public function enroll(int $courseId, EnrollInCourse $action): void
     {
         $user = auth()->user();
-        if ($user === null) { return; }
+        if ($user === null) {
+            return;
+        }
 
         try {
             $course = Course::published()->findOrFail($courseId);

@@ -53,7 +53,9 @@ class CodingViewer extends Component
     public function markCodingComplete(): void
     {
         $user = auth()->user();
-        if ($user === null) { return; }
+        if ($user === null) {
+            return;
+        }
 
         try {
             (new MarkStepComplete)->handle($user, $this->step);

@@ -6,6 +6,7 @@ namespace App\Livewire;
 
 use App\Actions\SubmitQuizAnswer;
 use App\Enums\StepType;
+use App\Jobs\LogQuizAttempt;
 use App\Livewire\Concerns\EnsuresEnrollment;
 use App\Livewire\Concerns\ValidatesStepContext;
 use App\Models\Course;
@@ -103,7 +104,9 @@ class QuizViewer extends Component
         }
 
         $user = auth()->user();
-        if ($user === null) { return; }
+        if ($user === null) {
+            return;
+        }
 
         $questions = $this->step->getContentAsArray();
 
@@ -111,7 +114,8 @@ class QuizViewer extends Component
             abort(404);
         }
 
-        $allCorrect = true;
+        $score = 0;
+        $total = count($questions);
 
         foreach ($questions as $index => $question) {
             $answer = $this->answers[$index] ?? null;
@@ -123,13 +127,21 @@ class QuizViewer extends Component
                 questionIndex: (int) $index,
             );
 
-            if (! $result->isCorrect) {
-                $allCorrect = false;
+            if ($result->isCorrect) {
+                $score++;
             }
         }
 
+        LogQuizAttempt::dispatch(
+            userId: $user->id,
+            stepId: $this->step->id,
+            score: $score,
+            total: $total,
+            answers: $this->answers,
+        );
+
         $this->submitted = true;
-        $this->isCorrect = $allCorrect;
+        $this->isCorrect = $score === $total;
     }
 
     public function render(): View
