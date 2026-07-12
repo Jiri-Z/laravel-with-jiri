@@ -71,13 +71,39 @@ class AdminStepForm extends Component
                 $this->testCode = $data['test_code'];
                 $this->expectedOutput = $data['expected_output'];
             } elseif ($stepType === StepType::Quiz) {
-                $this->questions = json_decode($step->quiz_content ?? $step->content, true) ?? [];
+                $decoded = json_decode((string) $step->quiz_content, true);
+
+                if (is_array($decoded)) {
+                    $this->questions = [];
+                    foreach ($decoded as $q) {
+                        if (! is_array($q)) {
+                            continue;
+                        }
+                        $rawOptions = is_array($q['options'] ?? null) ? $q['options'] : [];
+                        $options = [];
+                        foreach ($rawOptions as $opt) {
+                            $options[] = is_string($opt) ? $opt : '';
+                        }
+                        $this->questions[] = [
+                            'type' => is_string($q['type'] ?? null) ? $q['type'] : 'single',
+                            'question' => is_string($q['question'] ?? null) ? $q['question'] : '',
+                            'options' => $options,
+                            'answer' => is_int($q['answer'] ?? null) ? $q['answer'] : 0,
+                            'explanation' => is_string($q['explanation'] ?? null) ? $q['explanation'] : '',
+                            'difficulty' => is_string($q['difficulty'] ?? null) ? $q['difficulty'] : 'easy',
+                            'topic' => is_string($q['topic'] ?? null) ? $q['topic'] : 'general',
+                        ];
+                    }
+                } else {
+                    $this->questions = [];
+                }
             } else {
-                $this->content = $step->reading_content ?? $step->content ?? '';
+                $this->content = $step->reading_content ?? '';
             }
         } else {
             $this->authorize('create', Step::class);
-            $this->order = ($this->lesson->steps()->max('order') ?? -1) + 1;
+            $maxOrder = $this->lesson->steps()->max('order');
+            $this->order = (is_numeric($maxOrder) ? (int) $maxOrder : -1) + 1;
         }
     }
 

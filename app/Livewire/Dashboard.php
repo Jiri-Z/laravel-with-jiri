@@ -20,6 +20,10 @@ class Dashboard extends Component
     {
         $user = auth()->user();
 
+        if ($user === null) {
+            abort(403);
+        }
+
         $courses = Course::published()->ordered()->withCount('lessons')
             ->whereHas('enrollments', fn ($q) => $q->where('user_id', $user->id))
             ->with([

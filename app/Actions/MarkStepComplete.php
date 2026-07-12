@@ -17,9 +17,15 @@ class MarkStepComplete
 {
     public function handle(User $user, Step $step): bool
     {
-        $course = $step->lesson->course;
+        $lesson = $step->lesson;
 
-        if (! $course->published) {
+        if ($lesson === null) {
+            throw new CourseNotPublishedException;
+        }
+
+        $course = $lesson->course;
+
+        if (! $course || ! $course->published) {
             throw new CourseNotPublishedException;
         }
 

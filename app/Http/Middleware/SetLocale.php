@@ -14,9 +14,24 @@ class SetLocale
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
-        $locale = $user !== null ? $user->locale : null;
-        $locale ??= $request->hasSession() ? $request->session()->get('locale') : null;
-        $locale ??= config('app.locale');
+        $locale = null;
+
+        if ($user !== null && is_string($user->locale) && $user->locale !== '') {
+            $locale = $user->locale;
+        }
+
+        if ($locale === null && $request->hasSession()) {
+            $sessionLocale = $request->session()->get('locale');
+
+            if (is_string($sessionLocale) && $sessionLocale !== '') {
+                $locale = $sessionLocale;
+            }
+        }
+
+        if ($locale === null) {
+            $defaultLocale = config('app.locale');
+            $locale = is_string($defaultLocale) ? $defaultLocale : 'en';
+        }
 
         App::setLocale($locale);
 

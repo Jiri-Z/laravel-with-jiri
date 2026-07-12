@@ -12,7 +12,7 @@ class StaffMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (! $request->user() || ! ($request->user()->isAdmin() || $request->user()->isInstructor())) {
+        if (! $request->user() || ! $request->user()->isStaff()) {
             abort(403);
         }
 

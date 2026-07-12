@@ -23,14 +23,14 @@ test('step has fillable attributes', function () {
         'lesson_id' => $lesson->id,
         'title' => 'Installation',
         'type' => StepType::Reading,
-        'content' => 'Step content here',
+        'reading_content' => 'Step content here',
         'order' => 1,
     ]);
 
     expect($step)
         ->title->toBe('Installation')
         ->type->toBe(StepType::Reading)
-        ->content->toBe('Step content here')
+        ->reading_content->toBe('Step content here')
         ->order->toBe(1);
 });
 
@@ -81,11 +81,12 @@ test('step has valid type values', function () {
     }
 });
 
-test('step getContentAsArray returns array for valid JSON starting with brace', function () {
+test('step getContentAsArray returns array for valid JSON in quiz_content', function () {
     $lesson = Lesson::factory()->create(['course_id' => Course::factory()]);
     $step = Step::factory()->create([
         'lesson_id' => $lesson->id,
-        'content' => '{"key": "value", "number": 42}',
+        'type' => StepType::Quiz,
+        'quiz_content' => '{"key": "value", "number": 42}',
     ]);
 
     $result = $step->getContentAsArray();
@@ -93,31 +94,23 @@ test('step getContentAsArray returns array for valid JSON starting with brace', 
     expect($result)->toBe(['key' => 'value', 'number' => 42]);
 });
 
-test('step getContentAsArray returns null for malformed JSON starting with brace', function () {
+test('step getContentAsArray returns null for reading steps', function () {
     $lesson = Lesson::factory()->create(['course_id' => Course::factory()]);
     $step = Step::factory()->create([
         'lesson_id' => $lesson->id,
-        'content' => '{invalid json}',
+        'type' => StepType::Reading,
+        'reading_content' => 'Just some plain text content',
     ]);
 
     expect($step->getContentAsArray())->toBeNull();
 });
 
-test('step getContentAsArray returns null for plain text without leading brace', function () {
+test('step getContentAsArray returns null when quiz_content is empty', function () {
     $lesson = Lesson::factory()->create(['course_id' => Course::factory()]);
     $step = Step::factory()->create([
         'lesson_id' => $lesson->id,
-        'content' => 'Just some plain text content',
-    ]);
-
-    expect($step->getContentAsArray())->toBeNull();
-});
-
-test('step getContentAsArray returns null for empty string', function () {
-    $lesson = Lesson::factory()->create(['course_id' => Course::factory()]);
-    $step = Step::factory()->create([
-        'lesson_id' => $lesson->id,
-        'content' => '',
+        'type' => StepType::Quiz,
+        'quiz_content' => '',
     ]);
 
     expect($step->getContentAsArray())->toBeNull();

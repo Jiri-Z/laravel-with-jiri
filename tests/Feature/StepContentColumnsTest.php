@@ -60,6 +60,13 @@ test('getCodingData returns coding data from coding_content column', function ()
     expect($result['prompt'])->not->toBe('');
 });
 
+test('getContentAsArray does not fall back to deprecated content column', function () {
+    $step = Step::factory()->reading()->create();
+    $step->update(['reading_content' => null, 'content' => '["should_not_use_this"]']);
+
+    expect($step->fresh()->getContentAsArray())->toBeNull();
+});
+
 test('step viewer renders reading content from reading_content column', function () {
     $user = User::factory()->create(['role' => 'student']);
     $course = Course::factory()->published()->create();

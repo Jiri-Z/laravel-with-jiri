@@ -455,6 +455,99 @@ If Monaco editor is loaded entirely from CDN (`import()` + `require.config()` po
 
 ---
 
+## Larastan level 9: `mixed` → string conversion
+
+PHPStan level 9 (via `larastan/larastan` on PHP 8.3) does **not** accept `(string) mixed`, `strval(mixed)`, or `sprintf('%s', mixed)`:
+
+| Expression | Level 9 status |
+|------------|----------------|
+| `(string) $mixed` | ❌ `cast.string` |
+| `strval($mixed)` | ❌ `argument.type` (expects `bool\|float\|GMP\|int\|resource\|string\|null`) |
+| `sprintf('%s', $mixed)` | ❌ `argument.type` (expects `bool\|float\|int\|string\|null`) |
+| `is_string($mixed) ? $mixed : ''` | ✅ narrows `mixed` → `string` safely |
+
+Use **narrowing guards** instead of casts:
+
+```php
+// ❌ (string) mixed — denied at level 9
+return (string) ($data['prompt'] ?? '');
+
+// ✅ is_string narrows the type
+$val = $data['prompt'] ?? '';
+return is_string($val) ? $val : '';
+```
+
+---
+
+## Larastan level 9: `(int) mixed` from DB aggregates
+
+Eloquent aggregate methods like `max('order')` and `pluck('total', 'course_id')` return `mixed` at level 9. Guard with `is_numeric()` before casting:
+
+```php
+// ❌ (int) mixed — denied
+$total = (int) ($totalSteps[$course->id] ?? 0);
+
+// ✅ is_numeric guard
+$raw = $totalSteps[$course->id] ?? null;
+$total = is_numeric($raw) ? (int) $raw : 0;
+```
+
+---
+
+## Larastan level 9: `mixed` offset access in foreach
+
+PHPStan loses element type information when iterating `array<mixed>`. A `foreach ($decoded as $q)` where `$decoded` is an `array` (narrowed from `is_array()`) gives `$q` as `mixed`. Accessing `$q['type']` then triggers `offsetAccess.nonOffsetAccessible`. Fix: add `is_array($q)` guard inside the loop:
+
+```php
+foreach ($decoded as $q) {
+    if (! is_array($q)) {
+        continue;
+    }
+    // $q is now array — offset access OK
+    $type = is_string($q['type'] ?? null) ? $q['type'] : 'single';
+}
+```
+
+---
+
+## Larastan level 9: `array<mixed>` doesn't match shaped arrays
+
+PHPStan level 9 distinguishes `array<mixed>` from `list<array{key: string}>`. A `json_decode(..., true)` result narrowed via `is_array()` becomes `array<mixed>`, which does **not** satisfy a `list<array{key: string, ...}>` property type. Fix: rebuild each element explicitly, casting each field:
+
+```php
+// ❌ array<mixed> ≠ list<array{type: string, options: list<string>, ...}>
+$this->questions = is_array($decoded) ? $decoded : [];
+
+// ✅ rebuild with explicit per-field type narrowing
+$this->questions = [];
+foreach ($decoded as $q) {
+    if (! is_array($q)) { continue; }
+    $this->questions[] = [
+        'type' => is_string($q['type'] ?? null) ? $q['type'] : 'single',
+        'options' => array_map(fn ($o): string => is_string($o) ? $o : '', $q['options'] ?? []),
+        // ...
+    ];
+}
+```
+
+---
+
+## Larastan 2.2.2: `--no-progress-bar` suppresses all output
+
+PHPStan 2.2.2 has a bug where the `--no-progress-bar` flag causes **all** output (stdout + stderr) to be suppressed when the analysis finds errors (exit code 1). The JSON error payload is written to stderr (not stdout) and is lost when progress-bar suppression closes/flushes stderr prematurely.
+
+**Workaround**: omit `--no-progress-bar`. The progress bar output on stderr is harmless when capturing JSON from stdout:
+
+```bash
+# ❌ suppresses ALL output (bug)
+php vendor/bin/phpstan analyse -l 9 app/ --no-progress-bar
+
+# ✅ works correctly
+php vendor/bin/phpstan analyse -l 9 app/
+```
+
+---
+
 ## Split large test files by component concern
 
 A 1312-line test file with tests for three different Livewire components (`StepViewer`, `QuizViewer`, `CodingViewer`) is harder to navigate and parallelize. Split into `StepViewerAccessTest.php`, `StepViewerReadingTest.php`, `StepViewerQuizTest.php`, `StepViewerCodingTest.php`. Each file:

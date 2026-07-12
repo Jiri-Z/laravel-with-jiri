@@ -11,7 +11,7 @@ class LessonPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->isAdmin() || $user->isInstructor();
+        return $user->isStaff();
     }
 
     public function view(User $user, Lesson $lesson): bool
@@ -21,7 +21,7 @@ class LessonPolicy
 
     public function create(User $user): bool
     {
-        return $user->isAdmin() || $user->isInstructor();
+        return $user->isStaff();
     }
 
     public function update(User $user, Lesson $lesson): bool

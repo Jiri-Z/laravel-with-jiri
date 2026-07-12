@@ -35,9 +35,12 @@ class QuizViewer extends Component
 
     public function mount(Course $course, Lesson $lesson, Step $step): void
     {
+        $user = auth()->user();
+        abort_unless($user !== null, 403);
+
         abort_unless($step->type === StepType::Quiz, 404);
         abort_unless($step->getContentAsArray() !== null, 404);
-        abort_unless($step->isAccessibleBy(auth()->user()), 404);
+        abort_unless($step->isAccessibleBy($user), 404);
 
         $this->ensureEnrolled($course);
         $this->ensureContextIsValid($course, $lesson, $step);
@@ -46,7 +49,7 @@ class QuizViewer extends Component
         $this->lesson = $lesson;
         $this->step = $step;
 
-        $existing = StepAnswer::where('user_id', auth()->id())
+        $existing = StepAnswer::where('user_id', $user->id)
             ->where('step_id', $this->step->id)
             ->get()
             ->keyBy('question_index');
@@ -66,10 +69,28 @@ class QuizViewer extends Component
 
             if ($questions !== null) {
                 foreach ($existing as $entry) {
-                    $type = $questions[$entry->question_index]['type'] ?? 'single';
-                    $this->answers[$entry->question_index] = $type === 'multiple'
-                        ? json_decode((string) $entry->answer, true)
-                        : $entry->answer;
+                    $raw = $questions[$entry->question_index] ?? null;
+                    $question = is_array($raw) ? $raw : [];
+                    $type = is_string($question['type'] ?? null) ? $question['type'] : 'single';
+
+                    if ($type === 'multiple') {
+                        $decoded = json_decode((string) $entry->answer, true);
+
+                        if (is_array($decoded)) {
+                            $values = [];
+                            foreach ($decoded as $v) {
+                                if (is_int($v) || is_string($v)) {
+                                    $values[] = $v;
+                                }
+                            }
+                            $this->answers[$entry->question_index] = $values;
+                        } else {
+                            $this->answers[$entry->question_index] = [];
+                        }
+                    } else {
+                        $answer = $entry->answer;
+                        $this->answers[$entry->question_index] = is_int($answer) || is_string($answer) ? $answer : null;
+                    }
                 }
             }
         }
@@ -80,6 +101,9 @@ class QuizViewer extends Component
         if ($this->submitted) {
             return;
         }
+
+        $user = auth()->user();
+        if ($user === null) { return; }
 
         $questions = $this->step->getContentAsArray();
 
@@ -93,7 +117,7 @@ class QuizViewer extends Component
             $answer = $this->answers[$index] ?? null;
 
             $result = (new SubmitQuizAnswer)->handle(
-                auth()->user(),
+                $user,
                 $this->step,
                 $answer,
                 questionIndex: (int) $index,

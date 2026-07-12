@@ -54,6 +54,16 @@ test('user has many step answers', function () {
         ->and($user->stepAnswers->first())->toBeInstanceOf(StepAnswer::class);
 });
 
+test('isStaff returns true for admin and instructor, false for student', function () {
+    $admin = User::factory()->admin()->create();
+    $instructor = User::factory()->instructor()->create();
+    $student = User::factory()->create(['role' => 'student']);
+
+    expect($admin->isStaff())->toBeTrue()
+        ->and($instructor->isStaff())->toBeTrue()
+        ->and($student->isStaff())->toBeFalse();
+});
+
 test('unknown role returns false for all role checks', function () {
     $user = User::factory()->create(['role' => 'superadmin']);
 

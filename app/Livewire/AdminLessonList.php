@@ -31,11 +31,6 @@ class AdminLessonList extends Component
         $this->course = $course;
     }
 
-    public function updatedSearch(): void
-    {
-        $this->resetPageOnSearch();
-    }
-
     public function delete(int $lessonId): void
     {
         $this->deleteItem(Lesson::findOrFail($lessonId));

@@ -50,8 +50,10 @@ class ProgressService
 
         $result = [];
         foreach ($courses as $course) {
-            $total = (int) ($totalSteps[$course->id] ?? 0);
-            $completed = (int) ($completedSteps[$course->id] ?? 0);
+            $rawTotal = $totalSteps[$course->id] ?? null;
+            $rawCompleted = $completedSteps[$course->id] ?? null;
+            $total = is_numeric($rawTotal) ? (int) $rawTotal : 0;
+            $completed = is_numeric($rawCompleted) ? (int) $rawCompleted : 0;
             $result[$course->id] = $total > 0 ? round(($completed / $total) * 100, 1) : 0.0;
         }
 
@@ -92,8 +94,10 @@ class ProgressService
 
         $result = [];
         foreach ($lessons as $lesson) {
-            $total = (int) ($totalSteps[$lesson->id] ?? 0);
-            $completed = (int) ($completedSteps[$lesson->id] ?? 0);
+            $rawTotal = $totalSteps[$lesson->id] ?? null;
+            $rawCompleted = $completedSteps[$lesson->id] ?? null;
+            $total = is_numeric($rawTotal) ? (int) $rawTotal : 0;
+            $completed = is_numeric($rawCompleted) ? (int) $rawCompleted : 0;
             $result[$lesson->id] = $total > 0 && $completed === $total;
         }
 

@@ -32,8 +32,11 @@ class CodingViewer extends Component
 
     public function mount(Course $course, Lesson $lesson, Step $step): void
     {
+        $user = auth()->user();
+        abort_unless($user !== null, 403);
+
         abort_unless($step->type === StepType::Coding, 404);
-        abort_unless($step->isAccessibleBy(auth()->user()), 404);
+        abort_unless($step->isAccessibleBy($user), 404);
 
         $this->ensureEnrolled($course);
         $this->ensureContextIsValid($course, $lesson, $step);
@@ -42,15 +45,18 @@ class CodingViewer extends Component
         $this->lesson = $lesson;
         $this->step = $step;
 
-        $this->completed = StepCompletion::where('user_id', auth()->id())
+        $this->completed = StepCompletion::where('user_id', $user->id)
             ->where('step_id', $this->step->id)
             ->exists();
     }
 
     public function markCodingComplete(): void
     {
+        $user = auth()->user();
+        if ($user === null) { return; }
+
         try {
-            (new MarkStepComplete)->handle(auth()->user(), $this->step);
+            (new MarkStepComplete)->handle($user, $this->step);
         } catch (NotEnrolledException) {
             $this->redirect(route('courses.index'), navigate: true);
 

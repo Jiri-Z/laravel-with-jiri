@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static Builder<self> ordered()
  * @method static Builder<self> published()
  */
-#[Fillable(['lesson_id', 'title', 'type', 'content', 'reading_content', 'quiz_content', 'coding_content', 'order', 'published'])]
+#[Fillable(['lesson_id', 'title', 'type', 'reading_content', 'quiz_content', 'coding_content', 'order', 'published'])]
 class Step extends Model
 {
     /** @use HasFactory<StepFactory> */
@@ -68,7 +68,7 @@ class Step extends Model
 
     public function isAccessibleBy(User $user): bool
     {
-        return $this->lesson->hasUserCompletedPreviousStep($user, $this);
+        return $this->lesson?->hasUserCompletedPreviousStep($user, $this) ?? false;
     }
 
     #[\Override]
@@ -85,39 +85,47 @@ class Step extends Model
     public function getContentAsArray(): ?array
     {
         $source = match ($this->type) {
-            StepType::Quiz => $this->quiz_content ?? $this->content,
-            default => $this->content,
+            StepType::Quiz => $this->quiz_content,
+            default => null,
         };
 
         if (empty($source) || ! json_validate($source)) {
             return null;
         }
 
-        return json_decode($source, true);
+        $decoded = json_decode($source, true);
+
+        return is_array($decoded) ? $decoded : null;
     }
 
     /** @return array{prompt: string, initial_code: string, test_code: string, expected_output: string} */
     public function getCodingData(): array
     {
-        $source = match ($this->type) {
-            StepType::Coding => $this->coding_content ?? $this->content,
-            default => $this->content,
-        };
+        $source = $this->coding_content;
 
         $data = null;
         if (! empty($source) && json_validate($source)) {
-            $data = json_decode($source, true);
+            $decoded = json_decode($source, true);
+
+            if (is_array($decoded)) {
+                $data = $decoded;
+            }
         }
 
         if (! is_array($data)) {
             return ['prompt' => '', 'initial_code' => '', 'test_code' => '', 'expected_output' => ''];
         }
 
+        $prompt = $data['prompt'] ?? '';
+        $initialCode = $data['initial_code'] ?? '';
+        $testCode = $data['test_code'] ?? '';
+        $expectedOutput = $data['expected_output'] ?? '';
+
         return [
-            'prompt' => $data['prompt'] ?? '',
-            'initial_code' => $data['initial_code'] ?? '',
-            'test_code' => $data['test_code'] ?? '',
-            'expected_output' => $data['expected_output'] ?? '',
+            'prompt' => is_string($prompt) ? $prompt : '',
+            'initial_code' => is_string($initialCode) ? $initialCode : '',
+            'test_code' => is_string($testCode) ? $testCode : '',
+            'expected_output' => is_string($expectedOutput) ? $expectedOutput : '',
         ];
     }
 }

@@ -11,7 +11,7 @@ class StepPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->isAdmin() || $user->isInstructor();
+        return $user->isStaff();
     }
 
     public function view(User $user, Step $step): bool
@@ -21,7 +21,7 @@ class StepPolicy
 
     public function create(User $user): bool
     {
-        return $user->isAdmin() || $user->isInstructor();
+        return $user->isStaff();
     }
 
     public function update(User $user, Step $step): bool

@@ -36,7 +36,7 @@ class TriviaQuiz extends Component
 
     public function mount(): void
     {
-        $this->selectedTopics = $this->allTopics->toArray();
+        $this->selectedTopics = $this->allTopics->all();
     }
 
     /** @return Collection<int, string> */
@@ -44,11 +44,12 @@ class TriviaQuiz extends Component
     public function allTopics(): Collection
     {
         return TriviaQuestion::query()
-            ->select('topic')
             ->where('locale', app()->getLocale())
             ->distinct()
             ->orderBy('topic')
-            ->pluck('topic');
+            ->pluck('topic')
+            ->values()
+            ->map(fn (mixed $topic): string => is_string($topic) ? $topic : '');
     }
 
     /** @return \Illuminate\Database\Eloquent\Collection<int, TriviaQuestion> */
@@ -153,7 +154,7 @@ class TriviaQuiz extends Component
         $this->submitted = false;
         $this->userAnswers = [];
         $this->attemptId = null;
-        $this->selectedTopics = $this->allTopics->toArray();
+        $this->selectedTopics = $this->allTopics->all();
     }
 
     /** @param Collection<int, TriviaQuestion> $pool
@@ -161,15 +162,21 @@ class TriviaQuiz extends Component
     private function selectQuestions(Collection $pool, int $count): array
     {
         $byTopic = $pool->groupBy('topic');
-        $topics = $byTopic->keys()->toArray();
-        $perTopic = (int) floor($count / count($topics));
-        $remainder = $count % count($topics);
+        $topicNames = $byTopic->keys()->toArray();
+        $perTopic = (int) floor($count / count($topicNames));
+        $remainder = $count % count($topicNames);
 
         $selected = [];
 
-        foreach ($topics as $i => $topic) {
+        foreach ($topicNames as $i => $topic) {
             $take = $perTopic + ($i < $remainder ? 1 : 0);
-            $questions = $byTopic[$topic];
+            $topicKey = is_string($topic) ? $topic : '';
+            $questions = $byTopic->get($topicKey);
+
+            if ($questions === null) {
+                continue;
+            }
+
             $shuffled = $questions->shuffle();
             $picked = $shuffled->take($take);
 
@@ -181,22 +188,26 @@ class TriviaQuiz extends Component
         $collected = collect($selected);
         $shuffledSelected = $collected->shuffle();
 
-        return $shuffledSelected->take($count)->values()->toArray();
+        return $shuffledSelected->take($count)->values()->all();
     }
 
     /** @param array<string, mixed> $question
      * @param string|array<int, string>|null $userAnswer */
     private function checkAnswer(array $question, string|array|null $userAnswer): bool
     {
-        return (new AnswerChecker)->check($question['type'], $userAnswer, $question);
+        $type = $question['type'];
+
+        return (new AnswerChecker)->check(is_string($type) ? $type : 'single', $userAnswer, $question);
     }
 
     /** @param array<string, mixed> $question */
     private function getCorrectAnswerDisplay(array $question): string
     {
+        $answer = $question['answer'];
+
         return match ($question['type']) {
-            'multiple' => $this->formatMultipleAnswer($question['answer']),
-            default => (string) $question['answer'],
+            'multiple' => $this->formatMultipleAnswer($answer),
+            default => is_string($answer) ? $answer : (is_int($answer) || is_float($answer) ? sprintf('%s', $answer) : ''),
         };
     }
 
@@ -204,11 +215,21 @@ class TriviaQuiz extends Component
     {
         $parsed = match (true) {
             is_array($answer) => $answer,
-            is_string($answer) => json_decode($answer, true) ?? [],
+            is_string($answer) => is_array(json_decode($answer, true)) ? json_decode($answer, true) : [],
             default => [],
         };
 
-        return implode(', ', $parsed);
+        $parts = [];
+        foreach ($parsed as $v) {
+            $parts[] = match (true) {
+                is_string($v) => $v,
+                is_int($v), is_float($v) => (string) $v,
+                is_bool($v) => $v ? '1' : '',
+                default => '',
+            };
+        }
+
+        return implode(', ', $parts);
     }
 
     public function render(): View

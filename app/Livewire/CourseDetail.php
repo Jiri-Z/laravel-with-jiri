@@ -25,6 +25,9 @@ class CourseDetail extends Component
 
     public function mount(Course $course, ProgressService $progress): void
     {
+        $user = auth()->user();
+        abort_unless($user !== null, 403);
+
         abort_unless($course->published, 404);
 
         $this->ensureEnrolled($course);
@@ -32,8 +35,8 @@ class CourseDetail extends Component
         $course->load(['lessons' => fn ($q) => $q->published()->ordered()]);
 
         $this->course = $course;
-        $this->courseProgress = $progress->courseProgress(auth()->user(), $course);
-        $this->lessonCompletion = $progress->lessonCompleteBatch(auth()->user(), $course->lessons);
+        $this->courseProgress = $progress->courseProgress($user, $course);
+        $this->lessonCompletion = $progress->lessonCompleteBatch($user, $course->lessons);
     }
 
     public function render(): View

@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 trait ManagesOrdering
 {
-    public function resetPageOnSearch(): void
+    public function updatedSearch(): void
     {
         $this->resetPage();
     }

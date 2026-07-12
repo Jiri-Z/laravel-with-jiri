@@ -64,7 +64,10 @@ class SubmitQuizAnswer
             return null;
         }
 
-        return $questions[$questionIndex] ?? null;
+        $question = $questions[$questionIndex] ?? null;
+
+        /** @var array<string, mixed>|null */
+        return $question;
     }
 
     /**
@@ -72,7 +75,9 @@ class SubmitQuizAnswer
      */
     private function resolveQuestionType(array $content): string
     {
-        return $content['type'] ?? 'single';
+        $type = $content['type'] ?? 'single';
+
+        return is_string($type) ? $type : 'single';
     }
 
     /**

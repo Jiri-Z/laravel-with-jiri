@@ -34,7 +34,7 @@ new class extends Component
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    @if (auth()->user()->isAdmin() || auth()->user()->isInstructor())
+                    @if (auth()->user()->isStaff())
                         <x-nav-link :href="route('admin.courses.index')" :active="request()->routeIs('admin.*')" wire:navigate>
                             {{ __('Admin') }}
                         </x-nav-link>
@@ -128,7 +128,7 @@ new class extends Component
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
-            @if (auth()->user()->isAdmin() || auth()->user()->isInstructor())
+            @if (auth()->user()->isStaff())
                 <x-responsive-nav-link :href="route('admin.courses.index')" :active="request()->routeIs('admin.*')" wire:navigate>
                     {{ __('Admin') }}
                 </x-responsive-nav-link>

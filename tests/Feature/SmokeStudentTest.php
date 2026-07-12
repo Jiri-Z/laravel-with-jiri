@@ -39,7 +39,7 @@ class SmokeStudentTest extends TestCase
         $step = $lesson->steps()->create([
             'title' => 'Test Coding',
             'type' => StepType::Coding,
-            'content' => json_encode([
+            'coding_content' => json_encode([
                 'prompt' => 'Write PHP code',
                 'initial_code' => "<?php\n",
                 'test_code' => "<?php\necho 'ok';",
@@ -94,7 +94,7 @@ class SmokeStudentTest extends TestCase
         $step = $lesson->steps()->create([
             'title' => 'Quiz Step',
             'type' => StepType::Quiz,
-            'content' => json_encode([
+            'quiz_content' => json_encode([
                 ['type' => 'single', 'question' => 'What is 2+2?', 'options' => ['3', '4', '5'], 'answer' => 1, 'explanation' => '', 'difficulty' => 'easy', 'topic' => 'math'],
             ]),
             'order' => 1,
@@ -122,7 +122,7 @@ class SmokeStudentTest extends TestCase
         $step = $lesson->steps()->create([
             'title' => 'Reading Step',
             'type' => StepType::Reading,
-            'content' => 'Some reading content here',
+            'reading_content' => 'Some reading content here',
             'order' => 1,
         ]);
 
@@ -147,7 +147,7 @@ class SmokeStudentTest extends TestCase
         $step = $lesson->steps()->create([
             'title' => 'Complete Step',
             'type' => StepType::Reading,
-            'content' => 'Content',
+            'reading_content' => 'Content',
             'order' => 1,
         ]);
 
@@ -176,7 +176,7 @@ class SmokeStudentTest extends TestCase
         $step = $lesson->steps()->create([
             'title' => 'Quiz Submit Step',
             'type' => StepType::Quiz,
-            'content' => json_encode([
+            'quiz_content' => json_encode([
                 ['type' => 'single', 'question' => 'Pick the right one', 'options' => ['Wrong', 'Right'], 'answer' => 1, 'explanation' => '', 'difficulty' => 'easy', 'topic' => 'general'],
             ]),
             'order' => 1,
@@ -208,7 +208,7 @@ class SmokeStudentTest extends TestCase
         $lesson->steps()->create([
             'title' => 'Step One',
             'type' => StepType::Reading,
-            'content' => 'Content',
+            'reading_content' => 'Content',
             'order' => 1,
         ]);
 
@@ -233,7 +233,7 @@ class SmokeStudentTest extends TestCase
         $lesson->steps()->create([
             'title' => 'Multi Quiz Step',
             'type' => StepType::Quiz,
-            'content' => json_encode([
+            'quiz_content' => json_encode([
                 ['type' => 'single', 'question' => 'Q1', 'options' => ['A', 'B'], 'answer' => 0, 'explanation' => '', 'difficulty' => 'easy', 'topic' => 'general'],
                 ['type' => 'text', 'question' => 'Q2', 'answer' => 'ok', 'alternatives' => null, 'explanation' => '', 'difficulty' => 'easy', 'topic' => 'general'],
             ]),
@@ -261,7 +261,7 @@ class SmokeStudentTest extends TestCase
         $lesson->steps()->create([
             'title' => 'Multi Submit Step',
             'type' => StepType::Quiz,
-            'content' => json_encode([
+            'quiz_content' => json_encode([
                 ['type' => 'single', 'question' => 'Q1', 'options' => ['A', 'B'], 'answer' => 0, 'explanation' => '', 'difficulty' => 'easy', 'topic' => 'general'],
             ]),
             'order' => 1,

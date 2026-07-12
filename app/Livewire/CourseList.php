@@ -22,16 +22,20 @@ class CourseList extends Component
     {
         $user = auth()->user();
         if ($user) {
-            $enrolledCourseIds = $user->enrollments()->pluck('course_id')->all();
+            /** @var array<int, int> $enrolledCourseIds */
+            $enrolledCourseIds = $user->enrollments()->pluck('course_id')->map(fn ($id): int => is_numeric($id) ? (int) $id : 0)->all();
             $this->enrolled = array_fill_keys($enrolledCourseIds, true);
         }
     }
 
     public function enroll(int $courseId, EnrollInCourse $action): void
     {
+        $user = auth()->user();
+        if ($user === null) { return; }
+
         try {
             $course = Course::published()->findOrFail($courseId);
-            $action->handle(auth()->user(), $course);
+            $action->handle($user, $course);
         } catch (CourseNotPublishedException) {
             session()->flash('error', __('exceptions.course_not_published'));
             $this->redirect(route('courses.index'), navigate: true);

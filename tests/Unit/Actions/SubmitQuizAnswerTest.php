@@ -104,7 +104,7 @@ test('handles malformed step content gracefully', function () {
     $step = Step::factory()->create([
         'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
         'type' => StepType::Quiz,
-        'content' => '{invalid json}',
+        'quiz_content' => '{invalid json}',
     ]);
 
     $result = (new SubmitQuizAnswer)->handle($user, $step, 0, questionIndex: 0);
@@ -270,7 +270,7 @@ test('handles new format answer', function (array $data) {
     $step = Step::factory()->create([
         'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
         'type' => StepType::Quiz,
-        'content' => json_encode([$data]),
+        'quiz_content' => json_encode([$data]),
     ]);
 
     $result = (new SubmitQuizAnswer)->handle($user, $step, $data['userAnswer']);

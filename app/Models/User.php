@@ -67,6 +67,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->role === 'student';
     }
 
+    public function isStaff(): bool
+    {
+        return $this->isAdmin() || $this->isInstructor();
+    }
+
     public function ownsCourse(Course $course): bool
     {
         return $this->id === $course->user_id;

@@ -26,11 +26,6 @@ class AdminCourseList extends Component
         $this->authorize('viewAny', Course::class);
     }
 
-    public function updatedSearch(): void
-    {
-        $this->resetPageOnSearch();
-    }
-
     public function delete(int $courseId): void
     {
         $this->deleteItem(Course::findOrFail($courseId));
@@ -48,10 +43,12 @@ class AdminCourseList extends Component
 
     public function render(): View
     {
+        $user = auth()->user();
+
         $query = Course::ordered();
 
-        if (auth()->user()->isInstructor()) {
-            $query->where('user_id', auth()->id());
+        if ($user && $user->isInstructor()) {
+            $query->where('user_id', $user->id);
         }
 
         if ($this->search !== '') {

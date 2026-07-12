@@ -33,10 +33,13 @@ class StepViewer extends Component
 
     public function mount(Course $course, Lesson $lesson, Step $step): void
     {
+        $user = auth()->user();
+        abort_unless($user !== null, 403);
+
         $this->ensureContextIsValid($course, $lesson, $step);
         $this->ensureEnrolled($course);
 
-        if (! $step->isAccessibleBy(auth()->user())) {
+        if (! $step->isAccessibleBy($user)) {
             session()->flash('error', __('steps.complete_previous'));
             $this->redirect(route('lessons.show', [$course->slug, $lesson->slug]), navigate: true);
 
@@ -46,15 +49,18 @@ class StepViewer extends Component
         $this->course = $course;
         $this->lesson = $lesson;
         $this->step = $step;
-        $this->completed = StepCompletion::where('user_id', auth()->id())
+        $this->completed = StepCompletion::where('user_id', $user->id)
             ->where('step_id', $step->id)
             ->exists();
     }
 
     public function complete(): void
     {
+        $user = auth()->user();
+        if ($user === null) { return; }
+
         try {
-            (new MarkStepComplete)->handle(auth()->user(), $this->step);
+            (new MarkStepComplete)->handle($user, $this->step);
         } catch (NotEnrolledException) {
             $this->redirect(route('courses.index'), navigate: true);
 
