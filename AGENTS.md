@@ -14,7 +14,7 @@ E-learning platform. Laravel 13 + Livewire + Tailwind + Pest, scaffolded with La
    - **Green** — write the *minimum* implementation code to make the test pass. Do not add extra features, refactor, or beautify during this step.
    - **Refactor** — clean up the implementation: rename variables, extract methods, remove duplication, add type hints. The test must still pass after every refactoring step. Run the test suite to confirm.
 5. **Run affected tests** after every code change (Green and Refactor each complete with a test run)
-6. **Rector** → **Larastan** → **Pint** before commit (run in that order to avoid fix conflicts)
+6. **Rector** → **Duster fix** → **Larastan** → **Pint** before commit (run in that order to avoid fix conflicts)
 7. **Manual verification** — start dev server + Vite, navigate to the feature in a real browser, verify the runtime behaviour. "I started the server" is NOT a smoke test.
 
 ## Smoke test requirements
@@ -33,6 +33,7 @@ A smoke test is not complete until ALL of:
 ## Stack
 - **Framework:** Laravel (latest), scaffolded with Laravel Boost
 - **Frontend:** Livewire + Tailwind CSS + Alpine.js
+- **Code quality:** Laravel Pint + Duster (TLint, PHP_CodeSniffer, PHP-CS-Fixer)
 - **Testing:** Pest (every model, policy, Livewire component, significant service)
 - **Database:** PostgreSQL
 - **Auth:** Laravel Boost built-in auth + roles (`admin`, `instructor`, `student` via string/enum column)
@@ -83,6 +84,7 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - laravel/mcp (MCP) - v0
 - laravel/pail (PAIL) - v1
 - laravel/pint (PINT) - v1
+- tightenco/duster (DUSTER) - v3
 - pestphp/pest (PEST) - v4
 - phpunit/phpunit (PHPUNIT) - v12
 - tailwindcss (TAILWINDCSS) - v3
@@ -110,6 +112,8 @@ The sandbox environment has constrained resources. Always use generous bash tool
 | `php artisan test --compact` | 300 000 ms | Full suite can take 120s+ |
 | `phpstan analyse` | 600 000 ms | Larastan can take 300s+ |
 | `vendor/bin/rector process` | 600 000 ms | Internal parallel processes may time out. If so, run on specific files only: `vendor/bin/rector process --dry-run --no-progress-bar --memory-limit=-1 path/to/file.php` |
+| `vendor/bin/duster lint` | 300 000 ms | Runs TLint + PHP_CodeSniffer + PHP-CS-Fixer + Pint. Slower than Pint alone |
+| `vendor/bin/duster fix` | 300 000 ms | Auto-fixes all fixable issues across bundled tools |
 | `vendor/bin/pint` | 60 000 ms | Usually fast, but run after other tools |
 
 **Rector caveat**: Rector's `ParallelProcess` times out at 120s internally on this environment. If the whole-codebase run fails, run it per-file on changed files instead.
@@ -258,6 +262,39 @@ At the start of every session, run `application-info` to get precise package ver
 - If you have modified any PHP files, you must run `vendor/bin/pint --dirty --format agent` before finalizing changes to ensure your code matches the project's expected style.
 - Do not run `vendor/bin/pint --test --format agent`, simply run `vendor/bin/pint --format agent` to fix any formatting issues.
 - Shortcut: `composer run pint`
+
+=== duster/core rules ===
+
+# Duster (Tighten Code Quality)
+
+Duster bundles TLint, PHP_CodeSniffer, PHP-CS-Fixer, and Pint into a single command.
+
+## Commands
+
+- `./vendor/bin/duster lint` — reports all style issues without modifying files
+- `./vendor/bin/duster fix` — automatically fixes fixable issues across all four tools
+- `./vendor/bin/duster lint --dirty` — only checks files with uncommitted changes
+- `./vendor/bin/duster fix --dirty` — only fixes files with uncommitted changes
+
+## Workflow
+
+Run Duster **after Rector** and **before Larastan** in the pre-commit pipeline to avoid fix conflicts. `duster fix` handles everything that PHP-CS-Fixer, TLint, PHP_CodeSniffer, and Pint can fix in a single pass.
+
+## Configuration
+
+If you need Duster-specific configuration, add a `duster.json` to the project root:
+
+```json
+{
+    "scripts": {
+        "lint": {
+            "phpstan": ["./vendor/bin/phpstan", "analyse"]
+        }
+    }
+}
+```
+
+This also lets you add custom scripts (like PHPStan) to the `duster lint` or `duster fix` pipeline.
 
 === pest/core rules ===
 
