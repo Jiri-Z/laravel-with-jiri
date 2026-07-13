@@ -44,4 +44,5 @@ return [
     'explanation' => 'Explanation:',
     'try_again' => 'Try Again',
     'question_count_label' => 'Questions',
+    'no_questions_available' => 'No questions are available for the selected topics.',
 ];

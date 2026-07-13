@@ -5,16 +5,19 @@ declare(strict_types=1);
 namespace Tests\Unit\Actions;
 
 use App\Actions\EnrollInCourse;
-use App\Exceptions\CourseNotPublishedException;
 use App\Models\Course;
 use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tests\TestCase;
 
 class EnrollInCourseTest extends TestCase
 {
-    public function test_enrolls_user_in_published_course(): void
+    /**
+     * @test
+     */
+    public function enrolls_user_in_published_course(): void
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
@@ -27,7 +30,10 @@ class EnrollInCourseTest extends TestCase
         ]);
     }
 
-    public function test_duplicate_enrollment_is_idempotent(): void
+    /**
+     * @test
+     */
+    public function duplicate_enrollment_is_idempotent(): void
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
@@ -38,17 +44,23 @@ class EnrollInCourseTest extends TestCase
         $this->assertDatabaseCount('course_enrollments', 1);
     }
 
-    public function test_unpublished_course_throws_exception(): void
+    /**
+     * @test
+     */
+    public function unpublished_course_throws_exception(): void
     {
         $user = User::factory()->create();
         $course = Course::factory()->create(['published' => false]);
 
-        $this->expectException(CourseNotPublishedException::class);
+        $this->expectException(NotFoundHttpException::class);
 
         (new EnrollInCourse)->handle($user, $course);
     }
 
-    public function test_non_duplicate_query_exception_is_not_swallowed(): void
+    /**
+     * @test
+     */
+    public function non_duplicate_query_exception_is_not_swallowed(): void
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();

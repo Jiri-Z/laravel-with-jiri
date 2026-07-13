@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
 use App\Enums\StepType;
@@ -40,142 +42,77 @@ class CourseSeeder extends Seeder
             ]
         );
 
-        $course = Course::firstOrCreate(
-            ['slug' => __('factories.seeder_course1_slug')],
-            [
-                'title' => __('factories.seeder_course1_title'),
-                'description' => __('factories.seeder_course1_description'),
-                'published' => true,
-                'order' => 1,
-                'user_id' => $instructor->id,
-            ]
-        );
+        $locale = app()->getLocale();
+        $dataPath = database_path("data/{$locale}");
 
-        $lesson1 = Lesson::firstOrCreate(
-            ['slug' => __('factories.seeder_lesson1_slug'), 'course_id' => $course->id],
-            [
-                'title' => __('factories.seeder_lesson1_title'),
-                'description' => __('factories.seeder_lesson1_description'),
-                'published' => true,
-                'order' => 1,
-            ]
-        );
+        $courseFiles = glob("{$dataPath}/*.php");
 
-        Step::firstOrCreate(
-            ['lesson_id' => $lesson1->id, 'order' => 1],
-            [
-                'title' => __('factories.seeder_step1_title'),
-                'type' => StepType::Reading,
-                'reading_content' => __('factories.seeder_step1_content'),
-            ]
-        );
+        if ($courseFiles === false || $courseFiles === []) {
+            return;
+        }
 
-        Step::firstOrCreate(
-            ['lesson_id' => $lesson1->id, 'order' => 2],
-            [
-                'title' => __('factories.seeder_step2_title'),
-                'type' => StepType::Quiz,
-                'quiz_content' => json_encode([
-                    ['type' => 'single', 'question' => __('factories.seeder_quiz1_question'), 'options' => __('factories.seeder_quiz1_options'), 'answer' => 1, 'explanation' => 'MVC is the correct answer.', 'difficulty' => 'easy', 'topic' => 'laravel'],
-                ]),
-            ]
-        );
+        $order = 1;
 
-        Step::firstOrCreate(
-            ['lesson_id' => $lesson1->id, 'order' => 3],
-            [
-                'title' => __('factories.seeder_step4_title'),
-                'type' => StepType::Quiz,
-                'quiz_content' => json_encode([
-                    ['type' => 'text', 'question' => __('factories.seeder_quiz4_question'), 'answer' => __('factories.seeder_quiz4_answer'), 'alternatives' => null, 'explanation' => 'Web routes are defined in routes/web.php.', 'difficulty' => 'easy', 'topic' => 'laravel'],
-                ]),
-            ]
-        );
+        foreach ($courseFiles as $file) {
+            $courseData = require $file;
 
-        Step::firstOrCreate(
-            ['lesson_id' => $lesson1->id, 'order' => 4],
-            [
-                'title' => __('factories.seeder_step3_title'),
-                'type' => StepType::Quiz,
-                'quiz_content' => json_encode([
-                    ['type' => 'single', 'question' => __('factories.seeder_quiz2_question'), 'options' => __('factories.seeder_quiz2_options'), 'answer' => 1, 'explanation' => 'Web routes are defined in routes/web.php.', 'difficulty' => 'easy', 'topic' => 'laravel'],
-                    ['type' => 'text', 'question' => __('factories.seeder_quiz3_question'), 'answer' => __('factories.seeder_quiz3_answer'), 'alternatives' => ['blade', 'Blade templating engine'], 'explanation' => 'Blade is Laravels templating engine.', 'difficulty' => 'easy', 'topic' => 'laravel'],
-                ]),
-            ]
-        );
+            if (! is_array($courseData)) {
+                continue;
+            }
 
-        $lesson2 = Lesson::firstOrCreate(
-            ['slug' => __('factories.seeder_lesson2_slug'), 'course_id' => $course->id],
-            [
-                'title' => __('factories.seeder_lesson2_title'),
-                'description' => __('factories.seeder_lesson2_description'),
-                'published' => true,
-                'order' => 2,
-            ]
-        );
+            $course = Course::firstOrCreate(
+                ['slug' => $courseData['slug']],
+                [
+                    'title' => $courseData['title'],
+                    'description' => $courseData['description'],
+                    'published' => true,
+                    'order' => $order,
+                    'user_id' => $instructor->id,
+                ]
+            );
 
-        Step::firstOrCreate(
-            ['lesson_id' => $lesson2->id, 'order' => 1],
-            [
-                'title' => __('factories.seeder_step5_title'),
-                'type' => StepType::Reading,
-                'reading_content' => __('factories.seeder_step5_content'),
-            ]
-        );
+            $order++;
 
-        Step::firstOrCreate(
-            ['lesson_id' => $lesson2->id, 'order' => 2],
-            [
-                'title' => __('factories.seeder_step6_title'),
-                'type' => StepType::Quiz,
-                'quiz_content' => json_encode([
-                    ['type' => 'multiple', 'question' => __('factories.seeder_quiz5_question'), 'options' => __('factories.seeder_quiz5_options'), 'answer' => [0, 1, 2, 3], 'explanation' => 'GET, POST, PUT, and DELETE are standard HTTP methods.', 'difficulty' => 'easy', 'topic' => 'laravel'],
-                ]),
-            ]
-        );
+            $lessonOrder = 1;
 
-        $course2 = Course::firstOrCreate(
-            ['slug' => __('factories.seeder_course2_slug')],
-            [
-                'title' => __('factories.seeder_course2_title'),
-                'description' => __('factories.seeder_course2_description'),
-                'published' => true,
-                'order' => 2,
-                'user_id' => $instructor->id,
-            ]
-        );
+            foreach ($courseData['lessons'] as $lessonData) {
+                $lesson = Lesson::firstOrCreate(
+                    ['slug' => $lessonData['slug'], 'course_id' => $course->id],
+                    [
+                        'title' => $lessonData['title'],
+                        'description' => $lessonData['description'],
+                        'published' => true,
+                        'order' => $lessonOrder,
+                    ]
+                );
 
-        $lesson3 = Lesson::firstOrCreate(
-            ['slug' => __('factories.seeder_lesson3_slug'), 'course_id' => $course2->id],
-            [
-                'title' => __('factories.seeder_lesson3_title'),
-                'description' => __('factories.seeder_lesson3_description'),
-                'published' => true,
-                'order' => 1,
-            ]
-        );
+                $stepOrder = 1;
 
-        Step::firstOrCreate(
-            ['lesson_id' => $lesson3->id, 'order' => 1],
-            [
-                'title' => __('factories.seeder_step7_title'),
-                'type' => StepType::Reading,
-                'reading_content' => __('factories.seeder_step7_content'),
-            ]
-        );
+                foreach ($lessonData['steps'] as $stepData) {
+                    $stepAttributes = [
+                        'title' => $stepData['title'],
+                        'published' => true,
+                        'order' => $stepOrder,
+                    ];
 
-        Step::firstOrCreate(
-            ['lesson_id' => $lesson3->id, 'order' => 2],
-            [
-                'title' => __('factories.seeder_step8_title'),
-                'type' => StepType::Coding,
-                'coding_content' => json_encode([
-                    'prompt' => __('factories.seeder_coding1_prompt'),
-                    'initial_code' => __('factories.seeder_coding1_initial_code'),
-                    'test_code' => __('factories.seeder_coding1_test_code'),
-                    'expected_output' => __('factories.seeder_coding1_expected_output'),
-                ]),
-            ]
-        );
+                    if ($stepData['type'] === 'reading') {
+                        $stepAttributes['type'] = StepType::Reading;
+                        $stepAttributes['reading_content'] = $stepData['content'];
+                    } elseif ($stepData['type'] === 'quiz') {
+                        $stepAttributes['type'] = StepType::Quiz;
+                        $stepAttributes['quiz_content'] = json_encode($stepData['quiz_content']);
+                    }
+
+                    Step::firstOrCreate(
+                        ['lesson_id' => $lesson->id, 'order' => $stepOrder],
+                        $stepAttributes
+                    );
+
+                    $stepOrder++;
+                }
+
+                $lessonOrder++;
+            }
+        }
     }
 }

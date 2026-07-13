@@ -3,7 +3,6 @@
 namespace Tests\Unit\Actions;
 
 use App\Actions\MarkStepComplete;
-use App\Exceptions\CourseNotPublishedException;
 use App\Exceptions\NotEnrolledException;
 use App\Exceptions\StepNotAccessibleException;
 use App\Models\Course;
@@ -11,18 +10,15 @@ use App\Models\Lesson;
 use App\Models\Step;
 use App\Models\StepCompletion;
 use App\Models\User;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tests\TestCase;
 
 class MarkStepCompleteTest extends TestCase
 {
-    private function createEnrolledUserStep(): array
-    {
-        [$user, $course, $lesson, $step] = $this->enrolledUserWithStep();
-
-        return [$user, $step];
-    }
-
-    public function test_creates_completion_record(): void
+    /**
+     * @test
+     */
+    public function creates_completion_record(): void
     {
         [$user, $step] = $this->createEnrolledUserStep();
 
@@ -35,7 +31,10 @@ class MarkStepCompleteTest extends TestCase
         ]);
     }
 
-    public function test_does_not_duplicate_completion(): void
+    /**
+     * @test
+     */
+    public function does_not_duplicate_completion(): void
     {
         [$user, $step] = $this->createEnrolledUserStep();
 
@@ -51,7 +50,10 @@ class MarkStepCompleteTest extends TestCase
         $this->assertDatabaseCount('step_completions', 1);
     }
 
-    public function test_handles_race_condition_when_row_already_exists(): void
+    /**
+     * @test
+     */
+    public function handles_race_condition_when_row_already_exists(): void
     {
         [$user, $step] = $this->createEnrolledUserStep();
 
@@ -68,7 +70,10 @@ class MarkStepCompleteTest extends TestCase
         $this->assertDatabaseCount('step_completions', 1);
     }
 
-    public function test_sets_completed_at_timestamp(): void
+    /**
+     * @test
+     */
+    public function sets_completed_at_timestamp(): void
     {
         [$user, $step] = $this->createEnrolledUserStep();
 
@@ -86,7 +91,10 @@ class MarkStepCompleteTest extends TestCase
         expect($completion->completed_at)->not->toBeNull();
     }
 
-    public function test_blocks_inaccessible_step(): void
+    /**
+     * @test
+     */
+    public function blocks_inaccessible_step(): void
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
@@ -101,7 +109,10 @@ class MarkStepCompleteTest extends TestCase
         (new MarkStepComplete)->handle($user, $secondStep);
     }
 
-    public function test_blocks_unenrolled_user(): void
+    /**
+     * @test
+     */
+    public function blocks_unenrolled_user(): void
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
@@ -113,15 +124,25 @@ class MarkStepCompleteTest extends TestCase
         (new MarkStepComplete)->handle($user, $step);
     }
 
-    public function test_blocks_unpublished_course(): void
+    /**
+     * @test
+     */
+    public function blocks_unpublished_course(): void
     {
         $user = User::factory()->create();
         $course = Course::factory()->create(['published' => false]);
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->reading()->create(['lesson_id' => $lesson->id]);
 
-        $this->expectException(CourseNotPublishedException::class);
+        $this->expectException(NotFoundHttpException::class);
 
         (new MarkStepComplete)->handle($user, $step);
+    }
+
+    private function createEnrolledUserStep(): array
+    {
+        [$user, $course, $lesson, $step] = $this->enrolledUserWithStep();
+
+        return [$user, $step];
     }
 }

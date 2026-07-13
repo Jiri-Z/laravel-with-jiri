@@ -7,6 +7,7 @@ namespace App\Livewire;
 use App\Actions\ImportLessonFromYaml;
 use App\Models\Course;
 use App\Models\Lesson;
+use Exception;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\UploadedFile;
 use Livewire\Attributes\Layout;
@@ -14,6 +15,7 @@ use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Symfony\Component\Yaml\Yaml;
+use Throwable;
 
 #[Layout('layouts.app')]
 class AdminLessonImport extends Component
@@ -22,7 +24,7 @@ class AdminLessonImport extends Component
 
     public Course $course;
 
-    #[Validate(['yamlFile' => 'file|mimes:yaml,yml,txt|max:51200'])]
+    #[Validate(['yamlFile' => 'required|file|mimes:yaml,yml,txt|max:51200'])]
     public ?UploadedFile $yamlFile = null;
 
     public ?string $error = null;
@@ -89,8 +91,8 @@ class AdminLessonImport extends Component
             /** @var array<int, array<string, mixed>> $steps */
             $steps = $data['steps'];
             $this->parsedSteps = $steps;
-        } catch (\Exception $e) {
-            $this->error = 'Failed to parse YAML: '.$e->getMessage();
+        } catch (Throwable $e) {
+            $this->error = 'Failed to parse YAML: ' . $e->getMessage();
         }
     }
 
@@ -140,7 +142,7 @@ class AdminLessonImport extends Component
             ]);
 
             $this->redirect(route('admin.lessons.index', $this->course), navigate: true);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error = $e->getMessage();
             $this->importing = false;
         }

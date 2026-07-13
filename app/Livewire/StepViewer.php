@@ -36,6 +36,10 @@ class StepViewer extends Component
         $user = auth()->user();
         abort_unless($user !== null, 403);
 
+        $this->course = $course;
+        $this->lesson = $lesson;
+        $this->step = $step;
+
         $this->ensureContextIsValid($course, $lesson, $step);
         $this->ensureEnrolled($course);
 
@@ -45,10 +49,6 @@ class StepViewer extends Component
 
             return;
         }
-
-        $this->course = $course;
-        $this->lesson = $lesson;
-        $this->step = $step;
         $this->completed = StepCompletion::where('user_id', $user->id)
             ->where('step_id', $step->id)
             ->whereNotNull('completed_at')

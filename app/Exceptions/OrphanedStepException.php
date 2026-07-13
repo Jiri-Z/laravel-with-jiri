@@ -6,10 +6,10 @@ namespace App\Exceptions;
 
 use Exception;
 
-class CourseNotPublishedException extends Exception
+class OrphanedStepException extends Exception
 {
     public function __construct()
     {
-        parent::__construct(__('exceptions.course_not_published'));
+        parent::__construct(__('exceptions.orphaned_step'));
     }
 }

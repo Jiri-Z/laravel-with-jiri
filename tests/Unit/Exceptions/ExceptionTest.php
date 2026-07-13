@@ -1,13 +1,13 @@
 <?php
 
-use App\Exceptions\CourseNotPublishedException;
 use App\Exceptions\NotEnrolledException;
+use App\Exceptions\OrphanedStepException;
 use App\Exceptions\StepNotAccessibleException;
 
-test('course not published exception message', function () {
-    $e = new CourseNotPublishedException;
+test('orphaned step exception message', function () {
+    $e = new OrphanedStepException;
 
-    expect($e->getMessage())->toBe(__('exceptions.course_not_published'));
+    expect($e->getMessage())->toBe(__('exceptions.orphaned_step'));
 });
 
 test('not enrolled exception message', function () {
@@ -23,7 +23,7 @@ test('step not accessible exception message', function () {
 });
 
 test('all domain exceptions extend exception', function () {
-    expect(new CourseNotPublishedException)->toBeInstanceOf(Exception::class)
-        ->and(new NotEnrolledException)->toBeInstanceOf(Exception::class)
+    expect(new NotEnrolledException)->toBeInstanceOf(Exception::class)
+        ->and(new OrphanedStepException)->toBeInstanceOf(Exception::class)
         ->and(new StepNotAccessibleException)->toBeInstanceOf(Exception::class);
 });

@@ -12,6 +12,7 @@ use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use RuntimeException;
 
 /** @property-read Collection<int, string> $allTopics */
 #[Layout('layouts.app')]
@@ -94,11 +95,19 @@ class TriviaQuiz extends Component
             return;
         }
 
+        if ($this->questionCount === 0) {
+            session()->flash('error', __('trivia.no_questions_available'));
+
+            return;
+        }
+
         $pool = TriviaQuestion::where('locale', app()->getLocale())
             ->whereIn('topic', $this->selectedTopics)
             ->get();
 
         if ($pool->isEmpty()) {
+            session()->flash('error', __('trivia.no_questions_available'));
+
             return;
         }
 
@@ -157,8 +166,14 @@ class TriviaQuiz extends Component
             ];
         }
 
+        $userId = auth()->id();
+
+        if ($userId === null) {
+            throw new RuntimeException('User must be authenticated to submit a trivia attempt.');
+        }
+
         $attempt = TriviaAttempt::create([
-            'user_id' => auth()->id(),
+            'user_id' => $userId,
             'score' => $score,
             'total' => $total,
             'answers' => $answers,
@@ -179,6 +194,11 @@ class TriviaQuiz extends Component
         $this->attemptId = null;
         $this->selectedTopics = $this->allTopics->all();
         $this->questionCount = $this->availableQuestionCount();
+    }
+
+    public function render(): View
+    {
+        return view('livewire.trivia-quiz');
     }
 
     /** @param Collection<int, TriviaQuestion> $pool
@@ -254,10 +274,5 @@ class TriviaQuiz extends Component
         }
 
         return implode(', ', $parts);
-    }
-
-    public function render(): View
-    {
-        return view('livewire.trivia-quiz');
     }
 }

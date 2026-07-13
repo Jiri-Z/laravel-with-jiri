@@ -43,7 +43,13 @@ class Dashboard extends Component
 
         $resumeStep = $this->findResumeStep($courses);
 
-        return view('livewire.dashboard', compact('courses', 'progressData', 'totalCompleted', 'recentCompletions', 'resumeStep'));
+        return view('livewire.dashboard', [
+            'courses' => $courses,
+            'progressData' => $progressData,
+            'totalCompleted' => $totalCompleted,
+            'recentCompletions' => $recentCompletions,
+            'resumeStep' => $resumeStep,
+        ]);
     }
 
     /**
@@ -70,6 +76,7 @@ class Dashboard extends Component
             ->orderBy('lessons.order')
             ->orderBy('steps.order')
             ->select('steps.*')
+            ->with('lesson.course')
             ->first();
     }
 }

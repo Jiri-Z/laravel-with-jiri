@@ -44,4 +44,5 @@ return [
     'explanation' => 'Explanation:',
     'try_again' => 'Try Again',
     'question_count_label' => 'Questions',
+    'no_questions_available' => 'Pro vybraná témata nejsou k dispozici žádné otázky.',
 ];

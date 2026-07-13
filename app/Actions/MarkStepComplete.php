@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
-use App\Exceptions\CourseNotPublishedException;
 use App\Exceptions\NotEnrolledException;
+use App\Exceptions\OrphanedStepException;
 use App\Exceptions\StepNotAccessibleException;
 use App\Models\CourseEnrollment;
 use App\Models\Lesson;
@@ -13,6 +13,7 @@ use App\Models\Step;
 use App\Models\StepCompletion;
 use App\Models\User;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Log;
 
 class MarkStepComplete
 {
@@ -21,14 +22,12 @@ class MarkStepComplete
         $lesson = $step->lesson;
 
         if ($lesson === null) {
-            throw new CourseNotPublishedException;
+            throw new OrphanedStepException;
         }
 
         $course = $lesson->course;
 
-        if (! $course || ! $course->published) {
-            throw new CourseNotPublishedException;
-        }
+        abort_unless($course && $course->published, 404);
 
         $enrolled = CourseEnrollment::where('user_id', $user->id)
             ->where('course_id', $course->id)
@@ -60,7 +59,13 @@ class MarkStepComplete
             $this->unlockNextStep($user, $step, $lesson);
 
             return true;
-        } catch (QueryException) {
+        } catch (QueryException $e) {
+            Log::warning('Failed to mark step complete', [
+                'user_id' => $user->id,
+                'step_id' => $step->id,
+                'error' => $e->getMessage(),
+            ]);
+
             return false;
         }
     }
@@ -81,8 +86,13 @@ class MarkStepComplete
                 ['user_id' => $user->id, 'step_id' => $nextStep->id],
                 ['unlocked_at' => now()],
             );
-        } catch (QueryException) {
-
+        } catch (QueryException $e) {
+            Log::warning('Failed to unlock next step', [
+                'user_id' => $user->id,
+                'step_id' => $step->id,
+                'next_step_id' => $nextStep->id,
+                'error' => $e->getMessage(),
+            ]);
         }
     }
 }
