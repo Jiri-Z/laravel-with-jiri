@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Notifications\ResetPassword;
+use App\Notifications\VerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Contracts\Translation\HasLocalePreference;
@@ -22,6 +24,18 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
+
+    #[Override]
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new VerifyEmail);
+    }
+
+    #[Override]
+    public function sendPasswordResetNotification(#[\SensitiveParameter] mixed $token): void
+    {
+        $this->notify(new ResetPassword($token));
+    }
 
     /** @return HasMany<Course, $this> */
     public function courses(): HasMany

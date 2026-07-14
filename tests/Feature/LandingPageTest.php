@@ -10,7 +10,9 @@ class LandingPageTest extends TestCase
 {
     public function test_guest_can_view_landing_page(): void
     {
-        $this->get('/')->assertOk();
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('/favicon.svg');
     }
 
     public function test_landing_page_shows_published_courses(): void
