@@ -37,7 +37,7 @@ class StepViewerCodingTest extends TestCase
                 'step' => $step,
             ])
             ->assertSet('completed', false)
-            ->call('markCodingComplete')
+            ->call('markCodingComplete', output: '5')
             ->assertSet('completed', true);
 
         $this->assertDatabaseHas('step_completions', [
@@ -62,9 +62,29 @@ class StepViewerCodingTest extends TestCase
                 'step' => $step,
             ])
             ->assertSet('completed', true)
-            ->call('markCodingComplete');
+            ->call('markCodingComplete', output: '5');
 
         $this->assertDatabaseCount('step_completions', 1);
+    }
+
+    public function test_coding_viewer_requires_correct_output(): void
+    {
+        [$user, $course, $lesson, $step] = $this->enrolledUserWithStep('coding');
+
+        Livewire::actingAs($user)
+            ->test(CodingViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
+            ->assertSet('completed', false)
+            ->call('markCodingComplete', output: 'wrong_output')
+            ->assertSet('completed', false);
+
+        $this->assertDatabaseMissing('step_completions', [
+            'user_id' => $user->id,
+            'step_id' => $step->id,
+        ]);
     }
 
     public function test_previously_completed_coding_step_shows_badge(): void
@@ -107,23 +127,19 @@ class StepViewerCodingTest extends TestCase
         }
     }
 
-    public function test_coding_viewer_blocks_unenrolled_user(): void
+    public function test_coding_viewer_redirects_unenrolled_user(): void
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->coding()->create(['lesson_id' => $lesson->id]);
 
-        $this->actingAs($user);
-
-        $component = new CodingViewer;
-
-        try {
-            $component->mount($course, $lesson, $step);
-
-            $this->fail('Expected CodingViewer to abort for unenrolled user.');
-        } catch (HttpException $e) {
-            $this->assertSame(403, $e->getStatusCode());
-        }
+        Livewire::actingAs($user)
+            ->test(CodingViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
+            ->assertRedirect(route('courses.index'));
     }
 }

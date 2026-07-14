@@ -18,25 +18,6 @@ use Tests\TestCase;
 
 class StepCompletionToggleTest extends TestCase
 {
-    /** @return array{0: User, 1: Course, 2: Lesson, 3: array<int, Step>} */
-    private function enrolledMultiSteps(int $count = 1): array
-    {
-        $user = User::factory()->create();
-        $course = Course::factory()->published()->create();
-        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
-        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
-
-        $steps = [];
-        for ($i = 1; $i <= $count; $i++) {
-            $steps[$i] = Step::factory()->reading()->create([
-                'lesson_id' => $lesson->id,
-                'order' => $i,
-            ]);
-        }
-
-        return [$user, $course, $lesson, $steps];
-    }
-
     public function test_user_can_uncheck_a_reading_step(): void
     {
         [$user, $course, $lesson, $steps] = $this->enrolledMultiSteps();
@@ -60,7 +41,7 @@ class StepCompletionToggleTest extends TestCase
 
         expect($completion)->not->toBeNull();
         expect($completion->completed_at)->toBeNull();
-        expect($completion->unlocked_at)->not->toBeNull();
+        expect($completion->unlocked_at)->toBeNull();
     }
 
     public function test_unchecked_step_can_be_recompleted(): void
@@ -117,13 +98,12 @@ class StepCompletionToggleTest extends TestCase
         expect($completion->completed_at)->toBeNull();
     }
 
-    public function test_unchecking_does_not_lock_subsequent_steps(): void
+    public function test_unchecking_locks_immediate_next_step(): void
     {
         [$user, $course, $lesson, $steps] = $this->enrolledMultiSteps(3);
 
         (new MarkStepComplete)->handle($user, $steps[1]);
         (new MarkStepComplete)->handle($user, $steps[2]);
-        (new MarkStepComplete)->handle($user, $steps[3]);
 
         Livewire::actingAs($user)
             ->test(StepViewer::class, [
@@ -134,12 +114,30 @@ class StepCompletionToggleTest extends TestCase
             ->call('toggleComplete')
             ->assertSet('completed', false);
 
+        // Step2's unlocked_at should be nulled (re-locked)
+        $step2Completion = StepCompletion::where('user_id', $user->id)
+            ->where('step_id', $steps[2]->id)
+            ->first();
+
+        expect($step2Completion->unlocked_at)->toBeNull();
+
+        // Step2 is now locked
         $this->actingAs($user)
             ->get("/courses/{$course->slug}/lessons/{$lesson->slug}/steps/{$steps[2]->id}")
-            ->assertOk();
+            ->assertRedirect("/courses/{$course->slug}/lessons/{$lesson->slug}");
+
+        // Re-complete step1 to unlock the chain again
+        Livewire::actingAs($user)
+            ->test(StepViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $steps[1],
+            ])
+            ->call('toggleComplete')
+            ->assertSet('completed', true);
 
         $this->actingAs($user)
-            ->get("/courses/{$course->slug}/lessons/{$lesson->slug}/steps/{$steps[3]->id}")
+            ->get("/courses/{$course->slug}/lessons/{$lesson->slug}/steps/{$steps[2]->id}")
             ->assertOk();
     }
 
@@ -193,5 +191,57 @@ class StepCompletionToggleTest extends TestCase
         $this->actingAs($user)
             ->get("/courses/{$course->slug}/lessons/{$lesson->slug}")
             ->assertDontSee(__('lessons.completed'));
+    }
+
+    public function test_unchecking_step_relocks_next_step(): void
+    {
+        [$user, $course, $lesson, $steps] = $this->enrolledMultiSteps(3);
+
+        (new MarkStepComplete)->handle($user, $steps[1]);
+        (new MarkStepComplete)->handle($user, $steps[2]);
+        (new MarkStepComplete)->handle($user, $steps[3]);
+
+        Livewire::actingAs($user)
+            ->test(StepViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $steps[1],
+            ])
+            ->call('toggleComplete')
+            ->assertSet('completed', false);
+
+        // Step2 should be re-locked (unlocked_at = null)
+        $step2Completion = StepCompletion::where('user_id', $user->id)
+            ->where('step_id', $steps[2]->id)
+            ->first();
+
+        expect($step2Completion->completed_at)->not->toBeNull();
+        expect($step2Completion->unlocked_at)->toBeNull();
+
+        // Step3 should still be unlocked (not cascading)
+        $step3Completion = StepCompletion::where('user_id', $user->id)
+            ->where('step_id', $steps[3]->id)
+            ->first();
+
+        expect($step3Completion->unlocked_at)->not->toBeNull();
+    }
+
+    /** @return array{0: User, 1: Course, 2: Lesson, 3: array<int, Step>} */
+    private function enrolledMultiSteps(int $count = 1): array
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+
+        $steps = [];
+        for ($i = 1; $i <= $count; $i++) {
+            $steps[$i] = Step::factory()->reading()->create([
+                'lesson_id' => $lesson->id,
+                'order' => $i,
+            ]);
+        }
+
+        return [$user, $course, $lesson, $steps];
     }
 }

@@ -70,7 +70,7 @@ class SmokeDashboardTest extends TestCase
             ->assertSee(__('trivia.select_topics'));
     }
 
-    public function test_czech_locale_shows_placeholder_content(): void
+    public function test_czech_locale_shows_czech_content(): void
     {
         App::setLocale('cs');
         $user = User::factory()->create(['role' => 'student', 'locale' => 'cs']);
@@ -80,6 +80,6 @@ class SmokeDashboardTest extends TestCase
 
         $response = $this->actingAs($user)->get('/dashboard');
         $response->assertOk();
-        $response->assertSee('CS:'); // Czech factory placeholder prefix
+        $response->assertSee(__('dashboard.course_progress'));
     }
 }

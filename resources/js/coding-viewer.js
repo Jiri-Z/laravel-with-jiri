@@ -1,98 +1,81 @@
-const MONACO_CDN = 'https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1/min/vs';
-
-function loadMonaco() {
-    if (window.monaco) return Promise.resolve(window.monaco);
-    return new Promise((resolve) => {
-        const script = document.createElement('script');
-        script.src = `${MONACO_CDN}/loader.js`;
-        script.onload = () => {
-            require.config({ paths: { vs: MONACO_CDN } });
-            require(['vs/editor/editor.main'], (monaco) => {
-                resolve(monaco);
-            });
-        };
-        document.head.appendChild(script);
-    });
-}
-
-function loadPhpWasm() {
-    return import('https://cdn.jsdelivr.net/npm/php-wasm/PhpWeb.mjs');
-}
+import { createEditor, createPhpRuntime } from './php-wasm';
 
 export function codingViewer(config) {
     return {
         editor: null,
         php: null,
         output: '',
-        loading: true,
-        loadingPhp: false,
+        status: 'loading',
         phpReady: false,
         running: false,
         checking: false,
         result: null,
         completedAtStart: config.completed,
-        lastOutput: '',
 
         async init() {
             this.$nextTick(() => this.boot());
         },
 
         async boot() {
+            const container = this.$el.querySelector('.editor-container');
+
             try {
-                const monaco = await loadMonaco();
-                const container = this.$el.querySelector('.monaco-editor-container');
-                this.editor = monaco.editor.create(container, {
-                    value: config.initialCode,
-                    language: 'php',
-                    theme: 'vs-dark',
-                    minimap: { enabled: false },
-                    fontSize: 14,
-                    automaticLayout: true,
-                });
-                this.loading = false;
+                const result = await createEditor(container, config.initialCode, 'php');
+                this.editor = result.editor;
             } catch (e) {
-                console.error('Failed to load Monaco editor:', e);
-                this.loading = false;
+                console.error('Failed to create editor:', e);
+                container.innerHTML = '<textarea class="w-full h-full p-4 font-mono text-sm bg-gray-900 text-green-400 border-0 resize-none focus:outline-none" spellcheck="false">' + config.initialCode.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</textarea>';
+                const ta = container.querySelector('textarea');
+                this.editor = {
+                    getValue: () => ta.value,
+                    setValue: (v) => { ta.value = v; },
+                    onDidChangeModelContent: () => {},
+                    dispose: () => { ta.remove(); },
+                };
             }
 
+            this.status = 'loading-php';
             this.initPhp();
         },
 
         async initPhp() {
-            this.loadingPhp = true;
             try {
-                const { PhpWeb } = await loadPhpWasm();
-                this.php = new PhpWeb();
+                const { php, ready } = await createPhpRuntime();
+                this.php = php;
 
-                this.php.addEventListener('ready', () => {
-                    this.phpReady = true;
+                let outputAccumulator = '';
+                php.addEventListener('output', (event) => {
+                    outputAccumulator += event.detail;
+                });
+                php.addEventListener('error', (event) => {
+                    outputAccumulator += (config.translations?.error_prefix || '[PHP Error]: ') + event.detail;
                 });
 
-                this.php.addEventListener('output', (event) => {
-                    this.lastOutput += event.detail;
-                });
+                this._getOutput = () => outputAccumulator;
+                this._resetOutput = () => { outputAccumulator = ''; };
 
-                this.php.addEventListener('error', (event) => {
-                    this.lastOutput += `${config.translations?.error_prefix ?? '[PHP Error]: '}${event.detail}`;
-                });
+                await ready;
+                this.phpReady = true;
+                this.status = 'ready';
             } catch (e) {
                 console.error('Failed to load PHP WASM:', e);
+                this.status = 'error';
+                this.output = 'Failed to load PHP runtime: ' + e.message;
             }
-            this.loadingPhp = false;
         },
 
         async run() {
             if (!this.phpReady || this.running) return;
             this.running = true;
             this.output = '';
-            this.lastOutput = '';
+            this._resetOutput();
             this.result = null;
             try {
                 const code = this.editor.getValue();
                 await this.php.run(code);
-                this.output = this.lastOutput;
+                this.output = this._getOutput();
             } catch (e) {
-                this.output = config.translations?.error ?? `Error: ${e.message}`;
+                this.output = config.translations?.error || 'Error: ' + e.message;
             }
             this.running = false;
         },
@@ -102,27 +85,58 @@ export function codingViewer(config) {
             if (this.completedAtStart) return;
             this.checking = true;
             this.output = '';
-            this.lastOutput = '';
+            this._resetOutput();
             this.result = null;
+
             try {
                 const userCode = this.editor.getValue();
-                const combinedCode = userCode + '\n' + config.testCode;
+                const userHasPhpTag = /^<\?php/i.test(userCode.trim());
+                const testHasPhpTag = /^<\?php/i.test(config.testCode.trim());
+
+                let combinedCode;
+                if (userHasPhpTag && testHasPhpTag) {
+                    combinedCode = userCode + '\n' + config.testCode.replace(/^<\?php\s*/i, '');
+                } else if (!userHasPhpTag && testHasPhpTag) {
+                    combinedCode = '<?php ' + userCode + '\n' + config.testCode.replace(/^<\?php\s*/i, '');
+                } else {
+                    combinedCode = userCode + '\n' + config.testCode;
+                }
+
                 await this.php.run(combinedCode);
-                const actualOutput = this.lastOutput.trim();
+                const actualOutput = this._getOutput().trim();
                 const expectedOutput = config.expectedOutput.trim();
 
                 if (actualOutput === expectedOutput) {
                     this.result = 'correct';
-                    this.$wire.markCodingComplete();
+                    this.$wire.markCodingComplete(actualOutput);
                 } else {
                     this.result = 'incorrect';
                 }
                 this.output = actualOutput;
             } catch (e) {
-                this.output = config.translations?.error ?? `Error: ${e.message}`;
+                this.output = config.translations?.error || 'Error: ' + e.message;
                 this.result = 'incorrect';
             }
             this.checking = false;
+        },
+
+        handleKeydown(event) {
+            if (event.ctrlKey && event.shiftKey && event.key === 'Enter') {
+                event.preventDefault();
+                this.check();
+            } else if (event.ctrlKey && event.key === 'Enter') {
+                event.preventDefault();
+                this.run();
+            }
+        },
+
+        destroy() {
+            if (this.editor && this.editor.dispose) {
+                this.editor.dispose();
+            }
+            if (this.php && this.php.terminate) {
+                this.php.terminate();
+            }
         },
     };
 }

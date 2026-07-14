@@ -58,7 +58,9 @@
                                             <div class="flex items-center gap-2">
                                                 <a href="{{ route('admin.courses.edit', $course) }}" wire:navigate class="text-indigo-600 dark:text-indigo-300 hover:underline">{{ __('admin.edit') }}</a>
                                                 <a href="{{ route('admin.lessons.index', $course) }}" wire:navigate class="text-indigo-600 dark:text-indigo-300 hover:underline">{{ __('admin.lessons') }}</a>
-                                                <button wire:click="delete({{ $course->id }})" wire:confirm="{{ __('admin.delete_confirm') }}" class="text-red-600 dark:text-red-400 hover:underline">{{ __('admin.delete') }}</button>
+                                                @can('delete', $course)
+                                                    <button wire:click="delete({{ $course->id }})" wire:confirm="{{ __('admin.delete_confirm') }}" class="text-red-600 dark:text-red-400 hover:underline">{{ __('admin.delete') }}</button>
+                                                @endcan
                                             </div>
                                         </td>
                                     </tr>

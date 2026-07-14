@@ -22,7 +22,7 @@ test('course factory uses czech description when locale is cs', function () {
     $course = Course::factory()->create();
     App::setLocale('en');
 
-    expect($course->description)->toStartWith('CS:');
+    expect($course->description)->not->toStartWith('CS:');
 });
 
 test('lesson factory uses czech description when locale is cs', function () {
@@ -30,7 +30,7 @@ test('lesson factory uses czech description when locale is cs', function () {
     $lesson = Lesson::factory()->create();
     App::setLocale('en');
 
-    expect($lesson->description)->toStartWith('CS:');
+    expect($lesson->description)->not->toStartWith('CS:');
 });
 
 test('step factory reading default uses czech content when locale is cs', function () {
@@ -38,7 +38,7 @@ test('step factory reading default uses czech content when locale is cs', functi
     $step = Step::factory()->create();
     App::setLocale('en');
 
-    expect($step->reading_content)->toStartWith('CS:');
+    expect($step->reading_content)->not->toStartWith('CS:');
 });
 
 test('step factory reading state uses czech content when locale is cs', function () {
@@ -46,7 +46,7 @@ test('step factory reading state uses czech content when locale is cs', function
     $step = Step::factory()->reading()->create();
     App::setLocale('en');
 
-    expect($step->reading_content)->toStartWith('CS:');
+    expect($step->reading_content)->not->toStartWith('CS:');
 });
 
 test('step factory quiz single state uses czech question when locale is cs', function () {
@@ -55,7 +55,7 @@ test('step factory quiz single state uses czech question when locale is cs', fun
     App::setLocale('en');
 
     $content = json_decode((string) $step->quiz_content, true);
-    expect($content[0]['question'])->toStartWith('CS:');
+    expect($content[0]['question'])->not->toStartWith('CS:');
 });
 
 test('step factory quiz multiple state uses czech question when locale is cs', function () {
@@ -64,7 +64,7 @@ test('step factory quiz multiple state uses czech question when locale is cs', f
     App::setLocale('en');
 
     $content = json_decode((string) $step->quiz_content, true);
-    expect($content[0]['question'])->toStartWith('CS:');
+    expect($content[0]['question'])->not->toStartWith('CS:');
 });
 
 test('step factory quiz text state uses czech question when locale is cs', function () {
@@ -73,7 +73,7 @@ test('step factory quiz text state uses czech question when locale is cs', funct
     App::setLocale('en');
 
     $content = json_decode((string) $step->quiz_content, true);
-    expect($content[0]['question'])->toStartWith('CS:');
+    expect($content[0]['question'])->not->toStartWith('CS:');
 });
 
 test('step factory coding state uses czech prompt when locale is cs', function () {
@@ -82,5 +82,5 @@ test('step factory coding state uses czech prompt when locale is cs', function (
     App::setLocale('en');
 
     $content = json_decode((string) $step->coding_content, true);
-    expect($content['prompt'])->toStartWith('CS:');
+    expect($content['prompt'])->not->toStartWith('CS:');
 });

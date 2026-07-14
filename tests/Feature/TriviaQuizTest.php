@@ -11,6 +11,7 @@ use App\Models\User;
 use Database\Seeders\TriviaQuestionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
+use ReflectionMethod;
 use Tests\TestCase;
 
 uses(TestCase::class, RefreshDatabase::class);
@@ -203,6 +204,13 @@ test('trivia questions are filtered by locale', function () {
         ->assertCount('questions', 2); // 2 en routing questions, not 3
 });
 
+test('welcome screen uses @js for safe topic output', function () {
+    $this->actingAs($this->user)
+        ->get('/quiz')
+        ->assertOk()
+        ->assertSee('JSON.parse(');
+});
+
 test('trivia question seeder sets correct locale', function () {
     $this->seed(TriviaQuestionSeeder::class);
 
@@ -309,4 +317,10 @@ test('dashboard shows trivia card', function () {
         ->assertOk()
         ->assertSee(__('trivia.title'))
         ->assertSee(__('dashboard.trivia_cta'));
+});
+
+test('checkAnswer is public so blade template can call it', function () {
+    $reflection = new ReflectionMethod(TriviaQuiz::class, 'checkAnswer');
+
+    expect($reflection->isPublic())->toBeTrue();
 });

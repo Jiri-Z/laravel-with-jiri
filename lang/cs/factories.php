@@ -1,28 +1,28 @@
 <?php
 
 return [
-    'course_description' => 'CS: A beginner-friendly course covering the fundamentals of the Laravel PHP framework, from routing and controllers to Eloquent ORM and Blade templating.',
+    'course_description' => 'Kurz přátelský pro začátečníky pokrývající základy Laravel PHP frameworku, od routování a控制器 až po Eloquent ORM a Blade šablony.',
 
-    'lesson_description' => 'CS: Learn the essential concepts and hands-on skills needed to build modern web applications with Laravel.',
+    'lesson_description' => 'Naučte se základní koncepty a praktické dovednosti potřebné k tvorbě moderních webových aplikací s Laravelem.',
 
-    'step_reading_default' => "CS: Laravel is a PHP web application framework known for its expressive syntax and robust tooling. It follows the Model-View-Controller (MVC) architectural pattern, which helps developers organize their code into reusable components. The framework provides a rich ecosystem of tools including Eloquent ORM for database interactions, Blade for templating, and Artisan for command-line tasks.\n\nOne of Laravel's key features is its service container, which manages class dependencies and performs dependency injection automatically. This makes it easy to swap implementations and keep your code testable. The framework also includes a powerful query builder, migration system for version-controlled database schemas, and built-in support for queues, caching, and event broadcasting.\n\nSecurity is built into Laravel from the ground up, with features like CSRF protection, password hashing, and encrypted cookies. The framework also includes a built-in authorization system through policies and gates, making it straightforward to control access to your application resources.",
+    'step_reading_default' => "Laravel je PHP framework pro webové aplikace známý svou expresivní syntaxí a robustními nástroji. Používá architektonický vzor Model-View-Controller (MVC), který pomáhá vývojářům organizovat kód do znovupoužitelných komponent. Framework poskytuje bohatý ekosystém nástrojů včetně Eloquent ORM pro práci s databází, Blade pro šablony a Artisan pro příkazový řádek.\n\nJednou z klíčových vlastností Laravelu je service container, který automaticky spravuje závislosti tříd a provádí dependency injection. To usnadňuje výměnu implementací a udržuje kód testovatelný. Framework také obsahuje výkonný query builder, migrační systém pro verzování databázových schémat a vestavěnou podporu pro fronty, cache a event broadcasting.\n\nBezpečnost je v Laravelu zabudována od základů – ochrana CSRF, hashování hesel a šifrované cookies. Framework také obsahuje autorizační systém pomocí policies a gates, který umožňuje snadno řídit přístup k prostředkům aplikace.",
 
-    'step_reading_content' => "CS: The Laravel framework provides an elegant syntax for building web applications. At its core, Laravel uses a service container for dependency management, allowing you to bind interfaces to concrete implementations. This enables loose coupling between components and makes your application more maintainable.\n\nRouting in Laravel is both simple and powerful. You can define routes in the `routes/web.php` file for browser-based requests and `routes/api.php` for API endpoints. Routes can be grouped by middleware, prefixed by URL segments, and named for convenient URL generation throughout your application.\n\nControllers organize your request handling logic into classes. Instead of placing all your logic in route closures, you can create controller classes that group related HTTP actions together. Laravel's resource controllers provide a convenient way to implement RESTful endpoints with a single route definition.\n\nBlade is Laravel's powerful templating engine that compiles templates into cached PHP code for optimal performance. It offers template inheritance through layouts and sections, reusable components, and directives for common PHP control structures. Blade templates are intuitive and allow you to write clean, readable view files without sacrificing functionality.\n\nEloquent ORM makes database interactions feel natural. Each database table has a corresponding Model that allows you to query data relationships using PHP methods rather than writing raw SQL. The ORM supports relationships like hasOne, hasMany, belongsTo, and many-to-many through belongsToMany, making it easy to work with complex data structures.",
+    'step_reading_content' => "Laravel framework poskytuje elegantní syntaxi pro tvorbu webových aplikací. Jeho jádrem je service container pro správu závislostí, který umožňuje bindovat rozhraní na konkrétní implementace. To umožňuje volné propojení komponent a zvyšuje udržovatelnost aplikace.\n\nRoutování v Laravelu je jednoduché a výkonné. Route definujete v souboru `routes/web.php` pro požadavky z prohlížeče a `routes/api.php` pro API endpointy. Route lze seskupovat podle middleware, prefixovat URL segmenty a pojmenovávat pro pohodlné generování URL v celé aplikaci.\n\nControllery organizují logiku zpracování požadavků do tříd. Místo umístění veškeré logiky do route closures můžete vytvořit controller třídy, které sdružují související HTTP akce. Resource controllery poskytují pohodlný způsob implementace RESTful endpointů s jedinou definicí route.\n\nBlade je výkonný šablonovací engine Laravelu, který kompiluje šablony do cacheovaného PHP kódu pro optimální výkon. Nabízí dědičnost šablon pomocí layoutů a sekcí, znovupoužitelné komponenty a direktivy pro běžné PHP řídicí struktury. Blade šablony jsou intuitivní a umožňují psát čistý, čitelný kód bez ztráty funkcionality.\n\nEloquent ORM usnadňuje práci s databází. Každá databázová tabulka má odpovídající Model, který umožňuje dotazovat se na data a vztahy pomocí PHP metod namísto psaní raw SQL. ORM podporuje vztahy jako hasOne, hasMany, belongsTo a many-to-many přes belongsToMany, což usnadňuje práci s komplexními datovými strukturami.",
 
-    'quiz_single_question' => 'CS: What is 2+2?',
+    'quiz_single_question' => 'Kolik je 2+2?',
     'quiz_single_options' => ['3', '4', '5', '6'],
-    'quiz_single_explanation' => 'CS: 2+2 equals 4, making option 2 (4) the correct choice.',
+    'quiz_single_explanation' => '2+2 se rovná 4, takže možnost 2 (4) je správná.',
 
-    'quiz_multiple_question' => 'CS: Which are programming languages?',
+    'quiz_multiple_question' => 'Které z následujících jsou programovací jazyky?',
     'quiz_multiple_options' => ['Python', 'HTML', 'CSS', 'JavaScript'],
-    'quiz_multiple_explanation' => 'CS: Python and JavaScript are programming languages; HTML and CSS are markup/styling languages.',
+    'quiz_multiple_explanation' => 'Python a JavaScript jsou programovací jazyky; HTML a CSS jsou značkovací/stylovací jazyky.',
 
-    'quiz_text_question' => 'CS: What is the capital of France?',
-    'quiz_text_answer' => 'CS: Paris',
-    'quiz_text_explanation' => 'CS: Paris has been the capital of France since the 10th century.',
+    'quiz_text_question' => 'Jaké je hlavní město Francie?',
+    'quiz_text_answer' => 'Paříž',
+    'quiz_text_explanation' => 'Paříž je hlavním městem Francie od 10. století.',
 
-    'coding_prompt' => 'CS: Write a PHP function that returns the sum of two numbers.',
-    'coding_initial_code' => "<?php\n\nfunction add(\$a, \$b) {\n    // Your code here\n}\n",
+    'coding_prompt' => 'Napište PHP funkci, která vrací součet dvou čísel.',
+    'coding_initial_code' => "<?php\n\nfunction add(\$a, \$b) {\n    // Váš kód zde\n}\n",
     'coding_test_code' => "<?php\necho add(2, 3);",
     'coding_expected_output' => '5',
 ];

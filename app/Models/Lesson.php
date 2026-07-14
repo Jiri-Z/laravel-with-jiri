@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Override;
 
 /**
  * @method static Builder<self> published()
@@ -38,6 +39,24 @@ class Lesson extends Model
     public function steps(): HasMany
     {
         return $this->hasMany(Step::class);
+    }
+
+    public function hasUserUnlockedPreviousStep(User $user, Step $step): bool
+    {
+        $previousStep = $this->steps()
+            ->where('order', '<', $step->order)
+            ->where('published', true)
+            ->orderBy('order', 'desc')
+            ->first();
+
+        if ($previousStep === null) {
+            return true;
+        }
+
+        return StepCompletion::where('user_id', $user->id)
+            ->where('step_id', $previousStep->id)
+            ->whereNotNull('unlocked_at')
+            ->exists();
     }
 
     /** @param Builder<self> $query
@@ -69,24 +88,7 @@ class Lesson extends Model
             ->orWhere('slug', 'like', "%{$term}%"));
     }
 
-    public function hasUserUnlockedPreviousStep(User $user, Step $step): bool
-    {
-        $previousStep = $this->steps()
-            ->where('order', '<', $step->order)
-            ->orderBy('order', 'desc')
-            ->first();
-
-        if ($previousStep === null) {
-            return true;
-        }
-
-        return StepCompletion::where('user_id', $user->id)
-            ->where('step_id', $previousStep->id)
-            ->whereNotNull('unlocked_at')
-            ->exists();
-    }
-
-    #[\Override]
+    #[Override]
     protected function casts(): array
     {
         return [

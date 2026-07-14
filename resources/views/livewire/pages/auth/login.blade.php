@@ -1,6 +1,8 @@
 <?php
 
 use App\Livewire\Forms\LoginForm;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
@@ -17,6 +19,10 @@ new #[Layout('layouts.guest')] class extends Component
         $this->validate();
 
         $this->form->authenticate();
+
+        $locale = Auth::user()->locale ?? config('app.locale');
+        Session::put('locale', $locale);
+        App::setLocale($locale);
 
         Session::regenerate();
 
@@ -63,7 +69,7 @@ new #[Layout('layouts.guest')] class extends Component
                 </a>
             @endif
 
-            <x-primary-button class="ms-3">
+            <x-primary-button class="ms-3" wire:loading.attr="disabled" wire:target="login">
                 {{ __('Log in') }}
             </x-primary-button>
         </div>

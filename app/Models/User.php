@@ -6,6 +6,7 @@ namespace App\Models;
 
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,10 +14,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Override;
 
 #[Fillable(['name', 'email', 'password', 'role', 'locale'])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable implements HasLocalePreference, MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
@@ -52,6 +54,11 @@ class User extends Authenticatable implements MustVerifyEmail
             ->withPivot('enrolled_at');
     }
 
+    public function preferredLocale(): string
+    {
+        return $this->locale;
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
@@ -77,7 +84,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->id === $course->user_id;
     }
 
-    #[\Override]
+    #[Override]
     protected function casts(): array
     {
         return [

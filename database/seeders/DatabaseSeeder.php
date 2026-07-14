@@ -15,5 +15,7 @@ class DatabaseSeeder extends Seeder
         }
 
         App::setLocale('en');
+
+        $this->call(TriviaQuestionSeeder::class);
     }
 }

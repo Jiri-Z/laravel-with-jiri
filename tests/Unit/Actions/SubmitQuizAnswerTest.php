@@ -7,6 +7,7 @@ namespace Tests\Unit\Actions;
 use App\Actions\SubmitQuizAnswer;
 use App\Enums\StepType;
 use App\Models\Course;
+use App\Models\CourseEnrollment;
 use App\Models\Lesson;
 use App\Models\Step;
 use App\Models\StepAnswer;
@@ -14,10 +15,22 @@ use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Schema;
 
-test('creates answer and returns result', function () {
+function enrolledStepData(): array
+{
+    $course = Course::factory()->published()->create();
     $user = User::factory()->create();
+    CourseEnrollment::factory()->create([
+        'user_id' => $user->id,
+        'course_id' => $course->id,
+    ]);
+
+    return [$user, $course];
+}
+
+test('creates answer and returns result', function () {
+    [$user, $course] = enrolledStepData();
     $step = Step::factory()->quizSingle()->create([
-        'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+        'lesson_id' => Lesson::factory()->create(['course_id' => $course]),
     ]);
 
     $result = (new SubmitQuizAnswer)->handle($user, $step, 1);
@@ -33,9 +46,9 @@ test('creates answer and returns result', function () {
 });
 
 test('returns incorrect for wrong answer', function () {
-    $user = User::factory()->create();
+    [$user, $course] = enrolledStepData();
     $step = Step::factory()->quizSingle()->create([
-        'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+        'lesson_id' => Lesson::factory()->create(['course_id' => $course]),
     ]);
 
     $result = (new SubmitQuizAnswer)->handle($user, $step, 0);
@@ -45,9 +58,9 @@ test('returns incorrect for wrong answer', function () {
 });
 
 test('handles text answer case insensitive', function () {
-    $user = User::factory()->create();
+    [$user, $course] = enrolledStepData();
     $step = Step::factory()->quizText()->create([
-        'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+        'lesson_id' => Lesson::factory()->create(['course_id' => $course]),
     ]);
 
     $result = (new SubmitQuizAnswer)->handle($user, $step, 'paris');
@@ -56,9 +69,9 @@ test('handles text answer case insensitive', function () {
 });
 
 test('quiz multiple with wrong answer returns incorrect', function () {
-    $user = User::factory()->create();
+    [$user, $course] = enrolledStepData();
     $step = Step::factory()->quizMultiple()->create([
-        'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+        'lesson_id' => Lesson::factory()->create(['course_id' => $course]),
     ]);
 
     $result = (new SubmitQuizAnswer)->handle($user, $step, [1, 2]);
@@ -67,9 +80,9 @@ test('quiz multiple with wrong answer returns incorrect', function () {
 });
 
 test('quiz multiple with partial selection returns incorrect', function () {
-    $user = User::factory()->create();
+    [$user, $course] = enrolledStepData();
     $step = Step::factory()->quizMultiple()->create([
-        'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+        'lesson_id' => Lesson::factory()->create(['course_id' => $course]),
     ]);
 
     $result = (new SubmitQuizAnswer)->handle($user, $step, [0]);
@@ -78,9 +91,9 @@ test('quiz multiple with partial selection returns incorrect', function () {
 });
 
 test('handles null answer for quiz single', function () {
-    $user = User::factory()->create();
+    [$user, $course] = enrolledStepData();
     $step = Step::factory()->quizSingle()->create([
-        'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+        'lesson_id' => Lesson::factory()->create(['course_id' => $course]),
     ]);
 
     $result = (new SubmitQuizAnswer)->handle($user, $step, null);
@@ -89,9 +102,9 @@ test('handles null answer for quiz single', function () {
 });
 
 test('handles empty answer for quiz text', function () {
-    $user = User::factory()->create();
+    [$user, $course] = enrolledStepData();
     $step = Step::factory()->quizText()->create([
-        'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+        'lesson_id' => Lesson::factory()->create(['course_id' => $course]),
     ]);
 
     $result = (new SubmitQuizAnswer)->handle($user, $step, '');
@@ -100,9 +113,9 @@ test('handles empty answer for quiz text', function () {
 });
 
 test('handles malformed step content gracefully', function () {
-    $user = User::factory()->create();
+    [$user, $course] = enrolledStepData();
     $step = Step::factory()->create([
-        'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+        'lesson_id' => Lesson::factory()->create(['course_id' => $course]),
         'type' => StepType::Quiz,
         'quiz_content' => '{invalid json}',
     ]);
@@ -118,9 +131,9 @@ test('handles malformed step content gracefully', function () {
 });
 
 test('reading step type defaults to incorrect', function () {
-    $user = User::factory()->create();
+    [$user, $course] = enrolledStepData();
     $step = Step::factory()->reading()->create([
-        'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+        'lesson_id' => Lesson::factory()->create(['course_id' => $course]),
     ]);
 
     $result = (new SubmitQuizAnswer)->handle($user, $step, 'anything');
@@ -130,9 +143,9 @@ test('reading step type defaults to incorrect', function () {
 });
 
 test('can be invoked twice without exception', function () {
-    $user = User::factory()->create();
+    [$user, $course] = enrolledStepData();
     $step = Step::factory()->quizSingle()->create([
-        'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+        'lesson_id' => Lesson::factory()->create(['course_id' => $course]),
     ]);
 
     (new SubmitQuizAnswer)->handle($user, $step, 1);
@@ -143,9 +156,9 @@ test('can be invoked twice without exception', function () {
 });
 
 test('handles quiz type single question', function () {
-    $user = User::factory()->create();
+    [$user, $course] = enrolledStepData();
     $step = Step::factory()->quiz()->create([
-        'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+        'lesson_id' => Lesson::factory()->create(['course_id' => $course]),
     ]);
 
     $result = (new SubmitQuizAnswer)->handle($user, $step, 1, questionIndex: 0);
@@ -161,9 +174,9 @@ test('handles quiz type single question', function () {
 });
 
 test('handles quiz type multiple questions', function () {
-    $user = User::factory()->create();
+    [$user, $course] = enrolledStepData();
     $step = Step::factory()->quiz()->create([
-        'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+        'lesson_id' => Lesson::factory()->create(['course_id' => $course]),
     ]);
 
     $result0 = (new SubmitQuizAnswer)->handle($user, $step, 1, questionIndex: 0);
@@ -196,9 +209,9 @@ test('handles quiz type multiple questions', function () {
 });
 
 test('quiz type incorrect answer', function () {
-    $user = User::factory()->create();
+    [$user, $course] = enrolledStepData();
     $step = Step::factory()->quiz()->create([
-        'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+        'lesson_id' => Lesson::factory()->create(['course_id' => $course]),
     ]);
 
     $result = (new SubmitQuizAnswer)->handle($user, $step, 0, questionIndex: 0);
@@ -207,9 +220,9 @@ test('quiz type incorrect answer', function () {
 });
 
 test('question indices are independent', function () {
-    $user = User::factory()->create();
+    [$user, $course] = enrolledStepData();
     $step = Step::factory()->quiz()->create([
-        'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+        'lesson_id' => Lesson::factory()->create(['course_id' => $course]),
     ]);
 
     (new SubmitQuizAnswer)->handle($user, $step, 0, questionIndex: 0);
@@ -221,9 +234,9 @@ test('question indices are independent', function () {
 });
 
 test('duplicate submission returns existing result even with different answer', function () {
-    $user = User::factory()->create();
+    [$user, $course] = enrolledStepData();
     $step = Step::factory()->quizSingle()->create([
-        'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+        'lesson_id' => Lesson::factory()->create(['course_id' => $course]),
     ]);
 
     $result1 = (new SubmitQuizAnswer)->handle($user, $step, 1);
@@ -236,9 +249,9 @@ test('duplicate submission returns existing result even with different answer', 
 });
 
 test('non-duplicate db error propagates', function () {
-    $user = User::factory()->create();
+    [$user, $course] = enrolledStepData();
     $step = Step::factory()->quizSingle()->create([
-        'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+        'lesson_id' => Lesson::factory()->create(['course_id' => $course]),
     ]);
 
     // Create the first answer so the duplicate handler is triggered
@@ -258,6 +271,26 @@ test('non-duplicate db error propagates', function () {
     $connection->statement($createSql);
 });
 
+test('parameter answer is not shadowed by local variable', function () {
+    [$user, $course] = enrolledStepData();
+    $step = Step::factory()->quizSingle()->create([
+        'lesson_id' => Lesson::factory()->create(['course_id' => $course]),
+    ]);
+
+    // Submit answer 1 and verify it's returned correctly
+    $result = (new SubmitQuizAnswer)->handle($user, $step, 1);
+
+    expect($result->isCorrect)->toBeTrue();
+    expect($result->answer)->toBe('1');
+
+    // Submit answer 0 for the same question (different answer)
+    $result2 = (new SubmitQuizAnswer)->handle($user, $step, 0);
+
+    // Since it's already answered, the original answer (1) is returned
+    expect($result2->isCorrect)->toBeTrue();
+    expect($result2->answer)->toBe('1');
+});
+
 test('is correct not mass assignable', function () {
     $model = new StepAnswer;
     $fillable = $model->getFillable();
@@ -266,9 +299,9 @@ test('is correct not mass assignable', function () {
 });
 
 test('handles new format answer', function (array $data) {
-    $user = User::factory()->create();
+    [$user, $course] = enrolledStepData();
     $step = Step::factory()->create([
-        'lesson_id' => Lesson::factory()->create(['course_id' => Course::factory()]),
+        'lesson_id' => Lesson::factory()->create(['course_id' => $course]),
         'type' => StepType::Quiz,
         'quiz_content' => json_encode([$data]),
     ]);

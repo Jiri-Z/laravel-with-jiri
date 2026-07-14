@@ -27,6 +27,7 @@ new #[Layout('layouts.guest')] class extends Component
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
+        $validated['locale'] = app()->getLocale();
 
         event(new Registered($user = User::create($validated)));
 
@@ -80,7 +81,7 @@ new #[Layout('layouts.guest')] class extends Component
                 {{ __('Already registered?') }}
             </a>
 
-            <x-primary-button class="ms-4">
+            <x-primary-button class="ms-4" wire:loading.attr="disabled" wire:target="register">
                 {{ __('Register') }}
             </x-primary-button>
         </div>

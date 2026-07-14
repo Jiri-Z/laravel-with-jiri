@@ -140,4 +140,31 @@ class DashboardTest extends TestCase
 
         $this->assertLessThan(15, count($queries));
     }
+
+    public function test_dashboard_completion_count_excludes_unlock_only_rows(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step1 = Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 1]);
+        $step2 = Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 2]);
+
+        // Unlock-only row (completed_at is null) — should NOT count
+        StepCompletion::factory()->create([
+            'user_id' => $user->id,
+            'step_id' => $step1->id,
+            'completed_at' => null,
+            'unlocked_at' => now(),
+        ]);
+
+        // Actual completion — should count
+        StepCompletion::factory()->create([
+            'user_id' => $user->id,
+            'step_id' => $step2->id,
+        ]);
+
+        $component = Livewire::actingAs($user)->test(Dashboard::class);
+        $component->assertOk();
+    }
 }

@@ -13,7 +13,9 @@ class Logout
     {
         Auth::guard('web')->logout();
 
+        $locale = session('locale');
         Session::invalidate();
         Session::regenerateToken();
+        session(['locale' => $locale]);
     }
 }

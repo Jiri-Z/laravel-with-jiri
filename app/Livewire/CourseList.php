@@ -44,7 +44,11 @@ class CourseList extends Component
 
     public function render(ProgressService $progress): View
     {
-        $courses = Course::query()->withCount('lessons')->published()->ordered()->get();
+        $courses = Course::query()
+            ->withCount(['lessons' => fn ($q) => $q->published()])
+            ->published()
+            ->ordered()
+            ->get();
 
         $user = auth()->user();
 

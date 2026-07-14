@@ -7,7 +7,6 @@ namespace App\Livewire;
 use App\Actions\ImportLessonFromYaml;
 use App\Models\Course;
 use App\Models\Lesson;
-use Exception;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\UploadedFile;
 use Livewire\Attributes\Layout;
@@ -40,6 +39,7 @@ class AdminLessonImport extends Component
     public function mount(Course $course): void
     {
         $this->authorize('create', Lesson::class);
+        $this->authorize('view', $course);
         $this->course = $course;
     }
 
@@ -92,7 +92,7 @@ class AdminLessonImport extends Component
             $steps = $data['steps'];
             $this->parsedSteps = $steps;
         } catch (Throwable $e) {
-            $this->error = 'Failed to parse YAML: ' . $e->getMessage();
+            $this->error = 'Failed to parse YAML: '.$e->getMessage();
         }
     }
 
@@ -142,7 +142,7 @@ class AdminLessonImport extends Component
             ]);
 
             $this->redirect(route('admin.lessons.index', $this->course), navigate: true);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $this->error = $e->getMessage();
             $this->importing = false;
         }

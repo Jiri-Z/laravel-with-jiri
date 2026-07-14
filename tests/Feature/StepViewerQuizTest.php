@@ -490,24 +490,20 @@ class StepViewerQuizTest extends TestCase
         }
     }
 
-    public function test_quiz_viewer_blocks_unenrolled_user(): void
+    public function test_quiz_viewer_redirects_unenrolled_user(): void
     {
         $user = User::factory()->create();
         $course = Course::factory()->published()->create();
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->quizSingle()->create(['lesson_id' => $lesson->id]);
 
-        $this->actingAs($user);
-
-        $component = new QuizViewer;
-
-        try {
-            $component->mount($course, $lesson, $step);
-
-            $this->fail('Expected QuizViewer to abort for unenrolled user.');
-        } catch (HttpException $e) {
-            $this->assertSame(403, $e->getStatusCode());
-        }
+        Livewire::actingAs($user)
+            ->test(QuizViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
+            ->assertRedirect(route('courses.index'));
     }
 
     public function test_quiz_viewer_restores_answers_on_remount(): void
@@ -617,5 +613,74 @@ class StepViewerQuizTest extends TestCase
         $html = $component->html();
         // After submission, the highlight class should not appear
         $this->assertStringNotContainsString('border-indigo-500', $html);
+    }
+
+    public function test_multiple_choice_initialized_as_empty_array(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->quizMultiple()->create(['lesson_id' => $lesson->id]);
+
+        Livewire::actingAs($user)
+            ->test(QuizViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
+            ->assertSet('answers.0', []);
+    }
+
+    public function test_multiple_choice_accumulates_selections(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->quizMultiple()->create(['lesson_id' => $lesson->id]);
+
+        Livewire::actingAs($user)
+            ->test(QuizViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
+            ->assertSet('answers.0', [])
+            ->set('answers.0', [0])
+            ->assertSet('answers.0', [0])
+            ->set('answers.0', [0, 2])
+            ->assertSet('answers.0', [0, 2]);
+    }
+
+    public function test_multiple_choice_restores_array_on_remount(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->quizMultiple()->create(['lesson_id' => $lesson->id]);
+
+        Livewire::actingAs($user)
+            ->test(QuizViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
+            ->set('answers.0', [0, 2])
+            ->call('submit')
+            ->assertSet('submitted', true);
+
+        Livewire::actingAs($user)
+            ->test(QuizViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
+            ->assertSet('submitted', true)
+            ->assertSet('answers.0', [0, 2]);
     }
 }

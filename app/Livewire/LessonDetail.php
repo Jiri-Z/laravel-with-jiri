@@ -34,24 +34,19 @@ class LessonDetail extends Component
 
         $this->ensureEnrolled($course);
 
-        $lesson->load(['steps' => fn ($q) => $q->ordered()]);
+        $lesson->load(['steps' => fn ($q) => $q->ordered()->where('published', true)]);
 
         $this->course = $course;
         $this->lesson = $lesson;
 
         $stepIds = $lesson->steps->pluck('id');
 
-        $completedStepIds = StepCompletion::where('user_id', auth()->id())
+        $completions = StepCompletion::where('user_id', auth()->id())
             ->whereIn('step_id', $stepIds)
-            ->whereNotNull('completed_at')
-            ->pluck('step_id')
-            ->all();
+            ->get(['step_id', 'completed_at', 'unlocked_at']);
 
-        $unlockedStepIds = StepCompletion::where('user_id', auth()->id())
-            ->whereIn('step_id', $stepIds)
-            ->whereNotNull('unlocked_at')
-            ->pluck('step_id')
-            ->all();
+        $completedStepIds = $completions->whereNotNull('completed_at')->pluck('step_id')->all();
+        $unlockedStepIds = $completions->whereNotNull('unlocked_at')->pluck('step_id')->all();
 
         $completion = [];
         $locked = [];

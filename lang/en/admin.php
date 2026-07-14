@@ -83,4 +83,8 @@ return [
     'select_answer' => 'Select...',
     'explanation' => 'Explanation',
     'no_questions_yet' => 'No questions yet. Click "Add Question" to begin.',
+    'choose_yaml_file' => 'Choose YAML File',
+    'import_lesson_title' => 'Import Lesson into ":course"',
+    'import_lesson_button' => 'Import Lesson',
+    'importing' => 'Importing...',
 ];

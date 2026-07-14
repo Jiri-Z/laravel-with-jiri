@@ -24,7 +24,7 @@ class Dashboard extends Component
             abort(403);
         }
 
-        $courses = Course::published()->ordered()->withCount('lessons')
+        $courses = Course::published()->ordered()->withCount(['lessons' => fn ($q) => $q->published()])
             ->whereHas('enrollments', fn ($q) => $q->where('user_id', $user->id))
             ->with([
                 'lessons' => fn ($q) => $q->published()->ordered(),
@@ -33,9 +33,12 @@ class Dashboard extends Component
             ->get();
         $progressData = $progress->courseProgressBatch($user, $courses);
 
-        $totalCompleted = StepCompletion::where('user_id', $user->id)->count();
+        $totalCompleted = StepCompletion::where('user_id', $user->id)
+            ->whereNotNull('completed_at')
+            ->count();
 
         $recentCompletions = StepCompletion::where('user_id', $user->id)
+            ->whereNotNull('completed_at')
             ->latest()
             ->take(5)
             ->with(['step.lesson.course'])

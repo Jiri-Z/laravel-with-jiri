@@ -51,10 +51,17 @@ class CodingViewer extends Component
             ->exists();
     }
 
-    public function markCodingComplete(): void
+    public function markCodingComplete(string $output): void
     {
         $user = auth()->user();
         if ($user === null) {
+            return;
+        }
+
+        $codingData = $this->step->getCodingData();
+        $expectedOutput = trim($codingData['expected_output'] ?? '');
+
+        if (trim($output) !== $expectedOutput) {
             return;
         }
 

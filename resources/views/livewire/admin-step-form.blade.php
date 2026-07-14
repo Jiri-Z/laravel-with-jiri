@@ -171,38 +171,7 @@
                                     @error('prompt') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                                 </div>
 
-                                <div x-data="{}" x-init="
-                                    if (showCoding) {
-                                        import('https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1/min/vs/loader.js').then(() => {
-                                            require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1/min/vs' } });
-                                            require(['vs/editor/editor.main'], (monaco) => {
-                                                const initialEditor = monaco.editor.create($refs.initialCode, {
-                                                    value: $wire.initialCode,
-                                                    language: 'php',
-                                                    theme: 'vs-dark',
-                                                    minimap: { enabled: false },
-                                                    fontSize: 14,
-                                                    automaticLayout: true,
-                                                });
-                                                initialEditor.onDidChangeModelContent(() => {
-                                                    $wire.set('initialCode', initialEditor.getValue());
-                                                });
-
-                                                const testEditor = monaco.editor.create($refs.testCode, {
-                                                    value: $wire.testCode,
-                                                    language: 'php',
-                                                    theme: 'vs-dark',
-                                                    minimap: { enabled: false },
-                                                    fontSize: 14,
-                                                    automaticLayout: true,
-                                                });
-                                                testEditor.onDidChangeModelContent(() => {
-                                                    $wire.set('testCode', testEditor.getValue());
-                                                });
-                                            });
-                                        });
-                                    }
-                                ">
+                                <div x-data="{ monacoLoaded: false, initMonaco() { if (this.monacoLoaded) return; this.monacoLoaded = true; import('https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1/min/vs/loader.js').then(() => { require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1/min/vs' } }); require(['vs/editor/editor.main'], (monaco) => { const initialEditor = monaco.editor.create($refs.initialCode, { value: $wire.initialCode, language: 'php', theme: 'vs-dark', minimap: { enabled: false }, fontSize: 14, automaticLayout: true }); initialEditor.onDidChangeModelContent(() => { $wire.set('initialCode', initialEditor.getValue()); }); const testEditor = monaco.editor.create($refs.testCode, { value: $wire.testCode, language: 'php', theme: 'vs-dark', minimap: { enabled: false }, fontSize: 14, automaticLayout: true }); testEditor.onDidChangeModelContent(() => { $wire.set('testCode', testEditor.getValue()); }); }); }); } }" x-init="stepType === 'coding' && initMonaco()" x-effect="stepType === 'coding' && initMonaco()">
                                     <div>
                                         <label for="initialCode" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('admin.label_initial_code') }}</label>
                                         <div x-ref="initialCode" style="height: 200px; border: 1px solid #374151; border-radius: 0.5rem; overflow: hidden;"></div>

@@ -50,6 +50,22 @@ class QuizViewer extends Component
         $this->lesson = $lesson;
         $this->step = $step;
 
+        $questions = $this->step->getContentAsArray();
+
+        if ($questions !== null) {
+            foreach ($questions as $qIndex => $question) {
+                if (! is_array($question)) {
+                    continue;
+                }
+
+                $type = is_string($question['type'] ?? null) ? $question['type'] : 'single';
+
+                if ($type === 'multiple') {
+                    $this->answers[(int) $qIndex] = [];
+                }
+            }
+        }
+
         $existing = StepAnswer::where('user_id', $user->id)
             ->where('step_id', $this->step->id)
             ->get()
@@ -65,8 +81,6 @@ class QuizViewer extends Component
                 }
             }
             $this->isCorrect = $allCorrect;
-
-            $questions = $this->step->getContentAsArray();
 
             if ($questions !== null) {
                 foreach ($existing as $entry) {
@@ -102,6 +116,10 @@ class QuizViewer extends Component
         if ($this->submitted) {
             return;
         }
+
+        $this->ensureEnrolled($this->course);
+
+        $this->validate();
 
         $user = auth()->user();
         if ($user === null) {
@@ -147,5 +165,32 @@ class QuizViewer extends Component
     public function render(): View
     {
         return view('livewire.quiz-viewer');
+    }
+
+    /** @return array<string, list<mixed>> */
+    protected function rules(): array
+    {
+        $rules = ['answers' => ['array']];
+
+        $questions = $this->step->getContentAsArray();
+
+        if ($questions === null) {
+            return $rules;
+        }
+
+        foreach ($questions as $index => $question) {
+            if (! is_array($question)) {
+                continue;
+            }
+
+            $type = is_string($question['type'] ?? null) ? $question['type'] : 'single';
+
+            $rules["answers.{$index}"] = match ($type) {
+                'multiple' => ['nullable', 'array'],
+                default => ['nullable'],
+            };
+        }
+
+        return $rules;
     }
 }

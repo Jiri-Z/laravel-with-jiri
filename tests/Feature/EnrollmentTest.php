@@ -60,7 +60,7 @@ class EnrollmentTest extends TestCase
 
         $this->actingAs($user)
             ->get(route('courses.show', $course))
-            ->assertForbidden();
+            ->assertRedirect(route('courses.index'));
     }
 
     public function test_unenrolled_user_cannot_view_lesson(): void
@@ -71,7 +71,7 @@ class EnrollmentTest extends TestCase
 
         $this->actingAs($user)
             ->get(route('lessons.show', [$course->slug, $lesson->slug]))
-            ->assertForbidden();
+            ->assertRedirect(route('courses.index'));
     }
 
     public function test_unenrolled_user_cannot_view_step(): void
@@ -83,7 +83,7 @@ class EnrollmentTest extends TestCase
 
         $this->actingAs($user)
             ->get(route('steps.show', [$course->slug, $lesson->slug, $step->id]))
-            ->assertForbidden();
+            ->assertRedirect(route('courses.index'));
     }
 
     public function test_enrolled_user_can_view_course(): void

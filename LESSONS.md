@@ -608,3 +608,142 @@ A 1312-line test file with tests for three different Livewire components (`StepV
 - Has focused imports (only what its tests need)
 - Maps to a single component or concern
 - Is independently filterable via `--filter=StepViewerQuizTest`
+
+---
+
+## Truncated SVG path `d` attribute breaks browser rendering
+
+An SVG `<path d="...49.9987..."/>` where the path data ends with literal `...` (three dots) instead of a valid SVG command produces a browser console error:
+
+```
+Error: <path> attribute d: Expected number, "…0.501061 49.9987...". index 459
+```
+
+The `d` attribute must contain valid SVG path commands (`M`, `L`, `C`, `Z`, etc.). Truncation with `...` is invalid — it causes the SVG parser to fail at the character index where the ellipsis begins. Always verify inline SVG paths are complete, especially when copy-pasting from truncated previews. The index in the error message points to the byte offset within the `d` value where parsing fails.
+
+---
+
+## Pint needs its own config to disable `php_unit_test_annotation`
+
+`.php-cs-fixer.dist.php` controls PHP-CS-Fixer rules but does NOT affect Pint. Pint ships as a standalone tool with its own preset system. To disable `php_unit_test_annotation` in Pint (which converts `test_` prefix methods to `@test` annotations, breaking PHPUnit 12 test discovery), create `pint.json`:
+
+```json
+{
+    "preset": "laravel",
+    "disabled": {
+        "php_unit_test_annotation": true
+    }
+}
+```
+
+This prevents Pint from undoing the fix applied via `.php-cs-fixer.dist.php`.
+
+## Duster's Pint converts `#[Test]` to PHPDoc `@test` (breaks discovery)
+
+Pint's `php_unit_test_annotation` rule converts PHP 8 `#[Test]` attributes to PHPDoc `/** @test */` annotations. PHPUnit 12 still supports `@test` for test discovery, but **Pest** may fail to discover tests annotated with `@test` in some configurations (e.g., `--filter=ClassName` returns "No tests found").
+
+**Rule**: Always write new test methods with `#[Test]` attribute. Run `vendor/bin/pint --format agent` after creating new test files and immediately run the test to confirm discovery still works. If `--filter` returns 0 tests, the `@test` → `#[Test]` conversion is the likely culprit.
+
+---
+
+## `Session::invalidate()` wipes the `locale` key
+
+`Session::invalidate()` calls `flush()` which removes **all** session data, including the `locale` key set by `SetLocale` middleware or the locale switcher. On logout, the sequence:
+
+```php
+Auth::guard('web')->logout();
+Session::invalidate();
+Session::regenerateToken();
+```
+
+destroys the user's locale preference. After logout, the next guest request hits `SetLocale` middleware which finds no user and no session locale, falling back to `config('app.locale')`.
+
+**Fix**: Save `session('locale')` before invalidation, restore after:
+
+```php
+$locale = session('locale');
+Session::invalidate();
+Session::regenerateToken();
+session(['locale' => $locale]);
+```
+
+---
+
+## Server-side validation for coding step completion
+
+Coding step completion (`markCodingComplete`) uses php-wasm entirely client-side. The server accepts the completion via a Livewire action. To prevent bypass submissions (e.g., tampered HTTP requests), the action requires a `$output` parameter that must match the step's `expected_output` exactly. Always validate derived/computed input server-side even when the source is trusted client-side code:
+
+```php
+public function markCodingComplete(string $output): void
+{
+    $content = $this->step->getContentAsArray();
+    if (($content['expected_output'] ?? null) !== $output) {
+        return; // silent reject — no error, no completion
+    }
+    // proceed with StepCompletion creation
+}
+```
+
+## Laravel logs exception errors even when test expects them
+
+When a test uses `$this->expectException(CourseNotPublishedException::class)`, the framework logs the exception at `ERROR` level **before** the test catches it. This is normal — the logger writes to `storage/logs/laravel.log` with channel `testing`. These entries are not test failures; they are expected noise from code paths that log before throwing.
+
+Use Boost's `read-log-entries` to distinguish between:
+- `testing.ERROR` — expected exception from a `$this->expectException()` test
+- `local.ERROR` — actual runtime errors in the browser/dev environment
+- `local.WARNING` — non-fatal JS warnings (Alpine expression errors, etc.)
+
+Browser JS errors (`local.ERROR` with `ReferenceError`, `Script error.`, etc.) are genuine client-side bugs that need fixing regardless of test suite status.
+
+---
+
+## `HasLocalePreference` for notification locale
+
+To make email notifications (password reset, email verification) use the user's stored locale, the `User` model must implement `Illuminate\Contracts\Translation\HasLocalePreference`:
+
+```php
+use Illuminate\Contracts\Translation\HasLocalePreference;
+
+class User extends Authenticatable implements HasLocalePreference
+{
+    public function preferredLocale(): string
+    {
+        return $this->locale;
+    }
+}
+```
+
+Without this, notifications always use `app()->getLocale()` from the current request, ignoring the user's saved preference. This is a one-method interface — no other changes needed.
+
+---
+
+## Registration must pass locale to `User::create()`
+
+When a guest switches locale and then registers, `User::create($validated)` in the register Volt component only passes validated fields (name, email, password). The guest's chosen locale (`app()->getLocale()`) is lost — the user record defaults to `'en'` from the database column default.
+
+**Fix**: Add `'locale' => app()->getLocale()` to the validated data:
+
+```php
+$validated['locale'] = app()->getLocale();
+event(new Registered($user = User::create($validated)));
+```
+
+---
+
+## Login must sync user locale to session immediately
+
+After `$this->form->authenticate()` in the login Volt component, the user's DB locale is never read into the session or applied via `App::setLocale()`. While `SetLocale` middleware handles this on the **next** request (it reads `$request->user()->locale`), the current request's `__()` calls and the `session('locale')` key remain at the previous value.
+
+**Fix**: Read the authenticated user and apply locale right after authenticate:
+
+```php
+$this->form->authenticate();
+
+$locale = Auth::user()->locale;
+Session::put('locale', $locale);
+App::setLocale($locale);
+
+Session::regenerate();
+```
+
+Order matters: set locale **before** `Session::regenerate()` (which preserves all existing data).

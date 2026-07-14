@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Override;
 
 #[Fillable([
     'user_id',
@@ -23,15 +24,6 @@ class QuizAttemptLog extends Model
     /** @use HasFactory<QuizAttemptLogFactory> */
     use HasFactory;
 
-    #[\Override]
-    protected function casts(): array
-    {
-        return [
-            'answers' => 'array',
-            'attempted_at' => 'datetime',
-        ];
-    }
-
     /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {
@@ -42,5 +34,16 @@ class QuizAttemptLog extends Model
     public function step(): BelongsTo
     {
         return $this->belongsTo(Step::class);
+    }
+
+    #[Override]
+    protected function casts(): array
+    {
+        return [
+            'answers' => 'array',
+            'attempted_at' => 'datetime',
+            'score' => 'integer',
+            'total' => 'integer',
+        ];
     }
 }

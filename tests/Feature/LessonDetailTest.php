@@ -166,4 +166,20 @@ class LessonDetailTest extends TestCase
         $response->assertSee('Skipped Step');
         $response->assertSee(__('lessons.locked'));
     }
+
+    public function test_enrolled_student_does_not_see_unpublished_steps(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        Step::factory()->create(['lesson_id' => $lesson->id, 'title' => 'Published Step', 'order' => 1, 'published' => true]);
+        Step::factory()->create(['lesson_id' => $lesson->id, 'title' => 'Draft Step', 'order' => 2, 'published' => false]);
+
+        $response = $this->actingAs($user)->get("/courses/{$course->slug}/lessons/{$lesson->slug}");
+
+        $response->assertOk();
+        $response->assertSee('Published Step');
+        $response->assertDontSee('Draft Step');
+    }
 }

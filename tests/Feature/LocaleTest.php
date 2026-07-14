@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Enums\StepType;
+use App\Livewire\Actions\Logout;
 use App\Models\Course;
 use App\Models\User;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\App;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 uses(TestCase::class, RefreshDatabase::class);
@@ -84,6 +87,52 @@ test('locale switcher form appears in navigation for authenticated user', functi
     $this->actingAs($user)
         ->get('/dashboard')
         ->assertSee(route('locale.switch'));
+});
+
+test('registration respects current locale', function () {
+    App::setLocale('cs');
+
+    Livewire::test('pages.auth.register')
+        ->set('name', 'Test User')
+        ->set('email', 'test@example.com')
+        ->set('password', 'password')
+        ->set('password_confirmation', 'password')
+        ->call('register')
+        ->assertRedirect(route('dashboard', absolute: false));
+
+    $user = User::where('email', 'test@example.com')->first();
+    expect($user->locale)->toBe('cs');
+});
+
+test('login syncs user locale to session', function () {
+    $user = User::factory()->create(['locale' => 'cs']);
+
+    Livewire::test('pages.auth.login')
+        ->set('form.email', $user->email)
+        ->set('form.password', 'password')
+        ->call('login')
+        ->assertRedirect(route('dashboard', absolute: false));
+
+    expect(session('locale'))->toBe('cs');
+});
+
+test('user model implements HasLocalePreference', function () {
+    $user = User::factory()->create(['locale' => 'cs']);
+
+    expect($user)->toBeInstanceOf(HasLocalePreference::class);
+    expect($user->preferredLocale())->toBe('cs');
+});
+
+test('locale persists after logout', function () {
+    $user = User::factory()->create(['locale' => 'cs']);
+
+    $this->actingAs($user)
+        ->post(route('locale.switch'), ['locale' => 'cs'])
+        ->assertRedirect();
+
+    app(Logout::class)();
+
+    expect(session('locale'))->toBe('cs');
 });
 
 test('invalid locale defaults to english', function () {

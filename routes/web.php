@@ -31,7 +31,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('quiz', TriviaQuiz::class)->name('quiz');
     Route::get('repl', Repl::class)->name('repl');
 
-    Route::post('enroll/{course}', function (Course $course) {
+    Route::post('enroll/{course:slug}', function (Course $course) {
         $action = app(EnrollInCourse::class);
         $action->handle(auth()->user(), $course);
 
@@ -72,4 +72,4 @@ Route::post('locale', function (SwitchLocale $switcher) {
 Route::view('terms', 'legal.terms')->name('terms');
 Route::view('privacy', 'legal.privacy')->name('privacy');
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';

@@ -1,32 +1,13 @@
-const MONACO_CDN = 'https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1/min/vs';
+import { createEditor, createPhpRuntime } from './php-wasm';
+
 const LS_KEY = 'repl-code';
-
-function loadMonaco() {
-    if (window.monaco) return Promise.resolve(window.monaco);
-    return new Promise((resolve) => {
-        const script = document.createElement('script');
-        script.src = `${MONACO_CDN}/loader.js`;
-        script.onload = () => {
-            require.config({ paths: { vs: MONACO_CDN } });
-            require(['vs/editor/editor.main'], (monaco) => {
-                resolve(monaco);
-            });
-        };
-        document.head.appendChild(script);
-    });
-}
-
-function loadPhpWasm() {
-    return import('https://cdn.jsdelivr.net/npm/php-wasm/PhpWeb.mjs');
-}
 
 export function repl(config) {
     return {
         editor: null,
         php: null,
         output: '',
-        loading: true,
-        loadingPhp: false,
+        status: 'loading',
         phpReady: false,
         running: false,
         lastOutput: '',
@@ -36,81 +17,101 @@ export function repl(config) {
         },
 
         async boot() {
-            const savedCode = localStorage.getItem(LS_KEY) || '<?php\n\n// Write PHP code here\n';
+            const defaultCode = '<?php\n\n// Write PHP code here\n';
+            let savedCode;
+            try { savedCode = localStorage.getItem(LS_KEY) || defaultCode; } catch { savedCode = defaultCode; }
+            const container = this.$el.querySelector('.editor-container');
 
             try {
-                const monaco = await loadMonaco();
-                const container = this.$el.querySelector('.monaco-editor-container');
-                this.editor = monaco.editor.create(container, {
-                    value: savedCode,
-                    language: 'php',
-                    theme: 'vs-dark',
-                    minimap: { enabled: false },
-                    fontSize: 14,
-                    automaticLayout: true,
-                });
+                const result = await createEditor(container, savedCode, 'php');
+                this.editor = result.editor;
 
                 this.editor.onDidChangeModelContent(() => {
-                    localStorage.setItem(LS_KEY, this.editor.getValue());
+                    try { localStorage.setItem(LS_KEY, this.editor.getValue()); } catch { /* localStorage unavailable */ }
                 });
-
-                this.loading = false;
             } catch (e) {
-                console.error('Failed to load Monaco editor:', e);
-                this.loading = false;
+                console.error('Failed to create editor:', e);
+                container.innerHTML = '<textarea class="w-full h-full p-4 font-mono text-sm bg-gray-900 text-green-400 border-0 resize-none focus:outline-none" spellcheck="false">' + savedCode.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</textarea>';
+                const ta = container.querySelector('textarea');
+                this.editor = {
+                    getValue: () => ta.value,
+                    setValue: (v) => { ta.value = v; },
+                    onDidChangeModelContent: (cb) => { ta.addEventListener('input', cb); },
+                    dispose: () => { ta.remove(); },
+                };
             }
 
+            this.status = 'loading-php';
             this.initPhp();
         },
 
         async initPhp() {
-            this.loadingPhp = true;
             try {
-                const { PhpWeb } = await loadPhpWasm();
-                this.php = new PhpWeb();
+                const { php, ready } = await createPhpRuntime();
+                this.php = php;
 
-                this.php.addEventListener('ready', () => {
-                    this.phpReady = true;
+                let outputAccumulator = '';
+                php.addEventListener('output', (event) => {
+                    outputAccumulator += event.detail;
+                });
+                php.addEventListener('error', (event) => {
+                    outputAccumulator += `[PHP Error]: ${event.detail}`;
                 });
 
-                this.php.addEventListener('output', (event) => {
-                    this.lastOutput += event.detail;
-                });
+                this._getOutput = () => outputAccumulator;
+                this._resetOutput = () => { outputAccumulator = ''; };
 
-                this.php.addEventListener('error', (event) => {
-                    this.lastOutput += `[PHP Error]: ${event.detail}`;
-                });
+                await ready;
+                this.phpReady = true;
+                this.status = 'ready';
             } catch (e) {
                 console.error('Failed to load PHP WASM:', e);
+                this.status = 'error';
+                this.output = 'Failed to load PHP runtime: ' + e.message;
             }
-            this.loadingPhp = false;
         },
 
         async run() {
             if (!this.phpReady || this.running) return;
             this.running = true;
             this.output = '';
-            this.lastOutput = '';
+            this._resetOutput();
             try {
                 const code = this.editor.getValue();
                 await this.php.run(code);
-                this.output = this.lastOutput;
+                this.output = this._getOutput();
             } catch (e) {
-                this.output = `Error: ${e.message}`;
+                this.output = 'Error: ' + e.message;
             }
             this.running = false;
         },
 
         clearOutput() {
             this.output = '';
-            this.lastOutput = '';
+            this._resetOutput();
         },
 
         resetCode() {
             const defaultCode = '<?php\n\n// Write PHP code here\n';
             this.editor.setValue(defaultCode);
-            localStorage.setItem(LS_KEY, defaultCode);
+            try { localStorage.setItem(LS_KEY, defaultCode); } catch { /* localStorage unavailable */ }
             this.clearOutput();
+        },
+
+        handleKeydown(event) {
+            if (event.ctrlKey && event.key === 'Enter') {
+                event.preventDefault();
+                this.run();
+            }
+        },
+
+        destroy() {
+            if (this.editor && this.editor.dispose) {
+                this.editor.dispose();
+            }
+            if (this.php && this.php.terminate) {
+                this.php.terminate();
+            }
         },
     };
 }

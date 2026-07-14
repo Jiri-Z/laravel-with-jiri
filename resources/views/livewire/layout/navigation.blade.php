@@ -46,9 +46,22 @@ new class extends Component
             </div>
 
             <div class="hidden sm:flex sm:items-center sm:ms-6 gap-1">
-                <button @click="document.documentElement.classList.toggle('dark'); localStorage.setItem('dark-mode', document.documentElement.classList.contains('dark'))"
+                <button @click="(function(){
+                    var theme=localStorage.getItem('dark-mode');
+                    if(theme!=='dark'&&theme!=='light'&&theme!=='auto'){theme='auto';}
+                    if(theme==='dark'){theme='light';}
+                    else if(theme==='light'){theme='auto';}
+                    else{theme='dark';}
+                    localStorage.setItem('dark-mode',theme);
+                    if(theme==='dark'||(theme==='auto'&&window.matchMedia('(prefers-color-scheme:dark)').matches)){
+                        document.documentElement.classList.add('dark');
+                    }else{
+                        document.documentElement.classList.remove('dark');
+                    }
+                })()"
                     class="p-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800"
-                    x-data>
+                    x-data
+                    aria-label="{{ __('navigation.dark_mode') }}">
                     <svg x-show="!document.documentElement.classList.contains('dark')" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
                     </svg>
@@ -103,9 +116,22 @@ new class extends Component
             </div>
 
             <div class="-me-2 flex items-center sm:hidden gap-1">
-                <button @click="document.documentElement.classList.toggle('dark'); localStorage.setItem('dark-mode', document.documentElement.classList.contains('dark'))"
+                <button @click="(function(){
+                    var theme=localStorage.getItem('dark-mode');
+                    if(theme!=='dark'&&theme!=='light'&&theme!=='auto'){theme='auto';}
+                    if(theme==='dark'){theme='light';}
+                    else if(theme==='light'){theme='auto';}
+                    else{theme='dark';}
+                    localStorage.setItem('dark-mode',theme);
+                    if(theme==='dark'||(theme==='auto'&&window.matchMedia('(prefers-color-scheme:dark)').matches)){
+                        document.documentElement.classList.add('dark');
+                    }else{
+                        document.documentElement.classList.remove('dark');
+                    }
+                })()"
                     class="p-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800"
-                    x-data>
+                    x-data
+                    aria-label="{{ __('navigation.dark_mode') }}">
                     <svg x-show="!document.documentElement.classList.contains('dark')" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
                     </svg>
@@ -143,7 +169,7 @@ new class extends Component
 
         <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-700">
             <div class="px-4">
-                <div class="font-medium text-base text-gray-800 dark:text-gray-200" x-data="{{ json_encode(['name' => auth()->user()->name]) }}" x-text="name" x-on:profile-updated.window="name = $event.detail.name"></div>
+                <div class="font-medium text-base text-gray-800 dark:text-gray-200" x-data="@js(['name' => auth()->user()->name])" x-text="name" x-on:profile-updated.window="name = $event.detail.name"></div>
                 <div class="font-medium text-sm text-gray-500">{{ auth()->user()->email }}</div>
             </div>
 

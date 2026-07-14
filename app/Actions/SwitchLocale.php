@@ -5,13 +5,16 @@ declare(strict_types=1);
 namespace App\Actions;
 
 use Illuminate\Support\Facades\App;
+use Illuminate\Validation\ValidationException;
 
 class SwitchLocale
 {
     public function handle(string $locale): void
     {
         if (! in_array($locale, ['en', 'cs'])) {
-            return;
+            throw ValidationException::withMessages([
+                'locale' => 'The selected locale is invalid.',
+            ]);
         }
 
         if (auth()->user()) {

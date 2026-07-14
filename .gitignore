@@ -21,6 +21,7 @@
 /storage/*.key
 /storage/pail
 /vendor
+.php-cs-fixer.cache
 _ide_helper.php
 _ide_helper_models.php
 Homestead.json
@@ -29,6 +30,7 @@ Thumbs.db
 run.py
 tasks.txt
 plan.txt
+plan.md
 localization_plan.txt
 review.md
 yamlinst.md

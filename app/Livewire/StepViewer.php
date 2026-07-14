@@ -14,6 +14,7 @@ use App\Models\Lesson;
 use App\Models\Step;
 use App\Models\StepCompletion;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -62,10 +63,30 @@ class StepViewer extends Component
             return;
         }
 
+        if (! $this->step->isAccessibleBy($user)) {
+            session()->flash('error', __('steps.complete_previous'));
+            $this->redirect(route('lessons.show', [$this->course->slug, $this->lesson->slug]), navigate: true);
+
+            return;
+        }
+
         if ($this->completed) {
-            StepCompletion::where('user_id', $user->id)
-                ->where('step_id', $this->step->id)
-                ->update(['completed_at' => null]);
+            DB::transaction(function () use ($user): void {
+                StepCompletion::where('user_id', $user->id)
+                    ->where('step_id', $this->step->id)
+                    ->update(['completed_at' => null, 'unlocked_at' => null]);
+
+                $nextStep = $this->lesson->steps()
+                    ->where('order', '>', $this->step->order)
+                    ->orderBy('order', 'asc')
+                    ->first();
+
+                if ($nextStep) {
+                    StepCompletion::where('user_id', $user->id)
+                        ->where('step_id', $nextStep->id)
+                        ->update(['unlocked_at' => null]);
+                }
+            });
 
             $this->completed = false;
 

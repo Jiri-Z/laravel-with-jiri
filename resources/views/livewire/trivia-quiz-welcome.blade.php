@@ -10,7 +10,7 @@
     <div class="flex items-center justify-between mb-4">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{{ __('trivia.select_topics') }}</h2>
         <div class="flex gap-2">
-            <button type="button" wire:click="$set('selectedTopics', {{ json_encode($this->allTopics->toArray()) }})" class="text-xs font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 transition-colors px-2 py-1 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900/30">
+            <button type="button" wire:click="$set('selectedTopics', @js($this->allTopics->toArray()))" class="text-xs font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 transition-colors px-2 py-1 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900/30">
                 {{ __('trivia.select_all') }}
             </button>
             <span class="text-gray-300 dark:text-gray-600">|</span>

@@ -3,6 +3,8 @@
 namespace Database\Factories;
 
 use App\Models\QuizAttemptLog;
+use App\Models\Step;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,7 +20,12 @@ class QuizAttemptLogFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'user_id' => User::factory(),
+            'step_id' => Step::factory(),
+            'score' => fake()->numberBetween(0, 10),
+            'total' => fake()->numberBetween(1, 10),
+            'answers' => [],
+            'attempted_at' => fake()->dateTimeThisMonth(),
         ];
     }
 }

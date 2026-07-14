@@ -10,9 +10,16 @@
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script>
-        if (localStorage.getItem('dark-mode') === 'true' || (!('dark-mode' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        }
+        (function() {
+            var theme = localStorage.getItem('dark-mode');
+            if (theme !== 'dark' && theme !== 'light' && theme !== 'auto') {
+                theme = 'auto';
+                localStorage.setItem('dark-mode', 'auto');
+            }
+            if (theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            }
+        })();
     </script>
 </head>
 <body class="font-sans antialiased">

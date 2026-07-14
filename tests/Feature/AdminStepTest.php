@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 use Tests\Feature\Concerns\AdminTestHelpers;
 use Tests\TestCase;
+use Throwable;
 
 class AdminStepTest extends TestCase
 {
@@ -344,7 +345,7 @@ class AdminStepTest extends TestCase
                 ->call('moveUp', $b->id);
 
             $this->fail('Expected the reorder action to fail.');
-        } catch (\Throwable) {
+        } catch (Throwable) {
             // The trigger intentionally aborts the reorder mid-swap.
         } finally {
             DB::unprepared('DROP TRIGGER IF EXISTS abort_step_swap_update');
@@ -372,7 +373,7 @@ class AdminStepTest extends TestCase
 
         $this->asAdmin()->get("/admin/courses/{$course->id}/lessons/{$lesson->id}/steps")
             ->assertOk()
-            ->assertSeeInOrder(['Order', 'Title', 'Type', 'Actions']);
+            ->assertSeeInOrder([__('admin.th_order'), __('admin.th_title'), __('admin.th_type'), __('admin.th_actions')]);
     }
 
     public function test_search_filters_step_list(): void
@@ -648,6 +649,38 @@ class AdminStepTest extends TestCase
             ->assertHasErrors('questions.0.question');
     }
 
+    public function test_instructor_can_create_quiz_step_with_multiple_choice_answer(): void
+    {
+        $user = User::factory()->create(['role' => 'instructor']);
+        $course = Course::factory()->create(['user_id' => $user->id]);
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+
+        $questions = [
+            [
+                'type' => 'multiple',
+                'question' => 'Select all that apply?',
+                'options' => ['A', 'B', 'C', 'D'],
+                'answer' => [0, 2], // multiple correct answers
+                'explanation' => 'A and C are correct',
+                'difficulty' => 'easy',
+                'topic' => 'general',
+            ],
+        ];
+
+        Livewire::actingAs($user)
+            ->test(AdminStepForm::class, ['course' => $course, 'lesson' => $lesson])
+            ->set('title', 'Multi Quiz Step')
+            ->set('type', StepType::Quiz->value)
+            ->set('questions', $questions)
+            ->call('save')
+            ->assertRedirect("/admin/courses/{$course->id}/lessons/{$lesson->id}/steps");
+
+        $step = Step::where('lesson_id', $lesson->id)->where('title', 'Multi Quiz Step')->first();
+        $this->assertNotNull($step);
+        $savedQuestions = json_decode((string) $step->quiz_content, true);
+        $this->assertEquals([0, 2], $savedQuestions[0]['answer']);
+    }
+
     public function test_instructor_cannot_edit_other_instructors_step(): void
     {
         $instructorA = User::factory()->create(['role' => 'instructor']);
@@ -663,5 +696,18 @@ class AdminStepTest extends TestCase
         $this->actingAs($instructorA)
             ->get("/admin/courses/{$courseB->id}/lessons/{$lessonB->id}/steps/{$stepB->id}/edit")
             ->assertForbidden();
+    }
+
+    public function test_coding_step_form_uses_step_type_for_alpine_condition(): void
+    {
+        $user = User::factory()->create(['role' => 'instructor']);
+        $course = Course::factory()->create(['user_id' => $user->id]);
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+
+        $this->actingAs($user)
+            ->get("/admin/courses/{$course->id}/lessons/{$lesson->id}/steps/create")
+            ->assertOk()
+            ->assertSee('stepType ===')
+            ->assertDontSee('showCoding');
     }
 }

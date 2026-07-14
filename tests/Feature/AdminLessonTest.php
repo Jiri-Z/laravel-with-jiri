@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 use Tests\Feature\Concerns\AdminTestHelpers;
 use Tests\TestCase;
+use Throwable;
 
 class AdminLessonTest extends TestCase
 {
@@ -229,7 +230,7 @@ class AdminLessonTest extends TestCase
                 ->call('moveUp', $b->id);
 
             $this->fail('Expected the reorder action to fail.');
-        } catch (\Throwable) {
+        } catch (Throwable) {
             // The trigger intentionally aborts the reorder mid-swap.
         } finally {
             DB::unprepared('DROP TRIGGER IF EXISTS abort_lesson_swap_update');
@@ -257,7 +258,7 @@ class AdminLessonTest extends TestCase
 
         $this->get("/admin/courses/{$course->id}/lessons")
             ->assertOk()
-            ->assertSeeInOrder(['Order', 'Title', 'Status', 'Actions']);
+            ->assertSeeInOrder([__('admin.th_order'), __('admin.th_title'), __('admin.th_status'), __('admin.th_actions')]);
     }
 
     public function test_search_filters_lesson_list(): void

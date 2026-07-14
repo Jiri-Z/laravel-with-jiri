@@ -7,6 +7,7 @@ use App\Livewire\StepViewer;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Step;
+use App\Models\StepCompletion;
 use App\Models\User;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -155,7 +156,28 @@ class StepViewerAccessTest extends TestCase
 
         $course->enrollments()->delete();
 
-        $component->call('markCodingComplete')
+        $component->call('markCodingComplete', output: '5')
             ->assertRedirect(route('courses.index'));
+    }
+
+    public function test_step_after_unpublished_step_is_accessible(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step1 = Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 1, 'published' => true]);
+        $step2 = Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 2, 'published' => false]);
+        $step3 = Step::factory()->create(['lesson_id' => $lesson->id, 'order' => 3, 'published' => true]);
+
+        // Complete step1
+        StepCompletion::factory()->create([
+            'user_id' => $user->id,
+            'step_id' => $step1->id,
+        ]);
+
+        $this->actingAs($user)
+            ->get("/courses/{$course->slug}/lessons/{$lesson->slug}/steps/{$step3->id}")
+            ->assertOk();
     }
 }

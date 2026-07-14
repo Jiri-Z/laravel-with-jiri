@@ -1,7 +1,7 @@
 <div>
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <a href="{{ route('admin.lessons.index', $course) }}" wire:navigate class="text-sm text-gray-600 dark:text-gray-400 hover:underline mb-4 inline-block">&larr; Back to lessons</a>
+            <a href="{{ route('admin.lessons.index', $course) }}" wire:navigate class="text-sm text-gray-600 dark:text-gray-400 hover:underline mb-4 inline-block">{{ __('admin.back_to_lessons') }}</a>
 
             <div class="flex items-center justify-between mb-6">
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Import Lesson into "{{ $course->title }}"</h1>
@@ -24,7 +24,7 @@
                                 Upload a YAML file containing the lesson structure
                             </p>
                             <label class="mt-4 inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 cursor-pointer">
-                                Choose YAML File
+                                {{ __('admin.choose_yaml_file') }}
                                 <input type="file" wire:model="yamlFile" accept=".yaml,.yml,.txt" class="hidden">
                             </label>
                             <p class="mt-2 text-xs text-gray-500 dark:text-gray-500">.yaml, .yml, or .txt (max 50MB)</p>
@@ -78,9 +78,9 @@
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
-                                    Import Lesson
+                                    {{ __('admin.import_lesson_button') }}
                                 </button>
-                                <span wire:loading wire:target="import" class="text-sm text-gray-500 dark:text-gray-400">Importing...</span>
+                                <span wire:loading wire:target="import" class="text-sm text-gray-500 dark:text-gray-400">{{ __('admin.importing') }}</span>
                             </div>
                         </div>
                     @endif

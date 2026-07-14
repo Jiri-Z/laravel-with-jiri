@@ -132,7 +132,7 @@ class AdminStepForm extends Component
                 'questions.*.question' => 'required|string',
                 'questions.*.options' => 'required|array|min:2',
                 'questions.*.options.*' => 'required|string',
-                'questions.*.answer' => 'required|integer|min:0',
+                'questions.*.answer' => 'required',
             ];
         }
 
@@ -150,7 +150,6 @@ class AdminStepForm extends Component
         $this->validate($this->validationRules());
 
         $data = [
-            'lesson_id' => $this->lesson->id,
             'title' => $this->title,
             'type' => $this->type,
             'order' => $this->order,
@@ -174,7 +173,7 @@ class AdminStepForm extends Component
         if ($this->step) {
             $this->step->update($data);
         } else {
-            Step::create($data);
+            Step::create(array_merge($data, ['lesson_id' => $this->lesson->id]));
         }
 
         $this->redirect(route('admin.steps.index', [$this->course, $this->lesson]), navigate: true);

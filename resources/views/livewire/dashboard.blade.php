@@ -20,7 +20,7 @@
             @if ($resumeStep)
                 <div class="mb-8">
                     <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">{{ __('dashboard.continue_learning') }}</h2>
-                    <a href="{{ route('steps.show', [$resumeStep->lesson->course->slug, $resumeStep->lesson->slug, $resumeStep->id]) }}" wire:navigate class="group block bg-white dark:bg-gray-750 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+                    <a href="{{ route('steps.show', [$resumeStep->lesson?->course?->slug, $resumeStep->lesson?->slug, $resumeStep->id]) }}" wire:navigate class="group block bg-white dark:bg-gray-750 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm text-gray-500 dark:text-gray-400">{{ $resumeStep->lesson->course->title }} &middot; {{ $resumeStep->lesson->title }}</p>

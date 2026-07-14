@@ -40,14 +40,15 @@
                 translations: @json($translations)
             })"
             x-init="init()"
+            @keydown="handleKeydown($event)"
             class="space-y-4"
         >
-            <div x-show="loading" class="text-gray-500 dark:text-gray-400 animate-pulse">
+            <div x-show="status === 'loading'" class="text-gray-500 dark:text-gray-400 animate-pulse">
                 <span x-text="translations.loading"></span>
             </div>
 
-            <div x-show="!loading" class="border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden" style="height: 400px;">
-                <div class="monaco-editor-container h-full"></div>
+            <div x-show="status !== 'loading'" x-cloak class="border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden" style="height: 400px;">
+                <div class="editor-container h-full"></div>
             </div>
 
             <div class="flex items-center gap-3">
@@ -71,7 +72,10 @@
                     <span x-show="checking" x-text="translations.checking"></span>
                 </button>
 
-                <span x-show="loadingPhp && !phpReady" class="text-sm text-gray-500 dark:text-gray-400 animate-pulse" x-text="translations.loading_runtime"></span>
+                <span x-show="status === 'loading-php'" class="text-sm text-gray-500 dark:text-gray-400 animate-pulse" x-text="translations.loading_runtime"></span>
+                <span x-show="status === 'error'" class="text-sm text-red-500 dark:text-red-400">PHP runtime failed to load</span>
+
+                <span class="text-xs text-gray-400 ml-auto">Ctrl+Enter to run, Shift+Ctrl+Enter to check</span>
             </div>
 
             <div x-show="output !== ''" class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm whitespace-pre-wrap max-h-48 overflow-y-auto">

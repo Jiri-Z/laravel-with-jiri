@@ -13,6 +13,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Livewire\Livewire;
+use RuntimeException;
 use Tests\TestCase;
 
 uses(TestCase::class, RefreshDatabase::class);
@@ -141,7 +142,7 @@ YAML;
     $maliciousYaml = str_replace('content: "test"', 'content: !php/object "O:1:\"A\":0:{}"', $maliciousYaml);
 
     expect(fn () => $action->handle($this->admin, $maliciousYaml, $this->course))
-        ->toThrow(\RuntimeException::class);
+        ->toThrow(RuntimeException::class);
 });
 
 test('action validates required structure', function () {
@@ -153,7 +154,7 @@ lesson:
 YAML;
 
     expect(fn () => $action->handle($this->admin, $incompleteYaml, $this->course))
-        ->toThrow(\RuntimeException::class, 'steps');
+        ->toThrow(RuntimeException::class, 'steps');
 });
 
 test('action rejects unknown step type', function () {
@@ -169,7 +170,7 @@ steps:
 YAML;
 
     expect(fn () => $action->handle($this->admin, $badYaml, $this->course))
-        ->toThrow(\RuntimeException::class);
+        ->toThrow(RuntimeException::class);
 });
 
 test('action sanitizes XSS in reading content', function () {
@@ -181,12 +182,16 @@ lesson:
 steps:
   - title: "XSS Step"
     type: reading
-    content: "<script>alert('xss')</script>Hello"
+    content: "<script>alert('xss')</script><iframe src='http://evil.com'></iframe><object data='evil'></object><embed src='evil.swf'><a href='javascript:alert(1)'>click</a>Hello"
 YAML;
 
     $result = $action->handle($this->admin, $xssYaml, $this->course);
 
     expect($result->steps[0]->reading_content)->not->toContain('<script>');
+    expect($result->steps[0]->reading_content)->not->toContain('<iframe');
+    expect($result->steps[0]->reading_content)->not->toContain('<object');
+    expect($result->steps[0]->reading_content)->not->toContain('<embed');
+    expect($result->steps[0]->reading_content)->not->toContain('javascript:');
 });
 
 test('action respects max nesting depth in YAML', function () {
@@ -205,7 +210,7 @@ test('action respects max nesting depth in YAML', function () {
     $veryDeepYaml = implode("\n", $yamlParts);
 
     expect(fn () => $action->handle($this->admin, $veryDeepYaml, $this->course))
-        ->toThrow(\RuntimeException::class);
+        ->toThrow(RuntimeException::class);
 });
 
 test('action creates lesson with course owner as owner', function () {
@@ -225,9 +230,7 @@ test('livewire component uploads yaml and shows preview', function () {
 
     Livewire::test(AdminLessonImport::class, ['course' => $this->course])
         ->set('yamlFile', $file)
-        ->assertSet('parsedLesson', function ($lesson) {
-            return $lesson !== null && $lesson['title'] === 'Introduction to PHP Variables';
-        })
+        ->assertSet('parsedLesson', fn ($lesson) => $lesson !== null && $lesson['title'] === 'Introduction to PHP Variables')
         ->assertSee('Introduction to PHP Variables')
         ->assertSee('What are Variables?')
         ->assertSee('Variable Types Quiz')
@@ -275,4 +278,14 @@ test('lesson import artisan command works', function () {
     expect(Lesson::where('course_id', $this->course->id)->get())->toHaveCount(1);
 
     unlink($path);
+});
+
+test('instructor cannot import lessons into another instructors course', function () {
+    $instructorA = User::factory()->create(['role' => 'instructor']);
+    $courseA = Course::factory()->create(['user_id' => $instructorA->id]);
+    $instructorB = User::factory()->create(['role' => 'instructor']);
+
+    Livewire::actingAs($instructorB)
+        ->test(AdminLessonImport::class, ['course' => $courseA])
+        ->assertForbidden();
 });

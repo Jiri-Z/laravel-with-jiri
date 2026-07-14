@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
+use App\Exceptions\NotEnrolledException;
+use App\Exceptions\OrphanedStepException;
+use App\Models\CourseEnrollment;
 use App\Models\Step;
 use App\Models\StepAnswer;
 use App\Models\User;
@@ -17,6 +20,24 @@ class SubmitQuizAnswer
      */
     public function handle(User $user, Step $step, int|string|array|null $answer, int $questionIndex = 0): SubmitQuizAnswerResult
     {
+        $lesson = $step->lesson;
+        if ($lesson === null) {
+            throw new OrphanedStepException;
+        }
+
+        $course = $lesson->course;
+        if ($course === null) {
+            throw new OrphanedStepException;
+        }
+
+        $enrolled = CourseEnrollment::where('user_id', $user->id)
+            ->where('course_id', $course->id)
+            ->exists();
+
+        if (! $enrolled) {
+            throw new NotEnrolledException;
+        }
+
         $content = $this->resolveContent($step, $questionIndex);
 
         if ($content === null) {
@@ -29,14 +50,14 @@ class SubmitQuizAnswer
         }
 
         try {
-            $answer = new StepAnswer;
-            $answer->user_id = max(0, (int) $user->id);
-            $answer->step_id = max(0, (int) $step->id);
-            $answer->question_index = max(0, $questionIndex);
-            $answer->answer = $answerString;
-            $answer->is_correct = $isCorrect;
-            $answer->created_at = now();
-            $answer->save();
+            $stepAnswer = new StepAnswer;
+            $stepAnswer->user_id = $user->id;
+            $stepAnswer->step_id = $step->id;
+            $stepAnswer->question_index = $questionIndex;
+            $stepAnswer->answer = $answerString;
+            $stepAnswer->is_correct = $isCorrect;
+            $stepAnswer->created_at = now();
+            $stepAnswer->save();
         } catch (QueryException $e) {
             if (! in_array((string) $e->getCode(), ['23000', '23505'], true)) {
                 throw $e;

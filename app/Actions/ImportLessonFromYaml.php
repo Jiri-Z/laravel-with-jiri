@@ -9,6 +9,7 @@ use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Step;
 use App\Models\User;
+use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -64,7 +65,7 @@ class ImportLessonFromYaml
 
         try {
             $data = Yaml::parse($yamlContent, Yaml::PARSE_EXCEPTION_ON_INVALID_TYPE);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new RuntimeException('Failed to parse YAML: '.$e->getMessage(), 0, $e);
         }
 
@@ -278,6 +279,10 @@ class ImportLessonFromYaml
     private function sanitizeContent(string $content): string
     {
         $content = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $content);
+        $content = preg_replace('/<iframe\b[^>]*>(.*?)<\/iframe>/is', '', (string) $content);
+        $content = preg_replace('/<object\b[^>]*>(.*?)<\/object>/is', '', (string) $content);
+        $content = preg_replace('/<embed\b[^>]*>/i', '', (string) $content);
+        $content = preg_replace('/javascript\s*:/i', '', is_string($content) ? $content : '');
         $content = preg_replace('/\bon\w+\s*=\s*"[^"]*"/i', '', is_string($content) ? $content : '');
         $content = preg_replace("/\bon\w+\s*=\s*'[^']*'/i", '', is_string($content) ? $content : '');
 

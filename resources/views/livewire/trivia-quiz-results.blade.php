@@ -1,5 +1,5 @@
 @php
-    $attempt = \App\Models\TriviaAttempt::find($this->attemptId);
+    $attempt = $this->attempt;
 @endphp
 
 @if ($attempt)

@@ -16,7 +16,7 @@ trait EnsuresEnrollment
             ->exists();
 
         if (! $enrolled) {
-            abort(403);
+            $this->redirect(route('courses.index'), navigate: true);
         }
     }
 }

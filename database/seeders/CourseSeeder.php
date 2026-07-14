@@ -21,6 +21,7 @@ class CourseSeeder extends Seeder
                 'name' => 'Jane Instructor',
                 'role' => 'instructor',
                 'password' => bcrypt('password'),
+                'email_verified_at' => now(),
             ]
         );
 
@@ -30,6 +31,7 @@ class CourseSeeder extends Seeder
                 'name' => 'Admin User',
                 'role' => 'admin',
                 'password' => bcrypt('password'),
+                'email_verified_at' => now(),
             ]
         );
 
@@ -39,6 +41,7 @@ class CourseSeeder extends Seeder
                 'name' => 'Sam Student',
                 'role' => 'student',
                 'password' => bcrypt('password'),
+                'email_verified_at' => now(),
             ]
         );
 
@@ -101,6 +104,9 @@ class CourseSeeder extends Seeder
                     } elseif ($stepData['type'] === 'quiz') {
                         $stepAttributes['type'] = StepType::Quiz;
                         $stepAttributes['quiz_content'] = json_encode($stepData['quiz_content']);
+                    } elseif ($stepData['type'] === 'coding') {
+                        $stepAttributes['type'] = StepType::Coding;
+                        $stepAttributes['coding_content'] = $stepData['content'];
                     }
 
                     Step::firstOrCreate(

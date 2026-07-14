@@ -83,4 +83,8 @@ return [
     'select_answer' => 'Vyberte...',
     'explanation' => 'Vysvětlení',
     'no_questions_yet' => 'Zatím žádné otázky. Kliknutím na "Přidat otázku" začněte.',
+    'choose_yaml_file' => 'Vybrat YAML soubor',
+    'import_lesson_title' => 'Importovat lekci do ":course"',
+    'import_lesson_button' => 'Importovat lekci',
+    'importing' => 'Importování...',
 ];

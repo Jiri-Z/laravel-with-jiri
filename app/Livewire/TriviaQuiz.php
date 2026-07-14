@@ -89,6 +89,16 @@ class TriviaQuiz extends Component
             ->get();
     }
 
+    #[Computed]
+    public function attempt(): ?TriviaAttempt
+    {
+        if ($this->attemptId === null) {
+            return null;
+        }
+
+        return TriviaAttempt::find($this->attemptId);
+    }
+
     public function start(): void
     {
         if (empty($this->selectedTopics)) {
@@ -103,6 +113,8 @@ class TriviaQuiz extends Component
 
         $pool = TriviaQuestion::where('locale', app()->getLocale())
             ->whereIn('topic', $this->selectedTopics)
+            ->inRandomOrder()
+            ->limit($this->questionCount)
             ->get();
 
         if ($pool->isEmpty()) {
@@ -111,7 +123,7 @@ class TriviaQuiz extends Component
             return;
         }
 
-        $this->questions = $this->selectQuestions($pool, min($this->questionCount, $pool->count()));
+        $this->questions = $pool->map(fn (TriviaQuestion $q) => $q->toArray())->values()->all();
         $this->currentIndex = 0;
         $this->submitted = false;
         $this->userAnswers = [];
@@ -201,43 +213,9 @@ class TriviaQuiz extends Component
         return view('livewire.trivia-quiz');
     }
 
-    /** @param Collection<int, TriviaQuestion> $pool
-     * @return array<int, array<string, mixed>> */
-    private function selectQuestions(Collection $pool, int $count): array
-    {
-        $byTopic = $pool->groupBy('topic');
-        $topicNames = $byTopic->keys()->toArray();
-        $perTopic = (int) floor($count / count($topicNames));
-        $remainder = $count % count($topicNames);
-
-        $selected = [];
-
-        foreach ($topicNames as $i => $topic) {
-            $take = $perTopic + ($i < $remainder ? 1 : 0);
-            $topicKey = is_string($topic) ? $topic : '';
-            $questions = $byTopic->get($topicKey);
-
-            if ($questions === null) {
-                continue;
-            }
-
-            $shuffled = $questions->shuffle();
-            $picked = $shuffled->take($take);
-
-            foreach ($picked as $q) {
-                $selected[] = $q->toArray();
-            }
-        }
-
-        $collected = collect($selected);
-        $shuffledSelected = $collected->shuffle();
-
-        return $shuffledSelected->take($count)->values()->all();
-    }
-
     /** @param array<string, mixed> $question
      * @param string|array<int, string>|null $userAnswer */
-    private function checkAnswer(array $question, string|array|null $userAnswer): bool
+    public function checkAnswer(array $question, string|array|null $userAnswer): bool
     {
         $type = $question['type'];
 

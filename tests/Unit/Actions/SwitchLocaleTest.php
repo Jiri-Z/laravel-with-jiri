@@ -8,6 +8,7 @@ use App\Actions\SwitchLocale;
 use App\Models\User;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 class SwitchLocaleTest extends TestCase
@@ -59,10 +60,8 @@ class SwitchLocaleTest extends TestCase
         App::setLocale('en');
         Session::put('locale', 'en');
 
+        $this->expectException(ValidationException::class);
         $this->switcher->handle('de');
-
-        $this->assertEquals('en', Session::get('locale'));
-        $this->assertEquals('en', App::getLocale());
     }
 
     public function test_updates_session_even_when_invalid_locale_is_skipped(): void

@@ -1,0 +1,6 @@
+{
+    "preset": "laravel",
+    "disabled": {
+        "php_unit_test_annotation": true
+    }
+}
