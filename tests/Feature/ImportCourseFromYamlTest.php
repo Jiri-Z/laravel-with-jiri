@@ -9,10 +9,9 @@ use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Step;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-uses(TestCase::class, RefreshDatabase::class);
+uses(TestCase::class);
 
 beforeEach(function () {
     $this->admin = User::factory()->admin()->create();

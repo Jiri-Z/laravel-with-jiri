@@ -9,12 +9,11 @@ use App\Livewire\Actions\Logout;
 use App\Models\Course;
 use App\Models\User;
 use Illuminate\Contracts\Translation\HasLocalePreference;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\App;
 use Livewire\Livewire;
 use Tests\TestCase;
 
-uses(TestCase::class, RefreshDatabase::class);
+uses(TestCase::class);
 
 beforeEach(function () {
     App::setLocale('en');

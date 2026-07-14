@@ -19,11 +19,13 @@ class QuizAttemptLogFactory extends Factory
      */
     public function definition(): array
     {
+        $total = fake()->numberBetween(1, 10);
+
         return [
             'user_id' => User::factory(),
             'step_id' => Step::factory(),
-            'score' => fake()->numberBetween(0, 10),
-            'total' => fake()->numberBetween(1, 10),
+            'score' => fake()->numberBetween(0, $total),
+            'total' => $total,
             'answers' => [],
             'attempted_at' => fake()->dateTimeThisMonth(),
         ];

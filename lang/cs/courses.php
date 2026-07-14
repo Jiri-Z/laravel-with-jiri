@@ -4,6 +4,7 @@ return [
     'title' => 'Kurzy',
     'back' => '← Zpět na kurzy',
     'enroll' => 'Zapsat se',
+    'enrolling' => 'Zapisuji...',
     'course_progress' => 'Postup kurzem',
     'lessons' => 'Lekce',
     'lesson_complete' => 'Lekce dokončena',

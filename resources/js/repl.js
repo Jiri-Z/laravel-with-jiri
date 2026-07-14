@@ -22,24 +22,12 @@ export function repl(config) {
             try { savedCode = localStorage.getItem(LS_KEY) || defaultCode; } catch { savedCode = defaultCode; }
             const container = this.$el.querySelector('.editor-container');
 
-            try {
-                const result = await createEditor(container, savedCode, 'php');
-                this.editor = result.editor;
+            const result = await createEditor(container, savedCode, 'php');
+            this.editor = result.editor;
 
-                this.editor.onDidChangeModelContent(() => {
-                    try { localStorage.setItem(LS_KEY, this.editor.getValue()); } catch { /* localStorage unavailable */ }
-                });
-            } catch (e) {
-                console.error('Failed to create editor:', e);
-                container.innerHTML = '<textarea class="w-full h-full p-4 font-mono text-sm bg-gray-900 text-green-400 border-0 resize-none focus:outline-none" spellcheck="false">' + savedCode.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</textarea>';
-                const ta = container.querySelector('textarea');
-                this.editor = {
-                    getValue: () => ta.value,
-                    setValue: (v) => { ta.value = v; },
-                    onDidChangeModelContent: (cb) => { ta.addEventListener('input', cb); },
-                    dispose: () => { ta.remove(); },
-                };
-            }
+            this.editor.onDidChangeModelContent(() => {
+                try { localStorage.setItem(LS_KEY, this.editor.getValue()); } catch { /* localStorage unavailable */ }
+            });
 
             this.status = 'loading-php';
             this.initPhp();
@@ -51,12 +39,13 @@ export function repl(config) {
                 this.php = php;
 
                 let outputAccumulator = '';
-                php.addEventListener('output', (event) => {
-                    outputAccumulator += event.detail;
-                });
-                php.addEventListener('error', (event) => {
-                    outputAccumulator += `[PHP Error]: ${event.detail}`;
-                });
+                this._phpListeners = [];
+                const onOutput = (event) => { outputAccumulator += event.detail; };
+                const onError = (event) => { outputAccumulator += `[PHP Error]: ${event.detail}`; };
+                php.addEventListener('output', onOutput);
+                php.addEventListener('error', onError);
+                this._phpListeners.push({ event: 'output', fn: onOutput });
+                this._phpListeners.push({ event: 'error', fn: onError });
 
                 this._getOutput = () => outputAccumulator;
                 this._resetOutput = () => { outputAccumulator = ''; };
@@ -106,11 +95,18 @@ export function repl(config) {
         },
 
         destroy() {
+            if (this.php) {
+                if (this._phpListeners) {
+                    for (const { event, fn } of this._phpListeners) {
+                        this.php.removeEventListener(event, fn);
+                    }
+                }
+                if (this.php.terminate) {
+                    this.php.terminate();
+                }
+            }
             if (this.editor && this.editor.dispose) {
                 this.editor.dispose();
-            }
-            if (this.php && this.php.terminate) {
-                this.php.terminate();
             }
         },
     };

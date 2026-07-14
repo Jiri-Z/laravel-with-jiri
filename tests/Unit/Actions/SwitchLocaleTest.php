@@ -73,4 +73,16 @@ class SwitchLocaleTest extends TestCase
 
         $this->assertEquals('cs', Session::get('locale'));
     }
+
+    public function test_accepts_explicit_user_parameter(): void
+    {
+        $user = User::factory()->create(['locale' => 'en']);
+
+        $this->switcher->handle('cs', $user);
+
+        $this->assertEquals('cs', $user->fresh()->locale);
+        $this->assertEquals('cs', Session::get('locale'));
+        $this->assertEquals('cs', App::getLocale());
+        $this->assertNull(auth()->user());
+    }
 }

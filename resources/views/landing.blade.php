@@ -18,6 +18,19 @@
                 document.documentElement.classList.add('dark');
             }
         })();
+        window.toggleDarkMode = function() {
+            var theme = localStorage.getItem('dark-mode');
+            if (theme !== 'dark' && theme !== 'light' && theme !== 'auto') { theme = 'auto'; }
+            if (theme === 'dark') { theme = 'light'; }
+            else if (theme === 'light') { theme = 'auto'; }
+            else { theme = 'dark'; }
+            localStorage.setItem('dark-mode', theme);
+            if (theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme:dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        };
     </script>
 </head>
 <body class="font-sans antialiased text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-950">
@@ -34,19 +47,7 @@
                             {{ __('navigation.logo_text') }}
                         </a>
                         <nav class="flex items-center gap-4">
-                            <button onclick="(function(){
-                                var theme=localStorage.getItem('dark-mode');
-                                if(theme!=='dark'&&theme!=='light'&&theme!=='auto'){theme='auto';}
-                                if(theme==='dark'){theme='light';}
-                                else if(theme==='light'){theme='auto';}
-                                else{theme='dark';}
-                                localStorage.setItem('dark-mode',theme);
-                                if(theme==='dark'||(theme==='auto'&&window.matchMedia('(prefers-color-scheme:dark)').matches)){
-                                    document.documentElement.classList.add('dark');
-                                }else{
-                                    document.documentElement.classList.remove('dark');
-                                }
-                            })()"
+                            <button onclick="toggleDarkMode()"
                                 class="p-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800"
                                 aria-label="{{ __('navigation.dark_mode') }}">
                                 <svg class="w-5 h-5 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>

@@ -6,11 +6,10 @@ namespace Tests\Feature;
 
 use App\Livewire\Repl;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
 
-uses(TestCase::class, RefreshDatabase::class);
+uses(TestCase::class);
 
 test('guest is redirected to login', function () {
     $this->get('/repl')->assertRedirect('/login');

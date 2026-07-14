@@ -7,11 +7,10 @@ namespace Tests\Feature;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Step;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\App;
 use Tests\TestCase;
 
-uses(TestCase::class, RefreshDatabase::class);
+uses(TestCase::class);
 
 beforeEach(function () {
     App::setLocale('en');

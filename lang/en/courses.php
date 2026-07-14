@@ -4,6 +4,7 @@ return [
     'title' => 'Courses',
     'back' => '← Back to courses',
     'enroll' => 'Enroll',
+    'enrolling' => 'Enrolling...',
     'course_progress' => 'Course progress',
     'lessons' => 'Lessons',
     'lesson_complete' => 'Lesson complete',

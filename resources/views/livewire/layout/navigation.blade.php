@@ -46,19 +46,7 @@ new class extends Component
             </div>
 
             <div class="hidden sm:flex sm:items-center sm:ms-6 gap-1">
-                <button @click="(function(){
-                    var theme=localStorage.getItem('dark-mode');
-                    if(theme!=='dark'&&theme!=='light'&&theme!=='auto'){theme='auto';}
-                    if(theme==='dark'){theme='light';}
-                    else if(theme==='light'){theme='auto';}
-                    else{theme='dark';}
-                    localStorage.setItem('dark-mode',theme);
-                    if(theme==='dark'||(theme==='auto'&&window.matchMedia('(prefers-color-scheme:dark)').matches)){
-                        document.documentElement.classList.add('dark');
-                    }else{
-                        document.documentElement.classList.remove('dark');
-                    }
-                })()"
+                <button @click="toggleDarkMode()"
                     class="p-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800"
                     x-data
                     aria-label="{{ __('navigation.dark_mode') }}">
@@ -116,19 +104,7 @@ new class extends Component
             </div>
 
             <div class="-me-2 flex items-center sm:hidden gap-1">
-                <button @click="(function(){
-                    var theme=localStorage.getItem('dark-mode');
-                    if(theme!=='dark'&&theme!=='light'&&theme!=='auto'){theme='auto';}
-                    if(theme==='dark'){theme='light';}
-                    else if(theme==='light'){theme='auto';}
-                    else{theme='dark';}
-                    localStorage.setItem('dark-mode',theme);
-                    if(theme==='dark'||(theme==='auto'&&window.matchMedia('(prefers-color-scheme:dark)').matches)){
-                        document.documentElement.classList.add('dark');
-                    }else{
-                        document.documentElement.classList.remove('dark');
-                    }
-                })()"
+                <button @click="toggleDarkMode()"
                     class="p-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800"
                     x-data
                     aria-label="{{ __('navigation.dark_mode') }}">

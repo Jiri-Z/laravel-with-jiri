@@ -370,22 +370,19 @@ When a test relies on a factory's default value without specifying a state, and 
 
 ## Parallel testing with SQLite in-memory has diminishing returns
 
-On a 2-core environment with SQLite `:memory:`, parallel testing (`--parallel`) shows limited speedup because each worker process runs migrations independently. Measured results for 371 tests:
+On a 2-core environment with SQLite `:memory:`, parallel testing (`--parallel`) shows limited speedup because each worker process runs migrations independently. Measured results for 596 tests:
 
 | Mode | Time | vs Sequential |
 |------|------|---------------|
-| Sequential (`php artisan test`) | 233s | baseline |
-| `--parallel` (2 processes, default) | 189s | 19% faster |
-| **`--parallel --processes=1`** (WrapperRunner) | **167s** | **28% faster** |
-| `--parallel --processes=4` | 246s | 6% slower |
+| Sequential (`php artisan test`) | 227s | baseline |
+| `--parallel` (2 processes, default) | **186s** | **18% faster** |
+| `--parallel --processes=1` (WrapperRunner) | 283s | 25% slower |
 
-The `--parallel --processes=1` setting is the optimal choice — it uses ParaTest's WrapperRunner (reuses PHP processes between test files without needing multiple workers) while avoiding per-worker migration overhead. Run with:
+With 596 tests, the WrapperRunner (single worker) is **not** faster than sequential — the extra ParaTest process management overhead outweighs any benefit. The default `--parallel` with 2 workers provides the best speedup on this 2-core environment. Run with:
 
 ```bash
-php artisan test --parallel --processes=1
+php artisan test --parallel
 ```
-
-Do NOT add `<testsuites parallel="true">` to `phpunit.xml` — the `--parallel` flag on `php artisan test` handles this correctly, and the XML attribute conflicts with ParaTest's process management.
 
 ---
 

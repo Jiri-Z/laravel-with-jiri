@@ -28,7 +28,7 @@ class TriviaAttemptFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'completed_at' => now(),
-            'score' => fake()->numberBetween(0, $attributes['total']),
+            'score' => fake()->numberBetween(0, $attributes['total'] ?? 10),
         ]);
     }
 }

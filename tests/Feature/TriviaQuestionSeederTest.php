@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 use App\Models\TriviaQuestion;
 use Database\Seeders\TriviaQuestionSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Symfony\Component\Yaml\Yaml;
 use Tests\TestCase;
 
-uses(TestCase::class, RefreshDatabase::class);
+uses(TestCase::class);
 
 function countYamlQuestions(string $directory): int
 {

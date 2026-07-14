@@ -1,4 +1,4 @@
-const MONACO_CDN = 'https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1/min/vs';
+const MONACO_CDN = window.MONACO_CDN || 'https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1/min/vs';
 let phpWasmModule = null;
 
 export function loadMonaco() {

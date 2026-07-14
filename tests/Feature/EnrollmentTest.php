@@ -42,6 +42,15 @@ class EnrollmentTest extends TestCase
             ->assertNotFound();
     }
 
+    public function test_enrolling_in_nonexistent_course_returns_404(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->post('/enroll/99999')
+            ->assertNotFound();
+    }
+
     public function test_enrolling_twice_is_idempotent(): void
     {
         $user = User::factory()->create();

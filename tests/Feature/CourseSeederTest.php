@@ -9,11 +9,10 @@ use App\Models\Course;
 use App\Models\User;
 use Database\Seeders\CourseSeeder;
 use Database\Seeders\DatabaseSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\App;
 use Tests\TestCase;
 
-uses(TestCase::class, RefreshDatabase::class);
+uses(TestCase::class);
 
 test('seeds quiz type step', function () {
     $this->seed(CourseSeeder::class);

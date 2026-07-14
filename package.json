@@ -16,6 +16,4 @@
         "vite": "^8.0.0"
     },
     "dependencies": {
-        "php-wasm": "^0.1.0"
-    }
 }

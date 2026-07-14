@@ -8,7 +8,8 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script>window.MONACO_CDN = '{{ config('app.monaco_cdn') }}';</script>
     <script>
         (function() {
             var theme = localStorage.getItem('dark-mode');
@@ -20,6 +21,19 @@
                 document.documentElement.classList.add('dark');
             }
         })();
+        window.toggleDarkMode = function() {
+            var theme = localStorage.getItem('dark-mode');
+            if (theme !== 'dark' && theme !== 'light' && theme !== 'auto') { theme = 'auto'; }
+            if (theme === 'dark') { theme = 'light'; }
+            else if (theme === 'light') { theme = 'auto'; }
+            else { theme = 'dark'; }
+            localStorage.setItem('dark-mode', theme);
+            if (theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme:dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        };
     </script>
 </head>
 <body class="font-sans antialiased">

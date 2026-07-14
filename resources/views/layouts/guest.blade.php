@@ -20,6 +20,19 @@
                 document.documentElement.classList.add('dark');
             }
         })();
+        window.toggleDarkMode = function() {
+            var theme = localStorage.getItem('dark-mode');
+            if (theme !== 'dark' && theme !== 'light' && theme !== 'auto') { theme = 'auto'; }
+            if (theme === 'dark') { theme = 'light'; }
+            else if (theme === 'light') { theme = 'auto'; }
+            else { theme = 'dark'; }
+            localStorage.setItem('dark-mode', theme);
+            if (theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme:dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        };
     </script>
 </head>
 <body class="font-sans antialiased text-gray-600 bg-gray-50 dark:bg-gray-950">
@@ -30,19 +43,7 @@
                     <x-application-logo class="w-7 h-7 text-indigo-600 dark:text-indigo-300" />
                     <span>{{ __('navigation.logo_text') }}</span>
                 </a>
-                <button @click="(function(){
-                    var theme=localStorage.getItem('dark-mode');
-                    if(theme!=='dark'&&theme!=='light'&&theme!=='auto'){theme='auto';}
-                    if(theme==='dark'){theme='light';}
-                    else if(theme==='light'){theme='auto';}
-                    else{theme='dark';}
-                    localStorage.setItem('dark-mode',theme);
-                    if(theme==='dark'||(theme==='auto'&&window.matchMedia('(prefers-color-scheme:dark)').matches)){
-                        document.documentElement.classList.add('dark');
-                    }else{
-                        document.documentElement.classList.remove('dark');
-                    }
-                })()"
+                <button @click="toggleDarkMode()"
                     class="p-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800" x-data
                     aria-label="{{ __('navigation.dark_mode') }}">
                     <svg x-show="!document.documentElement.classList.contains('dark')" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

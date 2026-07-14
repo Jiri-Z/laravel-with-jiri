@@ -21,8 +21,12 @@
                             @if (isset($enrolled[$course->id]))
                                 <a href="{{ route('courses.show', $course->slug) }}" wire:navigate class="text-sm font-medium text-indigo-600 dark:text-indigo-300 hover:underline">{{ $progressData[$course->id] }}%</a>
                             @else
-                                <button wire:click="enroll({{ $course->id }})" class="rounded-full bg-indigo-600 px-4 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 dark:bg-indigo-400 dark:hover:bg-indigo-300 transition-colors">
-                                    {{ __('courses.enroll') }}
+                                <button wire:click="enroll({{ $course->id }})" wire:loading.attr="disabled" wire:target="enroll" class="rounded-full bg-indigo-600 px-4 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 dark:bg-indigo-400 dark:hover:bg-indigo-300 transition-colors">
+                                    <span wire:loading.remove wire:target="enroll">{{ __('courses.enroll') }}</span>
+                                    <span wire:loading wire:target="enroll" class="inline-flex items-center gap-1">
+                                        <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                                        <span>{{ __('courses.enrolling') }}</span>
+                                    </span>
                                 </button>
                             @endif
                         </div>

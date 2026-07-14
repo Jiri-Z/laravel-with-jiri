@@ -109,7 +109,7 @@ The sandbox environment has constrained resources. Always use generous bash tool
 
 | Tool | Minimum timeout | Notes |
 |------|----------------|-------|
-| `php artisan test --compact` | 300 000 ms | Full suite can take 120s+ |
+| `php artisan test --parallel` | 300 000 ms | Full suite can take 186s+; 2 workers share the load |
 | `phpstan analyse` | 600 000 ms | Larastan can take 300s+ |
 | `vendor/bin/rector process` | 600 000 ms | Internal parallel processes may time out. If so, run on specific files only: `vendor/bin/rector process --dry-run --no-progress-bar --memory-limit=-1 path/to/file.php` |
 | `vendor/bin/duster lint` | 300 000 ms | Runs TLint + PHP_CodeSniffer + PHP-CS-Fixer + Pint. Slower than Pint alone |
@@ -206,7 +206,7 @@ At the start of every session, run `application-info` to get precise package ver
 
 - **Strict TDD is mandatory**: Red → Green → Refactor in that order. Never write implementation before a failing test. Never refactor before all tests pass.
 - Every change must be programmatically tested. Write a new test or update an existing test, then run the affected tests to make sure they pass.
-- Run the minimum number of tests needed to ensure code quality and speed. Use `php artisan test --compact` with a specific filename or filter.
+- Run the minimum number of tests needed to ensure code quality and speed. Use `php artisan test --compact --parallel` with a specific filename or filter.
 
 === laravel/core rules ===
 
@@ -302,7 +302,7 @@ This also lets you add custom scripts (like PHPStan) to the `duster lint` or `du
 
 - This project uses Pest for testing. Create tests: `php artisan make:test --pest {name}`.
 - The `{name}` argument should not include the test suite directory. Use `php artisan make:test --pest SomeFeatureTest` instead of `php artisan make:test --pest Feature/SomeFeatureTest`.
-- Run tests: `php artisan test --parallel --processes=1` (fastest — uses WrapperRunner, ~28% faster than sequential). Filter: `php artisan test --parallel --processes=1 --filter=testName`.
+- Run tests: `php artisan test --parallel` (fastest — 2 workers split the load). Filter: `php artisan test --parallel --filter=testName`.
 - Do NOT add `parallel="true"` to `phpunit.xml` testsuites — the `--parallel` flag handles it.
 - Do NOT delete tests without approval.
 

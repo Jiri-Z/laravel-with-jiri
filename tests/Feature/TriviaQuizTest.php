@@ -9,12 +9,11 @@ use App\Models\TriviaAttempt;
 use App\Models\TriviaQuestion;
 use App\Models\User;
 use Database\Seeders\TriviaQuestionSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use ReflectionMethod;
 use Tests\TestCase;
 
-uses(TestCase::class, RefreshDatabase::class);
+uses(TestCase::class);
 
 function triviaQuestion(array $overrides = []): array
 {
