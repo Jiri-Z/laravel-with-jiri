@@ -24,14 +24,14 @@ test('page loads for authenticated user', function () {
         ->assertSeeLivewire(Repl::class);
 });
 
-test('shows editor container and run button', function () {
+test('shows code textarea and run button', function () {
     $user = User::factory()->create();
 
     Livewire::actingAs($user)
         ->test(Repl::class)
         ->assertOk()
-        ->assertSeeHtml('editor-container')
-        ->assertSeeHtml('@click="run()"');
+        ->assertSeeHtml('x-ref="codeEditor"')
+        ->assertSeeHtml('x-on:click="run()"');
 });
 
 test('shows reset button', function () {
@@ -39,7 +39,7 @@ test('shows reset button', function () {
 
     Livewire::actingAs($user)
         ->test(Repl::class)
-        ->assertSeeHtml('@click="resetCode()"');
+        ->assertSeeHtml('x-on:click="resetCode()"');
 });
 
 test('shows keyboard shortcut hint', function () {
@@ -47,7 +47,7 @@ test('shows keyboard shortcut hint', function () {
 
     Livewire::actingAs($user)
         ->test(Repl::class)
-        ->assertSeeHtml('text-xs text-gray-400');
+        ->assertSeeHtml('Ctrl+Enter');
 });
 
 test('shows loading indicator initially', function () {
@@ -56,14 +56,6 @@ test('shows loading indicator initially', function () {
     Livewire::actingAs($user)
         ->test(Repl::class)
         ->assertSeeHtml('animate-pulse');
-});
-
-test('shows loading php runtime indicator', function () {
-    $user = User::factory()->create();
-
-    Livewire::actingAs($user)
-        ->test(Repl::class)
-        ->assertSeeHtml('loading-php');
 });
 
 test('shows php runtime ready indicator', function () {
@@ -80,4 +72,12 @@ test('shows php runtime failed indicator', function () {
     Livewire::actingAs($user)
         ->test(Repl::class)
         ->assertSeeHtml('text-red-500');
+});
+
+test('shows output placeholder', function () {
+    $user = User::factory()->create();
+
+    Livewire::actingAs($user)
+        ->test(Repl::class)
+        ->assertSee(__('repl.output_placeholder'));
 });

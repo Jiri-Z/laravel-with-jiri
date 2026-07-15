@@ -1,13 +1,15 @@
 <?php
 
 return [
-    'loading_editor' => 'Načítání editoru...',
+    'subtitle' => 'Pište PHP kód a spouštějte ho přímo v prohlížeči. Bez serveru.',
+    'php_input' => 'PHP Vstup',
+    'console_output' => 'Výstup konzole',
     'run' => 'Spustit',
-    'running' => 'Spouštění...',
+    'running' => 'Spouštím...',
     'reset' => 'Resetovat',
-    'clear_output' => 'Vymazat výstup',
-    'loading_php_runtime' => 'Načítání PHP runtime...',
+    'clear_output' => 'Vymazat',
+    'loading_php_runtime' => 'Stahuji Wasm runtime...',
     'php_runtime_ready' => 'PHP Runtime připraven',
     'php_runtime_failed' => 'PHP runtime se nepodařilo načíst',
-    'output' => 'Výstup',
+    'output_placeholder' => 'Kliknutím na Spustit spustíte PHP kód.',
 ];
