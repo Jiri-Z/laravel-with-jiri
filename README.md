@@ -2,6 +2,8 @@
 
 E-learning platform for modern Laravel development — courses, lessons, reading steps, quizzes, and a PHP code REPL.
 
+Work in progress. Email registration needs Resend credentials to work properly. The two available courses are low quality placeholders.
+
 Built with [Laravel](https://laravel.com), [Livewire](https://livewire.laravel.com), [Tailwind CSS](https://tailwindcss.com), and [Pest](https://pestphp.com).
 
 ## Features
@@ -14,7 +16,6 @@ Built with [Laravel](https://laravel.com), [Livewire](https://livewire.laravel.c
 - Admin panel for course management
 - Czech localization (locale-scoped courses)
 - PHP code REPL (standalone, browser-based via php-wasm)
-- 587+ tests, PHPStan level 6
 
 ## Requirements
 
