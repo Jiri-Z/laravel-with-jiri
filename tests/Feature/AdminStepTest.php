@@ -609,5 +609,4 @@ class AdminStepTest extends TestCase
             ->get("/admin/courses/{$courseB->id}/lessons/{$lessonB->id}/steps/{$stepB->id}/edit")
             ->assertForbidden();
     }
-
 }

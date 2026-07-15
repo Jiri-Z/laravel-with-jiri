@@ -104,8 +104,26 @@ class Step extends Model
 
         $decoded = json_decode($source, true);
 
-        return is_array($decoded) ? $decoded : null;
+        if (! is_array($decoded)) {
+            return null;
+        }
+
+        if (array_is_list($decoded)) {
+            return $decoded;
+        }
+
+        $question = $decoded['question'] ?? null;
+        $options = $decoded['options'] ?? null;
+        $answer = $decoded['answer'] ?? null;
+
+        if (! is_string($question) || ! is_array($options)) {
+            return $decoded;
+        }
+
+        return [[
+            'question' => $question,
+            'options' => array_values(array_filter(array_map(static fn ($option): string => is_string($option) ? $option : '', $options))),
+            'answer' => is_int($answer) ? $answer : 0,
+        ]];
     }
-
-
 }

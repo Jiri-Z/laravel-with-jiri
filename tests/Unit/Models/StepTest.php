@@ -94,6 +94,21 @@ test('step getContentAsArray returns array for valid JSON in quiz_content', func
     expect($result)->toBe(['key' => 'value', 'number' => 42]);
 });
 
+test('step getContentAsArray normalizes object-shaped quiz content into a single-question list', function () {
+    $lesson = Lesson::factory()->create(['course_id' => Course::factory()]);
+    $step = Step::factory()->create([
+        'lesson_id' => $lesson->id,
+        'type' => StepType::Quiz,
+        'quiz_content' => '{"question":"What is the answer?","options":["A","B"],"answer":0}',
+    ]);
+
+    expect($step->getContentAsArray())->toEqual([[
+        'question' => 'What is the answer?',
+        'options' => ['A', 'B'],
+        'answer' => 0,
+    ]]);
+});
+
 test('step getContentAsArray returns null for reading steps', function () {
     $lesson = Lesson::factory()->create(['course_id' => Course::factory()]);
     $step = Step::factory()->create([

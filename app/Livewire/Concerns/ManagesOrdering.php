@@ -24,9 +24,14 @@ trait ManagesOrdering
     {
         $this->authorize('update', $item);
 
+        $itemOrder = $item->getAttribute('order');
         $modelClass = $item::class;
 
-        $query = $modelClass::where('order', '<', $item->getAttribute('order'));
+        if ($itemOrder === null || (! is_int($itemOrder) && ! is_numeric($itemOrder))) {
+            return;
+        }
+
+        $query = $modelClass::where('order', '<', $itemOrder);
         if ($parentFk !== null) {
             $query->where($parentFk, $item->getAttribute($parentFk));
         }
@@ -36,13 +41,19 @@ trait ManagesOrdering
             return;
         }
 
-        $itemOrder = $item->getAttribute('order');
         $previousOrder = $previous->getAttribute('order');
 
-        DB::transaction(function () use ($item, $itemOrder, $previous, $previousOrder): void {
+        if (! is_int($previousOrder) && ! is_numeric($previousOrder)) {
+            return;
+        }
+
+        $itemOrderValue = (int) $itemOrder;
+        $previousOrderValue = (int) $previousOrder;
+
+        DB::transaction(function () use ($item, $itemOrderValue, $previous, $previousOrderValue): void {
             $previous->update(['order' => -1]);
-            $item->update(['order' => $previousOrder]);
-            $previous->update(['order' => $itemOrder]);
+            $item->update(['order' => $previousOrderValue]);
+            $previous->update(['order' => $itemOrderValue]);
         });
     }
 
@@ -50,9 +61,14 @@ trait ManagesOrdering
     {
         $this->authorize('update', $item);
 
+        $itemOrder = $item->getRawOriginal('order');
         $modelClass = $item::class;
 
-        $query = $modelClass::where('order', '>', $item->getAttribute('order'));
+        if (! is_int($itemOrder) && ! is_numeric($itemOrder)) {
+            return;
+        }
+
+        $query = $modelClass::where('order', '>', $itemOrder);
         if ($parentFk !== null) {
             $query->where($parentFk, $item->getAttribute($parentFk));
         }
@@ -62,13 +78,19 @@ trait ManagesOrdering
             return;
         }
 
-        $itemOrder = $item->getAttribute('order');
         $nextOrder = $next->getAttribute('order');
 
-        DB::transaction(function () use ($item, $itemOrder, $next, $nextOrder): void {
+        if (! is_int($nextOrder) && ! is_numeric($nextOrder)) {
+            return;
+        }
+
+        $itemOrderValue = (int) $itemOrder;
+        $nextOrderValue = (int) $nextOrder;
+
+        DB::transaction(function () use ($item, $itemOrderValue, $next, $nextOrderValue): void {
             $next->update(['order' => -1]);
-            $item->update(['order' => $nextOrder]);
-            $next->update(['order' => $itemOrder]);
+            $item->update(['order' => $nextOrderValue]);
+            $next->update(['order' => $itemOrderValue]);
         });
     }
 }
