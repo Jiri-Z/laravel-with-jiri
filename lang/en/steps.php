@@ -22,4 +22,5 @@ return [
     'complete_previous' => 'Complete the previous step first.',
     'coding_error' => 'An unexpected error occurred while running your code.',
     'coding_error_prefix' => '[PHP Error]: ',
+    'next_step' => 'Next Step',
 ];

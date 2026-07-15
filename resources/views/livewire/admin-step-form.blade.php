@@ -34,8 +34,17 @@
                                         {{ __('admin.label_content_hint') }}
                                     </span>
                                 </label>
-                                <textarea wire:model="content" id="content" rows="10" class="mt-1 block w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white font-mono text-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
+                                <textarea wire:model.live.debounce.300ms="content" id="content" rows="10" class="mt-1 block w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white font-mono text-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
                                 @error('content') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+
+                                @if ($content)
+                                    <div class="mt-4">
+                                        <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">{{ __('admin.preview') }}</p>
+                                        <div class="prose dark:prose-invert max-w-none p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+                                            {!! Str::markdown($content, ['html_input' => 'escape', 'allow_unsafe_links' => false]) !!}
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
 
                             {{-- Quiz builder --}}

@@ -32,6 +32,8 @@ class StepViewer extends Component
 
     public bool $completed = false;
 
+    public ?Step $nextStep = null;
+
     public function mount(Course $course, Lesson $lesson, Step $step): void
     {
         $user = auth()->user();
@@ -54,6 +56,11 @@ class StepViewer extends Component
             ->where('step_id', $step->id)
             ->whereNotNull('completed_at')
             ->exists();
+
+        $this->nextStep = $this->lesson->steps()
+            ->where('order', '>', $this->step->order)
+            ->orderBy('order', 'asc')
+            ->first();
     }
 
     public function toggleComplete(): void

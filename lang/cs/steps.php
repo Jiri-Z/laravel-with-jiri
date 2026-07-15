@@ -22,4 +22,5 @@ return [
     'complete_previous' => 'Nejprve dokončete předchozí krok.',
     'coding_error' => 'Při spouštění kódu došlo k neočekávané chybě.',
     'coding_error_prefix' => '[Chyba PHP]: ',
+    'next_step' => 'Další krok',
 ];

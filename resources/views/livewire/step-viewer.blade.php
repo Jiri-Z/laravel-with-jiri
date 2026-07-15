@@ -6,14 +6,22 @@
 
             <div class="bg-white dark:bg-gray-750 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 mb-6">
                 <div class="p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $step->title }}</h1>
-                        <span class="text-sm text-gray-500 dark:text-gray-400">{{ __('steps.step_number', ['order' => $step->order]) }}</span>
-                    </div>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">{{ $step->title }}</h1>
 
-                    <div class="prose dark:prose-invert max-w-none mb-8">
+                    <div class="mb-8">
                         @if ($step->type === StepType::Reading)
-                            {!! Str::markdown($step->reading_content ?? '', ['html_input' => 'escape', 'allow_unsafe_links' => false]) !!}
+                            <livewire:reading-viewer :course="$course" :lesson="$lesson" :step="$step" wire:key="reading-{{ $step->id }}" />
+
+                            @if ($nextStep)
+                                <div class="flex justify-end mt-6">
+                                    <a href="{{ route('steps.show', [$course->slug, $lesson->slug, $nextStep->id]) }}" wire:navigate class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-full font-semibold text-sm shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                        <span>{{ __('steps.next_step') }}</span>
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                        </svg>
+                                    </a>
+                                </div>
+                            @endif
                         @elseif ($step->type === StepType::Quiz)
                             <livewire:quiz-viewer :course="$course" :lesson="$lesson" :step="$step" wire:key="quiz-{{ $step->id }}" />
                         @elseif ($step->type === StepType::Coding)
