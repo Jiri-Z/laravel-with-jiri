@@ -1,19 +1,20 @@
 # Laravel With Jiri
 
-E-learning platform for modern Laravel development — courses, lessons, reading steps, quizzes, and coding exercises.
+E-learning platform for modern Laravel development — courses, lessons, reading steps, quizzes, and a PHP code REPL.
 
 Built with [Laravel](https://laravel.com), [Livewire](https://livewire.laravel.com), [Tailwind CSS](https://tailwindcss.com), and [Pest](https://pestphp.com).
 
 ## Features
 
 - Course/lesson/step hierarchy with publishing workflow
-- Step types: reading (Markdown), quiz (single/multiple/text choice), coding
+- Step types: reading (Markdown), quiz (single/multiple/text choice)
 - Step locking — complete steps in order
 - Course progress tracking
 - Trivia quiz system (standalone)
 - Admin panel for course management
-- Czech localization
-- 400+ tests, PHPStan level 6
+- Czech localization (locale-scoped courses)
+- PHP code REPL (standalone, browser-based via php-wasm)
+- 587+ tests, PHPStan level 6
 
 ## Requirements
 
