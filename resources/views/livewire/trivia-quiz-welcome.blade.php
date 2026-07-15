@@ -38,15 +38,23 @@
     </p>
 </div>
 
+@php
+    $max = max($this->availableQuestionCount(), 1);
+    $sliderPct = $max > 1 ? (($this->questionCount - 1) / ($max - 1)) * 100 : 100;
+@endphp
+<style>
+    .trivia-slider { --slider-fill: #4f46e5; --slider-empty: #e5e7eb; }
+    .dark .trivia-slider { --slider-fill: #818cf8; --slider-empty: #374151; }
+</style>
 <div class="bg-white dark:bg-gray-750 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-6 mb-6">
     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
         {{ __('trivia.question_count_label') }}: <span class="font-bold text-indigo-600 dark:text-indigo-400 text-lg">{{ $this->questionCount }}</span>
     </label>
     <input type="range" wire:model.live="questionCount"
-        min="1" max="{{ max($this->availableQuestionCount(), 1) }}"
-        class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 accent-indigo-600">
-    <div class="flex justify-between text-xs text-gray-400 mt-1">
-        <span>1</span>
+        min="1" max="{{ $max }}"
+        class="trivia-slider w-full h-2 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+        style="background: linear-gradient(to right, var(--slider-fill) 0%, var(--slider-fill) {{ $sliderPct }}%, var(--slider-empty) {{ $sliderPct }}%, var(--slider-empty) 100%);">
+    <div class="flex justify-end text-xs text-gray-400 mt-1">
         <span>{{ $this->availableQuestionCount() }} {{ __('trivia.questions_available', ['count' => $this->availableQuestionCount(), 'topics' => count($this->selectedTopics)]) }}</span>
     </div>
 </div>

@@ -310,6 +310,18 @@ test('reset quiz resets question count to full available', function () {
     expect($topics)->toContain('blade-templates');
 });
 
+test('question count slider has gradient fill track', function () {
+    $content = $this->actingAs($this->user)->get('/quiz')->getContent();
+
+    expect($content)->toContain('linear-gradient');
+});
+
+test('question count slider does not display separate min label', function () {
+    $content = $this->actingAs($this->user)->get('/quiz')->getContent();
+
+    expect($content)->not->toContain('<span>1</span>');
+});
+
 test('dashboard shows trivia card', function () {
     $this->actingAs($this->user)
         ->get('/dashboard')
