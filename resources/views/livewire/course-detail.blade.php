@@ -3,7 +3,12 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <a href="{{ route('courses.index') }}" wire:navigate class="text-sm text-gray-600 dark:text-gray-400 hover:underline mb-4 inline-block">{{ __('courses.back') }}</a>
 
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">{{ $course->title }}</h1>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                @if (str_starts_with($course->slug, 'cs-'))
+                    <span class="inline-block mr-1" title="{{ __('courses.czech_course') }}">🇨🇿</span>
+                @endif
+                {{ $course->title }}
+            </h1>
             <p class="text-gray-600 dark:text-gray-400 mb-4">{{ $course->description }}</p>
 
             <div class="mb-8">

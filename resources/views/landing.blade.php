@@ -156,7 +156,12 @@
                                 <div class="w-12 h-12 bg-indigo-100 dark:bg-indigo-800 rounded-xl flex items-center justify-center mb-4 group-hover:bg-indigo-200 dark:group-hover:bg-indigo-700 transition-colors">
                                     <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                                 </div>
-                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors">{{ $course->title }}</h3>
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors">
+                                    @if (str_starts_with($course->slug, 'cs-'))
+                                        <span class="inline-block mr-1" title="{{ __('courses.czech_course') }}">🇨🇿</span>
+                                    @endif
+                                    {{ $course->title }}
+                                </h3>
                                 <p class="mt-2 text-sm text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-2">{{ $course->description }}</p>
                                 <div class="mt-4 flex items-center gap-4 text-xs text-gray-400 dark:text-gray-500">
                                     <span class="flex items-center gap-1">

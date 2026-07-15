@@ -27,9 +27,4 @@ return [
     'quiz_text_answer' => 'Paris',
     'quiz_text_explanation' => 'Paris has been the capital of France since the 10th century.',
 
-    // StepFactory coding
-    'coding_prompt' => 'Write a PHP function that returns the sum of two numbers.',
-    'coding_initial_code' => "<?php\n\nfunction add(\$a, \$b) {\n    // Your code here\n}\n",
-    'coding_test_code' => "<?php\necho add(2, 3);",
-    'coding_expected_output' => '5',
 ];

@@ -21,41 +21,6 @@ test('seeds quiz type step', function () {
         'type' => StepType::Quiz->value,
     ]);
 });
-
-test('seeds coding type step', function () {
-    $tempFile = database_path('data/en/test-coding-course.php');
-
-    try {
-        file_put_contents($tempFile, '<?php
-            return [
-                "title" => "Test Coding Course",
-                "slug" => "test-coding-course",
-                "description" => "Test",
-                "user_email" => "instructor@example.com",
-                "lessons" => [[
-                    "title" => "Lesson 1",
-                    "slug" => "lesson-1",
-                    "description" => "Test lesson",
-                    "steps" => [[
-                        "title" => "Coding Step",
-                        "type" => "coding",
-                        "content" => json_encode(["prompt" => "Write a loop", "initial_code" => "<?php", "test_code" => "", "expected_output" => ""]),
-                    ]],
-                ]],
-            ];');
-
-        $this->seed(CourseSeeder::class);
-
-        $this->assertDatabaseHas('steps', [
-            'type' => StepType::Coding->value,
-        ]);
-    } finally {
-        if (file_exists($tempFile)) {
-            unlink($tempFile);
-        }
-    }
-});
-
 test('seeds english and czech courses via database seeder', function () {
     $this->seed(DatabaseSeeder::class);
 

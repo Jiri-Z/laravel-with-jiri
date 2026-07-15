@@ -63,12 +63,6 @@ steps:
         difficulty: easy
         topic: php-basics
 
-  - title: "Write Your First PHP Code"
-    type: coding
-    prompt: "Write a PHP script that outputs 'Hello, World!'"
-    initial_code: "<?php\n\n// Your code here\n"
-    test_code: "<?php\n\n// Tests\n"
-    expected_output: "Hello, World!"
 YAML;
 });
 
@@ -84,7 +78,7 @@ test('action creates lesson with auto-generated slug', function () {
         ->published->toBeFalse()
         ->order->toBe(1);
 
-    expect($result->steps)->toHaveCount(3);
+    expect($result->steps)->toHaveCount(2);
 
     $steps = $result->steps;
     expect($steps[0]->title)->toBe('What are Variables?');
@@ -102,14 +96,6 @@ test('action creates lesson with auto-generated slug', function () {
     expect($quizContent[0]['answer'])->toBe(0);
     expect($quizContent[1]['type'])->toBe('text');
     expect($quizContent[1]['answer'])->toBe('echo');
-
-    expect($steps[2]->title)->toBe('Write Your First PHP Code');
-    expect($steps[2]->type->value)->toBe('coding');
-    expect($steps[2]->order)->toBe(3);
-
-    $codingData = json_decode($steps[2]->coding_content, true);
-    expect($codingData['prompt'])->toContain('Hello, World!');
-    expect($codingData['expected_output'])->toBe('Hello, World!');
 });
 
 test('action auto-generates unique slug on collision', function () {
@@ -232,8 +218,7 @@ test('livewire component uploads yaml and shows preview', function () {
         ->assertSet('parsedLesson', fn ($lesson) => $lesson !== null && $lesson['title'] === 'Introduction to PHP Variables')
         ->assertSee('Introduction to PHP Variables')
         ->assertSee('What are Variables?')
-        ->assertSee('Variable Types Quiz')
-        ->assertSee('Write Your First PHP Code');
+        ->assertSee('Variable Types Quiz');
 });
 
 test('livewire component imports on confirm', function () {
@@ -251,7 +236,7 @@ test('livewire component imports on confirm', function () {
         ->assertSessionHas('flash');
 
     expect(Lesson::where('course_id', $this->course->id)->get())->toHaveCount(1);
-    expect(Step::whereIn('lesson_id', Lesson::where('course_id', $this->course->id)->pluck('id'))->get())->toHaveCount(3);
+    expect(Step::whereIn('lesson_id', Lesson::where('course_id', $this->course->id)->pluck('id'))->get())->toHaveCount(2);
 });
 
 test('livewire component requires staff role', function () {

@@ -12,4 +12,5 @@ return [
     'no_lessons' => 'No lessons available yet.',
     'no_courses' => 'No courses available yet.',
     'lesson_count' => '{0} 0 lessons|[1] 1 lesson|[2,*] :count lessons',
+    'czech_course' => 'Czech course',
 ];

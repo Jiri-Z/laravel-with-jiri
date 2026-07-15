@@ -47,8 +47,7 @@
                                 @foreach ($parsedSteps as $index => $step)
                                     <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border-l-4
                                         {{ $step['type'] === 'reading' ? 'border-blue-400' : '' }}
-                                        {{ $step['type'] === 'quiz' ? 'border-amber-400' : '' }}
-                                        {{ $step['type'] === 'coding' ? 'border-green-400' : '' }}">
+                                        {{ $step['type'] === 'quiz' ? 'border-amber-400' : '' }}">
                                         <div class="flex items-center justify-between">
                                             <div class="flex items-center gap-2">
                                                 <span class="text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-gray-700 px-2 py-0.5 rounded">{{ $index + 1 }}</span>
@@ -56,8 +55,7 @@
                                             </div>
                                             <span class="text-xs font-medium px-2 py-0.5 rounded
                                                 {{ $step['type'] === 'reading' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : '' }}
-                                                {{ $step['type'] === 'quiz' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300' : '' }}
-                                                {{ $step['type'] === 'coding' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' : '' }}">
+                                                {{ $step['type'] === 'quiz' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300' : '' }}">
                                                 {{ ucfirst($step['type']) }}
                                             </span>
                                         </div>

@@ -21,8 +21,4 @@ return [
     'quiz_text_answer' => 'Paříž',
     'quiz_text_explanation' => 'Paříž je hlavním městem Francie od 10. století.',
 
-    'coding_prompt' => 'Napište PHP funkci, která vrací součet dvou čísel.',
-    'coding_initial_code' => "<?php\n\nfunction add(\$a, \$b) {\n    // Váš kód zde\n}\n",
-    'coding_test_code' => "<?php\necho add(2, 3);",
-    'coding_expected_output' => '5',
 ];

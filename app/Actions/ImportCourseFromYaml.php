@@ -115,7 +115,7 @@ class ImportCourseFromYaml
             'lessons.*.description' => 'nullable|string|max:65535',
             'lessons.*.steps' => 'required|array|min:1',
             'lessons.*.steps.*.title' => 'required|string|max:255',
-            'lessons.*.steps.*.type' => 'required|string|in:reading,quiz,coding',
+            'lessons.*.steps.*.type' => 'required|string|in:reading,quiz',
             'lessons.*.steps.*.content' => 'required_if:lessons.*.steps.*.type,reading|string',
             'lessons.*.steps.*.questions' => 'required_if:lessons.*.steps.*.type,quiz|array|min:1',
             'lessons.*.steps.*.questions.*.type' => 'required|in:single,multiple,text',
@@ -126,10 +126,6 @@ class ImportCourseFromYaml
             'lessons.*.steps.*.questions.*.difficulty' => 'nullable|in:easy,medium,hard',
             'lessons.*.steps.*.questions.*.topic' => 'nullable|string',
             'lessons.*.steps.*.questions.*.alternatives' => 'nullable|array',
-            'lessons.*.steps.*.prompt' => 'required_if:lessons.*.steps.*.type,coding|string',
-            'lessons.*.steps.*.initial_code' => 'nullable|string',
-            'lessons.*.steps.*.test_code' => 'nullable|string',
-            'lessons.*.steps.*.expected_output' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -270,9 +266,6 @@ class ImportCourseFromYaml
             StepType::Quiz => $attributes['quiz_content'] = json_encode(
                 $this->buildQuizQuestions(is_array($rawQuestions) ? $rawQuestions : [])
             ),
-            StepType::Coding => $attributes['coding_content'] = json_encode(
-                $this->buildCodingData($stepData)
-            ),
         };
 
         return Step::create($attributes);
@@ -341,25 +334,6 @@ class ImportCourseFromYaml
         }
 
         return $result;
-    }
-
-    /**
-     * @param  array<string, mixed>  $stepData
-     * @return array{prompt: string, initial_code: string, test_code: string, expected_output: string}
-     */
-    private function buildCodingData(array $stepData): array
-    {
-        $prompt = $stepData['prompt'] ?? '';
-        $initialCode = $stepData['initial_code'] ?? '';
-        $testCode = $stepData['test_code'] ?? '';
-        $expectedOutput = $stepData['expected_output'] ?? '';
-
-        return [
-            'prompt' => is_string($prompt) ? $prompt : '',
-            'initial_code' => is_string($initialCode) ? $initialCode : '',
-            'test_code' => is_string($testCode) ? $testCode : '',
-            'expected_output' => is_string($expectedOutput) ? $expectedOutput : '',
-        ];
     }
 
     private function sanitizeContent(string $content): string

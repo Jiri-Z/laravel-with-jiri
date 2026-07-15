@@ -25,43 +25,6 @@ class SmokeStudentTest extends TestCase
         return $course;
     }
 
-    public function test_student_can_view_courses_and_coding_step(): void
-    {
-        $user = $this->createStudentUser();
-        $course = $this->createEnrolledCourse($user);
-
-        $lesson = $course->lessons()->create([
-            'title' => 'Test Lesson',
-            'slug' => 'test-lesson',
-            'published' => true,
-            'order' => 1,
-        ]);
-        $step = $lesson->steps()->create([
-            'title' => 'Test Coding',
-            'type' => StepType::Coding,
-            'coding_content' => json_encode([
-                'prompt' => 'Write PHP code',
-                'initial_code' => "<?php\n",
-                'test_code' => "<?php\necho 'ok';",
-                'expected_output' => 'ok',
-            ]),
-            'order' => 1,
-        ]);
-
-        $this->actingAs($user)->get('/courses')
-            ->assertOk()
-            ->assertSee($course->title);
-
-        $response = $this->actingAs($user)
-            ->get("/courses/{$course->slug}/lessons/{$lesson->slug}/steps/{$step->id}");
-        $response->assertOk();
-        $response->assertSee('Write PHP code');
-        $response->assertSee('x-data');
-        $response->assertSee('codingViewer');
-        $response->assertSee(__('steps.coding_run'));
-        $response->assertSee(__('steps.coding_check'));
-    }
-
     public function test_student_can_view_lesson_detail_page(): void
     {
         $user = $this->createStudentUser();

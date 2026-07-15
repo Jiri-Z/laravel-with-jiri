@@ -64,14 +64,14 @@ new class extends Component
                         @csrf
                         <input type="hidden" name="locale" value="en">
                         <button type="submit" class="px-2 py-1 text-xs font-medium rounded-md transition-colors {{ app()->getLocale() === 'en' ? 'bg-white dark:bg-gray-700 text-indigo-700 dark:text-indigo-300 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300' }}">
-                            {{ __('navigation.locale_en') }}
+                            🇬🇧 {{ __('navigation.locale_en') }}
                         </button>
                     </form>
                     <form method="POST" action="{{ route('locale.switch') }}">
                         @csrf
                         <input type="hidden" name="locale" value="cs">
                         <button type="submit" class="px-2 py-1 text-xs font-medium rounded-md transition-colors {{ app()->getLocale() === 'cs' ? 'bg-white dark:bg-gray-700 text-indigo-700 dark:text-indigo-300 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300' }}">
-                            {{ __('navigation.locale_cs') }}
+                            🇨🇿 {{ __('navigation.locale_cs') }}
                         </button>
                     </form>
                 </div>

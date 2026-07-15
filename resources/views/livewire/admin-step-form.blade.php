@@ -172,34 +172,6 @@
                                 @endif
                             </div>
 
-                            {{-- Coding fields --}}
-                            <div x-show="stepType === 'coding'" x-cloak class="space-y-4">
-                                <div>
-                                    <label for="prompt" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('admin.label_prompt') }}</label>
-                                    <textarea wire:model="prompt" id="prompt" rows="3" class="mt-1 block w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white font-mono text-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
-                                    @error('prompt') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                                </div>
-
-                                <div x-data="{ monacoLoaded: false, initMonaco() { if (this.monacoLoaded) return; this.monacoLoaded = true; import(window.MONACO_CDN + '/loader.js').then(() => { require.config({ paths: { vs: window.MONACO_CDN } }); require(['vs/editor/editor.main'], (monaco) => { const initialEditor = monaco.editor.create($refs.initialCode, { value: $wire.initialCode, language: 'php', theme: 'vs-dark', minimap: { enabled: false }, fontSize: 14, automaticLayout: true }); initialEditor.onDidChangeModelContent(() => { $wire.set('initialCode', initialEditor.getValue()); }); const testEditor = monaco.editor.create($refs.testCode, { value: $wire.testCode, language: 'php', theme: 'vs-dark', minimap: { enabled: false }, fontSize: 14, automaticLayout: true }); testEditor.onDidChangeModelContent(() => { $wire.set('testCode', testEditor.getValue()); }); }); }); } }" x-init="stepType === 'coding' && initMonaco()" x-effect="stepType === 'coding' && initMonaco()">
-                                    <div>
-                                        <label for="initialCode" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('admin.label_initial_code') }}</label>
-                                        <div x-ref="initialCode" style="height: 200px; border: 1px solid #374151; border-radius: 0.5rem; overflow: hidden;"></div>
-                                        @error('initialCode') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                                    </div>
-
-                                    <div>
-                                        <label for="testCode" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('admin.label_test_code') }}</label>
-                                        <div x-ref="testCode" style="height: 150px; border: 1px solid #374151; border-radius: 0.5rem; overflow: hidden;"></div>
-                                        @error('testCode') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label for="expectedOutput" class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('admin.label_expected_output') }}</label>
-                                    <textarea wire:model="expectedOutput" id="expectedOutput" rows="2" class="mt-1 block w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white font-mono text-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
-                                    @error('expectedOutput') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                                </div>
-                            </div>
                         </div>
 
                         <div class="flex items-center gap-3">

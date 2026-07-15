@@ -185,12 +185,7 @@ class AdminStepTest extends TestCase
                 ->set('title', "Step {$type->value}")
                 ->set('type', $type->value);
 
-            if ($type === StepType::Coding) {
-                $test->set('prompt', 'Write code')
-                    ->set('initialCode', "<?php\n")
-                    ->set('testCode', "<?php\n")
-                    ->set('expectedOutput', 'ok');
-            } elseif ($type === StepType::Quiz) {
+            if ($type === StepType::Quiz) {
                 $test->set('questions', [
                     ['type' => 'single', 'question' => 'Q?', 'options' => ['A', 'B'], 'answer' => 0, 'explanation' => '', 'difficulty' => 'easy', 'topic' => 'general'],
                 ]);
@@ -451,89 +446,6 @@ class AdminStepTest extends TestCase
         ]);
     }
 
-    public function test_coding_step_form_has_separate_fields(): void
-    {
-        $user = User::factory()->create(['role' => 'instructor']);
-        $course = Course::factory()->create(['user_id' => $user->id]);
-        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
-
-        $component = Livewire::actingAs($user)
-            ->test(AdminStepForm::class, ['course' => $course, 'lesson' => $lesson])
-            ->set('type', StepType::Coding->value);
-
-        $this->assertSame(StepType::Coding->value, $component->get('type'));
-        $this->assertSame('', $component->instance()->prompt);
-        $this->assertSame('', $component->instance()->initialCode);
-        $this->assertSame('', $component->instance()->testCode);
-        $this->assertSame('', $component->instance()->expectedOutput);
-    }
-
-    public function test_coding_step_serializes_fields_to_json_on_save(): void
-    {
-        $user = User::factory()->create(['role' => 'instructor']);
-        $course = Course::factory()->create(['user_id' => $user->id]);
-        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
-
-        Livewire::actingAs($user)
-            ->test(AdminStepForm::class, ['course' => $course, 'lesson' => $lesson])
-            ->set('title', 'Coding Step')
-            ->set('type', StepType::Coding->value)
-            ->set('prompt', 'Write PHP')
-            ->set('initialCode', "<?php\necho 'hi';")
-            ->set('testCode', "<?php\nassert(true);")
-            ->set('expectedOutput', 'hi')
-            ->call('save')
-            ->assertRedirect("/admin/courses/{$course->id}/lessons/{$lesson->id}/steps");
-
-        $this->assertDatabaseHas('steps', [
-            'lesson_id' => $lesson->id,
-            'title' => 'Coding Step',
-            'type' => StepType::Coding->value,
-        ]);
-
-        $step = Step::where('lesson_id', $lesson->id)->where('title', 'Coding Step')->first();
-        $content = json_decode((string) $step->coding_content, true);
-        $this->assertSame('Write PHP', $content['prompt']);
-        $this->assertSame("<?php\necho 'hi';", $content['initial_code']);
-        $this->assertSame("<?php\nassert(true);", $content['test_code']);
-        $this->assertSame('hi', $content['expected_output']);
-    }
-
-    public function test_coding_step_validation_requires_prompt(): void
-    {
-        $user = User::factory()->create(['role' => 'instructor']);
-        $course = Course::factory()->create(['user_id' => $user->id]);
-        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
-
-        Livewire::actingAs($user)
-            ->test(AdminStepForm::class, ['course' => $course, 'lesson' => $lesson])
-            ->set('title', 'Bad Coding Step')
-            ->set('type', StepType::Coding->value)
-            ->set('prompt', '')
-            ->call('save')
-            ->assertHasErrors('prompt');
-    }
-
-    public function test_editing_coding_step_populates_separate_fields(): void
-    {
-        $user = User::factory()->create(['role' => 'instructor']);
-        $course = Course::factory()->create(['user_id' => $user->id]);
-        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
-        $step = Step::factory()->coding()->create([
-            'lesson_id' => $lesson->id,
-            'title' => 'Edit Coding',
-        ]);
-
-        $component = Livewire::actingAs($user)
-            ->test(AdminStepForm::class, ['course' => $course, 'lesson' => $lesson, 'step' => $step]);
-
-        $this->assertSame(StepType::Coding->value, $component->get('type'));
-        $this->assertSame('Write a PHP function that returns the sum of two numbers.', $component->get('prompt'));
-        $this->assertStringContainsString('function add(', $component->get('initialCode'));
-        $this->assertStringContainsString('echo add', $component->get('testCode'));
-        $this->assertSame('5', $component->get('expectedOutput'));
-    }
-
     public function test_reading_step_form_still_uses_content_property(): void
     {
         $user = User::factory()->create(['role' => 'instructor']);
@@ -698,16 +610,4 @@ class AdminStepTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_coding_step_form_uses_step_type_for_alpine_condition(): void
-    {
-        $user = User::factory()->create(['role' => 'instructor']);
-        $course = Course::factory()->create(['user_id' => $user->id]);
-        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
-
-        $this->actingAs($user)
-            ->get("/admin/courses/{$course->id}/lessons/{$lesson->id}/steps/create")
-            ->assertOk()
-            ->assertSee('stepType ===')
-            ->assertDontSee('showCoding');
-    }
 }

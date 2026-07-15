@@ -104,9 +104,6 @@ class CourseSeeder extends Seeder
                     } elseif ($stepData['type'] === 'quiz') {
                         $stepAttributes['type'] = StepType::Quiz;
                         $stepAttributes['quiz_content'] = json_encode($stepData['quiz_content']);
-                    } elseif ($stepData['type'] === 'coding') {
-                        $stepAttributes['type'] = StepType::Coding;
-                        $stepAttributes['coding_content'] = $stepData['content'];
                     }
 
                     Step::firstOrCreate(

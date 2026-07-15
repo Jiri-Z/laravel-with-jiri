@@ -30,7 +30,6 @@ abstract class TestCase extends BaseTestCase
         [$user, $course, $lesson] = $this->enrolledUser();
 
         $step = match ($type) {
-            'coding' => Step::factory()->coding()->create(['lesson_id' => $lesson->id]),
             'reading' => Step::factory()->reading()->create(['lesson_id' => $lesson->id]),
             default => Step::factory()->create(['lesson_id' => $lesson->id, 'type' => $type]),
         };

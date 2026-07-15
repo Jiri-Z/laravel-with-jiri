@@ -123,17 +123,4 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Monaco Editor CDN URL
-    |--------------------------------------------------------------------------
-    |
-    | This value is used by the Monaco editor integration in both the admin
-    | step form (Alpine) and the coding viewer (JS module). Change it here
-    | to upgrade the Monaco version across the entire application.
-    |
-    */
-
-    'monaco_cdn' => env('MONACO_CDN', 'https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1/min/vs'),
-
 ];

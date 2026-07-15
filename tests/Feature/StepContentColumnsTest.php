@@ -28,13 +28,6 @@ test('quiz step stores content in quiz_content column', function () {
     expect($step->quiz_content)->toBeString();
 });
 
-test('coding step stores content in coding_content column', function () {
-    $step = Step::factory()->coding()->create();
-
-    expect($step->coding_content)->not->toBeNull();
-    expect($step->coding_content)->toBeString();
-});
-
 test('getContentAsArray returns quiz data from quiz_content column', function () {
     $step = Step::factory()->quiz()->create();
 
@@ -48,15 +41,6 @@ test('getContentAsArray returns null for reading steps', function () {
     $step = Step::factory()->reading()->create();
 
     expect($step->getContentAsArray())->toBeNull();
-});
-
-test('getCodingData returns coding data from coding_content column', function () {
-    $step = Step::factory()->coding()->create();
-
-    $result = $step->getCodingData();
-
-    expect($result)->toHaveKeys(['prompt', 'initial_code', 'test_code', 'expected_output']);
-    expect($result['prompt'])->not->toBe('');
 });
 
 test('getContentAsArray does not fall back to deprecated content column', function () {

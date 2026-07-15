@@ -12,4 +12,5 @@ return [
     'no_lessons' => 'Zatím žádné lekce.',
     'no_courses' => 'Zatím žádné kurzy.',
     'lesson_count' => '{0} 0 lekcí|[1] 1 lekce|[2,4] :count lekce|[5,*] :count lekcí',
+    'czech_course' => 'Český kurz',
 ];

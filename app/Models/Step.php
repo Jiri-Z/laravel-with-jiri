@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static Builder<self> published()
  * @method static Builder<self> ownedBy(User $user)
  */
-#[Fillable(['lesson_id', 'title', 'type', 'reading_content', 'quiz_content', 'coding_content', 'order', 'published'])]
+#[Fillable(['lesson_id', 'title', 'type', 'reading_content', 'quiz_content', 'order', 'published'])]
 class Step extends Model
 {
     /** @use HasFactory<StepFactory> */
@@ -107,34 +107,5 @@ class Step extends Model
         return is_array($decoded) ? $decoded : null;
     }
 
-    /** @return array{prompt: string, initial_code: string, test_code: string, expected_output: string} */
-    public function getCodingData(): array
-    {
-        $source = $this->coding_content;
 
-        $data = null;
-        if (! empty($source) && json_validate($source)) {
-            $decoded = json_decode($source, true);
-
-            if (is_array($decoded)) {
-                $data = $decoded;
-            }
-        }
-
-        if (! is_array($data)) {
-            return ['prompt' => '', 'initial_code' => '', 'test_code' => '', 'expected_output' => ''];
-        }
-
-        $prompt = $data['prompt'] ?? '';
-        $initialCode = $data['initial_code'] ?? '';
-        $testCode = $data['test_code'] ?? '';
-        $expectedOutput = $data['expected_output'] ?? '';
-
-        return [
-            'prompt' => is_string($prompt) ? $prompt : '',
-            'initial_code' => is_string($initialCode) ? $initialCode : '',
-            'test_code' => is_string($testCode) ? $testCode : '',
-            'expected_output' => is_string($expectedOutput) ? $expectedOutput : '',
-        ];
-    }
 }

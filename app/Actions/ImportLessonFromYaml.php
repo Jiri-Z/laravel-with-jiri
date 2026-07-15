@@ -112,7 +112,7 @@ class ImportLessonFromYaml
             'lesson.description' => 'nullable|string|max:65535',
             'steps' => 'required|array|min:1',
             'steps.*.title' => 'required|string|max:255',
-            'steps.*.type' => 'required|string|in:reading,quiz,coding',
+            'steps.*.type' => 'required|string|in:reading,quiz',
             'steps.*.content' => 'required_if:steps.*.type,reading|string',
             'steps.*.questions' => 'required_if:steps.*.type,quiz|array|min:1',
             'steps.*.questions.*.type' => 'required|in:single,multiple,text',
@@ -123,10 +123,6 @@ class ImportLessonFromYaml
             'steps.*.questions.*.difficulty' => 'nullable|in:easy,medium,hard',
             'steps.*.questions.*.topic' => 'nullable|string',
             'steps.*.questions.*.alternatives' => 'nullable|array',
-            'steps.*.prompt' => 'required_if:steps.*.type,coding|string',
-            'steps.*.initial_code' => 'nullable|string',
-            'steps.*.test_code' => 'nullable|string',
-            'steps.*.expected_output' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -183,9 +179,6 @@ class ImportLessonFromYaml
             ),
             StepType::Quiz => $attributes['quiz_content'] = json_encode(
                 $this->buildQuizQuestions(is_array($rawQuestions) ? $rawQuestions : [])
-            ),
-            StepType::Coding => $attributes['coding_content'] = json_encode(
-                $this->buildCodingData($stepData)
             ),
         };
 
@@ -255,25 +248,6 @@ class ImportLessonFromYaml
         }
 
         return $result;
-    }
-
-    /**
-     * @param  array<string, mixed>  $stepData
-     * @return array{prompt: string, initial_code: string, test_code: string, expected_output: string}
-     */
-    private function buildCodingData(array $stepData): array
-    {
-        $prompt = $stepData['prompt'] ?? '';
-        $initialCode = $stepData['initial_code'] ?? '';
-        $testCode = $stepData['test_code'] ?? '';
-        $expectedOutput = $stepData['expected_output'] ?? '';
-
-        return [
-            'prompt' => is_string($prompt) ? $prompt : '',
-            'initial_code' => is_string($initialCode) ? $initialCode : '',
-            'test_code' => is_string($testCode) ? $testCode : '',
-            'expected_output' => is_string($expectedOutput) ? $expectedOutput : '',
-        ];
     }
 
     private function sanitizeContent(string $content): string

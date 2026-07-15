@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Livewire\CodingViewer;
 use App\Livewire\StepViewer;
 use App\Models\Course;
 use App\Models\Lesson;
@@ -140,23 +139,6 @@ class StepViewerAccessTest extends TestCase
         $course->enrollments()->delete();
 
         $component->call('toggleComplete')
-            ->assertRedirect(route('courses.index'));
-    }
-
-    public function test_coding_viewer_complete_redirects_when_not_enrolled(): void
-    {
-        [$user, $course, $lesson, $step] = $this->enrolledUserWithStep('coding');
-
-        $component = Livewire::actingAs($user)
-            ->test(CodingViewer::class, [
-                'course' => $course,
-                'lesson' => $lesson,
-                'step' => $step,
-            ]);
-
-        $course->enrollments()->delete();
-
-        $component->call('markCodingComplete', output: '5')
             ->assertRedirect(route('courses.index'));
     }
 

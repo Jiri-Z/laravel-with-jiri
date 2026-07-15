@@ -89,10 +89,6 @@ class LangFileStructureTest extends TestCase
             'quiz_multiple_options',
             'quiz_text_question',
             'quiz_text_answer',
-            'coding_prompt',
-            'coding_initial_code',
-            'coding_test_code',
-            'coding_expected_output',
         ];
 
         $enKeys = array_keys(require lang_path('en/factories.php'));

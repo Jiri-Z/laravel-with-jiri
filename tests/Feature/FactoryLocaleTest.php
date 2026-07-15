@@ -75,11 +75,3 @@ test('step factory quiz text state uses czech question when locale is cs', funct
     expect($content[0]['question'])->not->toStartWith('CS:');
 });
 
-test('step factory coding state uses czech prompt when locale is cs', function () {
-    App::setLocale('cs');
-    $step = Step::factory()->coding()->create();
-    App::setLocale('en');
-
-    $content = json_decode((string) $step->coding_content, true);
-    expect($content['prompt'])->not->toStartWith('CS:');
-});

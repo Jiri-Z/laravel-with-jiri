@@ -27,14 +27,6 @@ class AdminStepForm extends Component
 
     public string $content = '';
 
-    public string $prompt = '';
-
-    public string $initialCode = '';
-
-    public string $testCode = '';
-
-    public string $expectedOutput = '';
-
     /** @var list<array{type: string, question: string, options: list<string>, answer: int, explanation: string, difficulty: string, topic: string}> */
     public array $questions = [];
 
@@ -64,13 +56,7 @@ class AdminStepForm extends Component
             $this->type = $stepType->value;
             $this->order = $step->order;
 
-            if ($stepType === StepType::Coding) {
-                $data = $step->getCodingData();
-                $this->prompt = $data['prompt'];
-                $this->initialCode = $data['initial_code'];
-                $this->testCode = $data['test_code'];
-                $this->expectedOutput = $data['expected_output'];
-            } elseif ($stepType === StepType::Quiz) {
+            if ($stepType === StepType::Quiz) {
                 $decoded = json_decode((string) $step->quiz_content, true);
 
                 if (is_array($decoded)) {
@@ -112,18 +98,9 @@ class AdminStepForm extends Component
     {
         $base = [
             'title' => 'required|max:255',
-            'type' => 'required|in:reading,quiz,coding',
+            'type' => 'required|in:reading,quiz',
             'order' => 'required|integer|min:0',
         ];
-
-        if ($this->type === StepType::Coding->value) {
-            return $base + [
-                'prompt' => 'required|string',
-                'initialCode' => 'nullable|string',
-                'testCode' => 'nullable|string',
-                'expectedOutput' => 'nullable|string',
-            ];
-        }
 
         if ($this->type === StepType::Quiz->value) {
             return $base + [
@@ -156,16 +133,9 @@ class AdminStepForm extends Component
         ];
 
         $data[match ($this->type) {
-            StepType::Coding->value => 'coding_content',
             StepType::Quiz->value => 'quiz_content',
             default => 'reading_content',
         }] = match ($this->type) {
-            StepType::Coding->value => json_encode([
-                'prompt' => $this->prompt,
-                'initial_code' => $this->initialCode,
-                'test_code' => $this->testCode,
-                'expected_output' => $this->expectedOutput,
-            ]),
             StepType::Quiz->value => json_encode($this->questions),
             default => $this->content,
         };

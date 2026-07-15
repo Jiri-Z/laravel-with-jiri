@@ -8,5 +8,4 @@ enum StepType: string
 {
     case Reading = 'reading';
     case Quiz = 'quiz';
-    case Coding = 'coding';
 }

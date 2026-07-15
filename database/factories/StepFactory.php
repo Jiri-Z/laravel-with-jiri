@@ -123,17 +123,4 @@ class StepFactory extends Factory
             ]),
         ]);
     }
-
-    public function coding(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'type' => StepType::Coding,
-            'coding_content' => json_encode([
-                'prompt' => __('factories.coding_prompt'),
-                'initial_code' => __('factories.coding_initial_code'),
-                'test_code' => __('factories.coding_test_code'),
-                'expected_output' => __('factories.coding_expected_output'),
-            ]),
-        ]);
-    }
 }

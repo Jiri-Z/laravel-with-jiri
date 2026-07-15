@@ -40,13 +40,6 @@ lessons:
               - "@"
             answer: 0
 
-      - title: "Write a Variable"
-        type: coding
-        prompt: "Write a PHP variable assignment"
-        initial_code: "<?php\n\n"
-        test_code: "assert(true);"
-        expected_output: ""
-
   - title: "Arrays"
     steps:
       - title: "Array Basics"
@@ -81,10 +74,9 @@ test('action creates all lessons and steps', function () {
     expect($lesson1->course_id)->toBe($result->course->id);
     expect($lesson1->order)->toBe(1);
 
-    expect($lesson1->steps)->toHaveCount(3);
+    expect($lesson1->steps)->toHaveCount(2);
     expect($lesson1->steps[0]->type->value)->toBe('reading');
     expect($lesson1->steps[1]->type->value)->toBe('quiz');
-    expect($lesson1->steps[2]->type->value)->toBe('coding');
 
     $lesson2 = $result->lessons[1];
     expect($lesson2->title)->toBe('Arrays');
@@ -224,7 +216,7 @@ test('course import artisan command creates course', function () {
 
     expect(Course::count())->toBe(1);
     expect(Lesson::count())->toBe(2);
-    expect(Step::count())->toBe(4);
+    expect(Step::count())->toBe(3);
 
     unlink($path);
 });

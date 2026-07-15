@@ -8,6 +8,9 @@
                     <div class="group bg-white dark:bg-gray-750 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
                         <a href="{{ route('courses.show', $course->slug) }}" wire:navigate>
                             <h2 class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors mb-2">
+                                @if (str_starts_with($course->slug, 'cs-'))
+                                    <span class="inline-block mr-1" title="{{ __('courses.czech_course') }}">🇨🇿</span>
+                                @endif
                                 {{ $course->title }}
                             </h2>
                             <p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-4">
