@@ -92,7 +92,7 @@
                                     <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $completion->step->title }}</p>
                                     <p class="text-xs text-gray-500 dark:text-gray-400">{{ $completion->step->lesson->course->title }} &middot; {{ $completion->step->lesson->title }}</p>
                                 </div>
-                                <span class="text-xs text-gray-400 dark:text-gray-500">{{ $completion->completed_at->diffForHumans() }}</span>
+                                <span class="text-xs text-gray-400 dark:text-gray-500">{{ $completion->completed_at?->diffForHumans() }}</span>
                             </a>
                         @endforeach
                     </div>

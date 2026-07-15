@@ -29,6 +29,12 @@ export function loadPhpWasm() {
 export function createEditor(container, value, language) {
     return loadMonaco()
         .then((monaco) => {
+            if (container.querySelector('.monaco-editor')) {
+                const existing = monaco.editor.getEditors().find(e => e.getContainerDomNode() === container);
+                if (existing) {
+                    return { editor: existing, isMonaco: true };
+                }
+            }
             const editor = monaco.editor.create(container, {
                 value,
                 language,

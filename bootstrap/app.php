@@ -20,7 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'staff' => StaffMiddleware::class,
         ]);
 
-        $middleware->web(prepend: [
+        $middleware->web(append: [
             SetLocale::class,
         ]);
     })

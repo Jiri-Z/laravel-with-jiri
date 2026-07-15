@@ -10,7 +10,7 @@ export function codingViewer(config) {
         running: false,
         checking: false,
         result: null,
-        completedAtStart: config.completed,
+        completed: config.completed,
 
         async init() {
             this.$nextTick(() => this.boot());
@@ -71,7 +71,7 @@ export function codingViewer(config) {
 
         async check() {
             if (!this.phpReady || this.checking || this.running) return;
-            if (this.completedAtStart) return;
+            if (this.completed) return;
             this.checking = true;
             this.output = '';
             this._resetOutput();
