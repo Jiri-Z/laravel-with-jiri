@@ -77,4 +77,35 @@ class DarkModeTest extends TestCase
         $response->assertOk();
         $response->assertSee('localStorage.setItem');
     }
+
+    #[Test]
+    public function app_layout_has_livewire_navigated_theme_restore(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get('/dashboard');
+        $content = $response->getContent();
+
+        $response->assertOk();
+        $this->assertStringContainsString('livewire:navigated', $content);
+    }
+
+    #[Test]
+    public function landing_page_has_livewire_navigated_theme_restore(): void
+    {
+        $response = $this->get('/');
+        $content = $response->getContent();
+
+        $response->assertOk();
+        $this->assertStringContainsString('livewire:navigated', $content);
+    }
+
+    #[Test]
+    public function guest_layout_has_livewire_navigated_theme_restore(): void
+    {
+        $response = $this->get('/login');
+
+        $response->assertOk();
+        $this->assertStringContainsString('livewire:navigated', $response->getContent());
+    }
 }

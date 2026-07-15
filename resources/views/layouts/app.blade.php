@@ -33,6 +33,15 @@
                 document.documentElement.classList.remove('dark');
             }
         };
+        document.addEventListener('livewire:navigated', function() {
+            var theme = localStorage.getItem('dark-mode');
+            if (theme !== 'dark' && theme !== 'light' && theme !== 'auto') { theme = 'auto'; }
+            if (theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme:dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
     </script>
 </head>
 <body class="font-sans antialiased">
