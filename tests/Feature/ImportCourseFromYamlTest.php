@@ -221,6 +221,15 @@ test('course import artisan command creates course', function () {
     unlink($path);
 });
 
+test('imported course gets next order after existing courses', function () {
+    Course::factory()->create(['order' => 5]);
+
+    $action = app(ImportCourseFromYaml::class);
+    $result = $action->handle($this->admin, $this->validYaml);
+
+    expect($result->course->order)->toBe(6);
+});
+
 test('course import command defaults to first admin when no user option', function () {
     $path = tempnam(sys_get_temp_dir(), 'course_').'.yaml';
     file_put_contents($path, $this->validYaml);

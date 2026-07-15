@@ -1,4 +1,4 @@
-@php $quizContent = $step->getContentAsArray(); @endphp
+@php $quizContent = $step->getContentAsArray() ?? []; @endphp
 <div>
     <div class="space-y-8 mb-6">
         @foreach ($quizContent as $index => $question)

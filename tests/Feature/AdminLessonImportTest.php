@@ -198,6 +198,15 @@ test('action respects max nesting depth in YAML', function () {
         ->toThrow(RuntimeException::class);
 });
 
+test('imported lesson gets next order after existing lessons', function () {
+    Lesson::factory()->create(['course_id' => $this->course->id, 'order' => 3]);
+
+    $action = app(ImportLessonFromYaml::class);
+    $result = $action->handle($this->admin, $this->validYaml, $this->course);
+
+    expect($result->lesson->order)->toBe(4);
+});
+
 test('action creates lesson with course owner as owner', function () {
     $action = app(ImportLessonFromYaml::class);
     $result = $action->handle($this->admin, $this->validYaml, $this->course);

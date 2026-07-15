@@ -78,6 +78,7 @@ class AdminCourseForm extends Component
             $this->course->update($data);
         } else {
             $data['user_id'] = auth()->id();
+            $data['locale'] = app()->getLocale();
             Course::create($data);
         }
 

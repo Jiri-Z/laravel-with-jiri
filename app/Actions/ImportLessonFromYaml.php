@@ -138,7 +138,7 @@ class ImportLessonFromYaml
         $slug = $this->generateUniqueLessonSlug($course, $lessonData['title']);
 
         $maxOrder = Lesson::where('course_id', $course->id)->max('order');
-        $nextOrder = is_int($maxOrder) || is_float($maxOrder) ? (int) $maxOrder + 1 : 1;
+        $nextOrder = is_numeric($maxOrder) ? (int) $maxOrder + 1 : 1;
 
         return Lesson::create([
             'course_id' => $course->id,

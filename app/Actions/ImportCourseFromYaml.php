@@ -147,7 +147,7 @@ class ImportCourseFromYaml
         $slug = $this->generateUniqueCourseSlug($courseData['title']);
 
         $maxOrder = Course::max('order');
-        $nextOrder = is_int($maxOrder) || is_float($maxOrder) ? (int) $maxOrder + 1 : 1;
+        $nextOrder = is_numeric($maxOrder) ? (int) $maxOrder + 1 : 1;
 
         $locale = is_string($user->locale) ? $user->locale : 'en';
 

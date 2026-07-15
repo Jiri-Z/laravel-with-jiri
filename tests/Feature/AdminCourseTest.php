@@ -6,6 +6,7 @@ use App\Livewire\AdminCourseForm;
 use App\Livewire\AdminCourseList;
 use App\Models\Course;
 use App\Models\User;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 use Tests\Feature\Concerns\AdminTestHelpers;
@@ -389,6 +390,25 @@ class AdminCourseTest extends TestCase
         $this->assertDatabaseHas('courses', [
             'title' => 'Minimal Course',
             'description' => null,
+        ]);
+    }
+
+    public function test_created_course_gets_current_locale(): void
+    {
+        App::setLocale('cs');
+        $user = User::factory()->create(['role' => 'instructor']);
+
+        Livewire::actingAs($user)
+            ->test(AdminCourseForm::class)
+            ->set('title', 'Czech Course')
+            ->set('slug', 'czech-course')
+            ->set('order', 1)
+            ->call('save')
+            ->assertRedirect('/admin/courses');
+
+        $this->assertDatabaseHas('courses', [
+            'title' => 'Czech Course',
+            'locale' => 'cs',
         ]);
     }
 
