@@ -5,9 +5,6 @@
 @if ($attempt)
     @php
         $pct = $attempt->total > 0 ? round(($attempt->score / $attempt->total) * 100) : 0;
-        $elapsed = $attempt->completed_at ? $attempt->created_at->diffInSeconds($attempt->completed_at) : 0;
-        $minutes = intdiv($elapsed, 60);
-        $seconds = $elapsed % 60;
 
         $grade = match(true) {
             $pct >= 85 => [
@@ -100,7 +97,7 @@
             <p class="text-gray-500 dark:text-gray-400 mt-2 text-sm">{{ $grade['desc'] }}</p>
         </div>
 
-        <div class="grid grid-cols-3 gap-4 mb-8">
+        <div class="grid grid-cols-2 gap-4 mb-8">
             <div class="text-center p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
                 <div class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ $attempt->score }}</div>
                 <div class="text-xs text-gray-500 mt-1">{{ __('trivia.correct_badge') }}</div>
@@ -108,10 +105,6 @@
             <div class="text-center p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
                 <div class="text-2xl font-bold text-red-500 dark:text-red-400">{{ $attempt->total - $attempt->score }}</div>
                 <div class="text-xs text-gray-500 mt-1">{{ __('trivia.incorrect_badge') }}</div>
-            </div>
-            <div class="text-center p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
-                <div class="text-2xl font-bold text-gray-700 dark:text-gray-300">{{ $minutes }}:{{ str_pad((string) $seconds, 2, '0', STR_PAD_LEFT) }}</div>
-                <div class="text-xs text-gray-500 mt-1">{{ __('trivia.time') }}</div>
             </div>
         </div>
 

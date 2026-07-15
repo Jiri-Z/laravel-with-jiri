@@ -39,7 +39,7 @@
                         {{ $submitted && ($this->userAnswers[$this->currentIndex] ?? null) === $option && $option !== $question['answer'] ? 'border-red-500 bg-red-50 dark:bg-red-900/20' : '' }}
                         {{ !$submitted ? 'border-gray-200 dark:border-gray-700 hover:border-indigo-300 hover:bg-indigo-50/30 dark:hover:bg-indigo-900/20' : 'opacity-70 pointer-events-none' }}
                         {{ !$submitted && ($this->userAnswers[$this->currentIndex] ?? null) === $option ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' : '' }}">
-                        <input type="radio" name="quiz-option" value="{{ $option }}"
+                        <input type="radio" name="quiz-option-{{ $this->currentIndex }}" value="{{ $option }}"
                             wire:model.live="userAnswers.{{ $this->currentIndex }}"
                             {{ $submitted ? 'disabled' : '' }}
                             class="mt-0.5 w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500">

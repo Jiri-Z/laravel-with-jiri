@@ -345,6 +345,36 @@ test('multiple choice initializes userAnswers as empty array', function () {
     }
 });
 
+test('radio inputs use a unique group name per question', function () {
+    TriviaQuestion::truncate();
+    TriviaQuestion::insert(triviaQuestion([
+        'topic' => 'routing',
+        'type' => 'single',
+        'question' => 'What does Route::get() do?',
+        'options' => json_encode(['Registers a GET route', 'Registers a POST route']),
+        'answer' => 'Registers a GET route',
+    ]));
+
+    $component = Livewire::actingAs($this->user)
+        ->test(TriviaQuiz::class)
+        ->set('selectedTopics', ['routing'])
+        ->call('start');
+
+    $component->assertSeeHtml('name="quiz-option-0"');
+    $component->assertDontSeeHtml('name="quiz-option"');
+});
+
+test('results screen does not display elapsed time', function () {
+    $component = Livewire::actingAs($this->user)
+        ->test(TriviaQuiz::class)
+        ->set('selectedTopics', ['routing'])
+        ->call('start');
+
+    $component->call('finish');
+
+    $component->assertDontSee(__('trivia.time'));
+});
+
 test('checkAnswer is public so blade template can call it', function () {
     $reflection = new ReflectionMethod(TriviaQuiz::class, 'checkAnswer');
 
