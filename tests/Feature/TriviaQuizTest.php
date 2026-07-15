@@ -120,6 +120,24 @@ test('can submit single answer and see feedback', function () {
         ->assertSet('submitted', true);
 });
 
+test('finish handles boolean answer values without crashing', function () {
+    $component = Livewire::actingAs($this->user)
+        ->test(TriviaQuiz::class)
+        ->set('selectedTopics', ['routing'])
+        ->call('start');
+
+    $component->set('userAnswers.0', true)
+        ->call('finish');
+
+    $component->assertSet('screen', 'results');
+    $component->assertSet('attemptId', fn ($id) => $id !== null);
+
+    $attempt = TriviaAttempt::find($component->get('attemptId'));
+
+    expect($attempt)->not->toBeNull();
+    expect($attempt->answers[0]['is_correct'])->toBeFalse();
+});
+
 test('can navigate through all questions and reach results', function () {
     $component = Livewire::actingAs($this->user)
         ->test(TriviaQuiz::class)

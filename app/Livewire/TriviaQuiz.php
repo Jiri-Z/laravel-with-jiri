@@ -163,7 +163,7 @@ class TriviaQuiz extends Component
         $answers = [];
 
         foreach ($this->questions as $index => $question) {
-            $userAnswer = $this->userAnswers[$index] ?? null;
+            $userAnswer = $this->normalizeUserAnswer($this->userAnswers[$index] ?? null);
             $isCorrect = $this->checkAnswer($question, $userAnswer);
 
             if ($isCorrect) {
@@ -225,6 +225,18 @@ class TriviaQuiz extends Component
         $type = $question['type'];
 
         return (new AnswerChecker)->check(is_string($type) ? $type : 'single', $userAnswer, $question);
+    }
+
+    /** @param string|array<int, string>|bool|null $answer
+     * @return string|array<int, string>|null */
+    private function normalizeUserAnswer(mixed $answer): string|array|null
+    {
+        return match (true) {
+            is_string($answer) => $answer,
+            is_array($answer) => array_values(array_filter($answer, is_string(...))),
+            is_int($answer) || is_float($answer) => (string) $answer,
+            default => null,
+        };
     }
 
     /** @param array<string, mixed> $question */

@@ -101,6 +101,18 @@ test('handles null answer for quiz single', function () {
     expect($result->isCorrect)->toBeFalse();
 });
 
+test('handles boolean answer payload without crashing', function () {
+    [$user, $course] = enrolledStepData();
+    $step = Step::factory()->quizSingle()->create([
+        'lesson_id' => Lesson::factory()->create(['course_id' => $course]),
+    ]);
+
+    $result = (new SubmitQuizAnswer)->handle($user, $step, true);
+
+    expect($result->isCorrect)->toBeFalse();
+    expect($result->answer)->toBe('');
+});
+
 test('handles empty answer for quiz text', function () {
     [$user, $course] = enrolledStepData();
     $step = Step::factory()->quizText()->create([

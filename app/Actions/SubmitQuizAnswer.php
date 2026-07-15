@@ -16,10 +16,12 @@ use Illuminate\Database\QueryException;
 class SubmitQuizAnswer
 {
     /**
-     * @param  array<int, mixed>|int|string|null  $answer
+     * @param  array<int, mixed>|int|string|bool|null  $answer
      */
-    public function handle(User $user, Step $step, int|string|array|null $answer, int $questionIndex = 0): SubmitQuizAnswerResult
+    public function handle(User $user, Step $step, int|string|array|bool|null $answer, int $questionIndex = 0): SubmitQuizAnswerResult
     {
+        $normalizedAnswer = $this->normalizeAnswer($answer);
+
         $lesson = $step->lesson;
         if ($lesson === null) {
             throw new OrphanedStepException;
@@ -45,8 +47,8 @@ class SubmitQuizAnswer
             $answerString = '';
         } else {
             $questionType = $this->resolveQuestionType($content);
-            $isCorrect = $this->checkAnswer($questionType, $content, $answer);
-            $answerString = $this->serializeAnswer($questionType, $answer);
+            $isCorrect = $this->checkAnswer($questionType, $content, $normalizedAnswer);
+            $answerString = $this->serializeAnswer($questionType, $normalizedAnswer);
         }
 
         try {
@@ -108,6 +110,18 @@ class SubmitQuizAnswer
     private function checkAnswer(string $questionType, array $content, int|string|array|null $answer): bool
     {
         return (new AnswerChecker)->check($questionType, $answer, $content);
+    }
+
+    /**
+     * @param  array<int, mixed>|int|string|bool|null  $answer
+     * @return array<int, mixed>|int|string|null
+     */
+    private function normalizeAnswer(int|string|array|bool|null $answer): int|string|array|null
+    {
+        return match (true) {
+            is_string($answer), is_int($answer), is_array($answer) => $answer,
+            default => null,
+        };
     }
 
     /**
