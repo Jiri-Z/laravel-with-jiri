@@ -127,6 +127,11 @@ class TriviaQuiz extends Component
         $this->currentIndex = 0;
         $this->submitted = false;
         $this->userAnswers = [];
+        foreach ($this->questions as $index => $question) {
+            if (is_array($question) && ($question['type'] ?? 'single') === 'multiple') {
+                $this->userAnswers[(int) $index] = [];
+            }
+        }
         $this->attemptId = null;
         $this->screen = 'quiz';
     }

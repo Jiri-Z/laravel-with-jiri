@@ -318,6 +318,21 @@ test('dashboard shows trivia card', function () {
         ->assertSee(__('dashboard.trivia_cta'));
 });
 
+test('multiple choice initializes userAnswers as empty array', function () {
+    $component = Livewire::actingAs($this->user)
+        ->test(TriviaQuiz::class)
+        ->set('selectedTopics', ['blade-templates'])
+        ->call('start');
+
+    $questions = $component->get('questions');
+
+    foreach ($questions as $index => $question) {
+        if ($question['type'] === 'multiple') {
+            $component->assertSet("userAnswers.{$index}", []);
+        }
+    }
+});
+
 test('checkAnswer is public so blade template can call it', function () {
     $reflection = new ReflectionMethod(TriviaQuiz::class, 'checkAnswer');
 
