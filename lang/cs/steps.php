@@ -23,4 +23,6 @@ return [
     'coding_error' => 'Při spouštění kódu došlo k neočekávané chybě.',
     'coding_error_prefix' => '[Chyba PHP]: ',
     'next_step' => 'Další krok',
+    'quiz_restart' => 'Restartovat kvíz',
+    'quiz_restarting' => 'Restartování...',
 ];

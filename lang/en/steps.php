@@ -23,4 +23,6 @@ return [
     'coding_error' => 'An unexpected error occurred while running your code.',
     'coding_error_prefix' => '[PHP Error]: ',
     'next_step' => 'Next Step',
+    'quiz_restart' => 'Restart Quiz',
+    'quiz_restarting' => 'Restarting...',
 ];

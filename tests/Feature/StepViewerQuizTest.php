@@ -390,6 +390,90 @@ class StepViewerQuizTest extends TestCase
             ->assertSet('isCorrect', false);
     }
 
+    public function test_user_can_restart_quiz_and_resubmit(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->quizSingle()->create(['lesson_id' => $lesson->id]);
+
+        Livewire::actingAs($user)
+            ->test(QuizViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
+            ->set('answers.0', 0)
+            ->call('submit')
+            ->assertSet('submitted', true)
+            ->assertSet('isCorrect', false)
+            ->call('restart')
+            ->assertSet('submitted', false)
+            ->assertSet('isCorrect', false)
+            ->assertSet('answers.0', null)
+            ->set('answers.0', 1)
+            ->call('submit')
+            ->assertSet('submitted', true)
+            ->assertSet('isCorrect', true);
+
+        $this->assertDatabaseCount('step_answers', 1);
+    }
+
+    public function test_restart_deletes_existing_answers(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->quizSingle()->create(['lesson_id' => $lesson->id]);
+
+        Livewire::actingAs($user)
+            ->test(QuizViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
+            ->set('answers.0', 0)
+            ->call('submit')
+            ->assertSet('submitted', true);
+
+        $this->assertDatabaseCount('step_answers', 1);
+
+        Livewire::actingAs($user)
+            ->test(QuizViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
+            ->call('restart')
+            ->assertSet('submitted', false);
+
+        $this->assertDatabaseCount('step_answers', 0);
+    }
+
+    public function test_restart_is_guarded_when_not_submitted(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->quizSingle()->create(['lesson_id' => $lesson->id]);
+
+        Livewire::actingAs($user)
+            ->test(QuizViewer::class, [
+                'course' => $course,
+                'lesson' => $lesson,
+                'step' => $step,
+            ])
+            ->call('restart')
+            ->assertSet('submitted', false)
+            ->assertSet('isCorrect', false);
+    }
+
     public function test_quiz_type_previously_submitted_shows_submitted(): void
     {
         $user = User::factory()->create();

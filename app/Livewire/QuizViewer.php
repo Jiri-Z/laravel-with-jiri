@@ -162,6 +162,41 @@ class QuizViewer extends Component
         $this->isCorrect = $score === $total;
     }
 
+    public function restart(): void
+    {
+        if (! $this->submitted) {
+            return;
+        }
+
+        $user = auth()->user();
+        if ($user === null) {
+            return;
+        }
+
+        StepAnswer::where('user_id', $user->id)
+            ->where('step_id', $this->step->id)
+            ->delete();
+
+        $this->submitted = false;
+        $this->isCorrect = false;
+        $this->answers = [];
+
+        $questions = $this->step->getContentAsArray();
+        if ($questions !== null) {
+            foreach ($questions as $qIndex => $question) {
+                if (! is_array($question)) {
+                    continue;
+                }
+
+                $type = is_string($question['type'] ?? null) ? $question['type'] : 'single';
+
+                if ($type === 'multiple') {
+                    $this->answers[(int) $qIndex] = [];
+                }
+            }
+        }
+    }
+
     public function render(): View
     {
         return view('livewire.quiz-viewer');
