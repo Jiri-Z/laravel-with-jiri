@@ -13,6 +13,7 @@ class LandingController extends Controller
     {
         $courses = Course::query()
             ->withCount('lessons')
+            ->forCurrentLocale()
             ->published()
             ->ordered()
             ->get();

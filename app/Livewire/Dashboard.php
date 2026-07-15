@@ -24,7 +24,7 @@ class Dashboard extends Component
             abort(403);
         }
 
-        $courses = Course::published()->ordered()->withCount(['lessons' => fn ($q) => $q->published()])
+        $courses = Course::forCurrentLocale()->published()->ordered()->withCount(['lessons' => fn ($q) => $q->published()])
             ->whereHas('enrollments', fn ($q) => $q->where('user_id', $user->id))
             ->with([
                 'lessons' => fn ($q) => $q->published()->ordered(),

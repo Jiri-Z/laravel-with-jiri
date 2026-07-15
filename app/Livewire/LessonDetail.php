@@ -29,7 +29,7 @@ class LessonDetail extends Component
 
     public function mount(Course $course, Lesson $lesson): void
     {
-        abort_unless($course->published, 404);
+        abort_unless($course->published && $course->locale === app()->getLocale(), 404);
         abort_unless($lesson->published && $lesson->course_id === $course->id, 404);
 
         $this->ensureEnrolled($course);

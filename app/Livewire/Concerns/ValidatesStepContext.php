@@ -12,7 +12,7 @@ trait ValidatesStepContext
 {
     protected function ensureContextIsValid(Course $course, Lesson $lesson, Step $step): void
     {
-        abort_unless($course->published, 404);
+        abort_unless($course->published && $course->locale === app()->getLocale(), 404);
         abort_unless($lesson->published && $lesson->course_id === $course->id, 404);
         abort_unless($step->lesson_id === $lesson->id, 404);
     }

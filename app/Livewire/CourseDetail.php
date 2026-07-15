@@ -28,7 +28,7 @@ class CourseDetail extends Component
         $user = auth()->user();
         abort_unless($user !== null, 403);
 
-        abort_unless($course->published, 404);
+        abort_unless($course->published && $course->locale === app()->getLocale(), 404);
 
         $this->ensureEnrolled($course);
 

@@ -20,6 +20,7 @@ class CourseFactory extends Factory
             'slug' => fake()->unique()->slug(3),
             'description' => __('factories.course_description'),
             'published' => false,
+            'locale' => app()->getLocale(),
             'order' => fake()->numberBetween(0, 100),
             'user_id' => User::factory()->instructor(),
         ];

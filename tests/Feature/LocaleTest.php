@@ -59,7 +59,7 @@ test('locale persists in session after switching', function () {
 
 test('page shows czech factory placeholder text when locale is cs', function () {
     $user = User::factory()->create(['locale' => 'cs']);
-    $course = Course::factory()->published()->create();
+    $course = Course::factory()->published()->create(['locale' => 'cs']);
     $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
 
     $lesson = $course->lessons()->create([

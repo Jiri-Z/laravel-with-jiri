@@ -149,12 +149,15 @@ class ImportCourseFromYaml
         $maxOrder = Course::max('order');
         $nextOrder = is_int($maxOrder) || is_float($maxOrder) ? (int) $maxOrder + 1 : 1;
 
+        $locale = is_string($user->locale) ? $user->locale : 'en';
+
         return Course::create([
             'title' => $courseData['title'],
             'slug' => $slug,
             'description' => $courseData['description'] ?? null,
             'published' => false,
             'order' => $nextOrder,
+            'locale' => $locale,
             'user_id' => $user->id,
         ]);
     }

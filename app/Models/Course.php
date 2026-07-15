@@ -15,11 +15,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
+ * @method static Builder<self> forCurrentLocale()
  * @method static Builder<self> published()
  * @method static Builder<self> ordered()
  * @method static Builder<self> ownedBy(User $user)
  */
-#[Fillable(['title', 'slug', 'description', 'published', 'order', 'user_id'])]
+#[Fillable(['title', 'slug', 'description', 'published', 'order', 'user_id', 'locale'])]
 class Course extends Model
 {
     /** @use HasFactory<CourseFactory> */
@@ -44,6 +45,14 @@ class Course extends Model
     public function enrollments(): HasMany
     {
         return $this->hasMany(CourseEnrollment::class);
+    }
+
+    /** @param Builder<self> $query
+     * @return Builder<self> */
+    #[Scope]
+    protected function forCurrentLocale(Builder $query): Builder
+    {
+        return $query->where('locale', app()->getLocale());
     }
 
     /** @param Builder<self> $query

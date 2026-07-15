@@ -70,6 +70,7 @@ class CourseSeeder extends Seeder
                     'description' => $courseData['description'],
                     'published' => true,
                     'order' => $order,
+                    'locale' => $locale,
                     'user_id' => $instructor->id,
                 ]
             );

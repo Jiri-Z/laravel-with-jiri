@@ -46,6 +46,7 @@ class CourseList extends Component
     {
         $courses = Course::query()
             ->withCount(['lessons' => fn ($q) => $q->published()])
+            ->forCurrentLocale()
             ->published()
             ->ordered()
             ->get();

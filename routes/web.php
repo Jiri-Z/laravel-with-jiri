@@ -32,6 +32,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('repl', Repl::class)->name('repl');
 
     Route::post('enroll/{course:slug}', function (Course $course) {
+        abort_unless($course->locale === app()->getLocale(), 404);
+
         $action = app(EnrollInCourse::class);
         $action->handle(auth()->user(), $course);
 

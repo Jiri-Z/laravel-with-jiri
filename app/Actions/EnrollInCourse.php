@@ -12,7 +12,7 @@ class EnrollInCourse
 {
     public function handle(User $user, Course $course): void
     {
-        abort_unless($course->published, 404);
+        abort_unless($course->published && $course->locale === app()->getLocale(), 404);
 
         CourseEnrollment::firstOrCreate([
             'user_id' => $user->id,
