@@ -29,8 +29,13 @@ class MarkStepComplete
 
         $course ??= $lesson->course;
 
-        abort_unless($step->published, 404);
-        abort_unless($course && $course->published, 404);
+        if (! $step->published) {
+            throw new StepNotAccessibleException;
+        }
+
+        if (! $course || ! $course->published) {
+            throw new NotEnrolledException;
+        }
 
         $enrolled = CourseEnrollment::where('user_id', $user->id)
             ->where('course_id', $course->id)
@@ -44,26 +49,26 @@ class MarkStepComplete
             throw new StepNotAccessibleException;
         }
 
-        $alreadyCompleted = StepCompletion::where('user_id', $user->id)
-            ->where('step_id', $step->id)
-            ->whereNotNull('completed_at')
-            ->exists();
-
-        if ($alreadyCompleted) {
-            return false;
-        }
-
         try {
-            DB::transaction(function () use ($user, $step, $lesson): void {
+            return DB::transaction(function () use ($user, $step, $lesson): bool {
+                $existing = StepCompletion::where('user_id', $user->id)
+                    ->where('step_id', $step->id)
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($existing !== null && $existing->completed_at !== null) {
+                    return false;
+                }
+
                 StepCompletion::updateOrCreate(
                     ['user_id' => $user->id, 'step_id' => $step->id],
                     ['completed_at' => now(), 'unlocked_at' => now()],
                 );
 
                 $this->unlockNextStep($user, $step, $lesson);
-            });
 
-            return true;
+                return true;
+            });
         } catch (QueryException $e) {
             if (! in_array((string) $e->getCode(), ['23000', '23505'], true)) {
                 throw $e;

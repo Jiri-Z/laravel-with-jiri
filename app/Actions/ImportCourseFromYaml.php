@@ -12,6 +12,7 @@ use App\Models\User;
 use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -25,6 +26,8 @@ class ImportCourseFromYaml
 
     public function handle(User $user, string $yamlContent): ImportCourseFromYamlResult
     {
+        Gate::forUser($user)->authorize('create', Course::class);
+
         if (strlen($yamlContent) > self::MAX_FILE_SIZE) {
             throw new RuntimeException('YAML content exceeds maximum allowed file size.');
         }
@@ -249,7 +252,11 @@ class ImportCourseFromYaml
             return $existingStep;
         }
 
-        $type = StepType::from($typeValue);
+        $type = StepType::tryFrom($typeValue);
+
+        if ($type === null) {
+            throw new RuntimeException("Unknown step type: {$typeValue}");
+        }
 
         $attributes = [
             'lesson_id' => $lesson->id,

@@ -6,6 +6,7 @@ namespace Tests\Unit\Actions;
 
 use App\Actions\SubmitQuizAnswer;
 use App\Enums\StepType;
+use App\Exceptions\StepNotAccessibleException;
 use App\Models\Course;
 use App\Models\CourseEnrollment;
 use App\Models\Lesson;
@@ -322,3 +323,14 @@ test('handles new format answer', function (array $data) {
 
     expect($result->isCorrect)->toBeTrue();
 })->with('quiz_answer_formats');
+
+test('blocks submission for locked step', function () {
+    [$user, $course] = enrolledStepData();
+    $lesson = Lesson::factory()->create(['course_id' => $course]);
+
+    Step::factory()->reading()->create(['lesson_id' => $lesson, 'order' => 1]);
+    $lockedStep = Step::factory()->quizSingle()->create(['lesson_id' => $lesson, 'order' => 2]);
+
+    expect(fn () => (new SubmitQuizAnswer)->handle($user, $lockedStep, 1))
+        ->toThrow(StepNotAccessibleException::class);
+});

@@ -9,6 +9,7 @@ use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Step;
 use App\Models\User;
+use Illuminate\Auth\Access\AuthorizationException;
 use Tests\TestCase;
 
 uses(TestCase::class);
@@ -241,4 +242,11 @@ test('course import command defaults to first admin when no user option', functi
     expect(Course::first()->user_id)->toBe($this->admin->id);
 
     unlink($path);
+});
+
+test('student cannot import course', function () {
+    $student = User::factory()->create(['role' => 'student']);
+
+    expect(fn () => (new ImportCourseFromYaml)->handle($student, $this->validYaml))
+        ->toThrow(AuthorizationException::class);
 });

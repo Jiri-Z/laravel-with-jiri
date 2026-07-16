@@ -71,6 +71,7 @@ return [
     'question_type' => 'Typ',
     'type_single' => 'Jedna volba',
     'type_multiple' => 'Více možností',
+    'type_text' => 'Textová odpověď',
     'difficulty' => 'Obtížnost',
     'difficulty_easy' => 'Lehká',
     'difficulty_medium' => 'Střední',

@@ -134,6 +134,25 @@ test('locale persists after logout', function () {
     expect(session('locale'))->toBe('cs');
 });
 
+test('locale switch route has throttle middleware', function () {
+    // The route itself should still work
+    $this->from('/')
+        ->post(route('locale.switch'), ['locale' => 'cs'])
+        ->assertRedirect('/');
+});
+
+test('locale switch is throttled after 30 requests', function () {
+    for ($i = 0; $i < 30; $i++) {
+        $this->from('/')
+            ->post(route('locale.switch'), ['locale' => 'cs'])
+            ->assertRedirect('/');
+    }
+
+    $this->from('/')
+        ->post(route('locale.switch'), ['locale' => 'cs'])
+        ->assertStatus(429);
+});
+
 test('invalid locale defaults to english', function () {
     $user = User::factory()->create(['locale' => 'en']);
 

@@ -105,10 +105,10 @@ class AdminStepForm extends Component
         if ($this->type === StepType::Quiz->value) {
             return $base + [
                 'questions' => 'required|array|min:1',
-                'questions.*.type' => 'required|in:single,multiple',
+                'questions.*.type' => 'required|in:single,multiple,text',
                 'questions.*.question' => 'required|string',
-                'questions.*.options' => 'required|array|min:2',
-                'questions.*.options.*' => 'required|string',
+                'questions.*.options' => 'required_if:questions.*.type,single,multiple|array|min:2',
+                'questions.*.options.*' => 'required_if:questions.*.type,single,multiple|string',
                 'questions.*.answer' => 'required',
             ];
         }
@@ -169,12 +169,15 @@ class AdminStepForm extends Component
 
     public function addOption(int $questionIndex): void
     {
+        if (! isset($this->questions[$questionIndex]['options'])) {
+            $this->questions[$questionIndex]['options'] = [];
+        }
         $this->questions[$questionIndex]['options'][] = '';
     }
 
     public function removeOption(int $questionIndex, int $optionIndex): void
     {
-        $options = $this->questions[$questionIndex]['options'];
+        $options = $this->questions[$questionIndex]['options'] ?? [];
         unset($options[$optionIndex]);
         $this->questions[$questionIndex]['options'] = array_values($options);
     }

@@ -10,6 +10,7 @@ use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Step;
 use App\Models\User;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\UploadedFile;
 use Livewire\Livewire;
 use RuntimeException;
@@ -281,4 +282,11 @@ test('instructor cannot import lessons into another instructors course', functio
     Livewire::actingAs($instructorB)
         ->test(AdminLessonImport::class, ['course' => $courseA])
         ->assertForbidden();
+});
+
+test('student cannot import lesson via action', function () {
+    $student = User::factory()->create(['role' => 'student']);
+
+    expect(fn () => (new ImportLessonFromYaml)->handle($student, $this->validYaml, $this->course))
+        ->toThrow(AuthorizationException::class);
 });

@@ -71,6 +71,7 @@ return [
     'question_type' => 'Type',
     'type_single' => 'Single Choice',
     'type_multiple' => 'Multiple Choice',
+    'type_text' => 'Text Answer',
     'difficulty' => 'Difficulty',
     'difficulty_easy' => 'Easy',
     'difficulty_medium' => 'Medium',

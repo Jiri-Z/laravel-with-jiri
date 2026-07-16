@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
+use App\Exceptions\CourseNotPublishedException;
 use App\Models\Course;
 use App\Models\CourseEnrollment;
 use App\Models\User;
@@ -12,7 +13,13 @@ class EnrollInCourse
 {
     public function handle(User $user, Course $course): void
     {
-        abort_unless($course->published && $course->locale === app()->getLocale(), 404);
+        if (! $course->published) {
+            throw new CourseNotPublishedException;
+        }
+
+        if ($course->locale !== app()->getLocale()) {
+            throw new CourseNotPublishedException;
+        }
 
         CourseEnrollment::firstOrCreate([
             'user_id' => $user->id,

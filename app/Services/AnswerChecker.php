@@ -38,6 +38,10 @@ class AnswerChecker
             return false;
         }
 
+        if (is_bool($userAnswer) || is_bool($correctAnswer)) {
+            return is_bool($userAnswer) && is_bool($correctAnswer) && $userAnswer === $correctAnswer;
+        }
+
         return $this->stringify($userAnswer) === $this->stringify($correctAnswer);
     }
 
@@ -48,8 +52,8 @@ class AnswerChecker
         }
 
         $correct = $this->resolveArray($correctAnswer);
-        $userSet = array_map(fn (mixed $v): string => $this->stringify($v), $userAnswer);
-        $correctSet = array_map(fn (mixed $v): string => $this->stringify($v), $correct);
+        $userSet = array_map($this->stringify(...), $userAnswer);
+        $correctSet = array_map($this->stringify(...), $correct);
         $userUnique = array_unique($userSet);
         $correctUnique = array_unique($correctSet);
 
@@ -75,13 +79,7 @@ class AnswerChecker
             return true;
         }
 
-        foreach ($alternatives as $alt) {
-            if (is_string($alt) && $normalized === $normalize($alt)) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any($alternatives, fn ($alt) => is_string($alt) && $normalized === $normalize($alt));
     }
 
     /**

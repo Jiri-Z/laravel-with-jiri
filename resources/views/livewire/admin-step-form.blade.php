@@ -59,7 +59,7 @@
                                 @error('questions') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
 
                                 @foreach ($questions as $qIndex => $question)
-                                    <div wire:key="question-{{ $qIndex }}" class="border border-gray-300 dark:border-gray-700 rounded-lg p-4" x-data="{ expanded: true }">
+                                    <div wire:key="question-{{ $qIndex }}" class="border border-gray-300 dark:border-gray-700 rounded-lg p-4" x-data="{ expanded: true, questionType: '{{ $question['type'] ?? 'single' }}' }" x-init="$watch('$wire.questions[{{ $qIndex }}].type', v => questionType = v)">
                                         <div class="flex items-center justify-between mb-3">
                                             <button type="button" x-on:click="expanded = !expanded" class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                                                 <span x-show="expanded">▼</span>
@@ -78,6 +78,7 @@
                                                     <select wire:model.live="questions.{{ $qIndex }}.type" class="mt-1 block w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white text-sm focus:border-indigo-500 focus:ring-indigo-500">
                                                         <option value="single">{{ __('admin.type_single') }}</option>
                                                         <option value="multiple">{{ __('admin.type_multiple') }}</option>
+                                                        <option value="text">{{ __('admin.type_text') }}</option>
                                                     </select>
                                                 </div>
                                                 <div>
@@ -100,7 +101,7 @@
                                                 @error("questions.{{ $qIndex }}.question") <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                                             </div>
 
-                                            <div>
+                                            <div x-show="questionType !== 'text'">
                                                 <div class="flex items-center justify-between mb-1">
                                                     <label class="block text-xs font-medium text-gray-700 dark:text-gray-300">{{ __('admin.options') }}</label>
                                                     <button type="button" wire:click="addOption({{ $qIndex }})" class="text-xs text-indigo-600 hover:text-indigo-800 dark:text-indigo-400">
@@ -108,11 +109,11 @@
                                                     </button>
                                                 </div>
                                                 <div class="space-y-2">
-                                                    @foreach ($question['options'] as $oIndex => $option)
+                                                    @foreach (($question['options'] ?? []) as $oIndex => $option)
                                                         <div class="flex items-center gap-2">
                                                             <span class="text-xs text-gray-500 dark:text-gray-400 w-5">{{ chr(65 + $oIndex) }}.</span>
                                                             <input wire:model.live="questions.{{ $qIndex }}.options.{{ $oIndex }}" type="text" class="flex-1 rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white text-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                                            @if (count($question['options']) > 2)
+                                                            @if (count($question['options'] ?? []) > 2)
                                                                 <button type="button" wire:click="removeOption({{ $qIndex }}, {{ $oIndex }})" class="text-xs text-red-600 hover:text-red-800 dark:text-red-400">&times;</button>
                                                             @endif
                                                         </div>
@@ -124,9 +125,11 @@
                                                 <label class="block text-xs font-medium text-gray-700 dark:text-gray-300">
                                                     {{ $question['type'] === 'multiple' ? __('admin.correct_answers') : __('admin.correct_answer') }}
                                                 </label>
-                                                @if ($question['type'] === 'multiple')
+                                                @if ($question['type'] === 'text')
+                                                    <input wire:model.live="questions.{{ $qIndex }}.answer" type="text" class="mt-1 block w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                                @elseif ($question['type'] === 'multiple')
                                                     <div class="mt-1 space-y-1">
-                                                        @foreach ($question['options'] as $oIndex => $option)
+                                                        @foreach (($question['options'] ?? []) as $oIndex => $option)
                                                             @php
                                                                 $answerArr = is_array($question['answer'] ?? null) ? $question['answer'] : [];
                                                             @endphp
@@ -151,7 +154,7 @@
                                                 @else
                                                     <select wire:model.live="questions.{{ $qIndex }}.answer" class="mt-1 block w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white text-sm focus:border-indigo-500 focus:ring-indigo-500">
                                                         <option value="">{{ __('admin.select_answer') }}</option>
-                                                        @foreach ($question['options'] as $oIndex => $option)
+                                                        @foreach (($question['options'] ?? []) as $oIndex => $option)
                                                             <option value="{{ $oIndex }}">{{ chr(65 + $oIndex) }}. {{ $option }}</option>
                                                         @endforeach
                                                     </select>

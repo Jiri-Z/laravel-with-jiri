@@ -69,7 +69,7 @@ Route::post('locale', function (SwitchLocale $switcher) {
     $switcher->handle($locale);
 
     return redirect()->back();
-})->name('locale.switch');
+})->middleware('throttle:30,1')->name('locale.switch');
 
 Route::view('terms', 'legal.terms')->name('terms');
 Route::view('privacy', 'legal.privacy')->name('privacy');

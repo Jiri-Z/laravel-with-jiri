@@ -10,7 +10,6 @@ use App\Models\Lesson;
 use App\Models\Step;
 use App\Models\StepCompletion;
 use App\Models\User;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tests\TestCase;
 
 class MarkStepCompleteTest extends TestCase
@@ -113,7 +112,20 @@ class MarkStepCompleteTest extends TestCase
         $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
         $step = Step::factory()->reading()->create(['lesson_id' => $lesson->id]);
 
-        $this->expectException(NotFoundHttpException::class);
+        $this->expectException(NotEnrolledException::class);
+
+        (new MarkStepComplete)->handle($user, $step);
+    }
+
+    public function test_blocks_unpublished_step(): void
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->published()->create();
+        $course->enrollments()->create(['user_id' => $user->id, 'enrolled_at' => now()]);
+        $lesson = Lesson::factory()->published()->create(['course_id' => $course->id]);
+        $step = Step::factory()->reading()->create(['lesson_id' => $lesson->id, 'published' => false]);
+
+        $this->expectException(StepNotAccessibleException::class);
 
         (new MarkStepComplete)->handle($user, $step);
     }

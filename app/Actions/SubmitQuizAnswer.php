@@ -6,12 +6,14 @@ namespace App\Actions;
 
 use App\Exceptions\NotEnrolledException;
 use App\Exceptions\OrphanedStepException;
+use App\Exceptions\StepNotAccessibleException;
 use App\Models\CourseEnrollment;
 use App\Models\Step;
 use App\Models\StepAnswer;
 use App\Models\User;
 use App\Services\AnswerChecker;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
 
 class SubmitQuizAnswer
 {
@@ -40,40 +42,46 @@ class SubmitQuizAnswer
             throw new NotEnrolledException;
         }
 
-        $content = $this->resolveContent($step, $questionIndex);
-
-        if ($content === null) {
-            $isCorrect = false;
-            $answerString = '';
-        } else {
-            $questionType = $this->resolveQuestionType($content);
-            $isCorrect = $this->checkAnswer($questionType, $content, $normalizedAnswer);
-            $answerString = $this->serializeAnswer($questionType, $normalizedAnswer);
+        if (! $step->isAccessibleBy($user)) {
+            throw new StepNotAccessibleException;
         }
 
-        try {
-            $stepAnswer = new StepAnswer;
-            $stepAnswer->user_id = $user->id;
-            $stepAnswer->step_id = $step->id;
-            $stepAnswer->question_index = $questionIndex;
-            $stepAnswer->answer = $answerString;
-            $stepAnswer->is_correct = $isCorrect;
-            $stepAnswer->created_at = now();
-            $stepAnswer->save();
-        } catch (QueryException $e) {
-            if (! in_array((string) $e->getCode(), ['23000', '23505'], true)) {
-                throw $e;
+        return DB::transaction(function () use ($user, $step, $questionIndex, $normalizedAnswer): SubmitQuizAnswerResult {
+            $content = $this->resolveContent($step, $questionIndex);
+
+            if ($content === null) {
+                $isCorrect = false;
+                $answerString = '';
+            } else {
+                $questionType = $this->resolveQuestionType($content);
+                $isCorrect = $this->checkAnswer($questionType, $content, $normalizedAnswer);
+                $answerString = $this->serializeAnswer($questionType, $normalizedAnswer);
             }
 
-            $existing = StepAnswer::where('user_id', $user->id)
-                ->where('step_id', $step->id)
-                ->where('question_index', $questionIndex)
-                ->firstOrFail();
+            try {
+                $stepAnswer = new StepAnswer;
+                $stepAnswer->user_id = $user->id;
+                $stepAnswer->step_id = $step->id;
+                $stepAnswer->question_index = $questionIndex;
+                $stepAnswer->answer = $answerString;
+                $stepAnswer->is_correct = $isCorrect;
+                $stepAnswer->created_at = now();
+                $stepAnswer->save();
+            } catch (QueryException $e) {
+                if (! in_array((string) $e->getCode(), ['23000', '23505'], true)) {
+                    throw $e;
+                }
 
-            return new SubmitQuizAnswerResult((bool) $existing->is_correct, $existing->answer);
-        }
+                $existing = StepAnswer::where('user_id', $user->id)
+                    ->where('step_id', $step->id)
+                    ->where('question_index', $questionIndex)
+                    ->firstOrFail();
 
-        return new SubmitQuizAnswerResult($isCorrect, $answerString);
+                return new SubmitQuizAnswerResult((bool) $existing->is_correct, $existing->answer);
+            }
+
+            return new SubmitQuizAnswerResult($isCorrect, $answerString);
+        });
     }
 
     /**

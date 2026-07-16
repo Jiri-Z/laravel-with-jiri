@@ -593,6 +593,38 @@ class AdminStepTest extends TestCase
         $this->assertEquals([0, 2], $savedQuestions[0]['answer']);
     }
 
+    public function test_instructor_can_create_quiz_step_with_text_question(): void
+    {
+        $user = User::factory()->create(['role' => 'instructor']);
+        $course = Course::factory()->create(['user_id' => $user->id]);
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+
+        $questions = [
+            [
+                'type' => 'text',
+                'question' => 'What is the capital of France?',
+                'answer' => 'Paris',
+                'explanation' => 'Paris is the capital',
+                'difficulty' => 'easy',
+                'topic' => 'geography',
+            ],
+        ];
+
+        Livewire::actingAs($user)
+            ->test(AdminStepForm::class, ['course' => $course, 'lesson' => $lesson])
+            ->set('title', 'Text Quiz Step')
+            ->set('type', StepType::Quiz->value)
+            ->set('questions', $questions)
+            ->call('save')
+            ->assertRedirect("/admin/courses/{$course->id}/lessons/{$lesson->id}/steps");
+
+        $step = Step::where('lesson_id', $lesson->id)->where('title', 'Text Quiz Step')->first();
+        $this->assertNotNull($step);
+        $savedQuestions = json_decode((string) $step->quiz_content, true);
+        $this->assertEquals('text', $savedQuestions[0]['type']);
+        $this->assertEquals('Paris', $savedQuestions[0]['answer']);
+    }
+
     public function test_instructor_cannot_edit_other_instructors_step(): void
     {
         $instructorA = User::factory()->create(['role' => 'instructor']);

@@ -167,4 +167,31 @@ class AnswerCheckerTest extends TestCase
     {
         expect($this->checker->check('text', '', ['answer' => 'Paris']))->toBeFalse();
     }
+
+    public function test_single_with_zero_index_correct_answer(): void
+    {
+        expect($this->checker->checkSingle(0, 0))->toBeTrue();
+        expect($this->checker->checkSingle('0', 0))->toBeTrue();
+        expect($this->checker->checkSingle(0, '0'))->toBeTrue();
+    }
+
+    public function test_single_with_false_input_returns_false(): void
+    {
+        expect($this->checker->checkSingle(false, 0))->toBeFalse();
+        expect($this->checker->checkSingle(0, false))->toBeFalse();
+    }
+
+    public function test_single_both_boolean_matches(): void
+    {
+        expect($this->checker->checkSingle(true, true))->toBeTrue();
+        expect($this->checker->checkSingle(false, false))->toBeTrue();
+        expect($this->checker->checkSingle(true, false))->toBeFalse();
+    }
+
+    public function test_check_delegates_single_with_zero_answer(): void
+    {
+        expect($this->checker->check('single', 0, ['answer' => 0]))->toBeTrue();
+        expect($this->checker->check('single', '0', ['answer' => 0]))->toBeTrue();
+        expect($this->checker->check('single', 0, ['answer' => '0']))->toBeTrue();
+    }
 }

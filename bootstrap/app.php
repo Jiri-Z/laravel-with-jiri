@@ -1,5 +1,6 @@
 <?php
 
+use App\Exceptions\CourseNotPublishedException;
 use App\Exceptions\NotEnrolledException;
 use App\Exceptions\StepNotAccessibleException;
 use App\Http\Middleware\SetLocale;
@@ -28,6 +29,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*'),
         );
+
+        $exceptions->render(function (CourseNotPublishedException $e) {
+            abort(404, $e->getMessage());
+        });
 
         $exceptions->render(function (NotEnrolledException $e) {
             abort(403, $e->getMessage());

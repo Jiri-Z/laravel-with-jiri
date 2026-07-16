@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Tests\Unit\Actions;
 
 use App\Actions\EnrollInCourse;
+use App\Exceptions\CourseNotPublishedException;
 use App\Models\Course;
 use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tests\TestCase;
 
 class EnrollInCourseTest extends TestCase
@@ -52,7 +52,7 @@ class EnrollInCourseTest extends TestCase
         $user = User::factory()->create();
         $course = Course::factory()->create(['published' => false]);
 
-        $this->expectException(NotFoundHttpException::class);
+        $this->expectException(CourseNotPublishedException::class);
 
         (new EnrollInCourse)->handle($user, $course);
     }
