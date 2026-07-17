@@ -12,7 +12,7 @@ class ResetPassword extends BaseResetPassword
     {
         $broker = config('auth.defaults.passwords');
         $broker = is_string($broker) ? $broker : 'users';
-        $expire = config('auth.passwords.' . $broker . '.expire');
+        $expire = config('auth.passwords.'.$broker.'.expire');
         $expireCount = is_int($expire) ? $expire : 60;
 
         return (new MailMessage)

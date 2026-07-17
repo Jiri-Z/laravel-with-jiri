@@ -72,7 +72,10 @@ class Step extends Model
             return $query;
         }
 
-        return $query->where(fn (Builder $q): Builder => $q->where('title', 'like', "%{$term}%"));
+        $escaped = str_replace(['%', '_'], ['\\%', '\\_'], $term);
+        $pattern = "%{$escaped}%";
+
+        return $query->where(fn (Builder $q): Builder => $q->whereRaw('title LIKE ? ESCAPE ?', [$pattern, '\\']));
     }
 
     public function isAccessibleBy(User $user): bool

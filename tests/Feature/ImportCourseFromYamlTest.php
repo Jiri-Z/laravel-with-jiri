@@ -244,6 +244,46 @@ test('course import command defaults to first admin when no user option', functi
     unlink($path);
 });
 
+test('action sanitizes unquoted event handlers in reading content', function () {
+    $action = app(ImportCourseFromYaml::class);
+
+    $xssYaml = <<<'YAML'
+course:
+  title: "XSS Unquoted"
+lessons:
+  - title: "Lesson"
+    steps:
+      - title: "XSS Step"
+        type: reading
+        content: "<img src=x onerror=alert(1)>Safe"
+YAML;
+
+    $result = $action->handle($this->admin, $xssYaml);
+    expect($result->lessons[0]->steps[0]->reading_content)
+        ->not->toContain('onerror')
+        ->not->toContain('alert');
+});
+
+test('action sanitizes SVG onload in reading content', function () {
+    $action = app(ImportCourseFromYaml::class);
+
+    $xssYaml = <<<'YAML'
+course:
+  title: "XSS SVG"
+lessons:
+  - title: "Lesson"
+    steps:
+      - title: "XSS Step"
+        type: reading
+        content: "<svg/onload=alert(1)>Safe"
+YAML;
+
+    $result = $action->handle($this->admin, $xssYaml);
+    expect($result->lessons[0]->steps[0]->reading_content)
+        ->not->toContain('onload')
+        ->not->toContain('alert');
+});
+
 test('student cannot import course', function () {
     $student = User::factory()->create(['role' => 'student']);
 

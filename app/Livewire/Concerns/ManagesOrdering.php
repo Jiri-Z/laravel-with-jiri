@@ -24,33 +24,36 @@ trait ManagesOrdering
     {
         $this->authorize('update', $item);
 
-        $itemOrder = $item->getRawOriginal('order');
         $modelClass = $item::class;
 
-        if ($itemOrder === null || (! is_int($itemOrder) && ! is_numeric($itemOrder))) {
-            return;
-        }
+        DB::transaction(function () use ($item, $parentFk, $modelClass): void {
+            $item->lockForUpdate()->firstOrFail();
 
-        $query = $modelClass::where('order', '<', $itemOrder);
-        if ($parentFk !== null) {
-            $query->where($parentFk, $item->getAttribute($parentFk));
-        }
-        $previous = $query->orderBy('order', 'desc')->first();
+            $itemOrder = $item->getRawOriginal('order');
 
-        if ($previous === null) {
-            return;
-        }
+            if ($itemOrder === null || (! is_int($itemOrder) && ! is_numeric($itemOrder))) {
+                return;
+            }
 
-        $previousOrder = $previous->getAttribute('order');
+            $query = $modelClass::where('order', '<', $itemOrder);
+            if ($parentFk !== null) {
+                $query->where($parentFk, $item->getAttribute($parentFk));
+            }
+            $previous = $query->orderBy('order', 'desc')->lockForUpdate()->first();
 
-        if (! is_int($previousOrder) && ! is_numeric($previousOrder)) {
-            return;
-        }
+            if ($previous === null) {
+                return;
+            }
 
-        $itemOrderValue = (int) $itemOrder;
-        $previousOrderValue = (int) $previousOrder;
+            $previousOrder = $previous->getAttribute('order');
 
-        DB::transaction(function () use ($item, $itemOrderValue, $previous, $previousOrderValue): void {
+            if (! is_int($previousOrder) && ! is_numeric($previousOrder)) {
+                return;
+            }
+
+            $itemOrderValue = (int) $itemOrder;
+            $previousOrderValue = (int) $previousOrder;
+
             $previous->update(['order' => -1]);
             $item->update(['order' => $previousOrderValue]);
             $previous->update(['order' => $itemOrderValue]);
@@ -61,33 +64,36 @@ trait ManagesOrdering
     {
         $this->authorize('update', $item);
 
-        $itemOrder = $item->getRawOriginal('order');
         $modelClass = $item::class;
 
-        if (! is_int($itemOrder) && ! is_numeric($itemOrder)) {
-            return;
-        }
+        DB::transaction(function () use ($item, $parentFk, $modelClass): void {
+            $item->lockForUpdate()->firstOrFail();
 
-        $query = $modelClass::where('order', '>', $itemOrder);
-        if ($parentFk !== null) {
-            $query->where($parentFk, $item->getAttribute($parentFk));
-        }
-        $next = $query->orderBy('order')->first();
+            $itemOrder = $item->getRawOriginal('order');
 
-        if ($next === null) {
-            return;
-        }
+            if (! is_int($itemOrder) && ! is_numeric($itemOrder)) {
+                return;
+            }
 
-        $nextOrder = $next->getAttribute('order');
+            $query = $modelClass::where('order', '>', $itemOrder);
+            if ($parentFk !== null) {
+                $query->where($parentFk, $item->getAttribute($parentFk));
+            }
+            $next = $query->orderBy('order')->lockForUpdate()->first();
 
-        if (! is_int($nextOrder) && ! is_numeric($nextOrder)) {
-            return;
-        }
+            if ($next === null) {
+                return;
+            }
 
-        $itemOrderValue = (int) $itemOrder;
-        $nextOrderValue = (int) $nextOrder;
+            $nextOrder = $next->getAttribute('order');
 
-        DB::transaction(function () use ($item, $itemOrderValue, $next, $nextOrderValue): void {
+            if (! is_int($nextOrder) && ! is_numeric($nextOrder)) {
+                return;
+            }
+
+            $itemOrderValue = (int) $itemOrder;
+            $nextOrderValue = (int) $nextOrder;
+
             $next->update(['order' => -1]);
             $item->update(['order' => $nextOrderValue]);
             $next->update(['order' => $itemOrderValue]);

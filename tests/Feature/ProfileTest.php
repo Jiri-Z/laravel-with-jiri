@@ -8,6 +8,15 @@ use Tests\TestCase;
 
 class ProfileTest extends TestCase
 {
+    public function test_unverified_user_is_redirected_to_verify_email(): void
+    {
+        $user = User::factory()->unverified()->create();
+
+        $response = $this->actingAs($user)->get('/profile');
+
+        $response->assertRedirect(route('verification.notice'));
+    }
+
     public function test_profile_page_is_displayed(): void
     {
         $user = User::factory()->create();

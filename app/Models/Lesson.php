@@ -84,8 +84,11 @@ class Lesson extends Model
             return $query;
         }
 
-        return $query->where(fn (Builder $q): Builder => $q->where('title', 'like', "%{$term}%")
-            ->orWhere('slug', 'like', "%{$term}%"));
+        $escaped = str_replace(['%', '_'], ['\\%', '\\_'], $term);
+        $pattern = "%{$escaped}%";
+
+        return $query->where(fn (Builder $q): Builder => $q->whereRaw('title LIKE ? ESCAPE ?', [$pattern, '\\'])
+            ->orWhereRaw('slug LIKE ? ESCAPE ?', [$pattern, '\\']));
     }
 
     #[Override]

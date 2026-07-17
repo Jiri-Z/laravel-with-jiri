@@ -12,11 +12,9 @@ class ImportCourseFromYamlResult
 {
     /**
      * @param  Collection<int, Lesson>  $lessons
-     * @param  array<int, string>  $errors
      */
     public function __construct(
         public readonly Course $course,
         public readonly Collection $lessons,
-        public readonly array $errors = [],
     ) {}
 }

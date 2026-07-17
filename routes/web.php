@@ -28,7 +28,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('courses/{course:slug}/lessons/{lesson:slug}', LessonDetail::class)->name('lessons.show');
     Route::get('courses/{course:slug}/lessons/{lesson:slug}/steps/{step}', StepViewer::class)->name('steps.show');
 
-    Route::get('quiz', TriviaQuiz::class)->name('quiz');
+    Route::get('quiz', TriviaQuiz::class)->name('quiz')->middleware('throttle:60,1');
     Route::get('repl', Repl::class)->name('repl');
 
     Route::post('enroll/{course:slug}', function (Course $course) {
@@ -61,7 +61,7 @@ Route::get('dashboard', Dashboard::class)
     ->name('dashboard');
 
 Route::view('profile', 'profile')
-    ->middleware(['auth'])
+    ->middleware(['auth', 'verified'])
     ->name('profile');
 
 Route::post('locale', function (SwitchLocale $switcher) {

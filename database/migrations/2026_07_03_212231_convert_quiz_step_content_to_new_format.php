@@ -10,17 +10,16 @@ return new class extends Migration
         $steps = DB::table('steps')->where('type', 'quiz')->get();
 
         foreach ($steps as $step) {
-            $content = json_decode($step->content, true);
+            $content = json_decode((string) $step->content, true);
 
             if ($content === null || ! is_array($content)) {
                 continue;
             }
 
             $converted = array_map(function (array $question): array {
-                $question['answer'] = $question['answer']
-                    ?? $question['correct_answer']
-                    ?? $question['correct_answers']
-                    ?? null;
+                $question['answer'] ??= $question['correct_answer']
+                ?? $question['correct_answers']
+                ?? null;
 
                 unset($question['correct_answer'], $question['correct_answers']);
 
@@ -46,7 +45,7 @@ return new class extends Migration
         $steps = DB::table('steps')->where('type', 'quiz')->get();
 
         foreach ($steps as $step) {
-            $content = json_decode($step->content, true);
+            $content = json_decode((string) $step->content, true);
 
             if ($content === null || ! is_array($content)) {
                 continue;

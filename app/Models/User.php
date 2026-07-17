@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\Role;
 use App\Notifications\ResetPassword;
 use App\Notifications\VerifyEmail;
 use Database\Factories\UserFactory;
@@ -75,17 +76,17 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
 
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->role === Role::Admin;
     }
 
     public function isInstructor(): bool
     {
-        return $this->role === 'instructor';
+        return $this->role === Role::Instructor;
     }
 
     public function isStudent(): bool
     {
-        return $this->role === 'student';
+        return $this->role === Role::Student;
     }
 
     public function isStaff(): bool
@@ -104,6 +105,7 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'role' => Role::class,
         ];
     }
 }

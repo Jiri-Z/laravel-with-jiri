@@ -13,7 +13,7 @@
             <div class="space-y-4">
                 @forelse ($lesson->steps as $step)
                     @php $locked = $stepLocked[$step->id] ?? false; @endphp
-                    <a href="{{ $locked ? '#' : route('steps.show', [$course->slug, $lesson->slug, $step->id]) }}" @if(!$locked) wire:navigate @endif class="group block bg-white dark:bg-gray-750 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 {{ $locked ? 'opacity-60 cursor-not-allowed' : 'hover:shadow-md hover:-translate-y-1' }} transition-all duration-300">
+                    <a href="{{ $locked ? '#' : route('steps.show', [$course->slug, $lesson->slug, $step->id]) }}" @if (!$locked) wire:navigate @endif class="group block bg-white dark:bg-gray-750 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 {{ $locked ? 'opacity-60 cursor-not-allowed' : 'hover:shadow-md hover:-translate-y-1' }} transition-all duration-300">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-4">
                                 @if ($locked)

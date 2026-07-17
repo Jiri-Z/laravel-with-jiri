@@ -64,11 +64,11 @@ class LangFileStructureTest extends TestCase
 
             $this->assertEmpty(
                 $missing,
-                "Czech {$file} missing keys: " . implode(', ', $missing)
+                "Czech {$file} missing keys: ".implode(', ', $missing)
             );
             $this->assertEmpty(
                 $extra,
-                "Czech {$file} has extra keys: " . implode(', ', $extra)
+                "Czech {$file} has extra keys: ".implode(', ', $extra)
             );
         }
     }

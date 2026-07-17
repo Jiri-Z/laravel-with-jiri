@@ -8,6 +8,7 @@ use App\Models\Course;
 use App\Models\Step;
 use App\Models\StepCompletion;
 use App\Services\ProgressService;
+use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Layout;
@@ -16,22 +17,9 @@ use Livewire\Component;
 #[Layout('layouts.app')]
 class Dashboard extends Component
 {
-    public function mount(): void
-    {
-        $user = auth()->user();
-
-        if ($user === null) {
-            abort(403);
-        }
-    }
-
     public function render(ProgressService $progress): View
     {
-        $user = auth()->user();
-
-        if ($user === null) {
-            abort(403);
-        }
+        $user = User::findOrFail(auth()->id());
 
         $courses = Course::forCurrentLocale()->published()->ordered()->withCount(['lessons' => fn ($q) => $q->published()])
             ->whereHas('enrollments', fn ($q) => $q->where('user_id', $user->id))

@@ -12,6 +12,8 @@ class LogQuizAttempt implements ShouldQueue
 {
     use Queueable;
 
+    public int $tries = 3;
+
     /**
      * @param  array<int, int|string|array<int, int|string>|null>  $answers
      */
@@ -33,5 +35,10 @@ class LogQuizAttempt implements ShouldQueue
             'answers' => $this->answers,
             'attempted_at' => now(),
         ]);
+    }
+
+    public function failed(\Throwable $exception): void
+    {
+        report($exception);
     }
 }

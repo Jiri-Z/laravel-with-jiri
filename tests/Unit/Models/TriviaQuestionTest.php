@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\QuestionType;
 use App\Models\TriviaQuestion;
 
 test('trivia question has fillable attributes', function () {
@@ -15,7 +16,7 @@ test('trivia question has fillable attributes', function () {
 
     expect($question)
         ->topic->toBe('eloquent')
-        ->type->toBe('single')
+        ->type->toBe(QuestionType::Single)
         ->difficulty->toBe('hard')
         ->question->toBe('What is Eloquent?')
         ->answer->toBe('ORM')
@@ -42,11 +43,11 @@ test('trivia question casts alternatives as array', function () {
 test('trivia question multiple factory state', function () {
     $question = TriviaQuestion::factory()->multiple()->create();
 
-    expect($question)->type->toBe('multiple');
+    expect($question)->type->toBe(QuestionType::Multiple);
 });
 
 test('trivia question text factory state', function () {
     $question = TriviaQuestion::factory()->text()->create();
 
-    expect($question)->type->toBe('text');
+    expect($question)->type->toBe(QuestionType::Text);
 });

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\QuestionType;
 use Database\Factories\TriviaQuestionFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -31,6 +32,7 @@ class TriviaQuestion extends Model
         return [
             'options' => 'array',
             'alternatives' => 'array',
+            'type' => QuestionType::class,
         ];
     }
 }

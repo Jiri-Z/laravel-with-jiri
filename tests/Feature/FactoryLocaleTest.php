@@ -74,4 +74,3 @@ test('step factory quiz text state uses czech question when locale is cs', funct
     $content = json_decode((string) $step->quiz_content, true);
     expect($content[0]['question'])->not->toStartWith('CS:');
 });
-

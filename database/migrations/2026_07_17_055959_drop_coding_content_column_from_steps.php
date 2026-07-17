@@ -9,14 +9,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('steps', function (Blueprint $table) {
-            $table->boolean('published')->default(true);
+            $table->dropColumn('coding_content');
         });
     }
 
     public function down(): void
     {
         Schema::table('steps', function (Blueprint $table) {
-            $table->dropColumn('published');
+            $table->text('coding_content')->nullable();
         });
     }
 };

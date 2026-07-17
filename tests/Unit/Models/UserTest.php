@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Role;
 use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Step;
@@ -10,13 +11,13 @@ use App\Models\User;
 test('user has default student role', function () {
     $user = User::factory()->create();
 
-    expect($user->role)->toBe('student');
+    expect($user->role)->toBe(Role::Student);
 });
 
 test('user can be an admin', function () {
     $user = User::factory()->create(['role' => 'admin']);
 
-    expect($user->role)->toBe('admin')
+    expect($user->role)->toBe(Role::Admin)
         ->and($user->isAdmin())->toBeTrue()
         ->and($user->isInstructor())->toBeFalse()
         ->and($user->isStudent())->toBeFalse();
@@ -25,7 +26,7 @@ test('user can be an admin', function () {
 test('user can be an instructor', function () {
     $user = User::factory()->create(['role' => 'instructor']);
 
-    expect($user->role)->toBe('instructor')
+    expect($user->role)->toBe(Role::Instructor)
         ->and($user->isInstructor())->toBeTrue()
         ->and($user->isAdmin())->toBeFalse()
         ->and($user->isStudent())->toBeFalse();
@@ -34,7 +35,7 @@ test('user can be an instructor', function () {
 test('user can be a student', function () {
     $user = User::factory()->create(['role' => 'student']);
 
-    expect($user->role)->toBe('student')
+    expect($user->role)->toBe(Role::Student)
         ->and($user->isStudent())->toBeTrue()
         ->and($user->isAdmin())->toBeFalse()
         ->and($user->isInstructor())->toBeFalse();
@@ -64,13 +65,9 @@ test('isStaff returns true for admin and instructor, false for student', functio
         ->and($student->isStaff())->toBeFalse();
 });
 
-test('unknown role returns false for all role checks', function () {
-    $user = User::factory()->create(['role' => 'superadmin']);
-
-    expect($user->isAdmin())->toBeFalse()
-        ->and($user->isInstructor())->toBeFalse()
-        ->and($user->isStudent())->toBeFalse();
-});
+test('invalid role is rejected by enum cast', function () {
+    User::factory()->create(['role' => 'superadmin']);
+})->throws(ValueError::class);
 
 test('instructor owns their own course', function () {
     $instructor = User::factory()->instructor()->create();
