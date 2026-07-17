@@ -9,7 +9,9 @@ use App\Models\Course;
 use App\Models\Lesson;
 use App\Models\Step;
 use App\Models\User;
+use App\Services\SanitizeHtmlService;
 use Exception;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -27,6 +29,10 @@ class ImportLessonFromYaml
     public function handle(User $user, string $yamlContent, Course $course): ImportLessonFromYamlResult
     {
         Gate::forUser($user)->authorize('create', Lesson::class);
+
+        if ($user->isInstructor() && $course->user_id !== $user->id) {
+            throw new AuthorizationException('You can only import lessons into your own courses.');
+        }
 
         if (strlen($yamlContent) > self::MAX_FILE_SIZE) {
             throw new RuntimeException('YAML content exceeds maximum allowed file size.');
@@ -259,14 +265,6 @@ class ImportLessonFromYaml
 
     private function sanitizeContent(string $content): string
     {
-        $content = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $content);
-        $content = preg_replace('/<iframe\b[^>]*>(.*?)<\/iframe>/is', '', (string) $content);
-        $content = preg_replace('/<object\b[^>]*>(.*?)<\/object>/is', '', (string) $content);
-        $content = preg_replace('/<embed\b[^>]*>/i', '', (string) $content);
-        $content = preg_replace('/javascript\s*:/i', '', is_string($content) ? $content : '');
-        $content = preg_replace('/\bon\w+\s*=\s*"[^"]*"/i', '', is_string($content) ? $content : '');
-        $content = preg_replace("/\bon\w+\s*=\s*'[^']*'/i", '', is_string($content) ? $content : '');
-
-        return trim(is_string($content) ? $content : '');
+        return app(SanitizeHtmlService::class)->clean($content);
     }
 }

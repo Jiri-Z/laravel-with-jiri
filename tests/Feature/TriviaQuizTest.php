@@ -398,3 +398,41 @@ test('checkAnswer is public so blade template can call it', function () {
 
     expect($reflection->isPublic())->toBeTrue();
 });
+
+test('start does not expose correct answers in questions state', function () {
+    $component = Livewire::actingAs($this->user)
+        ->test(TriviaQuiz::class)
+        ->set('selectedTopics', ['routing'])
+        ->call('start');
+
+    $questions = $component->get('questions');
+
+    foreach ($questions as $question) {
+        expect($question)->not->toHaveKey('answer');
+    }
+});
+
+test('finish scores correctly using server-side answers', function () {
+    $component = Livewire::actingAs($this->user)
+        ->test(TriviaQuiz::class)
+        ->set('selectedTopics', ['routing'])
+        ->call('start');
+
+    $questions = $component->get('questions');
+
+    // Find the single-choice question and answer correctly
+    foreach ($questions as $index => $question) {
+        if ($question['type'] === 'single') {
+            $component->set("userAnswers.{$index}", 'Registers a GET route');
+            break;
+        }
+    }
+
+    $component->call('finish');
+
+    $attempt = TriviaAttempt::find($component->get('attemptId'));
+    expect($attempt)->not->toBeNull();
+
+    $correctAnswers = collect($attempt->answers)->where('is_correct', true);
+    expect($correctAnswers->count())->toBeGreaterThanOrEqual(1);
+});

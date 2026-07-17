@@ -29,10 +29,15 @@ class LessonDetail extends Component
 
     public function mount(Course $course, Lesson $lesson): void
     {
+        $user = auth()->user();
+        abort_unless($user !== null, 403);
+
         abort_unless($course->published && $course->locale === app()->getLocale(), 404);
         abort_unless($lesson->published && $lesson->course_id === $course->id, 404);
 
-        $this->ensureEnrolled($course);
+        if (! $this->ensureEnrolled($course)) {
+            return;
+        }
 
         $lesson->load(['steps' => fn ($q) => $q->ordered()->where('published', true)]);
 
@@ -41,7 +46,7 @@ class LessonDetail extends Component
 
         $stepIds = $lesson->steps->pluck('id');
 
-        $completions = StepCompletion::where('user_id', auth()->id())
+        $completions = StepCompletion::where('user_id', $user->id)
             ->whereIn('step_id', $stepIds)
             ->get(['step_id', 'completed_at', 'unlocked_at']);
 

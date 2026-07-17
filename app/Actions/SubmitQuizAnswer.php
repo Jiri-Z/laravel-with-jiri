@@ -75,7 +75,11 @@ class SubmitQuizAnswer
                 $existing = StepAnswer::where('user_id', $user->id)
                     ->where('step_id', $step->id)
                     ->where('question_index', $questionIndex)
-                    ->firstOrFail();
+                    ->first();
+
+                if ($existing === null) {
+                    return new SubmitQuizAnswerResult(false, '');
+                }
 
                 return new SubmitQuizAnswerResult((bool) $existing->is_correct, $existing->answer);
             }

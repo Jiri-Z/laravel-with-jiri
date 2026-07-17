@@ -43,7 +43,9 @@ class QuizViewer extends Component
         abort_unless($step->getContentAsArray() !== null, 404);
         abort_unless($step->isAccessibleBy($user), 404);
 
-        $this->ensureEnrolled($course);
+        if (! $this->ensureEnrolled($course)) {
+            return;
+        }
         $this->ensureContextIsValid($course, $lesson, $step);
 
         $this->course = $course;

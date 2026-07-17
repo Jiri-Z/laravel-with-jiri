@@ -9,7 +9,7 @@ use App\Models\CourseEnrollment;
 
 trait EnsuresEnrollment
 {
-    protected function ensureEnrolled(Course $course): void
+    protected function ensureEnrolled(Course $course): bool
     {
         $enrolled = CourseEnrollment::where('user_id', auth()->id())
             ->where('course_id', $course->id)
@@ -17,6 +17,10 @@ trait EnsuresEnrollment
 
         if (! $enrolled) {
             $this->redirect(route('courses.index'), navigate: true);
+
+            return false;
         }
+
+        return true;
     }
 }

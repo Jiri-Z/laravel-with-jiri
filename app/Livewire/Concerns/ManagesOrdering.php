@@ -24,7 +24,7 @@ trait ManagesOrdering
     {
         $this->authorize('update', $item);
 
-        $itemOrder = $item->getAttribute('order');
+        $itemOrder = $item->getRawOriginal('order');
         $modelClass = $item::class;
 
         if ($itemOrder === null || (! is_int($itemOrder) && ! is_numeric($itemOrder))) {

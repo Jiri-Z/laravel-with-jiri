@@ -16,6 +16,15 @@ use Livewire\Component;
 #[Layout('layouts.app')]
 class Dashboard extends Component
 {
+    public function mount(): void
+    {
+        $user = auth()->user();
+
+        if ($user === null) {
+            abort(403);
+        }
+    }
+
     public function render(ProgressService $progress): View
     {
         $user = auth()->user();

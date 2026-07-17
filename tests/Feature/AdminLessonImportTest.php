@@ -290,3 +290,12 @@ test('student cannot import lesson via action', function () {
     expect(fn () => (new ImportLessonFromYaml)->handle($student, $this->validYaml, $this->course))
         ->toThrow(AuthorizationException::class);
 });
+
+test('instructor cannot import lesson into another instructors course via action', function () {
+    $instructorA = User::factory()->create(['role' => 'instructor']);
+    $courseA = Course::factory()->create(['user_id' => $instructorA->id]);
+    $instructorB = User::factory()->create(['role' => 'instructor']);
+
+    expect(fn () => (new ImportLessonFromYaml)->handle($instructorB, $this->validYaml, $courseA))
+        ->toThrow(AuthorizationException::class);
+});

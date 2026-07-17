@@ -110,6 +110,9 @@ class AdminStepForm extends Component
                 'questions.*.options' => 'required_if:questions.*.type,single,multiple|array|min:2',
                 'questions.*.options.*' => 'required_if:questions.*.type,single,multiple|string',
                 'questions.*.answer' => 'required',
+                'questions.*.explanation' => 'nullable|string',
+                'questions.*.difficulty' => 'nullable|in:easy,medium,hard',
+                'questions.*.topic' => 'nullable|string|max:255',
             ];
         }
 

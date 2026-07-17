@@ -641,4 +641,52 @@ class AdminStepTest extends TestCase
             ->get("/admin/courses/{$courseB->id}/lessons/{$lessonB->id}/steps/{$stepB->id}/edit")
             ->assertForbidden();
     }
+
+    public function test_quiz_requires_explanation_to_be_string(): void
+    {
+        $user = User::factory()->create(['role' => 'instructor']);
+        $course = Course::factory()->create(['user_id' => $user->id]);
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+
+        Livewire::actingAs($user)
+            ->test(AdminStepForm::class, ['course' => $course, 'lesson' => $lesson])
+            ->set('type', StepType::Quiz->value)
+            ->set('questions', [
+                ['type' => 'single', 'question' => 'Q?', 'options' => ['A', 'B'], 'answer' => 0, 'explanation' => 123, 'difficulty' => 'easy', 'topic' => 'gen'],
+            ])
+            ->call('save')
+            ->assertHasErrors('questions.0.explanation');
+    }
+
+    public function test_quiz_requires_valid_difficulty(): void
+    {
+        $user = User::factory()->create(['role' => 'instructor']);
+        $course = Course::factory()->create(['user_id' => $user->id]);
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+
+        Livewire::actingAs($user)
+            ->test(AdminStepForm::class, ['course' => $course, 'lesson' => $lesson])
+            ->set('type', StepType::Quiz->value)
+            ->set('questions', [
+                ['type' => 'single', 'question' => 'Q?', 'options' => ['A', 'B'], 'answer' => 0, 'explanation' => 'Why', 'difficulty' => 'impossible', 'topic' => 'gen'],
+            ])
+            ->call('save')
+            ->assertHasErrors('questions.0.difficulty');
+    }
+
+    public function test_quiz_requires_topic_to_be_string(): void
+    {
+        $user = User::factory()->create(['role' => 'instructor']);
+        $course = Course::factory()->create(['user_id' => $user->id]);
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+
+        Livewire::actingAs($user)
+            ->test(AdminStepForm::class, ['course' => $course, 'lesson' => $lesson])
+            ->set('type', StepType::Quiz->value)
+            ->set('questions', [
+                ['type' => 'single', 'question' => 'Q?', 'options' => ['A', 'B'], 'answer' => 0, 'explanation' => 'Why', 'difficulty' => 'easy', 'topic' => 123],
+            ])
+            ->call('save')
+            ->assertHasErrors('questions.0.topic');
+    }
 }

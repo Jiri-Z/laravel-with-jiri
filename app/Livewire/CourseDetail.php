@@ -30,7 +30,9 @@ class CourseDetail extends Component
 
         abort_unless($course->published && $course->locale === app()->getLocale(), 404);
 
-        $this->ensureEnrolled($course);
+        if (! $this->ensureEnrolled($course)) {
+            return;
+        }
 
         $course->load(['lessons' => fn ($q) => $q->published()->ordered()]);
 
